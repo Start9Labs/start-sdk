@@ -11,7 +11,7 @@ import { ExpectedExports, Effects, Config, SetResult, DependsOn } from "../types
 export const setConfig: ExpectedExports.setConfig = async (
     effects: Effects,
     newConfig: Config,
-    depends_on: DependsOn = {}
+    dependsOn: DependsOn = {}
 ) => {
     await effects.createDir({
         path: "start9",
@@ -25,7 +25,7 @@ export const setConfig: ExpectedExports.setConfig = async (
 
     const result: SetResult = {
         signal: "SIGTERM",
-        "depends-on": {},
+        "depends-on": dependsOn,
     };
-    return { result, depends_on };
+    return { result, };
 };
