@@ -8,7 +8,7 @@ import { ExpectedExports, Effects, Config, SetResult, DependsOn } from "../types
  * @param depends_on This would be the depends on for condition depends_on
  * @returns 
  */
-export const setConfig: ExpectedExports.setConfig = async (
+export const setConfig = async (
     effects: Effects,
     newConfig: Config,
     dependsOn: DependsOn = {}
@@ -29,3 +29,5 @@ export const setConfig: ExpectedExports.setConfig = async (
     };
     return { result, };
 };
+
+const _typeConversionCheck: ExpectedExports.setConfig = setConfig
