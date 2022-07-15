@@ -72,6 +72,9 @@ export function rangeOf(range: string | Checker): Checker {
 }
 
 export function rangeAnd(...ranges: (string | Checker)[]): Checker {
+    if (ranges.length === 0) {
+        throw new Error('No ranges given');
+    }
     let [firstCheck, ...rest] = ranges.map(rangeOf);
     for (const checker of rest) {
         firstCheck = firstCheck.and(checker);
@@ -80,6 +83,9 @@ export function rangeAnd(...ranges: (string | Checker)[]): Checker {
 }
 
 export function rangeOr(...ranges: (string | Checker)[]): Checker {
+    if (ranges.length === 0) {
+        throw new Error('No ranges given');
+    }
     let [firstCheck, ...rest] = ranges.map(rangeOf);
     for (const checker of rest) {
         firstCheck = firstCheck.or(checker);

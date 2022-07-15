@@ -158,3 +158,12 @@ const { test } = Deno;
         expect(checker.check("1.2.1")).toBe(false);
     })
 }
+
+{
+    test(`no and ranges`, () => {
+        expect(() => rangeAnd()).toThrow()
+    })
+    test(`no or ranges`, () => {
+        expect(() => rangeOr()).toThrow()
+    })
+}
