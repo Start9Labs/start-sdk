@@ -234,7 +234,7 @@ export type ValueSpecAny =
     >
   >
   | Tag<"list", ValueSpecList>
-  | Tag<"object", WithDescription<WithDefault<ValueSpecObject, Config>>>
+  | Tag<"object", WithDescription<WithNullableDefault<ValueSpecObject, Config>>>
   | Tag<"union", WithDescription<WithDefault<ValueSpecUnion, string>>>
   | Tag<
     "pointer",
