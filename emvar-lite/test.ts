@@ -1,6 +1,6 @@
 
 import { expect } from "https://deno.land/x/expect@v0.2.9/mod.ts";
-import { rangeAnd, rangeOf, rangeOr } from "./mod.ts";
+import { notRange, rangeAnd, rangeOf, rangeOr } from "./mod.ts";
 const { test } = Deno;
 
 
@@ -136,5 +136,25 @@ const { test } = Deno;
 
 
         expect(checker.check("2")).toBe(false);
+    })
+}
+
+
+{
+    const checker = notRange(rangeOf('1.2.*'));
+    test(`!rangeOf(1.2.*) valid`, () => {
+        expect(checker.check("1.3")).toBe(true);
+        expect(checker.check("1.3.1")).toBe(true);
+
+        expect(checker.check("1.1.1")).toBe(true);
+        expect(checker.check("1.1")).toBe(true);
+        expect(checker.check("1")).toBe(true);
+
+
+        expect(checker.check("2")).toBe(true);
+    })
+    test(`!rangeOf(1.2.*) invalid `, () => {
+        expect(checker.check("1.2")).toBe(false);
+        expect(checker.check("1.2.1")).toBe(false);
     })
 }

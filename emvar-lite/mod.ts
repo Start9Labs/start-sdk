@@ -87,6 +87,10 @@ export function rangeOr(...ranges: (string | Checker)[]): Checker {
     return firstCheck;
 }
 
+export function notRange(range: string | Checker): Checker {
+    return rangeOf(range).not();
+}
+
 
 export class EmVar {
     static from(range: string | EmVar): EmVar {
@@ -147,5 +151,8 @@ export class Checker {
     }
     public or(other: Checker): Checker {
         return new Checker((value) => this.check(value) || other.check(value));
+    }
+    public not(): Checker {
+        return new Checker((value) => !this.check(value));
     }
 }
