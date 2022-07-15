@@ -227,3 +227,14 @@ test(">1 && =1.2 || =2", () => {
     expect(checker.check("3")).toBe(false);
 
 })
+
+test("&& before || order of operationns:  <1.5 && >1 || >1.5 && <3", () => {
+    const checker = rangeOf("<1.5 && >1 || >1.5 && <3");
+    expect(checker.check("1.1")).toBe(true);
+    expect(checker.check("2")).toBe(true);
+
+    expect(checker.check("1.5")).toBe(false);
+    expect(checker.check("1")).toBe(false);
+    expect(checker.check("3")).toBe(false);
+
+})

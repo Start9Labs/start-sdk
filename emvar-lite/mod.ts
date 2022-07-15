@@ -143,11 +143,11 @@ export class Checker {
             return range
         }
         range = range.trim();
-        if (range.indexOf('&&') !== -1) {
-            return rangeAnd(...range.split('&&').map(x => Checker.parse(x)));
-        }
         if (range.indexOf('||') !== -1) {
             return rangeOr(...range.split('||').map(x => Checker.parse(x)));
+        }
+        if (range.indexOf('&&') !== -1) {
+            return rangeAnd(...range.split('&&').map(x => Checker.parse(x)));
         }
         if (range === '*') return new Checker((version) => {
             EmVar.from(version)
