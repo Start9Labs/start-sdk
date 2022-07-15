@@ -200,3 +200,30 @@ const { test } = Deno;
         expect(checker.check("1")).toBe(true);
     })
 }
+
+test(">1 && =1.2", () => {
+    const checker = rangeOf(">1 && =1.2");
+
+    expect(checker.check("1.2")).toBe(true);
+    expect(checker.check("1.2.1")).toBe(false);
+
+})
+test("=1 || =2", () => {
+    const checker = rangeOf("=1 || =2");
+
+    expect(checker.check("1")).toBe(true);
+    expect(checker.check("2")).toBe(true);
+    expect(checker.check("3")).toBe(false);
+
+})
+
+
+test(">1 && =1.2 || =2", () => {
+    const checker = rangeOf(">1 && =1.2 || =2");
+
+    expect(checker.check("1.2")).toBe(true);
+    expect(checker.check("1")).toBe(false);
+    expect(checker.check("2")).toBe(true);
+    expect(checker.check("3")).toBe(false);
+
+})
