@@ -6,6 +6,12 @@ function incrementLastNumber(list: number[]) {
     newList[newList.length - 1]++
     return newList
 }
+/**
+ * Will take in a range, like `>1.2` or `<1.2.3.4` or `=1.2` or `1.*`
+ * and return a checker, that has the check function for checking that a version is in the valid
+ * @param range 
+ * @returns 
+ */
 export function rangeOf(range: string | Checker): Checker {
     if (range instanceof Checker) {
         return range
@@ -30,14 +36,14 @@ export function rangeOf(range: string | Checker): Checker {
             const emVar = EmVar.parse(range.substring(2));
             return new Checker((version) => {
                 const v = EmVar.from(version);
-                return v.greaterThan(emVar) || v.equals(emVar);
+                return v.greaterThanOrEqual(emVar)
             })
         }
         case '<=': {
             const emVar = EmVar.parse(range.substring(2));
             return new Checker((version) => {
                 const v = EmVar.from(version);
-                return !v.greaterThan(emVar);
+                return v.lessThanOrEqual(emVar);
             })
         }
 
@@ -56,7 +62,7 @@ export function rangeOf(range: string | Checker): Checker {
             const emVar = EmVar.parse(range.substring(1));
             return new Checker((version) => {
                 const v = EmVar.from(version);
-                return !v.greaterThan(emVar) && !v.equals(emVar);
+                return v.lessThan(emVar)
             })
         }
         case '=': {
@@ -71,6 +77,11 @@ export function rangeOf(range: string | Checker): Checker {
     throw new Error("Couldn't parse range: " + range);
 }
 
+/**
+ * Used to create a checker that will `and` all the ranges passed in
+ * @param ranges
+ * @returns 
+ */
 export function rangeAnd(...ranges: (string | Checker)[]): Checker {
     if (ranges.length === 0) {
         throw new Error('No ranges given');
@@ -82,6 +93,11 @@ export function rangeAnd(...ranges: (string | Checker)[]): Checker {
     return firstCheck;
 }
 
+/**
+ * Used to create a checker that will `or` all the ranges passed in
+ * @param ranges
+ * @returns 
+ */
 export function rangeOr(...ranges: (string | Checker)[]): Checker {
     if (ranges.length === 0) {
         throw new Error('No ranges given');
@@ -93,18 +109,35 @@ export function rangeOr(...ranges: (string | Checker)[]): Checker {
     return firstCheck;
 }
 
+/**
+ * This will negate the checker, so given a checker that checks for >= 1.0.0, it will check for < 1.0.0
+ * @param range 
+ * @returns 
+ */
 export function notRange(range: string | Checker): Checker {
     return rangeOf(range).not();
 }
 
 
+/**
+ * EmVar is a set of versioning of any pattern like 1 or 1.2 or 1.2.3 or 1.2.3.4 or ..
+ */
 export class EmVar {
+    /**
+     * Convert the range, should be 1.2.* or * into a emvar
+     * Or an already made emvar
+     * IsUnsafe
+     */
     static from(range: string | EmVar): EmVar {
         if (range instanceof EmVar) {
             return range
         }
         return EmVar.parse(range)
     }
+    /**
+     * Convert the range, should be 1.2.* or * into a emvar
+     * IsUnsafe
+     */
     static parse(range: string): EmVar {
         const values = range.split('.').map(x => parseInt(x));
         for (const value of values) {
@@ -116,6 +149,9 @@ export class EmVar {
     }
     private constructor(public readonly values: number[]) { }
 
+    /**
+     * Used when we need a new emvar that has the last number incremented, used in the 1.* like things
+     */
     public withLastIncremented() {
         return new EmVar(incrementLastNumber(this.values))
     }
@@ -147,10 +183,29 @@ export class EmVar {
         }
         return true;
     }
+    public greaterThanOrEqual(other: EmVar): boolean {
+        return this.greaterThan(other) || this.equals(other);
+    }
+    public lessThanOrEqual(other: EmVar): boolean {
+        return !this.greaterThan(other);
+    }
+    public lessThan(other: EmVar): boolean {
+        return !this.greaterThanOrEqual(other);
+    }
 }
 
+/**
+ * A checker is a function that takes a version and returns true if the version matches the checker.
+ * Used when we are doing range checking, like saying ">=1.0.0".check("1.2.3") will be true
+ */
 export class Checker {
-    constructor(public readonly check: (value: string | EmVar) => boolean) { }
+    constructor(
+        /**
+         * Check is the function that will be given a emvar or unparsed emvar and should give if it follows
+         * a pattern
+         */
+        public readonly check: (value: string | EmVar) => boolean
+    ) { }
 
     public and(other: Checker): Checker {
         return new Checker((value) => this.check(value) && other.check(value));
