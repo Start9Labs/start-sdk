@@ -75,12 +75,12 @@ export type Effects = {
 
   fetch(url: string, options?: {
     method?:
-      | "GET"
-      | "POST"
-      | "PUT"
-      | "DELETE"
-      | "HEAD"
-      | "PATCH";
+    | "GET"
+    | "POST"
+    | "PUT"
+    | "DELETE"
+    | "HEAD"
+    | "PATCH";
     headers?: Record<string, string>;
     body?: string;
   }): Promise<{
@@ -137,7 +137,7 @@ export type ConfigSpec = {
   [configValue: string]: ValueSpecAny;
 };
 export type WithDefault<T, Default> = T & {
-  default?: Default;
+  default: Default;
 };
 
 export type WithDescription<T> = T & {
@@ -334,39 +334,39 @@ export type ValueSpecEnum = {
 export type SetResult = {
   /** These are the unix process signals */
   signal:
-    | "SIGTERM"
-    | "SIGHUP"
-    | "SIGINT"
-    | "SIGQUIT"
-    | "SIGILL"
-    | "SIGTRAP"
-    | "SIGABRT"
-    | "SIGBUS"
-    | "SIGFPE"
-    | "SIGKILL"
-    | "SIGUSR1"
-    | "SIGSEGV"
-    | "SIGUSR2"
-    | "SIGPIPE"
-    | "SIGALRM"
-    | "SIGSTKFLT"
-    | "SIGCHLD"
-    | "SIGCONT"
-    | "SIGSTOP"
-    | "SIGTSTP"
-    | "SIGTTIN"
-    | "SIGTTOU"
-    | "SIGURG"
-    | "SIGXCPU"
-    | "SIGXFSZ"
-    | "SIGVTALRM"
-    | "SIGPROF"
-    | "SIGWINCH"
-    | "SIGIO"
-    | "SIGPWR"
-    | "SIGSYS"
-    | "SIGEMT"
-    | "SIGINFO";
+  | "SIGTERM"
+  | "SIGHUP"
+  | "SIGINT"
+  | "SIGQUIT"
+  | "SIGILL"
+  | "SIGTRAP"
+  | "SIGABRT"
+  | "SIGBUS"
+  | "SIGFPE"
+  | "SIGKILL"
+  | "SIGUSR1"
+  | "SIGSEGV"
+  | "SIGUSR2"
+  | "SIGPIPE"
+  | "SIGALRM"
+  | "SIGSTKFLT"
+  | "SIGCHLD"
+  | "SIGCONT"
+  | "SIGSTOP"
+  | "SIGTSTP"
+  | "SIGTTIN"
+  | "SIGTTOU"
+  | "SIGURG"
+  | "SIGXCPU"
+  | "SIGXFSZ"
+  | "SIGVTALRM"
+  | "SIGPROF"
+  | "SIGWINCH"
+  | "SIGIO"
+  | "SIGPWR"
+  | "SIGSYS"
+  | "SIGEMT"
+  | "SIGINFO";
   "depends-on": DependsOn;
 };
 
