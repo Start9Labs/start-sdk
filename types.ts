@@ -139,6 +139,10 @@ export type ConfigSpec = {
 export type WithDefault<T, Default> = T & {
   default: Default;
 };
+export type WithNullableDefault<T, Default> = T & {
+  default?: Default;
+};
+
 
 export type WithDescription<T> = T & {
   description?: string;
@@ -209,11 +213,11 @@ export type ValueSpecAny =
   | Tag<"boolean", WithDescription<WithDefault<ValueSpecBoolean, boolean>>>
   | Tag<
     "string",
-    WithDescription<WithDefault<WithNullable<ValueSpecString>, DefaultString>>
+    WithDescription<WithNullableDefault<WithNullable<ValueSpecString>, DefaultString>>
   >
   | Tag<
     "number",
-    WithDescription<WithDefault<WithNullable<ValueSpecNumber>, number>>
+    WithDescription<WithNullableDefault<WithNullable<ValueSpecNumber>, number>>
   >
   | Tag<
     "enum",
