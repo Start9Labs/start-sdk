@@ -142,7 +142,7 @@ const { test } = Deno;
 
 {
     const checker = notRange(rangeOf('1.2.*'));
-    test(`!rangeOf(1.2.*) valid`, () => {
+    test(`notRange(rangeOf(1.2.*)) valid`, () => {
         expect(checker.check("1.3")).toBe(true);
         expect(checker.check("1.3.1")).toBe(true);
 
@@ -153,7 +153,26 @@ const { test } = Deno;
 
         expect(checker.check("2")).toBe(true);
     })
-    test(`!rangeOf(1.2.*) invalid `, () => {
+    test(`notRange(rangeOf(1.2.*)) invalid `, () => {
+        expect(checker.check("1.2")).toBe(false);
+        expect(checker.check("1.2.1")).toBe(false);
+    })
+}
+
+{
+    const checker = rangeOf('!1.2.*');
+    test(`!(rangeOf(1.2.*)) valid`, () => {
+        expect(checker.check("1.3")).toBe(true);
+        expect(checker.check("1.3.1")).toBe(true);
+
+        expect(checker.check("1.1.1")).toBe(true);
+        expect(checker.check("1.1")).toBe(true);
+        expect(checker.check("1")).toBe(true);
+
+
+        expect(checker.check("2")).toBe(true);
+    })
+    test(`!(rangeOf(1.2.*)) invalid `, () => {
         expect(checker.check("1.2")).toBe(false);
         expect(checker.check("1.2.1")).toBe(false);
     })
@@ -165,5 +184,19 @@ const { test } = Deno;
     })
     test(`no or ranges`, () => {
         expect(() => rangeOr()).toThrow()
+    })
+}
+{
+    const checker = rangeOf("!>1.2.3.4");
+    test(`rangeOf("!>1.2.3.4") invalid`, () => {
+        expect(checker.check("2")).toBe(false);
+        expect(checker.check("1.2.3.5")).toBe(false);
+        expect(checker.check("1.2.3.4.1")).toBe(false);
+    })
+
+    test(`rangeOf("!>1.2.3.4") valid`, () => {
+        expect(checker.check("1.2.3.4")).toBe(true);
+        expect(checker.check("1.2.3")).toBe(true);
+        expect(checker.check("1")).toBe(true);
     })
 }

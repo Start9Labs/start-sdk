@@ -146,6 +146,9 @@ export class Checker {
             EmVar.from(version)
             return true
         });
+        if (range.startsWith('!')) {
+            return Checker.parse(range.substring(1)).not()
+        }
         const starSubMatches = starSub.exec(range)
         if (starSubMatches != null) {
             const emVarLower = EmVar.parse(starSubMatches[1])
