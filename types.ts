@@ -24,6 +24,7 @@ export namespace ExpectedExports {
   export type migration = (
     effects: Effects,
     version: string,
+    options?: any,
   ) => Promise<ResultType<MigrationRes>>;
   export type action = {
     [id: string]: (
