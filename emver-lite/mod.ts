@@ -1,3 +1,5 @@
+import { matches } from "../dependencies.ts";
+
 const starSub = /((\d+\.)*\d+)\.\*/;
 
 function incrementLastNumber(list: number[]) {
@@ -123,14 +125,21 @@ export class EmVer {
   public lessThan(other: EmVer): boolean {
     return !this.greaterThanOrEqual(other);
   }
-  public compare(other: EmVer): number {
+  public compare(other: EmVer) {
     if (this.equals(other)) {
-      return 0;
+      return "equal" as const;
     } else if (this.greaterThan(other)) {
-      return 1;
+      return "greater" as const;
     } else {
-      return -1;
+      return "less" as const;
     }
+  }
+  public compareForSort(other: EmVer) {
+    return matches.matches(this.compare(other))
+      .when("equal", () => 0 as const)
+      .when("greater", () => 1 as const)
+      .when("less", () => -1 as const)
+      .unwrap();
   }
 }
 

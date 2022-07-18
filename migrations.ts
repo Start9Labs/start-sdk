@@ -1,5 +1,6 @@
 import { types as T } from "./mod.ts";
 import { EmVer } from "./emver-lite/mod.ts";
+import { matches } from "./dependencies.ts";
 
 export type MigrationFn = (effects: T.Effects) => Promise<T.MigrationRes>;
 
@@ -16,43 +17,41 @@ export function fromMapping(
   migrations: MigrationMapping,
   currentVersion: string,
 ): T.ExpectedExports.migration {
-  return async (effects: T.Effects, version: string) => {
+  const directionShape = matches.literals("from", "to");
+  return async (
+    effects: T.Effects,
+    version: string,
+    direction?: unknown,
+  ) => {
+    if (!directionShape.test(direction)) {
+      return { error: 'Must specify arg "from" or "to".' };
+    }
+
     let configured = true;
 
     const current = EmVer.parse(currentVersion);
-    const previous = EmVer.parse(version);
+    const other = EmVer.parse(version);
 
-    let migrationsToRun: MigrationFn[];
-    switch (previous.compare(current)) {
-      case 0:
-        migrationsToRun = [];
-        break;
-      case 1: // ups
-        migrationsToRun = Object.entries(migrations).map(
-          ([version, migration]) => ({
+    const migrationsToRun = matches.matches(direction)
+      .when("from", () =>
+        Object.entries(migrations)
+          .map(([version, migration]) => ({
             version: EmVer.parse(version),
             migration,
-          }),
-        ).filter(({ version }) => version.greaterThan(previous)).sort((a, b) =>
-          a.version.compare(b.version)
-        ).map(({ migration }) => migration.up);
-        break;
-      case -1: // downs
-        migrationsToRun = Object.entries(migrations).map(
-          ([version, migration]) => ({
+          })).filter(({ version }) =>
+            version.greaterThan(other) && version.lessThanOrEqual(current)
+          ).sort((a, b) => a.version.compareForSort(b.version))
+          .map(({ migration }) => migration.up))
+      .when("to", () =>
+        Object.entries(migrations)
+          .map(([version, migration]) => ({
             version: EmVer.parse(version),
             migration,
-          }),
-        ).filter(({ version }) => version.lessThanOrEqual(previous)).sort((
-          a,
-          b,
-        ) => b.version.compare(a.version)).map(({ migration }) =>
-          migration.down
-        );
-        break;
-      default:
-        return { error: "unreachable" };
-    }
+          })).filter(({ version }) =>
+            version.lessThanOrEqual(other) && version.greaterThan(current)
+          ).sort((a, b) => b.version.compareForSort(a.version))
+          .map(({ migration }) => migration.down))
+      .unwrap();
 
     for (const migration of migrationsToRun) {
       configured = (await migration(effects)).configured && configured;
