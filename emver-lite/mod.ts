@@ -125,6 +125,12 @@ export class EmVer {
   public lessThan(other: EmVer): boolean {
     return !this.greaterThanOrEqual(other);
   }
+  /**
+   * Return a enum string that describes (used for switching/iffs)
+   * to know comparison
+   * @param other
+   * @returns
+   */
   public compare(other: EmVer) {
     if (this.equals(other)) {
       return "equal" as const;
@@ -134,6 +140,11 @@ export class EmVer {
       return "less" as const;
     }
   }
+  /**
+   * Used when sorting emver's in a list using the sort method
+   * @param other
+   * @returns
+   */
   public compareForSort(other: EmVer) {
     return matches.matches(this.compare(other))
       .when("equal", () => 0 as const)
@@ -237,6 +248,9 @@ export class Checker {
     public readonly check: (value: string | EmVer) => boolean,
   ) {}
 
+  /**
+   * Used when we want the `and` condition with another checker
+   */
   public and(...others: (Checker | string)[]): Checker {
     return new Checker((value) => {
       if (!this.check(value)) {
@@ -250,6 +264,10 @@ export class Checker {
       return true;
     });
   }
+
+  /**
+   * Used when we want the `or` condition with another checker
+   */
   public or(...others: (Checker | string)[]): Checker {
     return new Checker((value) => {
       if (this.check(value)) {
@@ -263,6 +281,11 @@ export class Checker {
       return false;
     });
   }
+
+  /**
+   * A useful example is making sure we don't match an exact version, like !=1.2.3
+   * @returns
+   */
   public not(): Checker {
     return new Checker((value) => !this.check(value));
   }

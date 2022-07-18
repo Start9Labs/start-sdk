@@ -1,5 +1,5 @@
 import { YAML } from "../dependencies.ts";
-import { exists } from "../util.ts";
+import { exists } from "../exists.ts";
 import { Effects, ExpectedExports, Properties, ResultType } from "../types.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -21,6 +21,8 @@ const noPropertiesFound: ResultType<Properties> = {
 } as const;
 /**
  * Default will pull from a file (start9/stats.yaml) expected to be made on the main volume
+ * Assumption: start9/stats.yaml is created by some process
+ * Throws: stats.yaml isn't yaml
  * @param effects
  * @returns
  */
