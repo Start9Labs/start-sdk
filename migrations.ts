@@ -4,7 +4,15 @@ import { matches } from "./dependencies.ts";
 
 export type MigrationFn<version extends string, type extends "up" | "down"> = (
   effects: T.Effects,
-) => Promise<T.MigrationRes>;
+) => Promise<T.MigrationRes> & { _type: type; _version: version };
+
+export function migrationFn<version extends string, type extends "up" | "down">(
+  fn: (
+    effects: T.Effects,
+  ) => Promise<T.MigrationRes>,
+): MigrationFn<version, type> {
+  return fn as MigrationFn<version, type>;
+}
 
 export interface Migration<version extends string> {
   up: MigrationFn<version, "up">;
@@ -34,17 +42,16 @@ export function fromMapping<versions extends string>(
     const current = EmVer.parse(currentVersion);
     const other = EmVer.parse(version);
 
-    const filteredMigrations =
-      (Object.entries(migrations) as [
-        keyof MigrationMapping<string>,
-        Migration<string>,
-      ][])
-        .map(([version, migration]) => ({
-          version: EmVer.parse(version),
-          migration,
-        })).filter(({ version }) =>
-          version.greaterThan(other) && version.lessThanOrEqual(current)
-        );
+    const filteredMigrations = (Object.entries(migrations) as [
+      keyof MigrationMapping<string>,
+      Migration<string>,
+    ][])
+      .map(([version, migration]) => ({
+        version: EmVer.parse(version),
+        migration,
+      })).filter(({ version }) =>
+        version.greaterThan(other) && version.lessThanOrEqual(current)
+      );
 
     const migrationsToRun = matches.matches(direction)
       .when("from", () =>

@@ -25,7 +25,7 @@ export function updateConfig<
   noRepeat?: NoRepeat<version, type>,
   noFail = false,
 ): M.MigrationFn<version, type> {
-  return async (effects: T.Effects) => {
+  return M.migrationFn(async (effects: T.Effects) => {
     await noRepeatGuard(effects, noRepeat, async () => {
       let config = util.unwrapResultType(await getConfig({})(effects)).config;
       if (config) {
@@ -42,7 +42,7 @@ export function updateConfig<
       }
     });
     return { configured };
-  };
+  });
 }
 
 export async function noRepeatGuard<
