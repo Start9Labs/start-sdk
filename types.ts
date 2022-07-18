@@ -24,6 +24,7 @@ export namespace ExpectedExports {
   export type migration = (
     effects: Effects,
     version: string,
+    ...args: unknown[]
   ) => Promise<ResultType<MigrationRes>>;
   export type action = {
     [id: string]: (
@@ -75,12 +76,12 @@ export type Effects = {
 
   fetch(url: string, options?: {
     method?:
-    | "GET"
-    | "POST"
-    | "PUT"
-    | "DELETE"
-    | "HEAD"
-    | "PATCH";
+      | "GET"
+      | "POST"
+      | "PUT"
+      | "DELETE"
+      | "HEAD"
+      | "PATCH";
     headers?: Record<string, string>;
     body?: string;
   }): Promise<{
@@ -142,7 +143,6 @@ export type WithDefault<T, Default> = T & {
 export type WithNullableDefault<T, Default> = T & {
   default?: Default;
 };
-
 
 export type WithDescription<T> = T & {
   description?: string;
@@ -213,7 +213,9 @@ export type ValueSpecAny =
   | Tag<"boolean", WithDescription<WithDefault<ValueSpecBoolean, boolean>>>
   | Tag<
     "string",
-    WithDescription<WithNullableDefault<WithNullable<ValueSpecString>, DefaultString>>
+    WithDescription<
+      WithNullableDefault<WithNullable<ValueSpecString>, DefaultString>
+    >
   >
   | Tag<
     "number",
@@ -338,39 +340,39 @@ export type ValueSpecEnum = {
 export type SetResult = {
   /** These are the unix process signals */
   signal:
-  | "SIGTERM"
-  | "SIGHUP"
-  | "SIGINT"
-  | "SIGQUIT"
-  | "SIGILL"
-  | "SIGTRAP"
-  | "SIGABRT"
-  | "SIGBUS"
-  | "SIGFPE"
-  | "SIGKILL"
-  | "SIGUSR1"
-  | "SIGSEGV"
-  | "SIGUSR2"
-  | "SIGPIPE"
-  | "SIGALRM"
-  | "SIGSTKFLT"
-  | "SIGCHLD"
-  | "SIGCONT"
-  | "SIGSTOP"
-  | "SIGTSTP"
-  | "SIGTTIN"
-  | "SIGTTOU"
-  | "SIGURG"
-  | "SIGXCPU"
-  | "SIGXFSZ"
-  | "SIGVTALRM"
-  | "SIGPROF"
-  | "SIGWINCH"
-  | "SIGIO"
-  | "SIGPWR"
-  | "SIGSYS"
-  | "SIGEMT"
-  | "SIGINFO";
+    | "SIGTERM"
+    | "SIGHUP"
+    | "SIGINT"
+    | "SIGQUIT"
+    | "SIGILL"
+    | "SIGTRAP"
+    | "SIGABRT"
+    | "SIGBUS"
+    | "SIGFPE"
+    | "SIGKILL"
+    | "SIGUSR1"
+    | "SIGSEGV"
+    | "SIGUSR2"
+    | "SIGPIPE"
+    | "SIGALRM"
+    | "SIGSTKFLT"
+    | "SIGCHLD"
+    | "SIGCONT"
+    | "SIGSTOP"
+    | "SIGTSTP"
+    | "SIGTTIN"
+    | "SIGTTOU"
+    | "SIGURG"
+    | "SIGXCPU"
+    | "SIGXFSZ"
+    | "SIGVTALRM"
+    | "SIGPROF"
+    | "SIGWINCH"
+    | "SIGIO"
+    | "SIGPWR"
+    | "SIGSYS"
+    | "SIGEMT"
+    | "SIGINFO";
   "depends-on": DependsOn;
 };
 
