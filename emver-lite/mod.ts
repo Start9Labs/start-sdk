@@ -248,6 +248,9 @@ export class Checker {
     public readonly check: (value: string | EmVer) => boolean,
   ) {}
 
+  /**
+   * Used when we want the `and` condition with another checker
+   */
   public and(...others: (Checker | string)[]): Checker {
     return new Checker((value) => {
       if (!this.check(value)) {
@@ -262,6 +265,9 @@ export class Checker {
     });
   }
 
+  /**
+   * Used when we want the `or` condition with another checker
+   */
   public or(...others: (Checker | string)[]): Checker {
     return new Checker((value) => {
       if (this.check(value)) {
