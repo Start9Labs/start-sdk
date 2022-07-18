@@ -1,5 +1,5 @@
 import { YAML } from "../dependencies.ts";
-import { exists } from "../exists.ts";
+import { exists } from "../util.ts";
 import { Effects, ExpectedExports, Properties, ResultType } from "../types.ts";
 
 // deno-lint-ignore no-explicit-any
