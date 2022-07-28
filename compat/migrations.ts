@@ -20,7 +20,7 @@ export function updateConfig<
   version extends string,
   type extends "up" | "down",
 >(
-  fn: (config: T.Config) => T.Config,
+  fn: (config: T.Config, effects: T.Effects) => T.Config,
   configured: boolean,
   noRepeat?: NoRepeat<version, type>,
   noFail = false,
@@ -30,7 +30,7 @@ export function updateConfig<
       let config = util.unwrapResultType(await getConfig({})(effects)).config;
       if (config) {
         try {
-          config = fn(config);
+          config = fn(config, effects);
         } catch (e) {
           if (!noFail) {
             throw e;

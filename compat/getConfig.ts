@@ -11,7 +11,7 @@ const matchConfig = dictionary([string, any]);
  * Call with the configuration to get a standard getConfig for the expected exports
  * Assumption: start9/config.yaml is where the config will be stored
  * Throws: Error if there is no file
- * Throws: Error if the config.yaml isn't yaml nor config shape 
+ * Throws: Error if the config.yaml isn't yaml nor config shape
  * @param spec
  * @returns
  */
@@ -28,6 +28,7 @@ export const getConfig = (spec: ConfigSpec): ExpectedExports.getConfig =>
         effects.info(`Got error ${e} while trying to read the config`);
         return undefined;
       });
+
     return {
       result: {
         config,
