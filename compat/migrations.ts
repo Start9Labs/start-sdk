@@ -19,18 +19,18 @@ export interface NoRepeat<version extends string, type extends "up" | "down"> {
 export function updateConfig<
   version extends string,
   type extends "up" | "down",
->(
-  fn: (config: T.Config, effects: T.Effects) => T.Config,
-  configured: boolean,
-  noRepeat?: NoRepeat<version, type>,
-  noFail = false,
+  >(
+    fn: (config: T.Config, effects: T.Effects) => T.Config | Promise<T.Config>,
+    configured: boolean,
+    noRepeat?: NoRepeat<version, type>,
+    noFail = false,
 ): M.MigrationFn<version, type> {
   return M.migrationFn(async (effects: T.Effects) => {
     await noRepeatGuard(effects, noRepeat, async () => {
       let config = util.unwrapResultType(await getConfig({})(effects)).config;
       if (config) {
         try {
-          config = fn(config, effects);
+          config = await fn(config, effects);
         } catch (e) {
           if (!noFail) {
             throw e;
@@ -48,10 +48,10 @@ export function updateConfig<
 export async function noRepeatGuard<
   version extends string,
   type extends "up" | "down",
->(
-  effects: T.Effects,
-  noRepeat: NoRepeat<version, type> | undefined,
-  fn: () => Promise<void>,
+  >(
+    effects: T.Effects,
+    noRepeat: NoRepeat<version, type> | undefined,
+    fn: () => Promise<void>,
 ): Promise<void> {
   if (!noRepeat) {
     return fn();
