@@ -1,4 +1,5 @@
-import { Effects, ExpectedExports, ResultType } from "./types.ts";
+import { Effects, ResultType } from "./types.ts";
+import { error, errorCode, ok } from "./util.ts";
 
 export const checkWebUrl: (
   url: string,
@@ -19,15 +20,9 @@ export const checkWebUrl: (
   };
 
 // Ensure the starting duration is pass a minimum
-const guardDurationAboveMinimum = (
+export const guardDurationAboveMinimum = (
   input: { duration: number; minimumTime: number },
 ) =>
   (input.duration <= input.minimumTime)
     ? Promise.reject(errorCode(60, "Starting"))
     : null;
-
-const errorCode = (code: number, error: string) => ({
-  "error-code": [code, error] as const,
-});
-const error = (error: string) => ({ error });
-const ok = { result: null };

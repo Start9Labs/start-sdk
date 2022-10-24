@@ -32,6 +32,12 @@ export namespace ExpectedExports {
       config?: Config,
     ) => Promise<ResultType<ActionResult>>;
   };
+
+  /**
+   * This is the entrypoint for the main container. Used to start up something like the service that the
+   * package represents, like running a bitcoind in a bitcoind-wrapper.
+   */
+  export type main = (effects: Effects) => Promise<ResultType<null | void>>;
 }
 
 /** Used to reach out from the pure js runtime */
@@ -58,24 +64,22 @@ export type Effects = {
     input: { volumeId: string; path: string },
   ): Promise<Record<string, unknown>>;
 
-
   runCommand(
     input: {
-      command: string,
-      args?: string[],
-      timeoutMillis?: number
+      command: string;
+      args?: string[];
+      timeoutMillis?: number;
     },
   ): Promise<ResultType<string>>;
   runDaemon(
     input: {
-      command: string,
-      args?: string[],
+      command: string;
+      args?: string[];
     },
   ): {
-    wait(): Promise<ResultType<string>>,
-    term(): Promise<void>
+    wait(): Promise<ResultType<string>>;
+    term(): Promise<void>;
   };
-
 
   sleep(
     timeMs: number,
@@ -99,12 +103,12 @@ export type Effects = {
 
   fetch(url: string, options?: {
     method?:
-    | "GET"
-    | "POST"
-    | "PUT"
-    | "DELETE"
-    | "HEAD"
-    | "PATCH";
+      | "GET"
+      | "POST"
+      | "PUT"
+      | "DELETE"
+      | "HEAD"
+      | "PATCH";
     headers?: Record<string, string>;
     body?: string;
   }): Promise<{
@@ -363,39 +367,39 @@ export type ValueSpecEnum = {
 export type SetResult = {
   /** These are the unix process signals */
   signal:
-  | "SIGTERM"
-  | "SIGHUP"
-  | "SIGINT"
-  | "SIGQUIT"
-  | "SIGILL"
-  | "SIGTRAP"
-  | "SIGABRT"
-  | "SIGBUS"
-  | "SIGFPE"
-  | "SIGKILL"
-  | "SIGUSR1"
-  | "SIGSEGV"
-  | "SIGUSR2"
-  | "SIGPIPE"
-  | "SIGALRM"
-  | "SIGSTKFLT"
-  | "SIGCHLD"
-  | "SIGCONT"
-  | "SIGSTOP"
-  | "SIGTSTP"
-  | "SIGTTIN"
-  | "SIGTTOU"
-  | "SIGURG"
-  | "SIGXCPU"
-  | "SIGXFSZ"
-  | "SIGVTALRM"
-  | "SIGPROF"
-  | "SIGWINCH"
-  | "SIGIO"
-  | "SIGPWR"
-  | "SIGSYS"
-  | "SIGEMT"
-  | "SIGINFO";
+    | "SIGTERM"
+    | "SIGHUP"
+    | "SIGINT"
+    | "SIGQUIT"
+    | "SIGILL"
+    | "SIGTRAP"
+    | "SIGABRT"
+    | "SIGBUS"
+    | "SIGFPE"
+    | "SIGKILL"
+    | "SIGUSR1"
+    | "SIGSEGV"
+    | "SIGUSR2"
+    | "SIGPIPE"
+    | "SIGALRM"
+    | "SIGSTKFLT"
+    | "SIGCHLD"
+    | "SIGCONT"
+    | "SIGSTOP"
+    | "SIGTSTP"
+    | "SIGTTIN"
+    | "SIGTTOU"
+    | "SIGURG"
+    | "SIGXCPU"
+    | "SIGXFSZ"
+    | "SIGVTALRM"
+    | "SIGPROF"
+    | "SIGWINCH"
+    | "SIGIO"
+    | "SIGPWR"
+    | "SIGSYS"
+    | "SIGEMT"
+    | "SIGINFO";
   "depends-on": DependsOn;
 };
 

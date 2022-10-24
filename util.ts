@@ -15,3 +15,9 @@ export const exists = (
   effects: T.Effects,
   props: { path: string; volumeId: string },
 ) => effects.metadata(props).then((_) => true, (_) => false);
+
+export const errorCode = (code: number, error: string) => ({
+  "error-code": [code, error] as const,
+});
+export const error = (error: string) => ({ error });
+export const ok = { result: null };
