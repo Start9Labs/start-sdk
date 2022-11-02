@@ -19,6 +19,15 @@ export const checkWebUrl: (
     };
   };
 
+export const runHealthScript =  ({command, args}: { command: string, args: string[] }) => async (effects: Effects, _duration: number): Promise<ResultType<null | void>> => {
+  const res = await effects.runCommand({ command, args })
+  if ('result' in res){
+    return { result: null }
+  } else {
+    return res
+  }
+}
+
 // Ensure the starting duration is pass a minimum
 export const guardDurationAboveMinimum = (
   input: { duration: number; minimumTime: number },
