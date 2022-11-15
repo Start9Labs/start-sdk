@@ -35,3 +35,9 @@ export const guardDurationAboveMinimum = (
   (input.duration <= input.minimumTime)
     ? Promise.reject(errorCode(60, "Starting"))
     : null;
+
+export const catchError = (effects: Effects) => (e: unknown) => {
+  const error = (error: string) => ({ error });
+  effects.error(`Health check failed: ${e}`);
+  return error("Error while running health check");
+};
