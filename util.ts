@@ -22,5 +22,5 @@ export const errorCode = (code: number, error: string) => ({
 export const error = (error: string) => ({ error });
 export const ok = { result: null };
 
-// deno-lint-ignore no-explicit-any
-export const isKnownError = (e: unknown): e is T.KnownError => e instanceof Object &&  ('error' in e || "error-code" in e)
+export const isKnownError = (e: unknown): e is T.KnownError =>
+  e instanceof Object && ("error" in e || "error-code" in e);
