@@ -40,5 +40,5 @@ export const guardDurationAboveMinimum = (
 export const catchError = (effects: Effects) => (e: unknown) => {
   if (isKnownError(e)) return e
   effects.error(`Health check failed: ${e}`);
-  return { error: "Error while running health check" };
+  return error( "Error while running health check" );
 };
