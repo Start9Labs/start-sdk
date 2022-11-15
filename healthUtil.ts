@@ -1,11 +1,12 @@
 import { Effects, ResultType } from "./types.ts";
-import { error, errorCode, ok } from "./util.ts";
+import { error, errorCode, isKnownError, ok } from "./util.ts";
 export const checkWebUrl: (
   url: string,
 ) => (effects: Effects, duration: number) => Promise<ResultType<null | void>> =
   (url) => {
     return async (effects, duration) => {
       let errorValue;
+      // deno-lint-ignore no-cond-assign
       if (errorValue = guardDurationAboveMinimum({ duration, minimumTime: 5000 })) return errorValue;
 
       return await effects.fetch(url)
@@ -35,3 +36,9 @@ export const guardDurationAboveMinimum = (
   (input.duration <= input.minimumTime)
     ? errorCode(60, "Starting")
     : null;
+
+export const catchError = (effects: Effects) => (e: unknown) => {
+  if (isKnownError(e)) return e
+  effects.error(`Health check failed: ${e}`);
+  return { error: "Error while running health check" };
+};
