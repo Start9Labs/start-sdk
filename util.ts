@@ -1,5 +1,7 @@
 import * as T from "./types.ts";
 
+export { guardAll, typeFromProps } from "./utils/propertiesMatcher.ts";
+
 export function unwrapResultType<T>(res: T.ResultType<T>): T {
   if ("error-code" in res) {
     throw new Error(res["error-code"][1]);
@@ -11,10 +13,11 @@ export function unwrapResultType<T>(res: T.ResultType<T>): T {
 }
 
 /** Used to check if the file exists before hand */
-export const exists = (
-  effects: T.Effects,
-  props: { path: string; volumeId: string },
-) => effects.metadata(props).then((_) => true, (_) => false);
+export const exists = (effects: T.Effects, props: { path: string; volumeId: string }) =>
+  effects.metadata(props).then(
+    (_) => true,
+    (_) => false
+  );
 
 export const errorCode = (code: number, error: string) => ({
   "error-code": [code, error] as const,
