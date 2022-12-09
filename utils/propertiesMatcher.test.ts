@@ -73,7 +73,7 @@ const bitcoinProperties = {
               "Username and hashed password for JSON-RPC connections. RPC clients connect using the usual http basic authentication.",
             type: "list",
             subtype: "string",
-            default: [],
+            default: Array<string>(),
             spec: {
               pattern: "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
               "pattern-description": 'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
@@ -241,7 +241,7 @@ const bitcoinProperties = {
             type: "list",
             subtype: "object",
             range: "[0,*)",
-            default: [],
+            default: Array<Record<string, unknown>>(),
             spec: {
               spec: {
                 hostname: {
@@ -424,7 +424,7 @@ const testUnionValue = anyValue as PM.GuardAll<{
     };
   };
   variants: {
-    disabled: {};
+    disabled: Record<string, never>;
     automatic: {
       size: {
         type: "number";
@@ -469,7 +469,9 @@ const _testUnionBadUnion:
       size: number;
     } = testUnionValue;
 const _testAll: PM.TypeFromProps<BitcoinProperties> = anyValue as {
+  // deno-lint-ignore no-explicit-any
   "peer-tor-address": any;
+  // deno-lint-ignore no-explicit-any
   "rpc-tor-address": any;
   rpc: {
     enable: boolean;
@@ -790,5 +792,51 @@ const { test } = Deno;
         },
       })
     ).toThrow();
+    checker.unsafeCast({
+      "peer-tor-address": "",
+      "rpc-tor-address": null,
+      rpc: {
+        enable: true,
+        username: "asdf",
+        password: "asdf",
+        advanced: {
+          auth: ["test:34$aa"],
+          serialversion: "non-segwit",
+          servertimeout: 12,
+          threads: 12,
+          workqueue: 12,
+        },
+      },
+      "zmq-enabled": false,
+      txindex: false,
+      wallet: {
+        enable: true,
+        avoidpartialspends: false,
+        discardfee: 0,
+      },
+      advanced: {
+        mempool: {
+          mempoolfullrbf: false,
+          persistmempool: false,
+          maxmempool: 3012,
+          mempoolexpiry: 321,
+        },
+        peers: {
+          listen: false,
+          onlyconnect: false,
+          onlyonion: false,
+          addnode: [{ hostname: "google.com", port: 231 }],
+        },
+        dbcache: 123,
+        pruning: { mode: "automatic", size: 1234 },
+        blockfilters: {
+          blockfilterindex: false,
+          peerblockfilters: false,
+        },
+        bloomfilters: {
+          peerbloomfilters: false,
+        },
+      },
+    });
   });
 }
