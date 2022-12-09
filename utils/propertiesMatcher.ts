@@ -1,4 +1,5 @@
 import { matches } from "../dependencies.ts";
+import { ConfigSpec, ValueSpecAny } from "../types.ts";
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -174,7 +175,16 @@ function defaultNullable<A>(parser: matches.Parser<unknown, A>, value: unknown) 
   if (matchNullable.test(value)) return parser.optional();
   return parser;
 }
-export function guardAll<A>(value: A): matches.Parser<unknown, GuardAll<A>> {
+
+/**
+ * ConfigSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
+ * ValueSpecAny: This is any of the values in a config spec.
+ *
+ * Use this when we want to convert a value spec any into a parser for what a config will look like
+ * @param value
+ * @returns
+ */
+export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
     // deno-lint-ignore no-explicit-any
     return matches.unknown as any;
@@ -209,7 +219,10 @@ export function guardAll<A>(value: A): matches.Parser<unknown, GuardAll<A>> {
 
       const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultNullable(
-        matches.arrayOf(guardAll({ type: subtype, ...spec })).validate((x) => rangeValidate(x.length), "valid length"),
+        matches
+          // deno-lint-ignore no-explicit-any
+          .arrayOf(guardAll({ type: subtype, ...spec } as any))
+          .validate((x) => rangeValidate(x.length), "valid length"),
         value
         // deno-lint-ignore no-explicit-any
       ) as any;
@@ -242,7 +255,15 @@ export function guardAll<A>(value: A): matches.Parser<unknown, GuardAll<A>> {
   // deno-lint-ignore no-explicit-any
   return matches.unknown as any;
 }
-export function typeFromProps<A>(valueDictionary: A): matches.Parser<unknown, TypeFromProps<A>> {
+/**
+ * ConfigSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
+ * ValueSpecAny: This is any of the values in a config spec.
+ *
+ * Use this when we want to convert a config spec into a parser for what a config will look like
+ * @param valueDictionary
+ * @returns
+ */
+export function typeFromProps<A extends ConfigSpec>(valueDictionary: A): matches.Parser<unknown, TypeFromProps<A>> {
   // deno-lint-ignore no-explicit-any
   if (!recordString.test(valueDictionary)) return matches.unknown as any;
   return matches.shape(
