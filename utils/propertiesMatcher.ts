@@ -41,8 +41,6 @@ type GuardObject<A> =
     A extends {readonly type: TypeObject, readonly spec: infer B} ? (
         B extends Record<string, unknown> ? {readonly [K in keyof B & string]: _<GuardAll<B[K]>>} :
         {_error: "Invalid Spec"}
-        // B extends Record<string, unknown> ? {[K in keyof B]: GuardAll<B[K]>} :
-        // "a"
     ) :
     unknown
 
