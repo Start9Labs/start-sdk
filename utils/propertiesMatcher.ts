@@ -13,7 +13,7 @@ type TypeUnion = "union";
 // prettier-ignore
 // deno-fmt-ignore
 type GuardDefaultNullable<A, Type> = 
-    A extends { readonly default: Type} ? Type :
+    A extends { readonly default: unknown} ? Type :
     A extends { readonly nullable: true} ? Type :
     A extends {readonly  nullable: false} ? Type | null | undefined :
     Type
