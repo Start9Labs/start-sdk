@@ -1,36 +1,21 @@
 // deno-lint-ignore no-namespace
 export namespace ExpectedExports {
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
-  export type setConfig = (
-    effects: Effects,
-    input: Config,
-  ) => Promise<ResultType<SetResult>>;
+  export type setConfig = (effects: Effects, input: Config) => Promise<ResultType<SetResult>>;
   /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
   export type getConfig = (effects: Effects) => Promise<ResultType<ConfigRes>>;
   /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
   export type dependencies = Dependencies;
   /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
-  export type properties = (
-    effects: Effects,
-  ) => Promise<ResultType<Properties>>;
+  export type properties = (effects: Effects) => Promise<ResultType<Properties>>;
 
   export type health = {
     /** Should be the health check id */
-    [id: string]: (
-      effects: Effects,
-      dateMs: number,
-    ) => Promise<ResultType<unknown>>;
+    [id: string]: (effects: Effects, dateMs: number) => Promise<ResultType<unknown>>;
   };
-  export type migration = (
-    effects: Effects,
-    version: string,
-    ...args: unknown[]
-  ) => Promise<ResultType<MigrationRes>>;
+  export type migration = (effects: Effects, version: string, ...args: unknown[]) => Promise<ResultType<MigrationRes>>;
   export type action = {
-    [id: string]: (
-      effects: Effects,
-      config?: Config,
-    ) => Promise<ResultType<ActionResult>>;
+    [id: string]: (effects: Effects, config?: Config) => Promise<ResultType<ActionResult>>;
   };
 
   /**
@@ -43,9 +28,7 @@ export namespace ExpectedExports {
 /** Used to reach out from the pure js runtime */
 export type Effects = {
   /** Usable when not sandboxed */
-  writeFile(
-    input: { path: string; volumeId: string; toWrite: string },
-  ): Promise<void>;
+  writeFile(input: { path: string; volumeId: string; toWrite: string }): Promise<void>;
   readFile(input: { volumeId: string; path: string }): Promise<string>;
   metadata(input: { volumeId: string; path: string }): Promise<Metadata>;
   /** Create a directory. Usable when not sandboxed */
@@ -55,35 +38,18 @@ export type Effects = {
   removeFile(input: { volumeId: string; path: string }): Promise<void>;
 
   /** Write a json file into an object. Usable when not sandboxed */
-  writeJsonFile(
-    input: { volumeId: string; path: string; toWrite: Record<string, unknown> },
-  ): Promise<void>;
+  writeJsonFile(input: { volumeId: string; path: string; toWrite: Record<string, unknown> }): Promise<void>;
 
   /** Read a json file into an object */
-  readJsonFile(
-    input: { volumeId: string; path: string },
-  ): Promise<Record<string, unknown>>;
+  readJsonFile(input: { volumeId: string; path: string }): Promise<Record<string, unknown>>;
 
-  runCommand(
-    input: {
-      command: string;
-      args?: string[];
-      timeoutMillis?: number;
-    },
-  ): Promise<ResultType<string>>;
-  runDaemon(
-    input: {
-      command: string;
-      args?: string[];
-    },
-  ): {
+  runCommand(input: { command: string; args?: string[]; timeoutMillis?: number }): Promise<ResultType<string>>;
+  runDaemon(input: { command: string; args?: string[] }): {
     wait(): Promise<ResultType<string>>;
     term(): Promise<void>;
   };
 
-  sleep(
-    timeMs: number,
-  ): Promise<null>;
+  sleep(timeMs: number): Promise<null>;
 
   /** Log at the trace level */
   trace(whatToPrint: string): void;
@@ -101,17 +67,14 @@ export type Effects = {
 
   exists(input: { volumeId: string; path: string }): Promise<boolean>;
 
-  fetch(url: string, options?: {
-    method?:
-      | "GET"
-      | "POST"
-      | "PUT"
-      | "DELETE"
-      | "HEAD"
-      | "PATCH";
-    headers?: Record<string, string>;
-    body?: string;
-  }): Promise<{
+  fetch(
+    url: string,
+    options?: {
+      method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
+      headers?: Record<string, string>;
+      body?: string;
+    }
+  ): Promise<{
     method: string;
     ok: boolean;
     status: number;
@@ -196,8 +159,8 @@ export type Target<T extends string, V> = V & {
 
 export type UniqueBy =
   | {
-    any: UniqueBy[];
-  }
+      any: UniqueBy[];
+    }
   | string
   | null;
 
@@ -207,22 +170,20 @@ export type WithNullable<T> = T & {
 export type DefaultString =
   | string
   | {
-    /** The chars available for the randome generation */
-    charset?: string;
-    /** Length that we generate to */
-    len: number;
-  };
+      /** The chars available for the randome generation */
+      charset?: string;
+      /** Length that we generate to */
+      len: number;
+    };
 
-export type ValueSpecString =
-  & (
-    // deno-lint-ignore ban-types
+export type ValueSpecString = // deno-lint-ignore ban-types
+  (
     | {}
     | {
-      pattern: string;
-      "pattern-description": string;
-    }
-  )
-  & {
+        pattern: string;
+        "pattern-description": string;
+      }
+  ) & {
     copyable?: boolean;
     masked?: boolean;
     placeholder?: string;
@@ -238,71 +199,63 @@ export type ValueSpecNumber = {
 export type ValueSpecBoolean = Record<string, unknown>;
 export type ValueSpecAny =
   | Tag<"boolean", WithDescription<WithDefault<ValueSpecBoolean, boolean>>>
+  | Tag<"string", WithDescription<WithNullableDefault<WithNullable<ValueSpecString>, DefaultString>>>
+  | Tag<"number", WithDescription<WithNullableDefault<WithNullable<ValueSpecNumber>, number>>>
   | Tag<
-    "string",
-    WithDescription<
-      WithNullableDefault<WithNullable<ValueSpecString>, DefaultString>
-    >
-  >
-  | Tag<
-    "number",
-    WithDescription<WithNullableDefault<WithNullable<ValueSpecNumber>, number>>
-  >
-  | Tag<
-    "enum",
-    WithDescription<
-      WithDefault<
-        {
-          values: string[];
-          "value-names": {
-            [key: string]: string;
-          };
-        },
-        string
+      "enum",
+      WithDescription<
+        WithDefault<
+          {
+            values: readonly string[] | string[];
+            "value-names": {
+              [key: string]: string;
+            };
+          },
+          string
+        >
       >
     >
-  >
   | Tag<"list", ValueSpecList>
   | Tag<"object", WithDescription<WithNullableDefault<ValueSpecObject, Config>>>
   | Tag<"union", WithDescription<WithDefault<ValueSpecUnion, string>>>
   | Tag<
-    "pointer",
-    WithDescription<
-      | Subtype<
-        "package",
-        | Target<
-          "tor-key",
-          {
-            "package-id": string;
-            interface: string;
-          }
-        >
-        | Target<
-          "tor-address",
-          {
-            "package-id": string;
-            interface: string;
-          }
-        >
-        | Target<
-          "lan-address",
-          {
-            "package-id": string;
-            interface: string;
-          }
-        >
-        | Target<
-          "config",
-          {
-            "package-id": string;
-            selector: string;
-            multi: boolean;
-          }
-        >
+      "pointer",
+      WithDescription<
+        | Subtype<
+            "package",
+            | Target<
+                "tor-key",
+                {
+                  "package-id": string;
+                  interface: string;
+                }
+              >
+            | Target<
+                "tor-address",
+                {
+                  "package-id": string;
+                  interface: string;
+                }
+              >
+            | Target<
+                "lan-address",
+                {
+                  "package-id": string;
+                  interface: string;
+                }
+              >
+            | Target<
+                "config",
+                {
+                  "package-id": string;
+                  selector: string;
+                  multi: boolean;
+                }
+              >
+          >
+        | Subtype<"system", Record<string, unknown>>
       >
-      | Subtype<"system", Record<string, unknown>>
-    >
-  >;
+    >;
 export type ValueSpecUnion = {
   /** What tag for the specification, for tag unions */
   tag: {
@@ -326,39 +279,12 @@ export type ValueSpecObject = {
   "unique-by"?: UniqueBy;
 };
 export type ValueSpecList =
-  | Subtype<
-    "boolean",
-    WithDescription<WithDefault<ListSpec<ValueSpecBoolean>, boolean[]>>
-  >
-  | Subtype<
-    "string",
-    WithDescription<WithDefault<ListSpec<ValueSpecString>, string[]>>
-  >
-  | Subtype<
-    "number",
-    WithDescription<WithDefault<ListSpec<ValueSpecNumber>, number[]>>
-  >
-  | Subtype<
-    "enum",
-    WithDescription<
-      WithDefault<
-        ListSpec<
-          ValueSpecEnum
-        >,
-        string[]
-      >
-    >
-  >
-  | Subtype<
-    "object",
-    WithDescription<
-      WithDefault<ListSpec<ValueSpecObject>, Record<string, unknown>[]>
-    >
-  >
-  | Subtype<
-    "union",
-    WithDescription<WithDefault<ListSpec<ValueSpecUnion>, string[]>>
-  >;
+  | Subtype<"boolean", WithDescription<WithDefault<ListSpec<ValueSpecBoolean>, boolean[]>>>
+  | Subtype<"string", WithDescription<WithDefault<ListSpec<ValueSpecString>, string[]>>>
+  | Subtype<"number", WithDescription<WithDefault<ListSpec<ValueSpecNumber>, number[]>>>
+  | Subtype<"enum", WithDescription<WithDefault<ListSpec<ValueSpecEnum>, string[]>>>
+  | Subtype<"object", WithDescription<WithNullableDefault<ListSpec<ValueSpecObject>, Record<string, unknown>[]>>>
+  | Subtype<"union", WithDescription<WithDefault<ListSpec<ValueSpecUnion>, string[]>>>;
 export type ValueSpecEnum = {
   values: string[];
   "value-names": { [key: string]: string };
@@ -407,9 +333,11 @@ export type DependsOn = {
   [packageId: string]: string[];
 };
 
-export type KnownError = { error: string } | {
-  "error-code": [number, string] | readonly [number, string];
-};
+export type KnownError =
+  | { error: string }
+  | {
+      "error-code": [number, string] | readonly [number, string];
+    };
 export type ResultType<T> = KnownError | { result: T };
 
 export type PackagePropertiesV2 = {
