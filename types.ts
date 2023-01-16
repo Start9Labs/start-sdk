@@ -6,6 +6,10 @@ export namespace ExpectedExports {
   export type getConfig = (effects: Effects) => Promise<ResultType<ConfigRes>>;
   /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
   export type dependencies = Dependencies;
+  /** For backing up service data though the embassyOS UI */
+  export type createBackup = (effects: Effects) => Promise<ResultType<unknown>>;
+  /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
+  export type restoreBackup = (effects: Effects) => Promise<ResultType<unknown>>;
   /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
   export type properties = (effects: Effects) => Promise<ResultType<Properties>>;
 
@@ -85,6 +89,20 @@ export type Effects = {
     /// Returns the body as a json
     json(): Promise<unknown>;
   }>;
+
+  runRsync(options: {
+    srcVolume: string,
+    dstVolume: string,
+    srcPath: string,
+    dstPath: string,
+    // rsync options: https://linux.die.net/man/1/rsync
+    options: {
+      delete: boolean,
+      force: boolean,
+      ignoreExisting: boolean,
+      exclude: string[]
+    }
+  }): {id: () => Promise<string>, wait: () => Promise<null>, progress: () => Promise<number>}
 };
 export type Metadata = {
   fileType: string;
