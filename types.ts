@@ -318,8 +318,8 @@ export type ValueSpecUnion = {
   /** What tag for the specification, for tag unions */
   tag: {
     id: string;
-    name: string;
-    description?: string;
+    name?: string; // optional for backwards compatibility - removed in 0.3.4
+    description?: string; // optional for backwards compatibility - removed in 0.3.4
     "variant-names": {
       [key: string]: string;
     };
