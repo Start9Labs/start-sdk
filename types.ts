@@ -220,7 +220,7 @@ export type WithNullable<T> = T & {
 export type DefaultString =
   | string
   | {
-    /** The chars available for the randome generation */
+    /** The chars available for the random generation */
     charset?: string;
     /** Length that we generate to */
     len: number;
@@ -318,8 +318,10 @@ export type ValueSpecUnion = {
   /** What tag for the specification, for tag unions */
   tag: {
     id: string;
-    name?: string; // optional for backwards compatibility - removed in 0.3.4
-    description?: string; // optional for backwards compatibility - removed in 0.3.4
+    /** @deprecated - optional only for backwards compatibility */
+    name?: string;
+    /** @deprecated - optional only for backwards compatibility */
+    description?: string;
     "variant-names": {
       [key: string]: string;
     };
