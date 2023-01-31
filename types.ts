@@ -190,6 +190,14 @@ export type WithDescription<T> = T & {
   warning?: string;
 };
 
+export type WithOptionalDescription<T> = T & {
+  /** @deprecated - optional only for backwards compatibility */
+  description?: string;
+  /** @deprecated - optional only for backwards compatibility */
+  name?: string;
+  warning?: string;
+};
+
 export type ListSpec<T> = {
   spec: T;
   range: string;
@@ -275,7 +283,7 @@ export type ValueSpecAny =
   >
   | Tag<"list", ValueSpecList>
   | Tag<"object", WithDescription<WithNullableDefault<ValueSpecObject, Config>>>
-  | Tag<"union", WithDescription<WithDefault<ValueSpecUnion, string>>>
+  | Tag<"union", WithOptionalDescription<WithDefault<ValueSpecUnion, string>>>
   | Tag<
     "pointer",
     WithDescription<
@@ -318,9 +326,7 @@ export type ValueSpecUnion = {
   /** What tag for the specification, for tag unions */
   tag: {
     id: string;
-    /** @deprecated - optional only for backwards compatibility */
-    name?: string;
-    /** @deprecated - optional only for backwards compatibility */
+    name: string;
     description?: string;
     "variant-names": {
       [key: string]: string;
