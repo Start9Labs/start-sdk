@@ -5,6 +5,11 @@ export class Config<A> extends IBuilder<A> {
   static empty() {
     return new Config({});
   }
+  static withValue<K extends string, B>(key: K, value: Value<B>) {
+    return new Config({
+      [key]: value.build(),
+    } as { [key in K]: B });
+  }
 
   static of<B extends { [key: string]: Value<unknown> }>(spec: B) {
     // deno-lint-ignore no-explicit-any
