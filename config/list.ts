@@ -1,27 +1,27 @@
-import { ConfigSpec, Tag, UniqueBy, ValueSpecList } from "../types.ts";
 import { IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { Default, NullableDefault, NumberSpec, StringSpec } from "./value.ts";
 import { Description } from "./value.ts";
 import * as T from "../types.ts";
 import { Variants } from "./variants.ts";
+import { ConfigSpec, UniqueBy, ValueSpecList, ValueSpecListOf } from "../types/config-types.ts";
 
-export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
-  // deno-lint-ignore ban-types
-  static boolean<A extends Description & Default<boolean[]> & { range: string; spec: {} }>(a: A) {
-    return new List({
-      type: "list" as const,
-      subtype: "boolean" as const,
-      ...a,
-    });
-  }
+export class List<A extends ValueSpecList> extends IBuilder<A> {
+  // // deno-lint-ignore ban-types
+  // static boolean<A extends Description & Default<boolean[]> & { range: string; spec: {}; default: boolean }>(a: A) {
+  //   return new List({
+  //     type: "list" as const,
+  //     subtype: "boolean" as const,
+  //     ...a,
+  //   });
+  // }
 
   static string<A extends Description & Default<string[]> & { range: string; spec: StringSpec }>(a: A) {
     return new List({
       type: "list" as const,
       subtype: "string" as const,
       ...a,
-    } as T.Tag<"list", T.Subtype<"string", T.WithDescription<T.WithDefault<T.ListSpec<T.ValueSpecString>, string[]>>>>);
+    } as ValueSpecListOf<"string">);
   }
   static number<A extends Description & Default<number[]> & { range: string; spec: NumberSpec }>(a: A) {
     return new List({
@@ -75,7 +75,7 @@ export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
       type: "list" as const,
       subtype: "object" as const,
       ...value,
-    } as T.Tag<"list", T.Subtype<"object", T.WithDescription<T.WithNullableDefault<T.ListSpec<T.ValueSpecObject>, Record<string, unknown>[]>>>>);
+    } as ValueSpecListOf<"object">);
   }
   static union<
     A extends Description &
@@ -84,15 +84,16 @@ export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
         spec: {
           tag: {
             id: string;
-            name: null | string | undefined;
-            description: null | string | undefined;
+            name: string;
+            description: null | string;
             "variant-names": {
               [key: string]: string;
             };
           };
           variants: Variants<B>;
-          "display-as": null | string | undefined;
-          "unique-by": null | UniqueBy | undefined;
+          "display-as": null | string;
+          "unique-by": UniqueBy;
+          default: string;
         };
       },
     B extends { [key: string]: ConfigSpec }

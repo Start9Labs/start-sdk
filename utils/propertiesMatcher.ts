@@ -1,5 +1,5 @@
 import { matches } from "../dependencies.ts";
-import { ConfigSpec, ValueSpecAny } from "../types.ts";
+import { ConfigSpec, ValueSpec as ValueSpecAny } from "../types/config-types.ts";
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -215,13 +215,11 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
       const spec = (matchSpec.test(value) && value.spec) || {};
       const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
 
-      const { default: _, ...arrayOfSpec } = spec;
-
       const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultNullable(
         matches
           // deno-lint-ignore no-explicit-any
-          .arrayOf(guardAll({ type: subtype, ...arrayOfSpec } as any))
+          .arrayOf(guardAll({ type: subtype, ...spec } as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
         value
         // deno-lint-ignore no-explicit-any

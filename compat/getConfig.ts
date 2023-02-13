@@ -1,7 +1,7 @@
 import { YAML } from "../dependencies.ts";
 import { matches } from "../dependencies.ts";
 import { ExpectedExports } from "../types.ts";
-import { ConfigSpec } from "../types.ts";
+import { ConfigSpec } from "../types/config-types.ts";
 import { typeFromProps, TypeFromProps } from "../utils/propertiesMatcher.ts";
 
 const { any, string, dictionary } = matches;

@@ -1,11 +1,6 @@
 import { YAML } from "../dependencies.ts";
-import {
-  Config,
-  DependsOn,
-  Effects,
-  ExpectedExports,
-  SetResult,
-} from "../types.ts";
+import { DependsOn, Effects, ExpectedExports, SetResult } from "../types.ts";
+import { ConfigSpec } from "../types/config-types.ts";
 
 /**
  * Will set the config to the default start9/config.yaml
@@ -15,11 +10,7 @@ import {
  * @param depends_on This would be the depends on for condition depends_on
  * @returns
  */
-export const setConfig = async (
-  effects: Effects,
-  newConfig: Config,
-  dependsOn: DependsOn = {},
-) => {
+export const setConfig = async (effects: Effects, newConfig: ConfigSpec, dependsOn: DependsOn = {}) => {
   await effects.createDir({
     path: "start9",
     volumeId: "main",

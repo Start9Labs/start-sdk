@@ -7,3 +7,4 @@ export * as util from "./util.ts";
 export * as C from "./config/mod.ts";
 export * as config from "./config/mod.ts";
 export { Backups } from "./backups.ts";
+export * as configTypes from "./types/config-types.ts";

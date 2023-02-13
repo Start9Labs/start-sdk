@@ -1,8 +1,8 @@
-import { ValueSpecAny } from "../types.ts";
+import { ValueSpec } from "../types/config-types.ts";
 import { IBuilder } from "./builder.ts";
 import { Description } from "./value.ts";
 
-export class Pointer<A extends ValueSpecAny> extends IBuilder<A> {
+export class Pointer<A extends ValueSpec> extends IBuilder<A> {
   static packageTorKey<A extends Description & { "package-id": string; interface: string }>(a: A) {
     return new Pointer({
       type: "pointer" as const,
@@ -27,7 +27,9 @@ export class Pointer<A extends ValueSpecAny> extends IBuilder<A> {
       ...a,
     });
   }
-  static packageConfig<A extends Description & { "package-id": string; selector: string; multi: boolean }>(a: A) {
+  static packageConfig<
+    A extends Description & { "package-id": string; selector: string; multi: boolean; interface: string }
+  >(a: A) {
     return new Pointer({
       type: "pointer" as const,
       subtype: "package" as const,
@@ -35,10 +37,13 @@ export class Pointer<A extends ValueSpecAny> extends IBuilder<A> {
       ...a,
     });
   }
-  static system<A extends Description & Record<string, unknown>>(a: A) {
+  static system<A extends Description & { "package-id": string; selector: string; multi: boolean; interface: string }>(
+    a: A
+  ) {
     return new Pointer({
       type: "pointer" as const,
       subtype: "system" as const,
+      target: "system" as const,
       ...a,
     });
   }

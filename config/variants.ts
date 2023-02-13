@@ -1,4 +1,4 @@
-import { ConfigSpec } from "../types.ts";
+import { ConfigSpec } from "../types/config-types.ts";
 import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./mod.ts";
 

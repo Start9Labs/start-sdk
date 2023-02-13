@@ -1,10 +1,9 @@
-import { ConfigSpec, Tag, ValueSpecAny, ValueSpecList } from "../types.ts";
-import * as T from "../types.ts";
-import { BuilderExtract, IBuilder } from "./builder.ts";
+import { IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { List } from "./list.ts";
 import { Pointer } from "./pointer.ts";
 import { Variants } from "./variants.ts";
+import { ConfigSpec, ValueSpec, ValueSpecList, ValueSpecNumber, ValueSpecString } from "../types/config-types.ts";
 
 export type DefaultString =
   | string
@@ -37,10 +36,10 @@ export type StringSpec = {
   | {}
 );
 export type NumberSpec = {
-  range: string | null;
-  integral: boolean | null;
+  range: string;
+  integral: boolean;
   units: string | null;
-  placeholder: number | null;
+  placeholder: string | null;
 };
 export type Nullable = {
   nullable: boolean;
@@ -52,7 +51,7 @@ type _UniqueBy =
       any: _UniqueBy[];
     };
 
-export class Value<A extends ValueSpecAny> extends IBuilder<A> {
+export class Value<A extends ValueSpec> extends IBuilder<A> {
   static boolean<A extends Description & Default<boolean>>(a: A) {
     return new Value({
       type: "boolean" as const,
@@ -63,13 +62,13 @@ export class Value<A extends ValueSpecAny> extends IBuilder<A> {
     return new Value({
       type: "string" as const,
       ...a,
-    } as Tag<"string", T.WithDescription<T.WithNullableDefault<T.WithNullable<T.ValueSpecString>, DefaultString>>>);
+    } as ValueSpecString);
   }
   static number<A extends Description & NullableDefault<number> & Nullable & NumberSpec>(a: A) {
     return new Value({
       type: "number" as const,
       ...a,
-    } as Tag<"number", T.WithDescription<T.WithNullableDefault<T.WithNullable<T.ValueSpecNumber>, number>>>);
+    } as ValueSpecNumber);
   }
   static enum<
     A extends Description &
@@ -103,15 +102,16 @@ export class Value<A extends ValueSpecAny> extends IBuilder<A> {
       Default<string> & {
         tag: {
           id: string;
-          name: string | null;
+          name: string;
           description: string | null;
+          warning: string | null;
           "variant-names": {
             [key: string]: string;
           };
         };
         variants: Variants<B>;
         "display-as": string | null;
-        "unique-by": _UniqueBy | null;
+        "unique-by": _UniqueBy;
       },
     B extends { [key: string]: ConfigSpec }
   >(a: A) {
@@ -124,10 +124,10 @@ export class Value<A extends ValueSpecAny> extends IBuilder<A> {
     });
   }
 
-  static pointer<A extends ValueSpecAny>(a: Pointer<A>) {
+  static pointer<A extends ValueSpec>(a: Pointer<A>) {
     return new Value(a.build());
   }
-  static list<A extends List<B>, B extends Tag<"list", ValueSpecList>>(a: A) {
+  static list<A extends List<B>, B extends ValueSpecList>(a: A) {
     return new Value(a.build());
   }
 }
