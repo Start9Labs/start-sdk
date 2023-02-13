@@ -79,7 +79,7 @@ export class Value<A extends ValueSpecAny> extends IBuilder<A> {
       ...a,
     });
   }
-  static object<
+  static obj<
     A extends Description &
       NullableDefault<{ [k: string]: unknown }> & {
         "display-as": null | string;
