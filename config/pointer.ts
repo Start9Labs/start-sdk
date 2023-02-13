@@ -1,7 +1,8 @@
+import { ValueSpecAny } from "../types.ts";
 import { IBuilder } from "./builder.ts";
 import { Description } from "./value.ts";
 
-export class Pointer<A> extends IBuilder<A> {
+export class Pointer<A extends ValueSpecAny> extends IBuilder<A> {
   static packageTorKey<A extends Description & { "package-id": string; interface: string }>(a: A) {
     return new Pointer({
       type: "pointer" as const,

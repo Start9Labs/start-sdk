@@ -1,8 +1,16 @@
+import { ConfigSpec, Tag, ValueSpecAny, ValueSpecList } from "../types.ts";
+import * as T from "../types.ts";
 import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { List } from "./list.ts";
 import { Pointer } from "./pointer.ts";
 
+export type DefaultString =
+  | string
+  | {
+      charset: string | null | undefined;
+      len: number;
+    };
 export type Description = {
   name: string;
   description: string | null;
@@ -12,7 +20,7 @@ export type Default<A> = {
   default: A;
 };
 export type NullableDefault<A> = {
-  default: A | null;
+  default?: A;
 };
 
 export type StringSpec = {
@@ -38,30 +46,29 @@ export type Nullable = {
 };
 
 type _UniqueBy =
-  | null
   | string
   | {
-      any: string;
+      any: _UniqueBy[];
     };
 
-export class Value<A> extends IBuilder<A> {
+export class Value<A extends ValueSpecAny> extends IBuilder<A> {
   static boolean<A extends Description & Default<boolean>>(a: A) {
     return new Value({
       type: "boolean" as const,
       ...a,
     });
   }
-  static string<A extends Description & NullableDefault<string> & Nullable & StringSpec>(a: A) {
+  static string<A extends Description & NullableDefault<DefaultString> & Nullable & StringSpec>(a: A) {
     return new Value({
       type: "string" as const,
       ...a,
-    });
+    } as Tag<"string", T.WithDescription<T.WithNullableDefault<T.WithNullable<T.ValueSpecString>, DefaultString>>>);
   }
   static number<A extends Description & NullableDefault<number> & Nullable & NumberSpec>(a: A) {
     return new Value({
       type: "number" as const,
       ...a,
-    });
+    } as Tag<"number", T.WithDescription<T.WithNullableDefault<T.WithNullable<T.ValueSpecNumber>, number>>>);
   }
   static enum<
     A extends Description &
@@ -74,20 +81,20 @@ export class Value<A> extends IBuilder<A> {
   }
   static object<
     A extends Description &
-      NullableDefault<Config<B>> & { values: readonly string[] | string[]; "value-names": Record<string, string> },
-    B
+      NullableDefault<{ [k: string]: unknown }> & {
+        "display-as": null | string;
+        "unique-by": null | string;
+        spec: Config<B>;
+        "value-names": Record<string, string>;
+      },
+    B extends ConfigSpec
   >(a: A) {
-    const { default: previousDefault, ...rest } = a;
-    if (previousDefault == null) {
-      return new Value({
-        type: "object" as const,
-        ...rest,
-      });
-    }
+    const { spec: previousSpec, ...rest } = a;
+    const spec = previousSpec.build();
     return new Value({
       type: "object" as const,
       ...rest,
-      default: previousDefault.build(),
+      spec,
     });
   }
   static union<
@@ -106,8 +113,9 @@ export class Value<A> extends IBuilder<A> {
         "unique-by": _UniqueBy | null;
       },
     Variants extends {
-      [key: string]: Config<unknown>;
-    }
+      [key: string]: Config<B>;
+    },
+    B extends ConfigSpec
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
     // deno-lint-ignore no-explicit-any
@@ -123,13 +131,10 @@ export class Value<A> extends IBuilder<A> {
     });
   }
 
-  static pointer<A>(a: Pointer<A>) {
+  static pointer<A extends ValueSpecAny>(a: Pointer<A>) {
     return new Value(a.build());
   }
-  static list<A extends List<B>, B>(a: A) {
-    return new Value({
-      type: "list" as const,
-      ...a.build(),
-    });
+  static list<A extends List<B>, B extends Tag<"list", ValueSpecList>>(a: A) {
+    return new Value(a.build());
   }
 }

@@ -176,9 +176,9 @@ export type WithNullableDefault<T, Default> = T & {
 };
 
 export type WithDescription<T> = T & {
-  description?: string;
+  description?: null | string;
   name: string;
-  warning?: string;
+  warning?: null | string;
 };
 
 export type ListSpec<T> = {
@@ -212,7 +212,7 @@ export type DefaultString =
   | string
   | {
       /** The chars available for the randome generation */
-      charset?: string;
+      charset?: null | string;
       /** Length that we generate to */
       len: number;
     };
@@ -225,17 +225,17 @@ export type ValueSpecString = (
       "pattern-description": string;
     }
 ) & {
-  copyable?: boolean;
-  masked?: boolean;
-  placeholder?: string;
+  copyable?: null | boolean;
+  masked?: null | boolean;
+  placeholder?: null | string;
 };
 export type ValueSpecNumber = {
   /** Something like [3,6] or [0, *) */
-  range?: string;
-  integral?: boolean;
+  range?: null | string;
+  integral?: null | boolean;
   /** Used a description of the units */
-  units?: string;
-  placeholder?: number;
+  units?: null | string;
+  placeholder?: null | number;
 };
 export type ValueSpecBoolean = Record<string, unknown>;
 export type ValueSpecAny =
@@ -301,8 +301,8 @@ export type ValueSpecUnion = {
   /** What tag for the specification, for tag unions */
   tag: {
     id: string;
-    name?: string;
-    description?: string;
+    name?: null | string;
+    description?: null | string;
     "variant-names": {
       [key: string]: string;
     };
@@ -311,13 +311,13 @@ export type ValueSpecUnion = {
   variants: {
     [key: string]: ConfigSpec;
   };
-  "display-as"?: string;
-  "unique-by"?: UniqueBy;
+  "display-as"?: null | string;
+  "unique-by"?: null | UniqueBy;
 };
 export type ValueSpecObject = {
   spec: ConfigSpec;
-  "display-as"?: string;
-  "unique-by"?: UniqueBy;
+  "display-as"?: null | string;
+  "unique-by"?: null | UniqueBy;
 };
 export type ValueSpecList =
   | Subtype<"boolean", WithDescription<WithDefault<ListSpec<ValueSpecBoolean>, boolean[]>>>
