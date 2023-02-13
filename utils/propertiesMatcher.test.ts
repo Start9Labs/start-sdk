@@ -597,7 +597,7 @@ const { test } = Deno;
     checker.unsafeCast({ mode: "automatic", size: 1234 });
   });
 
-  test("Something that broke", () => {
+  test("A default that is invalid according to the tests", () => {
     const checker = PM.typeFromProps({
       pubkey_whitelist: {
         name: "Pubkey Whitelist (hex)",
