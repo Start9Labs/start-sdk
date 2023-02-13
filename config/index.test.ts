@@ -15,20 +15,18 @@ test("Pointer", () => {
       target: "tor-address";
       interface: string;
     };
-  } = Config.empty()
-    .addValue(
-      "peer-tor-address",
-      Value.pointer(
-        Pointer.packageTorAddress({
-          name: "Peer Tor Address",
-          description: "The Tor address of the peer interface",
-          "package-id": "bitcoind",
-          interface: "peer",
-          warning: null,
-        })
-      )
+  } = Config.withValue(
+    "peer-tor-address",
+    Value.pointer(
+      Pointer.packageTorAddress({
+        name: "Peer Tor Address",
+        description: "The Tor address of the peer interface",
+        "package-id": "bitcoind",
+        interface: "peer",
+        warning: null,
+      })
     )
-    .build();
+  ).build();
   expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
     /*json*/ `{
   "peer-tor-address": {
