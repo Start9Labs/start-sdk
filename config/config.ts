@@ -21,6 +21,12 @@ export class Config<A extends ConfigSpec> extends IBuilder<A> {
     }
     return new Config(answer);
   }
+  withValue<K extends string, B extends ValueSpecAny>(key: K, value: Value<B>) {
+    return new Config({
+      ...this.a,
+      [key]: value.build(),
+    } as A & { [key in K]: B });
+  }
   addValue<K extends string, B extends ValueSpecAny>(key: K, value: Value<B>) {
     return new Config({
       ...this.a,
