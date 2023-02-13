@@ -168,7 +168,7 @@ const isGenerator = matches.shape({ charset: matches.string, len: matches.number
 function defaultNullable<A>(parser: matches.Parser<unknown, A>, value: unknown) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) return parser.defaultTo(parser.unsafeCast(generateDefault(value.default)));
-    return parser.defaultTo(parser.unsafeCast(value.default));
+    return parser.defaultTo(value.default);
   }
   if (matchNullable.test(value)) return parser.optional();
   return parser;
@@ -215,11 +215,13 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
       const spec = (matchSpec.test(value) && value.spec) || {};
       const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
 
+      const { default: _, ...arrayOfSpec } = spec;
+
       const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultNullable(
         matches
           // deno-lint-ignore no-explicit-any
-          .arrayOf(guardAll({ type: subtype, ...spec } as any))
+          .arrayOf(guardAll({ type: subtype, ...arrayOfSpec } as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
         value
         // deno-lint-ignore no-explicit-any
