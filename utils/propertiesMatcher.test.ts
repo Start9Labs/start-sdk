@@ -596,6 +596,32 @@ const { test } = Deno;
     console.log("Checker = ", matches.Parser.parserAsString(checker.parser));
     checker.unsafeCast({ mode: "automatic", size: 1234 });
   });
+
+  test("A default that is invalid according to the tests", () => {
+    const checker = PM.typeFromProps({
+      pubkey_whitelist: {
+        name: "Pubkey Whitelist (hex)",
+        description:
+          "A list of pubkeys that are permitted to publish through your relay. A minimum, you need to enter your own Nostr hex (not npub) pubkey. Go to https://damus.io/key/ to convert from npub to hex.",
+        type: "list",
+        nullable: true,
+        range: "[1,*)",
+        subtype: "string",
+        spec: {
+          placeholder: "hex (not npub) pubkey",
+          pattern: "[0-9a-fA-F]{3}",
+          "pattern-description":
+            "Must be a valid 64-digit hexadecimal value (ie a Nostr hex pubkey, not an npub). Go to https://damus.io/key/ to convert npub to hex.",
+        },
+        default: [] as string[], // [] as string []
+      },
+    } as const);
+
+    checker.unsafeCast({
+      pubkey_whitelist: ["aaa"],
+    });
+  });
+
   test("Full spec", () => {
     const checker = PM.typeFromProps(bitcoinProperties);
 
