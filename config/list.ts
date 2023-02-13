@@ -47,7 +47,7 @@ export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
       ...a,
     });
   }
-  static obj<
+  static objectV<
     A extends Description &
       NullableDefault<Record<string, unknown>[]> & {
         range: string;
