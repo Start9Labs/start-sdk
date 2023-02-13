@@ -1,9 +1,10 @@
 import { ConfigSpec, Tag, UniqueBy, ValueSpecList } from "../types.ts";
-import { BuilderExtract, IBuilder } from "./builder.ts";
+import { IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { Default, NullableDefault, NumberSpec, StringSpec } from "./value.ts";
 import { Description } from "./value.ts";
 import * as T from "../types.ts";
+import { Variants } from "./variants.ts";
 
 export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
   // deno-lint-ignore ban-types
@@ -89,22 +90,16 @@ export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
               [key: string]: string;
             };
           };
-          variants: Variants;
+          variants: Variants<B>;
           "display-as": null | string | undefined;
           "unique-by": null | UniqueBy | undefined;
         };
       },
-    Variants extends { [key: string]: Config<ConfigSpec> },
-    B extends ConfigSpec
+    B extends { [key: string]: ConfigSpec }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;
-    // deno-lint-ignore no-explicit-any
-    const variants: { [K in keyof Variants]: BuilderExtract<Variants[K]> } = {} as any;
-    for (const key in previousVariants) {
-      // deno-lint-ignore no-explicit-any
-      variants[key] = previousVariants[key].build() as any;
-    }
+    const variants = previousVariants.build();
     const spec = {
       ...restSpec,
       variants,

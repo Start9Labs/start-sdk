@@ -4,6 +4,7 @@ import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { List } from "./list.ts";
 import { Pointer } from "./pointer.ts";
+import { Variants } from "./variants.ts";
 
 export type DefaultString =
   | string
@@ -108,22 +109,14 @@ export class Value<A extends ValueSpecAny> extends IBuilder<A> {
             [key: string]: string;
           };
         };
-        variants: Variants;
+        variants: Variants<B>;
         "display-as": string | null;
         "unique-by": _UniqueBy | null;
       },
-    Variants extends {
-      [key: string]: Config<B>;
-    },
-    B extends ConfigSpec
+    B extends { [key: string]: ConfigSpec }
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
-    // deno-lint-ignore no-explicit-any
-    const variants: { [K in keyof Variants]: BuilderExtract<Variants[K]> } = {} as any;
-    for (const key in previousVariants) {
-      // deno-lint-ignore no-explicit-any
-      variants[key] = previousVariants[key].build() as any;
-    }
+    const variants = previousVariants.build();
     return new Value({
       type: "union" as const,
       ...rest,
