@@ -15,9 +15,7 @@ export class List<A extends Tag<"list", ValueSpecList>> extends IBuilder<A> {
     });
   }
 
-  static string<
-    A extends Description & Default<string[]> & { range: string; spec: { range: string; spec: StringSpec } }
-  >(a: A) {
+  static string<A extends Description & Default<string[]> & { range: string; spec: StringSpec }>(a: A) {
     return new List({
       type: "list" as const,
       subtype: "string" as const,
