@@ -20,7 +20,7 @@ export class Variants<A extends { [key: string]: ConfigSpec }> extends IBuilder<
   static empty() {
     return Variants.of({});
   }
-  static withVariannt<K extends string, B extends ConfigSpec>(key: K, value: Config<B>) {
+  static withVariant<K extends string, B extends ConfigSpec>(key: K, value: Config<B>) {
     return Variants.empty().withVariant(key, value);
   }
 
