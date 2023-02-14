@@ -3,7 +3,14 @@ import { Config } from "./config.ts";
 import { List } from "./list.ts";
 import { Pointer } from "./pointer.ts";
 import { Variants } from "./variants.ts";
-import { ConfigSpec, ValueSpec, ValueSpecList, ValueSpecNumber, ValueSpecString } from "../types/config-types.ts";
+import {
+  ConfigSpec,
+  UniqueBy,
+  ValueSpec,
+  ValueSpecList,
+  ValueSpecNumber,
+  ValueSpecString,
+} from "../types/config-types.ts";
 
 export type DefaultString =
   | string
@@ -44,12 +51,6 @@ export type NumberSpec = {
 export type Nullable = {
   nullable: boolean;
 };
-
-type _UniqueBy =
-  | string
-  | {
-      any: _UniqueBy[];
-    };
 
 export class Value<A extends ValueSpec> extends IBuilder<A> {
   static boolean<A extends Description & Default<boolean>>(a: A) {
@@ -111,7 +112,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
         };
         variants: Variants<B>;
         "display-as": string | null;
-        "unique-by": _UniqueBy;
+        "unique-by": UniqueBy;
       },
     B extends { [key: string]: ConfigSpec }
   >(a: A) {

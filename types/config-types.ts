@@ -140,6 +140,7 @@ export interface ListValueSpecObject {
 
 export type UniqueBy =
   | null
+  | undefined
   | string
   | { any: readonly UniqueBy[] | UniqueBy[] }
   | { all: readonly UniqueBy[] | UniqueBy[] };
