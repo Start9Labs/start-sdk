@@ -13,7 +13,7 @@ export class Config<A extends ConfigSpec> extends IBuilder<A> {
     return Config.empty().withValue(key, value);
   }
 
-  static of<B extends { [key: string]: Value<C> }, C extends ValueSpec>(spec: B) {
+  static of<B extends { [key: string]: Value<ValueSpec> }>(spec: B) {
     // deno-lint-ignore no-explicit-any
     const answer: { [K in keyof B]: BuilderExtract<B[K]> } = {} as any;
     for (const key in spec) {
