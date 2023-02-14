@@ -135,7 +135,7 @@ export interface ListValueSpecEnum {
 export interface ListValueSpecObject {
   spec: ConfigSpec; // this is a mapped type of the config object at this level, replacing the object's values with specs on those values
   "unique-by": UniqueBy; // indicates whether duplicates can be permitted in the list
-  "display-as"?: string; // this should be a handlebars template which can make use of the entire config which corresponds to 'spec'
+  "display-as"?: null | string; // this should be a handlebars template which can make use of the entire config which corresponds to 'spec'
 }
 
 export type UniqueBy =

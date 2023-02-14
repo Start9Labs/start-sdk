@@ -1,4 +1,4 @@
-import { IBuilder } from "./builder.ts";
+import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { List } from "./list.ts";
 import { Pointer } from "./pointer.ts";
@@ -9,6 +9,7 @@ import {
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
+  ValueSpecObject,
   ValueSpecString,
 } from "../types/config-types.ts";
 
@@ -80,18 +81,20 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       ...a,
     });
   }
-  static objectV<
-    A extends Description &
-      NullableDefault<{ [k: string]: unknown }> & {
-        "display-as": null | string;
-        "unique-by": null | string;
-        spec: Config<B>;
-        "value-names": Record<string, string>;
-      },
-    B extends ConfigSpec
+  static object<
+    A extends {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: null | { [k: string]: unknown };
+      "display-as": null | string;
+      "unique-by": null | string;
+      spec: Config<ConfigSpec>;
+      "value-names": Record<string, string>;
+    }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
-    const spec = previousSpec.build();
+    const spec = previousSpec.build() as BuilderExtract<A["spec"]>;
     return new Value({
       type: "object" as const,
       ...rest,
@@ -110,14 +113,13 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
             [key: string]: string;
           };
         };
-        variants: Variants<B>;
+        variants: Variants<{ [key: string]: ConfigSpec }>;
         "display-as": string | null;
         "unique-by": UniqueBy;
-      },
-    B extends { [key: string]: ConfigSpec }
+      }
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
-    const variants = previousVariants.build();
+    const variants = previousVariants.build() as BuilderExtract<A["variants"]>;
     return new Value({
       type: "union" as const,
       ...rest,
@@ -128,7 +130,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   static pointer<A extends ValueSpec>(a: Pointer<A>) {
     return new Value(a.build());
   }
-  static list<A extends List<B>, B extends ValueSpecList>(a: A) {
+  static list<A extends List<ValueSpecList>>(a: A) {
     return new Value(a.build());
   }
 }

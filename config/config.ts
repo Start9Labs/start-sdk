@@ -7,9 +7,10 @@ export class Config<A extends ConfigSpec> extends IBuilder<A> {
     return new Config({});
   }
   static withValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
-    return new Config({
-      [key]: value.build(),
-    } as { [key in K]: B });
+    return Config.empty().withValue(key, value);
+  }
+  static addValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
+    return Config.empty().withValue(key, value);
   }
 
   static of<B extends { [key: string]: Value<C> }, C extends ValueSpec>(spec: B) {

@@ -52,7 +52,7 @@ type GuardList<A> =
 // prettier-ignore
 // deno-fmt-ignore
 type GuardPointer<A> = 
-    A extends {readonly type:TypePointer} ? {_UNKNOWN: "Pointer"} :
+    A extends {readonly type:TypePointer} ? (string | null) :
     unknown
 // prettier-ignore
 // deno-fmt-ignore

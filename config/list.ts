@@ -1,4 +1,4 @@
-import { IBuilder } from "./builder.ts";
+import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { Default, NullableDefault, NumberSpec, StringSpec } from "./value.ts";
 import { Description } from "./value.ts";
@@ -50,19 +50,18 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
   }
   static objectV<
     A extends Description &
-      NullableDefault<Record<string, unknown>[]> & {
+      Default<Record<string, unknown>[]> & {
         range: string;
         spec: {
-          spec: Config<B>;
+          spec: Config<ConfigSpec>;
           "display-as": null | string;
           "unique-by": null | UniqueBy;
         };
-      },
-    B extends ConfigSpec
+      }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { spec: previousSpecSpec, ...restSpec } = previousSpec;
-    const specSpec = previousSpecSpec.build();
+    const specSpec = previousSpecSpec.build() as BuilderExtract<A["spec"]["spec"]>;
     const spec = {
       ...restSpec,
       spec: specSpec,
@@ -75,7 +74,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       type: "list" as const,
       subtype: "object" as const,
       ...value,
-    } as ValueSpecListOf<"object">);
+    });
   }
   static union<
     A extends Description &
@@ -90,17 +89,16 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
               [key: string]: string;
             };
           };
-          variants: Variants<B>;
+          variants: Variants<{ [key: string]: ConfigSpec }>;
           "display-as": null | string;
           "unique-by": UniqueBy;
           default: string;
         };
-      },
-    B extends { [key: string]: ConfigSpec }
+      }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;
-    const variants = previousVariants.build();
+    const variants = previousVariants.build() as BuilderExtract<A["spec"]["variants"]>;
     const spec = {
       ...restSpec,
       variants,
