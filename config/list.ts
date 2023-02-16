@@ -4,7 +4,12 @@ import { Default, NullableDefault, NumberSpec, StringSpec } from "./value.ts";
 import { Description } from "./value.ts";
 import * as T from "../types.ts";
 import { Variants } from "./variants.ts";
-import { ConfigSpec, UniqueBy, ValueSpecList, ValueSpecListOf } from "../types/config-types.ts";
+import {
+  ConfigSpec,
+  UniqueBy,
+  ValueSpecList,
+  ValueSpecListOf,
+} from "../types/config-types.ts";
 
 export class List<A extends ValueSpecList> extends IBuilder<A> {
   // // deno-lint-ignore ban-types
@@ -16,14 +21,24 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
   //   });
   // }
 
-  static string<A extends Description & Default<string[]> & { range: string; spec: StringSpec }>(a: A) {
+  static string<
+    A extends Description & Default<string[]> & {
+      range: string;
+      spec: StringSpec;
+    },
+  >(a: A) {
     return new List({
       type: "list" as const,
       subtype: "string" as const,
       ...a,
     } as ValueSpecListOf<"string">);
   }
-  static number<A extends Description & Default<number[]> & { range: string; spec: NumberSpec }>(a: A) {
+  static number<
+    A extends Description & Default<number[]> & {
+      range: string;
+      spec: NumberSpec;
+    },
+  >(a: A) {
     return new List({
       type: "list" as const,
       subtype: "number" as const,
@@ -31,8 +46,10 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     });
   }
   static enum<
-    A extends Description &
-      Default<string[]> & {
+    A extends
+      & Description
+      & Default<string[]>
+      & {
         range: string;
         spec: {
           values: string[];
@@ -40,7 +57,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
             [key: string]: string;
           };
         };
-      }
+      },
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -49,19 +66,23 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     });
   }
   static objectV<
-    A extends Description &
-      Default<Record<string, unknown>[]> & {
+    A extends
+      & Description
+      & Default<Record<string, unknown>[]>
+      & {
         range: string;
         spec: {
           spec: Config<ConfigSpec>;
           "display-as": null | string;
           "unique-by": null | UniqueBy;
         };
-      }
+      },
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { spec: previousSpecSpec, ...restSpec } = previousSpec;
-    const specSpec = previousSpecSpec.build() as BuilderExtract<A["spec"]["spec"]>;
+    const specSpec = previousSpecSpec.build() as BuilderExtract<
+      A["spec"]["spec"]
+    >;
     const spec = {
       ...restSpec,
       spec: specSpec,
@@ -77,8 +98,10 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     });
   }
   static union<
-    A extends Description &
-      Default<string[]> & {
+    A extends
+      & Description
+      & Default<string[]>
+      & {
         range: string;
         spec: {
           tag: {
@@ -94,11 +117,13 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
           "unique-by": UniqueBy;
           default: string;
         };
-      }
+      },
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;
-    const variants = previousVariants.build() as BuilderExtract<A["spec"]["variants"]>;
+    const variants = previousVariants.build() as BuilderExtract<
+      A["spec"]["variants"]
+    >;
     const spec = {
       ...restSpec,
       variants,

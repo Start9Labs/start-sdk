@@ -10,7 +10,11 @@ import { ConfigSpec } from "../types/config-types.ts";
  * @param depends_on This would be the depends on for condition depends_on
  * @returns
  */
-export const setConfig = async (effects: Effects, newConfig: ConfigSpec, dependsOn: DependsOn = {}) => {
+export const setConfig = async (
+  effects: Effects,
+  newConfig: ConfigSpec,
+  dependsOn: DependsOn = {},
+) => {
   await effects.createDir({
     path: "start9",
     volumeId: "main",

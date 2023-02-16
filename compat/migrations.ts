@@ -17,11 +17,17 @@ export interface NoRepeat<version extends string, type extends "up" | "down"> {
  * @param noFail (optional, default:false) whether or not to fail the migration if fn throws an error
  * @returns a migraion function
  */
-export function updateConfig<version extends string, type extends "up" | "down">(
-  fn: (config: ConfigSpec, effects: T.Effects) => ConfigSpec | Promise<ConfigSpec>,
+export function updateConfig<
+  version extends string,
+  type extends "up" | "down",
+>(
+  fn: (
+    config: ConfigSpec,
+    effects: T.Effects,
+  ) => ConfigSpec | Promise<ConfigSpec>,
   configured: boolean,
   noRepeat?: NoRepeat<version, type>,
-  noFail = false
+  noFail = false,
 ): M.MigrationFn<version, type> {
   return M.migrationFn(async (effects: T.Effects) => {
     await noRepeatGuard(effects, noRepeat, async () => {
@@ -43,15 +49,23 @@ export function updateConfig<version extends string, type extends "up" | "down">
   });
 }
 
-export async function noRepeatGuard<version extends string, type extends "up" | "down">(
+export async function noRepeatGuard<
+  version extends string,
+  type extends "up" | "down",
+>(
   effects: T.Effects,
   noRepeat: NoRepeat<version, type> | undefined,
-  fn: () => Promise<void>
+  fn: () => Promise<void>,
 ): Promise<void> {
   if (!noRepeat) {
     return fn();
   }
-  if (!(await util.exists(effects, { path: "start9/migrations", volumeId: "main" }))) {
+  if (
+    !(await util.exists(effects, {
+      path: "start9/migrations",
+      volumeId: "main",
+    }))
+  ) {
     await effects.createDir({ path: "start9/migrations", volumeId: "main" });
   }
   const migrationPath = {
@@ -74,9 +88,14 @@ export async function noRepeatGuard<version extends string, type extends "up" | 
 export async function initNoRepeat<versions extends string>(
   effects: T.Effects,
   migrations: M.MigrationMapping<versions>,
-  startingVersion: string
+  startingVersion: string,
 ) {
-  if (!(await util.exists(effects, { path: "start9/migrations", volumeId: "main" }))) {
+  if (
+    !(await util.exists(effects, {
+      path: "start9/migrations",
+      volumeId: "main",
+    }))
+  ) {
     const starting = EmVer.parse(startingVersion);
     await effects.createDir({ path: "start9/migrations", volumeId: "main" });
     for (const version in migrations) {
@@ -94,11 +113,15 @@ export async function initNoRepeat<versions extends string>(
 
 export function fromMapping<versions extends string>(
   migrations: M.MigrationMapping<versions>,
-  currentVersion: string
+  currentVersion: string,
 ): T.ExpectedExports.migration {
   const inner = M.fromMapping(migrations, currentVersion);
   return async (effects: T.Effects, version: string, direction?: unknown) => {
-    await initNoRepeat(effects, migrations, direction === "from" ? version : currentVersion);
+    await initNoRepeat(
+      effects,
+      migrations,
+      direction === "from" ? version : currentVersion,
+    );
     return inner(effects, version, direction);
   };
 }

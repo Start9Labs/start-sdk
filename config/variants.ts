@@ -2,11 +2,12 @@ import { ConfigSpec } from "../types/config-types.ts";
 import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./mod.ts";
 
-export class Variants<A extends { [key: string]: ConfigSpec }> extends IBuilder<A> {
+export class Variants<A extends { [key: string]: ConfigSpec }>
+  extends IBuilder<A> {
   static of<
     A extends {
       [key: string]: Config<ConfigSpec>;
-    }
+    },
   >(a: A) {
     // deno-lint-ignore no-explicit-any
     const variants: { [K in keyof A]: BuilderExtract<A[K]> } = {} as any;
@@ -20,14 +21,22 @@ export class Variants<A extends { [key: string]: ConfigSpec }> extends IBuilder<
   static empty() {
     return Variants.of({});
   }
-  static withVariant<K extends string, B extends ConfigSpec>(key: K, value: Config<B>) {
+  static withVariant<K extends string, B extends ConfigSpec>(
+    key: K,
+    value: Config<B>,
+  ) {
     return Variants.empty().withVariant(key, value);
   }
 
-  withVariant<K extends string, B extends ConfigSpec>(key: K, value: Config<B>) {
-    return new Variants({
-      ...this.a,
-      [key]: value.build(),
-    } as A & { [key in K]: B });
+  withVariant<K extends string, B extends ConfigSpec>(
+    key: K,
+    value: Config<B>,
+  ) {
+    return new Variants(
+      {
+        ...this.a,
+        [key]: value.build(),
+      } as A & { [key in K]: B },
+    );
   }
 }

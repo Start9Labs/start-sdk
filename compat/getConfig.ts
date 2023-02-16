@@ -3,7 +3,7 @@ import { YAML } from "../dependencies.ts";
 import { matches } from "../dependencies.ts";
 import { ExpectedExports } from "../types.ts";
 import { ConfigSpec } from "../types/config-types.ts";
-import { typeFromProps, TypeFromProps } from "../utils/propertiesMatcher.ts";
+import { TypeFromProps, typeFromProps } from "../utils/propertiesMatcher.ts";
 
 const { any, string, dictionary } = matches;
 
@@ -18,8 +18,7 @@ const matchConfig = dictionary([string, any]);
  * @returns
  */
 export const getConfig =
-  (spec: ConfigSpec): ExpectedExports.getConfig =>
-  async (effects) => {
+  (spec: ConfigSpec): ExpectedExports.getConfig => async (effects) => {
     const config = await effects
       .readFile({
         path: "start9/config.yaml",
@@ -49,8 +48,11 @@ export const getConfig =
  * @returns A funnction for getConfig and the matcher for the spec sent in
  */
 export const getConfigAndMatcher = <Spec extends ConfigSpec>(
-  spec: Config<Spec> | Spec
-): [ExpectedExports.getConfig, matches.Parser<unknown, TypeFromProps<Spec>>] => {
+  spec: Config<Spec> | Spec,
+): [
+  ExpectedExports.getConfig,
+  matches.Parser<unknown, TypeFromProps<Spec>>,
+] => {
   const specBuilt: Spec = spec instanceof Config ? spec.build() : spec;
 
   return [

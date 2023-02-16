@@ -1,5 +1,8 @@
 import { matches } from "../dependencies.ts";
-import { ConfigSpec, ValueSpec as ValueSpecAny } from "../types/config-types.ts";
+import {
+  ConfigSpec,
+  ValueSpec as ValueSpecAny,
+} from "../types/config-types.ts";
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -66,14 +69,15 @@ type GuardUnion<A> =
     unknown
 
 type _<T> = T;
-export type GuardAll<A> = GuardNumber<A> &
-  GuardString<A> &
-  GuardBoolean<A> &
-  GuardObject<A> &
-  GuardList<A> &
-  GuardPointer<A> &
-  GuardUnion<A> &
-  GuardEnum<A>;
+export type GuardAll<A> =
+  & GuardNumber<A>
+  & GuardString<A>
+  & GuardBoolean<A>
+  & GuardObject<A>
+  & GuardList<A>
+  & GuardPointer<A>
+  & GuardUnion<A>
+  & GuardEnum<A>;
 // prettier-ignore
 // deno-fmt-ignore
 export type TypeFromProps<A> = 
@@ -109,23 +113,32 @@ function charRange(value = "") {
 }
 
 /**
- *
  * @param generate.charset Pattern like "a-z" or "a-z,1-5"
  * @param generate.len Length to make random variable
  * @param param1
  * @returns
  */
-export function generateDefault(generate: { charset: string; len: number }, { random = () => Math.random() } = {}) {
-  const validCharSets: number[][] = generate.charset.split(",").map(charRange).filter(Array.isArray);
-  if (validCharSets.length === 0) throw new Error("Expecing that we have a valid charset");
-  const max = validCharSets.reduce((acc, x) => x.reduce((x, y) => Math.max(x, y), acc), 0);
+export function generateDefault(
+  generate: { charset: string; len: number },
+  { random = () => Math.random() } = {},
+) {
+  const validCharSets: number[][] = generate.charset.split(",").map(charRange)
+    .filter(Array.isArray);
+  if (validCharSets.length === 0) {
+    throw new Error("Expecing that we have a valid charset");
+  }
+  const max = validCharSets.reduce(
+    (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
+    0,
+  );
   let i = 0;
   const answer: string[] = Array(generate.len);
   while (i < generate.len) {
     const nextValue = Math.round(random() * max);
     const inRange = validCharSets.reduce(
-      (acc, [lower, upper]) => acc || (nextValue >= lower && nextValue <= upper),
-      false
+      (acc, [lower, upper]) =>
+        acc || (nextValue >= lower && nextValue <= upper),
+      false,
     );
     if (!inRange) continue;
     answer[i] = String.fromCharCode(nextValue);
@@ -144,12 +157,28 @@ export function matchNumberWithRange(range: string) {
   const [, left, leftValue, , rightValue, , right] = matched;
   return matches.number
     .validate(
-      leftValue === "*" ? (_) => true : left === "[" ? (x) => x >= Number(leftValue) : (x) => x > Number(leftValue),
-      leftValue === "*" ? "any" : left === "[" ? `greaterThanOrEqualTo${leftValue}` : `greaterThan${leftValue}`
+      leftValue === "*"
+        ? (_) => true
+        : left === "["
+        ? (x) => x >= Number(leftValue)
+        : (x) => x > Number(leftValue),
+      leftValue === "*"
+        ? "any"
+        : left === "["
+        ? `greaterThanOrEqualTo${leftValue}`
+        : `greaterThan${leftValue}`,
     )
     .validate(
-      rightValue === "*" ? (_) => true : right === "]" ? (x) => x <= Number(rightValue) : (x) => x < Number(rightValue),
-      rightValue === "*" ? "any" : right === "]" ? `lessThanOrEqualTo${rightValue}` : `lessThan${rightValue}`
+      rightValue === "*"
+        ? (_) => true
+        : right === "]"
+        ? (x) => x <= Number(rightValue)
+        : (x) => x < Number(rightValue),
+      rightValue === "*"
+        ? "any"
+        : right === "]"
+        ? `lessThanOrEqualTo${rightValue}`
+        : `lessThan${rightValue}`,
     );
 }
 function withIntegral(parser: matches.Parser<unknown, number>, value: unknown) {
@@ -164,10 +193,18 @@ function withRange(value: unknown) {
   }
   return matches.number;
 }
-const isGenerator = matches.shape({ charset: matches.string, len: matches.number }).test;
-function defaultNullable<A>(parser: matches.Parser<unknown, A>, value: unknown) {
+const isGenerator =
+  matches.shape({ charset: matches.string, len: matches.number }).test;
+function defaultNullable<A>(
+  parser: matches.Parser<unknown, A>,
+  value: unknown,
+) {
   if (matchDefault.test(value)) {
-    if (isGenerator(value.default)) return parser.defaultTo(parser.unsafeCast(generateDefault(value.default)));
+    if (isGenerator(value.default)) {
+      return parser.defaultTo(
+        parser.unsafeCast(generateDefault(value.default)),
+      );
+    }
     return parser.defaultTo(value.default);
   }
   if (matchNullable.test(value)) return parser.optional();
@@ -182,7 +219,9 @@ function defaultNullable<A>(parser: matches.Parser<unknown, A>, value: unknown) 
  * @param value
  * @returns
  */
-export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unknown, GuardAll<A>> {
+export function guardAll<A extends ValueSpecAny>(
+  value: A,
+): matches.Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
     // deno-lint-ignore no-explicit-any
     return matches.unknown as any;
@@ -199,7 +238,7 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
     case "number":
       return defaultNullable(
         withIntegral(withRange(value), value),
-        value
+        value,
         // deno-lint-ignore no-explicit-any
       ) as any;
 
@@ -213,7 +252,9 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
 
     case "list": {
       const spec = (matchSpec.test(value) && value.spec) || {};
-      const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
+      const rangeValidate =
+        (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
+        (() => true);
 
       const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultNullable(
@@ -221,7 +262,7 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
           // deno-lint-ignore no-explicit-any
           .arrayOf(guardAll({ type: subtype, ...spec } as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
-        value
+        value,
         // deno-lint-ignore no-explicit-any
       ) as any;
     }
@@ -229,7 +270,7 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
       if (matchValues.test(value)) {
         return defaultNullable(
           matches.literals(value.values[0], ...value.values),
-          value
+          value,
           // deno-lint-ignore no-explicit-any
         ) as any;
       }
@@ -242,8 +283,10 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
       if (matchUnion.test(value)) {
         return matches.some(
           ...Object.entries(value.variants).map(([variant, spec]) =>
-            matches.shape({ [value.tag.id]: matches.literal(variant) }).concat(typeFromProps(spec))
-          ) // deno-lint-ignore no-explicit-any
+            matches.shape({ [value.tag.id]: matches.literal(variant) }).concat(
+              typeFromProps(spec),
+            )
+          ), // deno-lint-ignore no-explicit-any
         ) as any;
       }
       // deno-lint-ignore no-explicit-any
@@ -261,11 +304,17 @@ export function guardAll<A extends ValueSpecAny>(value: A): matches.Parser<unkno
  * @param valueDictionary
  * @returns
  */
-export function typeFromProps<A extends ConfigSpec>(valueDictionary: A): matches.Parser<unknown, TypeFromProps<A>> {
+export function typeFromProps<A extends ConfigSpec>(
+  valueDictionary: A,
+): matches.Parser<unknown, TypeFromProps<A>> {
   // deno-lint-ignore no-explicit-any
   if (!recordString.test(valueDictionary)) return matches.unknown as any;
   return matches.shape(
-    Object.fromEntries(Object.entries(valueDictionary).map(([key, value]) => [key, guardAll(value)]))
+    Object.fromEntries(
+      Object.entries(valueDictionary).map((
+        [key, value],
+      ) => [key, guardAll(value)]),
+    ),
     // deno-lint-ignore no-explicit-any
   ) as any;
 }

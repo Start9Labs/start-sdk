@@ -24,8 +24,8 @@ test("Pointer", () => {
         "package-id": "bitcoind",
         interface: "peer",
         warning: null,
-      })
-    )
+      }),
+    ),
   ).build();
   expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
     /*json*/ `{
@@ -41,6 +41,6 @@ test("Pointer", () => {
   }}`
       .replaceAll("\n", " ")
       .replaceAll(/\s{2,}/g, "")
-      .replaceAll(": ", ":")
+      .replaceAll(": ", ":"),
   );
 });

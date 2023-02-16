@@ -9,16 +9,15 @@ import {
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
-  ValueSpecObject,
   ValueSpecString,
 } from "../types/config-types.ts";
 
 export type DefaultString =
   | string
   | {
-      charset: string | null | undefined;
-      len: number;
-    };
+    charset: string | null | undefined;
+    len: number;
+  };
 export type Description = {
   name: string;
   description: string | null;
@@ -31,18 +30,20 @@ export type NullableDefault<A> = {
   default?: A;
 };
 
-export type StringSpec = {
-  copyable: boolean | null;
-  masked: boolean | null;
-  placeholder: string | null;
-} & (
-  | {
+export type StringSpec =
+  & {
+    copyable: boolean | null;
+    masked: boolean | null;
+    placeholder: string | null;
+  }
+  & (
+    | {
       pattern: string;
       "pattern-description": string;
     }
-  // deno-lint-ignore ban-types
-  | {}
-);
+    // deno-lint-ignore ban-types
+    | {}
+  );
 export type NumberSpec = {
   range: string;
   integral: boolean;
@@ -60,21 +61,34 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       ...a,
     });
   }
-  static string<A extends Description & NullableDefault<DefaultString> & Nullable & StringSpec>(a: A) {
+  static string<
+    A extends
+      & Description
+      & NullableDefault<DefaultString>
+      & Nullable
+      & StringSpec,
+  >(a: A) {
     return new Value({
       type: "string" as const,
       ...a,
     } as ValueSpecString);
   }
-  static number<A extends Description & NullableDefault<number> & Nullable & NumberSpec>(a: A) {
+  static number<
+    A extends Description & NullableDefault<number> & Nullable & NumberSpec,
+  >(a: A) {
     return new Value({
       type: "number" as const,
       ...a,
     } as ValueSpecNumber);
   }
   static enum<
-    A extends Description &
-      Default<string> & { values: readonly string[] | string[]; "value-names": Record<string, string> }
+    A extends
+      & Description
+      & Default<string>
+      & {
+        values: readonly string[] | string[];
+        "value-names": Record<string, string>;
+      },
   >(a: A) {
     return new Value({
       type: "enum" as const,
@@ -91,7 +105,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       "unique-by": null | string;
       spec: Config<ConfigSpec>;
       "value-names": Record<string, string>;
-    }
+    },
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const spec = previousSpec.build() as BuilderExtract<A["spec"]>;
@@ -102,8 +116,10 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     });
   }
   static union<
-    A extends Description &
-      Default<string> & {
+    A extends
+      & Description
+      & Default<string>
+      & {
         tag: {
           id: string;
           name: string;
@@ -116,7 +132,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
         variants: Variants<{ [key: string]: ConfigSpec }>;
         "display-as": string | null;
         "unique-by": UniqueBy;
-      }
+      },
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
     const variants = previousVariants.build() as BuilderExtract<A["variants"]>;

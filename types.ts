@@ -4,7 +4,10 @@ import { ConfigSpec } from "./types/config-types.ts";
 // deno-lint-ignore no-namespace
 export namespace ExpectedExports {
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
-  export type setConfig = (effects: Effects, input: ConfigSpec) => Promise<ResultType<SetResult>>;
+  export type setConfig = (
+    effects: Effects,
+    input: ConfigSpec,
+  ) => Promise<ResultType<SetResult>>;
   /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
   export type getConfig = (effects: Effects) => Promise<ResultType<ConfigRes>>;
   /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
@@ -12,23 +15,34 @@ export namespace ExpectedExports {
   /** For backing up service data though the embassyOS UI */
   export type createBackup = (effects: Effects) => Promise<ResultType<unknown>>;
   /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
-  export type restoreBackup = (effects: Effects) => Promise<ResultType<unknown>>;
+  export type restoreBackup = (
+    effects: Effects,
+  ) => Promise<ResultType<unknown>>;
   /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
-  export type properties = (effects: Effects) => Promise<ResultType<Properties>>;
+  export type properties = (
+    effects: Effects,
+  ) => Promise<ResultType<Properties>>;
 
   /** Health checks are used to determine if the service is working properly after starting
    * A good use case is if we are using a web server, seeing if we can get to the web server.
    */
   export type health = {
     /** Should be the health check id */
-    [id: string]: (effects: Effects, dateMs: number) => Promise<ResultType<unknown>>;
+    [id: string]: (
+      effects: Effects,
+      dateMs: number,
+    ) => Promise<ResultType<unknown>>;
   };
 
   /**
    * Migrations are used when we are changing versions when updating/ downgrading.
    * There are times that we need to move files around, and do other operations during a migration.
    */
-  export type migration = (effects: Effects, version: string, ...args: unknown[]) => Promise<ResultType<MigrationRes>>;
+  export type migration = (
+    effects: Effects,
+    version: string,
+    ...args: unknown[]
+  ) => Promise<ResultType<MigrationRes>>;
 
   /**
    * Actions are used so we can effect the service, like deleting a directory.
@@ -36,7 +50,10 @@ export namespace ExpectedExports {
    * service starting, and that file would indicate that it would rescan all the data.
    */
   export type action = {
-    [id: string]: (effects: Effects, config?: ConfigSpec) => Promise<ResultType<ActionResult>>;
+    [id: string]: (
+      effects: Effects,
+      config?: ConfigSpec,
+    ) => Promise<ResultType<ActionResult>>;
   };
 
   /**
@@ -55,7 +72,9 @@ export type ConfigRes = {
 /** Used to reach out from the pure js runtime */
 export type Effects = {
   /** Usable when not sandboxed */
-  writeFile(input: { path: string; volumeId: string; toWrite: string }): Promise<void>;
+  writeFile(
+    input: { path: string; volumeId: string; toWrite: string },
+  ): Promise<void>;
   readFile(input: { volumeId: string; path: string }): Promise<string>;
   metadata(input: { volumeId: string; path: string }): Promise<Metadata>;
   /** Create a directory. Usable when not sandboxed */
@@ -67,12 +86,18 @@ export type Effects = {
   removeFile(input: { volumeId: string; path: string }): Promise<void>;
 
   /** Write a json file into an object. Usable when not sandboxed */
-  writeJsonFile(input: { volumeId: string; path: string; toWrite: Record<string, unknown> }): Promise<void>;
+  writeJsonFile(
+    input: { volumeId: string; path: string; toWrite: Record<string, unknown> },
+  ): Promise<void>;
 
   /** Read a json file into an object */
-  readJsonFile(input: { volumeId: string; path: string }): Promise<Record<string, unknown>>;
+  readJsonFile(
+    input: { volumeId: string; path: string },
+  ): Promise<Record<string, unknown>>;
 
-  runCommand(input: { command: string; args?: string[]; timeoutMillis?: number }): Promise<ResultType<string>>;
+  runCommand(
+    input: { command: string; args?: string[]; timeoutMillis?: number },
+  ): Promise<ResultType<string>>;
   runDaemon(input: { command: string; args?: string[] }): {
     wait(): Promise<ResultType<string>>;
     term(): Promise<void>;
@@ -102,7 +127,7 @@ export type Effects = {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
       headers?: Record<string, string>;
       body?: string;
-    }
+    },
   ): Promise<{
     method: string;
     ok: boolean;
@@ -208,8 +233,8 @@ export type DependsOn = {
 export type KnownError =
   | { error: string }
   | {
-      "error-code": [number, string] | readonly [number, string];
-    };
+    "error-code": [number, string] | readonly [number, string];
+  };
 export type ResultType<T> = KnownError | { result: T };
 
 export type PackagePropertiesV2 = {
@@ -241,8 +266,14 @@ export type Dependencies = {
   /** Id is the id of the package, should be the same as the manifest */
   [id: string]: {
     /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
-    check(effects: Effects, input: ConfigSpec): Promise<ResultType<void | null>>;
+    check(
+      effects: Effects,
+      input: ConfigSpec,
+    ): Promise<ResultType<void | null>>;
     /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
-    autoConfigure(effects: Effects, input: ConfigSpec): Promise<ResultType<ConfigSpec>>;
+    autoConfigure(
+      effects: Effects,
+      input: ConfigSpec,
+    ): Promise<ResultType<ConfigSpec>>;
   };
 };

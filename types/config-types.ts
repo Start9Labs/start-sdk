@@ -1,26 +1,27 @@
 // deno-lint-ignore-file ban-types
 export type ConfigSpec = Record<string, ValueSpec>;
 
-export type ValueType = "string" | "number" | "boolean" | "enum" | "list" | "object" | "pointer" | "union";
+export type ValueType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "enum"
+  | "list"
+  | "object"
+  | "pointer"
+  | "union";
 export type ValueSpec = ValueSpecOf<ValueType>;
 
 // core spec types. These types provide the metadata for performing validations
 export type ValueSpecOf<T extends ValueType> = T extends "string"
   ? ValueSpecString
-  : T extends "number"
-  ? ValueSpecNumber
-  : T extends "boolean"
-  ? ValueSpecBoolean
-  : T extends "enum"
-  ? ValueSpecEnum
-  : T extends "list"
-  ? ValueSpecList
-  : T extends "object"
-  ? ValueSpecObject
-  : T extends "pointer"
-  ? ValueSpecPointer
-  : T extends "union"
-  ? ValueSpecUnion
+  : T extends "number" ? ValueSpecNumber
+  : T extends "boolean" ? ValueSpecBoolean
+  : T extends "enum" ? ValueSpecEnum
+  : T extends "list" ? ValueSpecList
+  : T extends "object" ? ValueSpecObject
+  : T extends "pointer" ? ValueSpecPointer
+  : T extends "union" ? ValueSpecUnion
   : never;
 
 export interface ValueSpecString extends ListValueSpecString, WithStandalone {
@@ -75,24 +76,26 @@ export interface WithStandalone {
 }
 
 // no lists of booleans, lists, pointers
-export type ListValueSpecType = "string" | "number" | "enum" | "object" | "union";
+export type ListValueSpecType =
+  | "string"
+  | "number"
+  | "enum"
+  | "object"
+  | "union";
 
 // represents a spec for the values of a list
 export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
   ? ListValueSpecString
-  : T extends "number"
-  ? ListValueSpecNumber
-  : T extends "enum"
-  ? ListValueSpecEnum
-  : T extends "object"
-  ? ListValueSpecObject
-  : T extends "union"
-  ? ListValueSpecUnion
+  : T extends "number" ? ListValueSpecNumber
+  : T extends "enum" ? ListValueSpecEnum
+  : T extends "object" ? ListValueSpecObject
+  : T extends "union" ? ListValueSpecUnion
   : never;
 
 // represents a spec for a list
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>;
-export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStandalone {
+export interface ValueSpecListOf<T extends ListValueSpecType>
+  extends WithStandalone {
   type: "list";
   subtype: T;
   spec: ListValueSpecOf<T>;
@@ -109,7 +112,10 @@ export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStanda
 }
 
 // sometimes the type checker needs just a little bit of help
-export function isValueSpecListOf<S extends ListValueSpecType>(t: ValueSpecList, s: S): t is ValueSpecListOf<S> {
+export function isValueSpecListOf<S extends ListValueSpecType>(
+  t: ValueSpecList,
+  s: S,
+): t is ValueSpecListOf<S> {
   return t.subtype === s;
 }
 

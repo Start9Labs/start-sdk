@@ -6,10 +6,16 @@ export class Config<A extends ConfigSpec> extends IBuilder<A> {
   static empty() {
     return new Config({});
   }
-  static withValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
+  static withValue<K extends string, B extends ValueSpec>(
+    key: K,
+    value: Value<B>,
+  ) {
     return Config.empty().withValue(key, value);
   }
-  static addValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
+  static addValue<K extends string, B extends ValueSpec>(
+    key: K,
+    value: Value<B>,
+  ) {
     return Config.empty().withValue(key, value);
   }
 
@@ -23,15 +29,19 @@ export class Config<A extends ConfigSpec> extends IBuilder<A> {
     return new Config(answer);
   }
   withValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
-    return new Config({
-      ...this.a,
-      [key]: value.build(),
-    } as A & { [key in K]: B });
+    return new Config(
+      {
+        ...this.a,
+        [key]: value.build(),
+      } as A & { [key in K]: B },
+    );
   }
   addValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
-    return new Config({
-      ...this.a,
-      [key]: value.build(),
-    } as A & { [key in K]: B });
+    return new Config(
+      {
+        ...this.a,
+        [key]: value.build(),
+      } as A & { [key in K]: B },
+    );
   }
 }
