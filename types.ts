@@ -3,6 +3,8 @@ import { ConfigSpec } from "./types/config-types.ts";
 
 // deno-lint-ignore no-namespace
 export namespace ExpectedExports {
+  version:
+  2;
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
   export type setConfig = (
     effects: Effects,
@@ -79,8 +81,8 @@ export type Effects = {
   metadata(input: { volumeId: string; path: string }): Promise<Metadata>;
   /** Create a directory. Usable when not sandboxed */
   createDir(input: { volumeId: string; path: string }): Promise<string>;
-  /** Create a directory. Usable when not sandboxed */
-  createDir(input: { volumeId: string; path: string }): Promise<string>;
+
+  readDir(input: { volumeId: string; path: string }): Promise<string[]>;
   /** Remove a directory. Usable when not sandboxed */
   removeDir(input: { volumeId: string; path: string }): Promise<string>;
   removeFile(input: { volumeId: string; path: string }): Promise<void>;
@@ -103,6 +105,9 @@ export type Effects = {
     term(): Promise<void>;
   };
 
+  chown(input: { volumeId: string; path: string; uid: string }): Promise<null>;
+  chmod(input: { volumeId: string; path: string; mode: string }): Promise<null>;
+
   sleep(timeMs: number): Promise<null>;
 
   /** Log at the trace level */
@@ -120,6 +125,12 @@ export type Effects = {
   is_sandboxed(): boolean;
 
   exists(input: { volumeId: string; path: string }): Promise<boolean>;
+  bindLocal(
+    options: { internalPort: number; name: string; externalPort: number },
+  ): Promise<string>;
+  bindTor(
+    options: { internalPort: number; name: string; externalPort: number },
+  ): Promise<string>;
 
   fetch(
     url: string,
