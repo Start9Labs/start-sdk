@@ -4,6 +4,7 @@ import * as M from "../migrations.ts";
 import * as util from "../util.ts";
 import { EmVer } from "../emver-lite/mod.ts";
 import { ConfigSpec } from "../types/config-types.ts";
+import { Config } from "../config/mod.ts";
 
 export interface NoRepeat<version extends string, type extends "up" | "down"> {
   version: version;
@@ -31,7 +32,8 @@ export function updateConfig<
 ): M.MigrationFn<version, type> {
   return M.migrationFn(async (effects: T.Effects) => {
     await noRepeatGuard(effects, noRepeat, async () => {
-      let config = util.unwrapResultType(await getConfig({})(effects)).config;
+      let config =
+        util.unwrapResultType(await getConfig(Config.of({}))(effects)).config;
       if (config) {
         try {
           config = await fn(config, effects);

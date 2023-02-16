@@ -18,7 +18,8 @@ const matchConfig = dictionary([string, any]);
  * @returns
  */
 export const getConfig =
-  (spec: ConfigSpec): ExpectedExports.getConfig => async (effects) => {
+  <A extends ConfigSpec>(spec: Config<A>): ExpectedExports.getConfig =>
+  async (effects) => {
     const config = await effects
       .readFile({
         path: "start9/config.yaml",
@@ -34,7 +35,7 @@ export const getConfig =
     return {
       result: {
         config,
-        spec,
+        spec: spec.build(),
       },
     };
   };
@@ -48,12 +49,12 @@ export const getConfig =
  * @returns A funnction for getConfig and the matcher for the spec sent in
  */
 export const getConfigAndMatcher = <Spec extends ConfigSpec>(
-  spec: Config<Spec> | Spec,
+  spec: Config<Spec>,
 ): [
   ExpectedExports.getConfig,
   matches.Parser<unknown, TypeFromProps<Spec>>,
 ] => {
-  const specBuilt: Spec = spec instanceof Config ? spec.build() : spec;
+  const specBuilt: Spec = spec.build();
 
   return [
     async (effects) => {
