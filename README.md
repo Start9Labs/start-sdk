@@ -1,7 +1,5 @@
 # embassy-sdk-ts
 
-test
-
 ### Generate: Config class from legacy ConfigSpec
 
 ```sh
