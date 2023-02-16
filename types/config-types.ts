@@ -8,7 +8,6 @@ export type ValueType =
   | "enum"
   | "list"
   | "object"
-  | "pointer"
   | "union";
 export type ValueSpec = ValueSpecOf<ValueType>;
 
@@ -20,21 +19,20 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
   : T extends "enum" ? ValueSpecEnum
   : T extends "list" ? ValueSpecList
   : T extends "object" ? ValueSpecObject
-  : T extends "pointer" ? ValueSpecPointer
   : T extends "union" ? ValueSpecUnion
   : never;
 
 export interface ValueSpecString extends ListValueSpecString, WithStandalone {
   type: "string";
-  default?: DefaultString;
+  default: null | DefaultString;
   nullable: boolean;
-  textarea?: boolean;
+  textarea: null | boolean;
 }
 
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   type: "number";
   nullable: boolean;
-  default?: number;
+  default: null | number;
 }
 
 export interface ValueSpecEnum extends ListValueSpecEnum, WithStandalone {
@@ -54,16 +52,6 @@ export interface ValueSpecUnion {
   default: string;
 }
 
-export interface ValueSpecPointer extends WithStandalone {
-  type: "pointer";
-  subtype: "package" | "system";
-  "package-id": string;
-  target: "system" | "lan-address" | "tor-address" | "config" | "tor-key";
-  interface: string; // will only exist if target = tor-key || tor-address || lan-address
-  selector?: string; // will only exist if target = config
-  multi?: boolean; // will only exist if target = config
-}
-
 export interface ValueSpecObject extends WithStandalone {
   type: "object";
   spec: ConfigSpec;
@@ -71,11 +59,11 @@ export interface ValueSpecObject extends WithStandalone {
 
 export interface WithStandalone {
   name: string;
-  description?: null | string;
-  warning?: null | string;
+  description: null | string;
+  warning: null | string;
 }
 
-// no lists of booleans, lists, pointers
+// no lists of booleans, lists
 export type ListValueSpecType =
   | "string"
   | "number"
@@ -120,17 +108,17 @@ export function isValueSpecListOf<S extends ListValueSpecType>(
 }
 
 export interface ListValueSpecString {
-  pattern?: string;
-  "pattern-description"?: string;
+  pattern: null | string;
+  "pattern-description": null | string;
   masked: boolean;
-  placeholder?: string;
+  placeholder: null | string;
 }
 
 export interface ListValueSpecNumber {
   range: string;
   integral: boolean;
-  units?: null | string;
-  placeholder?: null | string;
+  units: null | string;
+  placeholder: null | string;
 }
 
 export interface ListValueSpecEnum {
@@ -141,7 +129,7 @@ export interface ListValueSpecEnum {
 export interface ListValueSpecObject {
   spec: ConfigSpec; // this is a mapped type of the config object at this level, replacing the object's values with specs on those values
   "unique-by": UniqueBy; // indicates whether duplicates can be permitted in the list
-  "display-as"?: null | string; // this should be a handlebars template which can make use of the entire config which corresponds to 'spec'
+  "display-as": null | string; // this should be a handlebars template which can make use of the entire config which corresponds to 'spec'
 }
 
 export type UniqueBy =
@@ -154,7 +142,7 @@ export type UniqueBy =
 export interface ListValueSpecUnion {
   tag: UnionTagSpec;
   variants: { [key: string]: ConfigSpec };
-  "display-as"?: null | string; // this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id
+  "display-as": null | string; // this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id
   "unique-by": UniqueBy;
   default: string; // this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list
 }
@@ -166,8 +154,8 @@ export interface UnionTagSpec {
     [variant: string]: string;
   };
   name: string;
-  description?: null | string;
-  warning?: null | string;
+  description: null | string;
+  warning: null | string;
 }
 
 export type DefaultString = string | { charset: string; len: number };

@@ -1,8 +1,7 @@
 import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
-import { Default, NullableDefault, NumberSpec, StringSpec } from "./value.ts";
+import { Default, NumberSpec, StringSpec } from "./value.ts";
 import { Description } from "./value.ts";
-import * as T from "../types.ts";
 import { Variants } from "./variants.ts";
 import {
   ConfigSpec,
@@ -65,7 +64,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       ...a,
     });
   }
-  static objectV<
+  static obj<
     A extends
       & Description
       & Default<Record<string, unknown>[]>
@@ -105,9 +104,10 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
         range: string;
         spec: {
           tag: {
-            id: string;
+            id: B;
             name: string;
             description: null | string;
+            warning: null | string;
             "variant-names": {
               [key: string]: string;
             };
@@ -118,6 +118,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
           default: string;
         };
       },
+    B extends string,
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;

@@ -1,7 +1,6 @@
 import { BuilderExtract, IBuilder } from "./builder.ts";
 import { Config } from "./config.ts";
 import { List } from "./list.ts";
-import { Pointer } from "./pointer.ts";
 import { Variants } from "./variants.ts";
 import {
   ConfigSpec,
@@ -27,23 +26,16 @@ export type Default<A> = {
   default: A;
 };
 export type NullableDefault<A> = {
-  default?: A;
+  default: null | A;
 };
 
-export type StringSpec =
-  & {
-    copyable: boolean | null;
-    masked: boolean | null;
-    placeholder: string | null;
-  }
-  & (
-    | {
-      pattern: string;
-      "pattern-description": string;
-    }
-    // deno-lint-ignore ban-types
-    | {}
-  );
+export type StringSpec = {
+  masked: boolean | null;
+  placeholder: string | null;
+  pattern: null | string;
+  "pattern-description": null | string;
+  textarea: boolean | null;
+};
 export type NumberSpec = {
   range: string;
   integral: boolean;
@@ -121,7 +113,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       & Default<string>
       & {
         tag: {
-          id: string;
+          id: B;
           name: string;
           description: string | null;
           warning: string | null;
@@ -133,6 +125,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
         "display-as": string | null;
         "unique-by": UniqueBy;
       },
+    B extends string,
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
     const variants = previousVariants.build() as BuilderExtract<A["variants"]>;
@@ -143,9 +136,6 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     });
   }
 
-  static pointer<A extends ValueSpec>(a: Pointer<A>) {
-    return new Value(a.build());
-  }
   static list<A extends List<ValueSpecList>>(a: A) {
     return new Value(a.build());
   }

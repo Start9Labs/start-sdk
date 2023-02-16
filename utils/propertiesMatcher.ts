@@ -276,9 +276,6 @@ export function guardAll<A extends ValueSpecAny>(
       }
       // deno-lint-ignore no-explicit-any
       return matches.unknown as any;
-    case "pointer":
-      // deno-lint-ignore no-explicit-any
-      return matches.unknown as any;
     case "union":
       if (matchUnion.test(value)) {
         return matches.some(

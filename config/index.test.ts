@@ -1,43 +1,45 @@
 import { Config } from "./config.ts";
-import { Pointer } from "./pointer.ts";
 import { Value } from "./value.ts";
 import { expect } from "https://deno.land/x/expect@v0.2.9/mod.ts";
 const { test } = Deno;
 
-test("Pointer", () => {
+test("String", () => {
   const bitcoinPropertiesBuilt: {
     "peer-tor-address": {
       name: string;
-      description: string;
-      type: "pointer";
-      subtype: "package";
-      "package-id": string;
-      target: "tor-address";
-      interface: string;
+      description: string | null;
+      type: "string";
     };
-  } = Config.withValue(
-    "peer-tor-address",
-    Value.pointer(
-      Pointer.packageTorAddress({
-        name: "Peer Tor Address",
+  } = Config.of(
+    {
+      "peer-tor-address": Value.string({
+        name: "Peer tor address",
+        default: "",
         description: "The Tor address of the peer interface",
-        "package-id": "bitcoind",
-        interface: "peer",
         warning: null,
+        nullable: false,
+        masked: true,
+        placeholder: null,
+        pattern: null,
+        "pattern-description": null,
+        textarea: null,
       }),
-    ),
+    },
   ).build();
   expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
     /*json*/ `{
   "peer-tor-address": {
-    "type": "pointer",
-    "subtype": "package",
-    "target": "tor-address",
-    "name": "Peer Tor Address",
+    "type": "string",
+    "name": "Peer tor address",
+    "default": "",
     "description": "The Tor address of the peer interface",
-    "package-id": "bitcoind",
-    "interface": "peer",
-    "warning": null
+    "warning": null,
+    "nullable": false,
+    "masked": true,
+    "placeholder": null,
+    "pattern": null,
+    "pattern-description": null,
+    "textarea": null
   }}`
       .replaceAll("\n", " ")
       .replaceAll(/\s{2,}/g, "")
