@@ -1,4 +1,5 @@
-import { Config, List, Value, Variants } from "../../config/mod.ts";
+import { configBuilder } from "../../mod.ts";
+const { Config, Value, List, Variants } = configBuilder;
 
 export const enable = Value.boolean({
   "name": "Enable",
@@ -449,3 +450,5 @@ export const config = Config.of({
   "wallet": wallet,
   "advanced": advanced1,
 });
+export const matchConfig = config.validator();
+export type Config = typeof matchConfig._TYPE;

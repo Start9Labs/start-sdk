@@ -4,7 +4,7 @@ import * as M from "../migrations.ts";
 import * as util from "../util.ts";
 import { EmVer } from "../emver-lite/mod.ts";
 import { ConfigSpec } from "../types/config-types.ts";
-import { Config } from "../config/mod.ts";
+import { Config } from "../config_builder/mod.ts";
 
 export interface NoRepeat<version extends string, type extends "up" | "down"> {
   version: version;

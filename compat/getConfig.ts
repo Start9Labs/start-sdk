@@ -1,4 +1,4 @@
-import { Config } from "../config/config.ts";
+import { Config } from "../config_builder/config.ts";
 import { YAML } from "../dependencies.ts";
 import { matches } from "../dependencies.ts";
 import { ExpectedExports } from "../types.ts";
