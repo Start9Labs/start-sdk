@@ -26,6 +26,9 @@ export const errorCode = (code: number, error: string) => ({
   "error-code": [code, error] as const,
 });
 export const error = (error: string) => ({ error });
+export const okOf = <A>(result: A) => ({
+  result,
+});
 export const ok = { result: null };
 
 export const isKnownError = (e: unknown): e is T.KnownError =>

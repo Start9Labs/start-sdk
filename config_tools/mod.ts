@@ -10,4 +10,5 @@ export function nullIfEmpty(s: Record<string, unknown>) {
   return Object.keys(s).length === 0 ? null : s;
 }
 
+export { setupConfigExports } from "./setup_config_export.ts";
 export { ConfigFile };

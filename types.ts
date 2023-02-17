@@ -8,7 +8,7 @@ export namespace ExpectedExports {
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
   export type setConfig = (
     effects: Effects,
-    input: ConfigSpec,
+    input: Record<string, unknown>,
   ) => Promise<ResultType<SetResult>>;
   /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
   export type getConfig = (effects: Effects) => Promise<ResultType<ConfigRes>>;
@@ -67,7 +67,7 @@ export namespace ExpectedExports {
 
 export type ConfigRes = {
   /** This should be the previous config, that way during set config we start with the previous */
-  config?: ConfigSpec;
+  config?: null | Record<string, unknown>;
   /** Shape that is describing the form in the ui */
   spec: ConfigSpec;
 };

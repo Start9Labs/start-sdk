@@ -23,7 +23,7 @@ export function updateConfig<
   type extends "up" | "down",
 >(
   fn: (
-    config: ConfigSpec,
+    config: Record<string, unknown>,
     effects: T.Effects,
   ) => ConfigSpec | Promise<ConfigSpec>,
   configured: boolean,

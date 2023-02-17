@@ -1,5 +1,6 @@
 import { matches, TOML, YAML } from "../dependencies.ts";
 import * as T from "../types.ts";
+import { exists } from "../util.ts";
 
 const previousPath = /(.+?)\/([^/]*)$/;
 
@@ -73,6 +74,12 @@ export class ConfigFile<A> {
     });
   }
   async read(effects: T.Effects) {
+    if (
+      !(await exists(effects, {
+        path: this.options.path,
+        volumeId: this.options.volume,
+      }))
+    ) return null;
     return this.options.readData(
       await effects.readFile({
         path: this.options.path,
