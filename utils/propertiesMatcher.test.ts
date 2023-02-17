@@ -1,7 +1,7 @@
 import * as PM from "./propertiesMatcher.ts";
 import { expect } from "https://deno.land/x/expect@v0.2.9/mod.ts";
 import { matches } from "../dependencies.ts";
-import { config as bitcoinPropertiesConfig } from "./test/output.ts";
+import { configSpec as bitcoinPropertiesConfig } from "./test/output.ts";
 
 const randWithSeed = (seed = 1) => {
   return function random() {

@@ -1,7 +1,7 @@
 import { configBuilder } from "../../mod.ts";
 const { Config, Value, List, Variants } = configBuilder;
 
-export const enable = Value.boolean({
+export const enable = configBuilder.Value.boolean({
   "name": "Enable",
   "default": true,
   "description": "Allow remote RPC requests.",
@@ -443,12 +443,12 @@ export const advanced1 = Value.object({
   spec: advancedSpec1,
   "value-names": {},
 });
-export const config = Config.of({
+export const configSpec = configBuilder.Config.of({
   "rpc": rpc,
   "zmq-enabled": zmqEnabled,
   "txindex": txindex,
   "wallet": wallet,
   "advanced": advanced1,
 });
-export const matchConfig = config.validator();
-export type Config = typeof matchConfig._TYPE;
+export const matchConfigSpec = configSpec.validator();
+export type ConfigSpec = typeof matchConfigSpec._TYPE;

@@ -17,17 +17,16 @@ const previousPath = /(.+?)\/([^/]*)$/;
         })
         const jsonFile = ConfigFile.json({
         path: 'data.json',
-        data: someValidator,
+        validator: someValidator,
         volume: 'main'
         })
         const  tomlFile = ConfigFile.toml({
         path: 'data.toml',
-        data: someValidator,
+        validator: someValidator,
         volume: 'main'
         })
         const rawFile = ConfigFile.raw({
         path: 'data.amazingSettings',
-        data: someValidator,
         volume: 'main'
         fromData(dataIn: Data): string {
             return `myDatais ///- ${dataIn.data}`
@@ -39,7 +38,7 @@ const previousPath = /(.+?)\/([^/]*)$/;
         })
 
         export const setConfig : T.ExpectedExports.setConfig= async (effects, config) => {
-        await  jsonFile.write({ data: 'here lies data'}, effects)  
+        await  jsonFile.write({ data: 'here lies data'}, effects)
         }
 
         export const getConfig: T.ExpectedExports.getConfig = async (effects, config) => ({
@@ -56,12 +55,16 @@ export class ConfigFile<A> {
       volume: string;
       writeData(dataIn: A): string;
       readData(stringValue: string): A;
-    }
+    },
   ) {}
   async write(data: A, effects: T.Effects) {
     let matched;
-    if ((matched = previousPath.exec(this.options.path)))
-      await effects.createDir({ volumeId: this.options.volume, path: matched[1] });
+    if ((matched = previousPath.exec(this.options.path))) {
+      await effects.createDir({
+        volumeId: this.options.volume,
+        path: matched[1],
+      });
+    }
 
     await effects.writeFile({
       path: this.options.path,
@@ -74,10 +77,17 @@ export class ConfigFile<A> {
       await effects.readFile({
         path: this.options.path,
         volumeId: this.options.volume,
-      })
+      }),
     );
   }
-  static raw<A>(options: { path: string; volume: string; fromData(dataIn: A): string; toData(rawData: string): A }) {
+  static raw<A>(
+    options: {
+      path: string;
+      volume: string;
+      fromData(dataIn: A): string;
+      toData(rawData: string): A;
+    },
+  ) {
     return new ConfigFile<A>({
       path: options.path,
       volume: options.volume,
@@ -85,7 +95,13 @@ export class ConfigFile<A> {
       readData: options.toData,
     });
   }
-  static json<A>(options: { path: string; volume: string; data: matches.Validator<unknown, A> }) {
+  static json<A>(
+    options: {
+      path: string;
+      volume: string;
+      validator: matches.Validator<unknown, A>;
+    },
+  ) {
     return new ConfigFile<A>({
       path: options.path,
       volume: options.volume,
@@ -93,14 +109,14 @@ export class ConfigFile<A> {
         return JSON.stringify(inData, null, 2);
       },
       readData(inString) {
-        return options.data.unsafeCast(JSON.parse(inString));
+        return options.validator.unsafeCast(JSON.parse(inString));
       },
     });
   }
   static toml<A extends Record<string, unknown>>(options: {
     path: string;
     volume: string;
-    data: matches.Validator<unknown, A>;
+    validator: matches.Validator<unknown, A>;
   }) {
     return new ConfigFile<A>({
       path: options.path,
@@ -109,14 +125,14 @@ export class ConfigFile<A> {
         return TOML.stringify(inData);
       },
       readData(inString) {
-        return options.data.unsafeCast(TOML.parse(inString));
+        return options.validator.unsafeCast(TOML.parse(inString));
       },
     });
   }
   static yaml<A extends Record<string, unknown>>(options: {
     path: string;
     volume: string;
-    data: matches.Validator<unknown, A>;
+    validator: matches.Validator<unknown, A>;
   }) {
     return new ConfigFile<A>({
       path: options.path,
@@ -125,7 +141,7 @@ export class ConfigFile<A> {
         return YAML.stringify(inData);
       },
       readData(inString) {
-        return options.data.unsafeCast(YAML.parse(inString));
+        return options.validator.unsafeCast(YAML.parse(inString));
       },
     });
   }
