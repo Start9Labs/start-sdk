@@ -1,5 +1,9 @@
 import { YAML } from "../dependencies.ts";
-import { DependsOn, Effects, ExpectedExports } from "../types.ts";
+import {
+  DependsOn,
+  Effects,
+  LegacyExpectedExports as ExpectedExports,
+} from "../types.ts";
 import { okOf } from "../util.ts";
 
 /**

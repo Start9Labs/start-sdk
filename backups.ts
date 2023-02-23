@@ -33,7 +33,7 @@ type BackupSet = {
  * srcVolume: 'main', srcPath:'smallData/', dstPath: 'main/smallData/', dstVolume: : Backups.BACKUP
  * }, {
  * srcVolume: 'main', srcPath:'bigData/', dstPath: 'main/bigData/', dstVolume: : Backups.BACKUP, options: {exclude:['bigData/excludeThis']}}
- * ).build()
+ * ).build()q
  * ```
  */
 export class Backups {
@@ -84,7 +84,35 @@ export class Backups {
     return this;
   }
   build() {
-    const createBackup: T.ExpectedExports.createBackup = async (effects) => {
+    const createBackup: T.ExpectedExports.createBackup = async (
+      { effects },
+    ) => {
+      const previousItems = (await effects.readDir({
+        volumeId: Backups.BACKUP,
+        path: ".",
+      }).catch(() => [])).map((x) => `${x}`);
+      const backupPaths = this.backupSet.filter((x) =>
+        x.dstVolume === Backups.BACKUP
+      ).map((x) => x.dstPath).map((x) => x.replace(/\.\/([^]*)\//, "$1"));
+      const filteredItems = previousItems.filter((x) =>
+        backupPaths.indexOf(x) === -1
+      );
+      for (
+        const itemToRemove of filteredItems
+      ) {
+        effects.error(`Trying to remove ${itemToRemove}`);
+        await effects.removeDir({
+          volumeId: Backups.BACKUP,
+          path: itemToRemove,
+        }).catch(() =>
+          effects.removeFile({
+            volumeId: Backups.BACKUP,
+            path: itemToRemove,
+          })
+        ).catch(() => {
+          effects.warn(`Failed to remove ${itemToRemove} from backup volume`);
+        });
+      }
       for (const item of this.backupSet) {
         if (notEmptyPath(item.dstPath)) {
           await effects.createDir({
@@ -102,7 +130,9 @@ export class Backups {
       }
       return ok;
     };
-    const restoreBackup: T.ExpectedExports.restoreBackup = async (effects) => {
+    const restoreBackup: T.ExpectedExports.restoreBackup = async (
+      { effects },
+    ) => {
       for (const item of this.backupSet) {
         if (notEmptyPath(item.srcPath)) {
           await effects.createDir({

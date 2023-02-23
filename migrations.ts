@@ -1,6 +1,36 @@
 import { types as T } from "./mod.ts";
 import { EmVer } from "./emver-lite/mod.ts";
 import { matches } from "./dependencies.ts";
+import { LegacyExpectedExports as ExpectedExports } from "./types.ts";
+
+export class Migration2<Version extends string> {
+  version: Version;
+  up: (
+    effects: T.Effects,
+  ) => Promise<T.MigrationRes>;
+  down: (
+    effects: T.Effects,
+  ) => Promise<T.MigrationRes>;
+  constructor(options: {
+    version: Version;
+    up: (
+      effects: T.Effects,
+    ) => Promise<T.MigrationRes>;
+    down: (
+      effects: T.Effects,
+    ) => Promise<T.MigrationRes>;
+  }) {
+    this.version = options.version;
+    this.up = options.up;
+    this.down = options.down;
+  }
+}
+export class MigrationMapping2<Migrations extends Migration2<string>[]> {
+  constructor(
+    readonly migrations: Migrations,
+  ) {
+  }
+}
 
 export type MigrationFn<version extends string, type extends "up" | "down"> = (
   effects: T.Effects,
@@ -26,7 +56,7 @@ export type MigrationMapping<versions extends string> = {
 export function fromMapping<versions extends string>(
   migrations: MigrationMapping<versions>,
   currentVersion: string,
-): T.ExpectedExports.migration {
+): ExpectedExports.migration {
   const directionShape = matches.literals("from", "to");
   return async (
     effects: T.Effects,

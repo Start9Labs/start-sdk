@@ -1,5 +1,7 @@
 import { getConfig, setConfig } from "./mod.ts";
 import * as T from "../types.ts";
+
+import { LegacyExpectedExports as ExpectedExports } from "../types.ts";
 import * as M from "../migrations.ts";
 import * as util from "../util.ts";
 import { EmVer } from "../emver-lite/mod.ts";
@@ -116,7 +118,7 @@ export async function initNoRepeat<versions extends string>(
 export function fromMapping<versions extends string>(
   migrations: M.MigrationMapping<versions>,
   currentVersion: string,
-): T.ExpectedExports.migration {
+): ExpectedExports.migration {
   const inner = M.fromMapping(migrations, currentVersion);
   return async (effects: T.Effects, version: string, direction?: unknown) => {
     await initNoRepeat(

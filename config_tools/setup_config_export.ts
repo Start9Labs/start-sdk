@@ -15,7 +15,7 @@ export function setupConfigExports<A extends ConfigSpec>(options: {
 }) {
   const validator = options.spec.validator();
   return {
-    setConfig: (async (effects: Effects, config: unknown) => {
+    setConfig: (async ({ effects, input: config }) => {
       if (!validator.test(config)) {
         await effects.error(String(validator.errorMessage(config)));
         return { error: "Set config type error for config" };
@@ -26,7 +26,7 @@ export function setupConfigExports<A extends ConfigSpec>(options: {
         "depends-on": options.dependsOn,
       });
     }) as ExpectedExports.setConfig,
-    getConfig: (async (effects: Effects) => {
+    getConfig: (async ({ effects }) => {
       return okOf({
         spec: options.spec.build(),
         config: nullIfEmpty(await options.read(effects)),

@@ -1,7 +1,7 @@
 import { Config } from "../config_builder/config.ts";
 import { YAML } from "../dependencies.ts";
 import { matches } from "../dependencies.ts";
-import { ExpectedExports } from "../types.ts";
+import { LegacyExpectedExports as ExpectedExports } from "../types.ts";
 import { ConfigSpec } from "../types/config-types.ts";
 import { TypeFromProps, typeFromProps } from "../utils/propertiesMatcher.ts";
 

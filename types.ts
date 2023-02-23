@@ -3,8 +3,86 @@ import { ConfigSpec } from "./types/config-types.ts";
 
 // deno-lint-ignore no-namespace
 export namespace ExpectedExports {
+  // deno-lint-ignore no-unused-labels
   version:
-  2;
+  1;
+  /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
+  export type setConfig = (options: {
+    effects: Effects;
+    input: Record<string, unknown>;
+  }) => Promise<ResultType<SetResult>>;
+  /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
+  export type getConfig = (
+    options: { effects: Effects },
+  ) => Promise<ResultType<ConfigRes>>;
+  /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
+  export type dependencies = Dependencies;
+  /** For backing up service data though the embassyOS UI */
+  export type createBackup = (
+    options: { effects: Effects },
+  ) => Promise<ResultType<unknown>>;
+  /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
+  export type restoreBackup = (
+    options: {
+      effects: Effects;
+    },
+  ) => Promise<ResultType<unknown>>;
+  /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
+  export type properties = (
+    options: {
+      effects: Effects;
+    },
+  ) => Promise<ResultType<Properties>>;
+
+  /** Health checks are used to determine if the service is working properly after starting
+   * A good use case is if we are using a web server, seeing if we can get to the web server.
+   */
+  export type health = {
+    /** Should be the health check id */
+    [id: string]: (options: {
+      effects: Effects;
+      input: TimeMs;
+    }) => Promise<ResultType<unknown>>;
+  };
+
+  /**
+   * Migrations are used when we are changing versions when updating/ downgrading.
+   * There are times that we need to move files around, and do other operations during a migration.
+   */
+  export type migration = (
+    options: {
+      effects: Effects;
+      input: VersionString;
+      args: unknown[];
+    },
+  ) => Promise<ResultType<MigrationRes>>;
+
+  /**
+   * Actions are used so we can effect the service, like deleting a directory.
+   * One old use case is to add a action where we add a file, that will then be run during the
+   * service starting, and that file would indicate that it would rescan all the data.
+   */
+  export type action = {
+    [id: string]: (options: {
+      effects: Effects;
+      input?: Record<string, unknown>;
+    }) => Promise<ResultType<ActionResult>>;
+  };
+
+  /**
+   * This is the entrypoint for the main container. Used to start up something like the service that the
+   * package represents, like running a bitcoind in a bitcoind-wrapper.
+   */
+  export type main = (
+    options: { effects: Effects; started(): null },
+  ) => Promise<ResultType<unknown>>;
+}
+export type TimeMs = number;
+export type VersionString = string;
+
+/** @deprecated */
+// deno-lint-ignore no-namespace
+export namespace LegacyExpectedExports {
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
   export type setConfig = (
     effects: Effects,
@@ -108,7 +186,7 @@ export type Effects = {
   chown(input: { volumeId: string; path: string; uid: string }): Promise<null>;
   chmod(input: { volumeId: string; path: string; mode: string }): Promise<null>;
 
-  sleep(timeMs: number): Promise<null>;
+  sleep(timeMs: TimeMs): Promise<null>;
 
   /** Log at the trace level */
   trace(whatToPrint: string): void;

@@ -1,10 +1,16 @@
 import { YAML } from "../dependencies.ts";
 import { exists } from "../util.ts";
-import { Effects, ExpectedExports, Properties, ResultType } from "../types.ts";
+import {
+  Effects,
+  ExpectedExports,
+  LegacyExpectedExports,
+  Properties,
+  ResultType,
+} from "../types.ts";
 
 // deno-lint-ignore no-explicit-any
 const asResult = (result: any) => ({ result: result as Properties });
-const noPropertiesFound: ResultType<Properties> = {
+export const noPropertiesFound: ResultType<Properties> = {
   result: {
     version: 2,
     data: {
@@ -26,8 +32,29 @@ const noPropertiesFound: ResultType<Properties> = {
  * @param effects
  * @returns
  */
-export const properties: ExpectedExports.properties = async (
+export const properties: LegacyExpectedExports.properties = async (
   effects: Effects,
+) => {
+  if (
+    await exists(effects, { path: "start9/stats.yaml", volumeId: "main" }) ===
+      false
+  ) {
+    return noPropertiesFound;
+  }
+  return await effects.readFile({
+    path: "start9/stats.yaml",
+    volumeId: "main",
+  }).then(YAML.parse).then(asResult);
+};
+/**
+ * Default will pull from a file (start9/stats.yaml) expected to be made on the main volume
+ * Assumption: start9/stats.yaml is created by some process
+ * Throws: stats.yaml isn't yaml
+ * @param effects
+ * @returns
+ */
+export const propertiesv2: ExpectedExports.properties = async (
+  { effects },
 ) => {
   if (
     await exists(effects, { path: "start9/stats.yaml", volumeId: "main" }) ===
