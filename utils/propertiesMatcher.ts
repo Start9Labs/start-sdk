@@ -49,8 +49,10 @@ type GuardObject<A> =
 
 // prettier-ignore
 // deno-fmt-ignore
-type GuardList<A> = 
-    A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {spec: infer C }} ? ReadonlyArray<GuardAll<Omit<A, "type" | "spec"> & ({type: B, spec: C})>> :
+export type GuardList<A> = 
+    A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {spec?: infer C }} ? ReadonlyArray<GuardAll<Omit<A, "type" | "spec"> & ({type: B, spec: C})>> :
+    // deno-lint-ignore ban-types
+    A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {}} ? ReadonlyArray<GuardAll<Omit<A, "type" > & ({type: B})>> :
     unknown
 // prettier-ignore
 // deno-fmt-ignore

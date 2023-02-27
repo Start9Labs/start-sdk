@@ -286,6 +286,36 @@ const { test } = Deno;
     });
   });
 
+  test("Bad list", () => {
+    const props = {
+      "addWatchtowers": {
+        "type": "list",
+        "name": "Add Watchtowers",
+        "description": "Add URIs of Watchtowers to connect to.",
+        warning: null,
+        "range": "[0,*)",
+        "subtype": "string",
+        "spec": {
+          pattern: null,
+          "pattern-description": null,
+          "masked": false,
+          "placeholder": "pubkey@host",
+        },
+        "nullable": true,
+        "default": Array<string>(), // [] as string []
+      },
+    } as const;
+    type test = PM.GuardList<(typeof props)["addWatchtowers"]>;
+    function isType<A>(_a: A) {}
+    isType<test>([""]);
+    isType<ArrayLike<string>>([""] as test);
+    const checker = PM.typeFromProps(props);
+    checker.unsafeCast({
+      addWatchtowers: ["aaa"],
+    });
+    expect(() => checker.unsafeCast({ addWatchtowers: 123 })).toThrow();
+  });
+
   test("Full spec", () => {
     const checker = PM.typeFromProps(bitcoinProperties);
 
