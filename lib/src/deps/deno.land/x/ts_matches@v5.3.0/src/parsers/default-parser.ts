@@ -1,0 +1,33 @@
+// deno-lint-ignore-file no-explicit-any
+import { Parser } from "./index.js";
+import { IParser, NonNull, OnParse, Optional } from "./interfaces.js";
+
+export class DefaultParser<A, B, B2>
+  implements IParser<Optional<A>, NonNull<B, B2>> {
+  constructor(
+    readonly parent: Parser<A, B>,
+    readonly defaultValue: B2,
+    readonly description = {
+      name: "Default" as const,
+      children: [parent],
+      extras: [defaultValue],
+    } as const,
+  ) {}
+  parse<C, D>(
+    a: A,
+    onParse: OnParse<Optional<A>, NonNull<B, B2>, C, D>,
+  ): C | D {
+    // deno-lint-ignore no-this-alias
+    const parser = this;
+    const defaultValue = this.defaultValue;
+    if (a == null) {
+      return onParse.parsed(defaultValue as any);
+    }
+    const parentCheck = this.parent.enumParsed(a);
+    if ("error" in parentCheck) {
+      parentCheck.error.parser = parser;
+      return onParse.invalid(parentCheck.error);
+    }
+    return onParse.parsed(parentCheck.value as any);
+  }
+}
