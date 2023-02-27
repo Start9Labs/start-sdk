@@ -76,13 +76,15 @@ const bitcoinProperties = {
             default: Array<string>(),
             spec: {
               pattern: "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
-              "pattern-description": 'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
+              "pattern-description":
+                'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
             },
             range: "[0,*)",
           },
           serialversion: {
             name: "Serialization Version",
-            description: "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
+            description:
+              "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
             type: "enum",
             values: ["non-segwit", "segwit"],
             "value-names": {},
@@ -90,7 +92,8 @@ const bitcoinProperties = {
           },
           servertimeout: {
             name: "Rpc Server Timeout",
-            description: "Number of seconds after which an uncompleted RPC call will time out.",
+            description:
+              "Number of seconds after which an uncompleted RPC call will time out.",
             type: "number",
             nullable: false,
             range: "[5,300]",
@@ -194,7 +197,8 @@ const bitcoinProperties = {
             type: "number",
             nullable: false,
             name: "Max Mempool Size",
-            description: "Keep the transaction memory pool below <n> megabytes.",
+            description:
+              "Keep the transaction memory pool below <n> megabytes.",
             range: "[1,*)",
             integral: true,
             units: "MiB",
@@ -204,7 +208,8 @@ const bitcoinProperties = {
             type: "number",
             nullable: false,
             name: "Mempool Expiration",
-            description: "Do not keep transactions in the mempool longer than <n> hours.",
+            description:
+              "Do not keep transactions in the mempool longer than <n> hours.",
             range: "[1,*)",
             integral: true,
             units: "Hr",
@@ -220,7 +225,8 @@ const bitcoinProperties = {
           listen: {
             type: "boolean",
             name: "Make Public",
-            description: "Allow other nodes to find your server on the network.",
+            description:
+              "Allow other nodes to find your server on the network.",
             default: true,
           },
           onlyconnect: {
@@ -258,7 +264,8 @@ const bitcoinProperties = {
                   type: "number",
                   nullable: true,
                   name: "Port",
-                  description: "Port that peer is listening on for inbound p2p connections",
+                  description:
+                    "Port that peer is listening on for inbound p2p connections",
                   range: "[0,65535]",
                   integral: true,
                 },
@@ -282,7 +289,8 @@ const bitcoinProperties = {
       pruning: {
         type: "union",
         name: "Pruning Settings",
-        description: "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
+        description:
+          "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
         warning:
           "If you set pruning to Manual and your disk is smaller than the total size of the blockchain, you MUST have something running that prunes these blocks or you may overfill your disk!\nDisabling pruning will convert your node into a full archival node. This requires a resync of the entire blockchain, a process that may take several days. Make sure you have enough free disk space or you may fill up your disk.\n",
         tag: {
@@ -304,7 +312,8 @@ const bitcoinProperties = {
               nullable: false,
               name: "Max Chain Size",
               description: "Limit of blockchain size on disk.",
-              warning: "Increasing this value will require re-syncing your node.",
+              warning:
+                "Increasing this value will require re-syncing your node.",
               default: 550,
               range: "[550,1000000)",
               integral: true,
@@ -357,7 +366,8 @@ const bitcoinProperties = {
             name: "Serve Bloom Filters to Peers",
             description:
               "Peers have the option of setting filters on each connection they make after the version handshake has completed. Bloom filters are for clients implementing SPV (Simplified Payment Verification) that want to check that block headers  connect together correctly, without needing to verify the full blockchain.  The client must trust that the transactions in the chain are in fact valid.  It is highly recommended AGAINST using for anything except Bisq integration.",
-            warning: "This is ONLY for use with Bisq integration, please use Block Filters for all other applications.",
+            warning:
+              "This is ONLY for use with Bisq integration, please use Block Filters for all other applications.",
             default: false,
           },
         },
@@ -368,22 +378,36 @@ const bitcoinProperties = {
 } as const;
 type BitcoinProperties = typeof bitcoinProperties;
 const anyValue: unknown = "";
-const _testBoolean: boolean = anyValue as PM.GuardAll<BitcoinProperties["rpc"]["spec"]["enable"]>;
+const _testBoolean: boolean = anyValue as PM.GuardAll<
+  BitcoinProperties["rpc"]["spec"]["enable"]
+>;
 // @ts-expect-error Boolean can't be a string
-const _testBooleanBad: string = anyValue as PM.GuardAll<BitcoinProperties["rpc"]["spec"]["enable"]>;
-const _testString: string = anyValue as PM.GuardAll<BitcoinProperties["rpc"]["spec"]["username"]>;
+const _testBooleanBad: string = anyValue as PM.GuardAll<
+  BitcoinProperties["rpc"]["spec"]["enable"]
+>;
+const _testString: string = anyValue as PM.GuardAll<
+  BitcoinProperties["rpc"]["spec"]["username"]
+>;
 // @ts-expect-error string can't be a boolean
-const _testStringBad: boolean = anyValue as PM.GuardAll<BitcoinProperties["rpc"]["spec"]["username"]>;
-const _testNumber: number = anyValue as PM.GuardAll<BitcoinProperties["advanced"]["spec"]["dbcache"]>;
+const _testStringBad: boolean = anyValue as PM.GuardAll<
+  BitcoinProperties["rpc"]["spec"]["username"]
+>;
+const _testNumber: number = anyValue as PM.GuardAll<
+  BitcoinProperties["advanced"]["spec"]["dbcache"]
+>;
 // @ts-expect-error Number can't be string
-const _testNumberBad: string = anyValue as PM.GuardAll<BitcoinProperties["advanced"]["spec"]["dbcache"]>;
+const _testNumberBad: string = anyValue as PM.GuardAll<
+  BitcoinProperties["advanced"]["spec"]["dbcache"]
+>;
 const _testObject: {
   enable: boolean;
   avoidpartialspends: boolean;
   discardfee: number;
 } = anyValue as PM.GuardAll<BitcoinProperties["wallet"]>;
 // @ts-expect-error Boolean can't be object
-const _testObjectBad: boolean = anyValue as PM.GuardAll<BitcoinProperties["wallet"]>;
+const _testObjectBad: boolean = anyValue as PM.GuardAll<
+  BitcoinProperties["wallet"]
+>;
 const _testObjectNested: { test: { a: boolean } } = anyValue as PM.GuardAll<{
   readonly type: "object";
   readonly spec: {
@@ -416,7 +440,8 @@ const testUnionValue = anyValue as PM.GuardAll<{
   tag: {
     id: "mode";
     name: "Pruning Mode";
-    description: '- Disabled: Disable pruning\n- Automatic: Limit blockchain size on disk to a certain number of megabytes\n- Manual: Prune blockchain with the "pruneblockchain" RPC\n';
+    description:
+      '- Disabled: Disable pruning\n- Automatic: Limit blockchain size on disk to a certain number of megabytes\n- Manual: Prune blockchain with the "pruneblockchain" RPC\n';
     "variant-names": {
       disabled: "Disabled";
       automatic: "Automatic";
@@ -457,17 +482,17 @@ const _testUnion:
   | { mode: "disabled" }
   | { mode: "automatic"; size: number }
   | {
-      mode: "manual";
-      size: number;
-    } = testUnionValue;
+    mode: "manual";
+    size: number;
+  } = testUnionValue;
 //@ts-expect-error Bad mode name
 const _testUnionBadUnion:
   | { mode: "disabled" }
   | { mode: "bad"; size: number }
   | {
-      mode: "manual";
-      size: number;
-    } = testUnionValue;
+    mode: "manual";
+    size: number;
+  } = testUnionValue;
 const _testAll: PM.TypeFromProps<BitcoinProperties> = anyValue as {
   // deno-lint-ignore no-explicit-any
   "peer-tor-address": any;
@@ -511,9 +536,9 @@ const _testAll: PM.TypeFromProps<BitcoinProperties> = anyValue as {
       | { mode: "disabled" }
       | { mode: "automatic"; size: number }
       | {
-          mode: "manual";
-          size: number;
-        };
+        mode: "manual";
+        size: number;
+      };
     blockfilters: {
       blockfilterindex: boolean;
       peerblockfilters: boolean;
@@ -569,24 +594,28 @@ const { test } = Deno;
   test("Generate 1", () => {
     const random = randWithSeed(1);
     const options = { random };
-    const generated = PM.generateDefault({ charset: "a-z,B-X,2-5", len: 100 }, options);
+    const generated = PM.generateDefault(
+      { charset: "a-z,B-X,2-5", len: 100 },
+      options,
+    );
     expect(generated.length).toBe(100);
     expect(generated).toBe(
-      "WwwgjGRkvDaGQSLeKTtlOmdDbXoCBkOn3dxUvkKkrlOFd4FbKuvIosvfPTQhbWCTQakqnwpoHmPnbgyK5CGtSQyGhxEGLjS3oKko"
+      "WwwgjGRkvDaGQSLeKTtlOmdDbXoCBkOn3dxUvkKkrlOFd4FbKuvIosvfPTQhbWCTQakqnwpoHmPnbgyK5CGtSQyGhxEGLjS3oKko",
     );
   });
   test("Generate Tests", () => {
     const random = randWithSeed(2);
     const options = { random };
     expect(PM.generateDefault({ charset: "0-1", len: 100 }, options)).toBe(
-      "0000110010000000000011110000010010000011101111001000000000000000100001101000010000001000010000010110"
+      "0000110010000000000011110000010010000011101111001000000000000000100001101000010000001000010000010110",
     );
     expect(PM.generateDefault({ charset: "a-z", len: 100 }, options)).toBe(
-      "qipnycbqmqdtflrhnckgrhftrqnvxbhyyfehpvficljseasxwdyleacmjqemmpnuotkwzlsqdumuaaksxykchljgdoslrfubhepr"
+      "qipnycbqmqdtflrhnckgrhftrqnvxbhyyfehpvficljseasxwdyleacmjqemmpnuotkwzlsqdumuaaksxykchljgdoslrfubhepr",
     );
-    expect(PM.generateDefault({ charset: "a,b,c,d,f,g", len: 100 }, options)).toBe(
-      "bagbafcgaaddcabdfadccaadfbddffdcfccfbafbddbbfcdggfcgaffdbcgcagcfbdbfaagbfgfccdbfdfbdagcfdcabbdffaffc"
-    );
+    expect(PM.generateDefault({ charset: "a,b,c,d,f,g", len: 100 }, options))
+      .toBe(
+        "bagbafcgaaddcabdfadccaadfbddffdcfccfbafbddbbfcdggfcgaffdbcgcagcfbdbfaagbfgfccdbfdfbdagcfdcabbdffaffc",
+      );
   });
 }
 
@@ -598,28 +627,58 @@ const { test } = Deno;
   });
 
   test("A default that is invalid according to the tests", () => {
-    const checker = PM.typeFromProps({
-      pubkey_whitelist: {
-        name: "Pubkey Whitelist (hex)",
-        description:
-          "A list of pubkeys that are permitted to publish through your relay. A minimum, you need to enter your own Nostr hex (not npub) pubkey. Go to https://damus.io/key/ to convert from npub to hex.",
-        type: "list",
-        nullable: true,
-        range: "[1,*)",
-        subtype: "string",
-        spec: {
-          placeholder: "hex (not npub) pubkey",
-          pattern: "[0-9a-fA-F]{3}",
-          "pattern-description":
-            "Must be a valid 64-digit hexadecimal value (ie a Nostr hex pubkey, not an npub). Go to https://damus.io/key/ to convert npub to hex.",
+    const checker = PM.typeFromProps(
+      {
+        pubkey_whitelist: {
+          name: "Pubkey Whitelist (hex)",
+          description:
+            "A list of pubkeys that are permitted to publish through your relay. A minimum, you need to enter your own Nostr hex (not npub) pubkey. Go to https://damus.io/key/ to convert from npub to hex.",
+          type: "list",
+          nullable: true,
+          range: "[1,*)",
+          subtype: "string",
+          spec: {
+            placeholder: "hex (not npub) pubkey",
+            pattern: "[0-9a-fA-F]{3}",
+            "pattern-description":
+              "Must be a valid 64-digit hexadecimal value (ie a Nostr hex pubkey, not an npub). Go to https://damus.io/key/ to convert npub to hex.",
+          },
+          default: [] as string[], // [] as string []
         },
-        default: [] as string[], // [] as string []
-      },
-    } as const);
+      } as const,
+    );
 
     checker.unsafeCast({
       pubkey_whitelist: ["aaa"],
     });
+  });
+
+  test("Bad list", () => {
+    const props = {
+      "addWatchtowers": {
+        "type": "list",
+        "name": "Add Watchtowers",
+        "description": "Add URIs of Watchtowers to connect to.",
+        "range": "[0,*)",
+        "subtype": "string",
+        "spec": {
+          "masked": false,
+          "copyable": true,
+          "placeholder": "pubkey@host",
+        },
+        "nullable": true,
+        "default": Array<string>(), // [] as string []
+      },
+    } as const;
+    type test = PM.GuardList<(typeof props)["addWatchtowers"]>;
+    function isType<A>(_a: A) {}
+    isType<test>([""]);
+    isType<ArrayLike<string>>([""] as test);
+    const checker = PM.typeFromProps(props);
+    checker.unsafeCast({
+      addWatchtowers: ["aaa"],
+    });
+    expect(() => checker.unsafeCast({ addWatchtowers: 123 })).toThrow();
   });
 
   test("Full spec", () => {
