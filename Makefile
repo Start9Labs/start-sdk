@@ -19,5 +19,5 @@ node_modules: package.json
 	npm install
 
 publish: bundle	
-	cd lib && npm publish
+	npm publish
 .FORCE: 
