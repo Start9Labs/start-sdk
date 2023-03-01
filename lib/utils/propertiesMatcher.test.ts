@@ -1,6 +1,5 @@
 describe("Properties Matcher", () => {
-  test("matches", () => {
-  });
+  test("matches", () => {});
 });
 // import * as PM from "./propertiesMatcher";
 // import { expect } from "https://deno.land/x/expect@v0.2.9/mod";
