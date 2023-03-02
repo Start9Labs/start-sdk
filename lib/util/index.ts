@@ -1,6 +1,8 @@
-import * as T from "./types";
+import * as T from "../types";
 
-export { guardAll, typeFromProps } from "./utils/propertiesMatcher";
+export { guardAll, typeFromProps } from "./propertiesMatcher";
+export { default as nullIfEmpty } from "./nullIfEmpty";
+export { FileHelper } from "./fileHelper";
 
 export function unwrapResultType<T>(res: T.ResultType<T>): T {
   if ("error-code" in res) {

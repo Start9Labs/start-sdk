@@ -1,5 +1,5 @@
-import { Effects, ResultType } from "./types";
-import { error, errorCode, isKnownError, ok } from "./util";
+import { Effects, ResultType } from "../types";
+import { error, errorCode, isKnownError, ok } from "../util";
 export const checkWebUrl: (
   url: string
 ) => (
@@ -11,8 +11,9 @@ export const checkWebUrl: (
     if (
       // deno-lint-ignore no-cond-assign
       (errorValue = guardDurationAboveMinimum({ duration, minimumTime: 5000 }))
-    )
+    ) {
       return errorValue;
+    }
 
     return await effects
       .fetch(url)

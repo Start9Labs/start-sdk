@@ -8,7 +8,7 @@ import {
   UniqueBy,
   ValueSpecList,
   ValueSpecListOf,
-} from "../types/config-types";
+} from "../../types/config-types";
 
 /**
  * Used as a subtype of Value.list

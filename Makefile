@@ -1,10 +1,10 @@
 TS_FILES := $(shell find ./**/*.ts )
 version = $(shell git tag --sort=committerdate | tail -1)
-test: $(TS_FILES) utils/test/output.ts
+test: $(TS_FILES) 
 	npm test
 
-utils/test/output.ts: utils/test/config.json scripts/oldSpecToBuilder.ts
-	cat utils/test/config.json | deno run scripts/oldSpecToBuilder.ts "../../mod" |deno fmt -  > utils/test/output.ts
+# utils/test/output.ts: utils/test/config.json scripts/oldSpecToBuilder.ts
+# 	cat utils/test/config.json | deno run scripts/oldSpecToBuilder.ts "../../mod" |deno fmt -  > utils/test/output.ts
 
 bundle:  fmt $(TS_FILES) .FORCE node_modules
 	rm -rf dist || true
@@ -18,5 +18,13 @@ node_modules: package.json
 	npm install
 
 publish: bundle	
-	npm publish
+	cp package.json dist/package.json
+	cp README.md dist/README.md
+	cp LICENSE dist/LICENSE
+	cd dist && npm publish
+link: bundle	
+	cp package.json dist/package.json
+	cp README.md dist/README.md
+	cp LICENSE dist/LICENSE
+	cd dist && npm link
 .FORCE: 

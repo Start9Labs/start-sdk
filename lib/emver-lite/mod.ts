@@ -220,7 +220,6 @@ export class Checker {
 
     switch (range.substring(0, 1)) {
       case ">": {
-        console.log("greaterThan");
         const emVar = EmVer.parse(range.substring(1));
         return new Checker((version) => {
           const v = EmVer.from(version);

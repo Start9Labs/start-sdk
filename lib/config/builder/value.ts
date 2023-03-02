@@ -9,7 +9,7 @@ import {
   ValueSpecList,
   ValueSpecNumber,
   ValueSpecString,
-} from "../types/config-types";
+} from "../../types/config-types";
 
 export type DefaultString =
   | string

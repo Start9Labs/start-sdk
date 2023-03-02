@@ -1,5 +1,5 @@
-import { ConfigSpec, ValueSpec } from "../types/config-types";
-import { typeFromProps } from "../util";
+import { ConfigSpec, ValueSpec } from "../../types/config-types";
+import { typeFromProps } from "../../util";
 import { BuilderExtract, IBuilder } from "./builder";
 import { Value } from "./value";
 

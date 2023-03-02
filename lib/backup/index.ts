@@ -1,5 +1,5 @@
-import { ok } from "./util";
-import * as T from "./types";
+import { ok } from "../util";
+import * as T from "../types";
 
 export const DEFAULT_OPTIONS: T.BackupOptions = {
   delete: true,

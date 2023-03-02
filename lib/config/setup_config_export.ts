@@ -1,17 +1,14 @@
-import { Config } from "../config_builder/mod";
-import { DependsOn, Effects, ExpectedExports } from "../types";
+import { Config } from "./builder";
+import { DeepPartial, DependsOn, Effects, ExpectedExports } from "../types";
 import { ConfigSpec } from "../types/config-types";
-import { okOf } from "../util";
-import { TypeFromProps } from "../utils/propertiesMatcher";
-import { nullIfEmpty } from "./mod";
+import { nullIfEmpty, okOf } from "../util";
+import { TypeFromProps } from "../util/propertiesMatcher";
 
 export function setupConfigExports<A extends ConfigSpec>(options: {
   spec: Config<A>;
   dependsOn: DependsOn;
-  write(effects: Effects, config: TypeFromProps<A>): Promise<null>;
-  read(
-    effects: Effects
-  ): Promise<Record<string | number, never> | TypeFromProps<A>>;
+  write(effects: Effects, config: TypeFromProps<A>): Promise<void>;
+  read(effects: Effects): Promise<null | DeepPartial<TypeFromProps<A>>>;
 }) {
   const validator = options.spec.validator();
   return {
@@ -34,3 +31,5 @@ export function setupConfigExports<A extends ConfigSpec>(options: {
     }) as ExpectedExports.getConfig,
   };
 }
+
+export default setupConfigExports;

@@ -1,6 +1,6 @@
-import { ConfigSpec } from "../types/config-types";
+import { ConfigSpec } from "../../types/config-types";
 import { BuilderExtract, IBuilder } from "./builder";
-import { Config } from "./mod";
+import { Config } from ".";
 
 /**
  * Used in the the Value.enum { @link './value.ts' }
