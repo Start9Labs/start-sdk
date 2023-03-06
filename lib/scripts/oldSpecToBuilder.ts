@@ -4,16 +4,16 @@ import * as fs from "fs";
 export async function writeConvertedFile(
   file: string,
   inputData: Promise<any> | any,
-  options: Parameters<typeof makeFileContent>[1]
+  options: Parameters<typeof makeFileContent>[1],
 ) {
   await fs.writeFile(file, await makeFileContent(inputData, options), (err) =>
-    console.error(err)
+    console.error(err),
   );
 }
 
 export default async function makeFileContent(
   inputData: Promise<any> | any,
-  { startSdk = "start-sdk" } = {}
+  { startSdk = "start-sdk" } = {},
 ) {
   const outputLines: string[] = [];
   outputLines.push(`
@@ -22,13 +22,13 @@ export default async function makeFileContent(
   const data = await inputData;
 
   const namedConsts = new Set(["Config", "Value", "List"]);
-  const configName = newConst("configSpec", convertConfigSpec(data));
+  const configName = newConst("InputSpec", convertInputSpec(data));
   const configMatcherName = newConst(
-    "matchConfigSpec",
-    `${configName}.validator()`
+    "matchInputSpec",
+    `${configName}.validator()`,
   );
   outputLines.push(
-    `export type ConfigSpec = typeof ${configMatcherName}._TYPE;`
+    `export type InputSpec = typeof ${configMatcherName}._TYPE;`,
   );
 
   return outputLines.join("\n");
@@ -38,7 +38,7 @@ export default async function makeFileContent(
     outputLines.push(`export const ${variableName} = ${data};`);
     return variableName;
   }
-  function convertConfigSpec(data: any) {
+  function convertInputSpec(data: any) {
     let answer = "Config.of({";
     for (const [key, value] of Object.entries(data)) {
       const variableName = newConst(key, convertValueSpec(value));
@@ -64,7 +64,7 @@ export default async function makeFileContent(
             textarea: value.textarea || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "number": {
@@ -81,7 +81,7 @@ export default async function makeFileContent(
             placeholder: value.placeholder || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "boolean": {
@@ -93,7 +93,7 @@ export default async function makeFileContent(
             warning: value.warning || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "enum": {
@@ -107,13 +107,13 @@ export default async function makeFileContent(
             "value-names": value["value-names"] || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "object": {
         const specName = newConst(
           value.name + "_spec",
-          convertConfigSpec(value.spec)
+          convertInputSpec(value.spec),
         );
         return `Value.object({
         name: ${JSON.stringify(value.name || null)},
@@ -129,7 +129,7 @@ export default async function makeFileContent(
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertVariants(value.variants)
+          convertVariants(value.variants),
         );
         return `Value.union({
         name: ${JSON.stringify(value.name || null)},
@@ -147,7 +147,7 @@ export default async function makeFileContent(
         "display-as": ${JSON.stringify(value["display-as"] || null)},
         "unique-by": ${JSON.stringify(value["unique-by"] || null)},
         "variant-names": ${JSON.stringify(
-          (value["variant-names"] as any) || null
+          (value["variant-names"] as any) || null,
         )},
       })`;
       }
@@ -182,7 +182,7 @@ export default async function makeFileContent(
             warning: value.warning || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "number": {
@@ -201,7 +201,7 @@ export default async function makeFileContent(
             warning: value.warning || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "enum": {
@@ -218,13 +218,13 @@ export default async function makeFileContent(
             warning: value.warning || null,
           },
           null,
-          2
+          2,
         )})`;
       }
       case "object": {
         const specName = newConst(
           value.name + "_spec",
-          convertConfigSpec(value.spec.spec)
+          convertInputSpec(value.spec.spec),
         );
         return `List.obj({
         name: ${JSON.stringify(value.name || null)},
@@ -232,7 +232,7 @@ export default async function makeFileContent(
         spec: {
             spec: ${specName},
             "display-as": ${JSON.stringify(
-              value?.spec?.["display-as"] || null
+              value?.spec?.["display-as"] || null,
             )},
             "unique-by": ${JSON.stringify(value?.spec?.["unique-by"] || null)},
         },
@@ -244,7 +244,7 @@ export default async function makeFileContent(
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertConfigSpec(value.spec.variants)
+          convertInputSpec(value.spec.variants),
         );
         return `List.union(
         {
@@ -254,24 +254,24 @@ export default async function makeFileContent(
                 tag: {
                     "id":${JSON.stringify(value?.spec?.tag?.["id"] || null)},
                     "name": ${JSON.stringify(
-                      value?.spec?.tag?.["name"] || null
+                      value?.spec?.tag?.["name"] || null,
                     )},
                     "description": ${JSON.stringify(
-                      value?.spec?.tag?.["description"] || null
+                      value?.spec?.tag?.["description"] || null,
                     )},
                     "warning": ${JSON.stringify(
-                      value?.spec?.tag?.["warning"] || null
+                      value?.spec?.tag?.["warning"] || null,
                     )},
                     "variant-names": ${JSON.stringify(
-                      value?.spec?.tag?.["variant-names"] || {}
+                      value?.spec?.tag?.["variant-names"] || {},
                     )},
                 },
                 variants: ${variants},
                 "display-as": ${JSON.stringify(
-                  value?.spec?.["display-as"] || null
+                  value?.spec?.["display-as"] || null,
                 )},
                 "unique-by": ${JSON.stringify(
-                  value?.spec?.["unique-by"] || null
+                  value?.spec?.["unique-by"] || null,
                 )},
                 default: ${JSON.stringify(value?.spec?.["default"] || null)},
             },
@@ -288,7 +288,7 @@ export default async function makeFileContent(
   function convertVariants(variants: any) {
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
-      const variableName = newConst(key, convertConfigSpec(value));
+      const variableName = newConst(key, convertInputSpec(value));
       answer += `"${key}": ${variableName},`;
     }
     return `${answer}})`;

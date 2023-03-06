@@ -4,7 +4,7 @@ describe("Properties Matcher", () => {
 // import * as PM from "./propertiesMatcher";
 // import { expect } from "https://deno.land/x/expect@v0.2.9/mod";
 // import * as matches from "ts-matches";
-// import { configSpec as bitcoinPropertiesConfig } from "./test/output";
+// import { InputSpec as bitcoinPropertiesConfig } from "./test/output";
 
 // const randWithSeed = (seed = 1) => {
 //   return function random() {

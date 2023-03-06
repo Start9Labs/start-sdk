@@ -1,5 +1,5 @@
 export * as configTypes from "./types/config-types";
-import { ConfigSpec } from "./types/config-types";
+import { InputSpec } from "./types/config-types";
 
 export namespace ExpectedExports {
   version: 1;
@@ -7,25 +7,26 @@ export namespace ExpectedExports {
   export type setConfig = (options: {
     effects: Effects;
     input: Record<string, unknown>;
-  }) => Promise<ResultType<SetResult>>;
+  }) => Promise<unknown>;
   /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
   export type getConfig = (options: {
     effects: Effects;
-  }) => Promise<ResultType<ConfigRes>>;
+    config: unknown;
+  }) => Promise<ConfigRes>;
   /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
   export type dependencies = Dependencies;
   /** For backing up service data though the embassyOS UI */
   export type createBackup = (options: {
     effects: Effects;
-  }) => Promise<ResultType<unknown>>;
+  }) => Promise<unknown>;
   /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
   export type restoreBackup = (options: {
     effects: Effects;
-  }) => Promise<ResultType<unknown>>;
+  }) => Promise<unknown>;
   /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
   export type properties = (options: {
     effects: Effects;
-  }) => Promise<ResultType<Properties>>;
+  }) => Promise<Properties>;
 
   /** Health checks are used to determine if the service is working properly after starting
    * A good use case is if we are using a web server, seeing if we can get to the web server.
@@ -35,7 +36,7 @@ export namespace ExpectedExports {
     [id: string]: (options: {
       effects: Effects;
       input: TimeMs;
-    }) => Promise<ResultType<unknown>>;
+    }) => Promise<unknown>;
   };
 
   /**
@@ -47,7 +48,7 @@ export namespace ExpectedExports {
     [id: string]: (options: {
       effects: Effects;
       input?: Record<string, unknown>;
-    }) => Promise<ResultType<ActionResult>>;
+    }) => Promise<ActionResult>;
   };
 
   /**
@@ -56,8 +57,8 @@ export namespace ExpectedExports {
    */
   export type main = (options: {
     effects: Effects;
-    started(): null;
-  }) => Promise<ResultType<unknown>>;
+    started(onTerm: () => void): null;
+  }) => Promise<unknown>;
 
   /**
    * Every time a package completes an install, this function is called before the main.
@@ -66,14 +67,14 @@ export namespace ExpectedExports {
   export type init = (options: {
     effects: Effects;
     previousVersion: null | string;
-  }) => Promise<ResultType<unknown>>;
+  }) => Promise<unknown>;
   /** This will be ran during any time a package is uninstalled, for example during a update
    * this will be called.
    */
   export type uninit = (options: {
     effects: Effects;
     nextVersion: null | string;
-  }) => Promise<ResultType<unknown>>;
+  }) => Promise<unknown>;
 }
 export type TimeMs = number;
 export type VersionString = string;
@@ -82,7 +83,7 @@ export type ConfigRes = {
   /** This should be the previous config, that way during set config we start with the previous */
   config?: null | Record<string, unknown>;
   /** Shape that is describing the form in the ui */
-  spec: ConfigSpec;
+  spec: InputSpec;
 };
 /** Used to reach out from the pure js runtime */
 export type Effects = {
@@ -119,9 +120,9 @@ export type Effects = {
     command: string;
     args?: string[];
     timeoutMillis?: number;
-  }): Promise<ResultType<string>>;
+  }): Promise<string>;
   runDaemon(input: { command: string; args?: string[] }): {
-    wait(): Promise<ResultType<string>>;
+    wait(): Promise<string>;
     term(): Promise<void>;
   };
 
@@ -170,7 +171,7 @@ export type Effects = {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
       headers?: Record<string, string>;
       body?: string;
-    }
+    },
   ): Promise<{
     method: string;
     ok: boolean;
@@ -199,6 +200,12 @@ export type Effects = {
     wait: () => Promise<null>;
     progress: () => Promise<number>;
   };
+
+  getServiceConfig(options?: {
+    packageId?: string;
+    path?: string;
+    callback?: (config: unknown, previousConfig: unknown) => void;
+  }): Promise<unknown>;
 
   /** Get the address for another service for local internet*/
   getServiceLocalAddress(options: {
@@ -249,7 +256,7 @@ export type Effects = {
     name: string;
     description: string;
     id: string;
-    input: null | ConfigSpec;
+    input: null | InputSpec;
   }): Promise<void>;
   /**
    * Remove an action that was exported. Used problably during main or during setConfig.
@@ -349,7 +356,6 @@ export type KnownError =
   | {
       "error-code": [number, string] | readonly [number, string];
     };
-export type ResultType<T> = KnownError | { result: T };
 
 export type PackagePropertiesV2 = {
   [name: string]: PackagePropertyObject | PackagePropertyString;
@@ -380,15 +386,9 @@ export type Dependencies = {
   /** Id is the id of the package, should be the same as the manifest */
   [id: string]: {
     /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
-    check(
-      effects: Effects,
-      input: ConfigSpec
-    ): Promise<ResultType<void | null>>;
+    check(effects: Effects, input: InputSpec): Promise<void | null>;
     /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
-    autoConfigure(
-      effects: Effects,
-      input: ConfigSpec
-    ): Promise<ResultType<ConfigSpec>>;
+    autoConfigure(effects: Effects, input: InputSpec): Promise<InputSpec>;
   };
 };
 

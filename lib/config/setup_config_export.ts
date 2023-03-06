@@ -1,7 +1,7 @@
 import { Config } from "./builder";
 import { DeepPartial, DependsOn, Effects, ExpectedExports } from "../types";
-import { ConfigSpec } from "../types/config-types";
-import { nullIfEmpty, okOf } from "../util";
+import { InputSpec } from "../types/config-types";
+import { nullIfEmpty } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
 
 /**
@@ -11,7 +11,7 @@ import { TypeFromProps } from "../util/propertiesMatcher";
  * @param options
  * @returns
  */
-export function setupConfigExports<A extends ConfigSpec>(options: {
+export function setupConfigExports<A extends InputSpec>(options: {
   spec: Config<A>;
   dependsOn: DependsOn;
   write(effects: Effects, config: TypeFromProps<A>): Promise<void>;
@@ -25,16 +25,16 @@ export function setupConfigExports<A extends ConfigSpec>(options: {
         return { error: "Set config type error for config" };
       }
       await options.write(effects, config);
-      return okOf({
+      return {
         signal: "SIGTERM",
         "depends-on": options.dependsOn,
-      });
+      };
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
-      return okOf({
+      return {
         spec: options.spec.build(),
         config: nullIfEmpty(await options.read(effects)),
-      });
+      };
     }) as ExpectedExports.getConfig,
   };
 }

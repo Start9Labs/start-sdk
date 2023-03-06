@@ -1,4 +1,4 @@
-import { ConfigSpec } from "../../types/config-types";
+import { InputSpec } from "../../types/config-types";
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from ".";
 
@@ -39,12 +39,12 @@ import { Config } from ".";
 ```
  */
 export class Variants<
-  A extends { [key: string]: ConfigSpec }
+  A extends { [key: string]: InputSpec },
 > extends IBuilder<A> {
   static of<
     A extends {
-      [key: string]: Config<ConfigSpec>;
-    }
+      [key: string]: Config<InputSpec>;
+    },
   >(a: A) {
     const variants: { [K in keyof A]: BuilderExtract<A[K]> } = {} as any;
     for (const key in a) {
@@ -56,17 +56,14 @@ export class Variants<
   static empty() {
     return Variants.of({});
   }
-  static withVariant<K extends string, B extends ConfigSpec>(
+  static withVariant<K extends string, B extends InputSpec>(
     key: K,
-    value: Config<B>
+    value: Config<B>,
   ) {
     return Variants.empty().withVariant(key, value);
   }
 
-  withVariant<K extends string, B extends ConfigSpec>(
-    key: K,
-    value: Config<B>
-  ) {
+  withVariant<K extends string, B extends InputSpec>(key: K, value: Config<B>) {
     return new Variants({
       ...this.a,
       [key]: value.build(),

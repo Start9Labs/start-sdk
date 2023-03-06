@@ -4,7 +4,7 @@ import { Default, NumberSpec, StringSpec } from "./value";
 import { Description } from "./value";
 import { Variants } from "./variants";
 import {
-  ConfigSpec,
+  InputSpec,
   UniqueBy,
   ValueSpecList,
   ValueSpecListOf,
@@ -38,7 +38,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       Default<string[]> & {
         range: string;
         spec: StringSpec;
-      }
+      },
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -51,7 +51,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       Default<number[]> & {
         range: string;
         spec: NumberSpec;
-      }
+      },
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -69,7 +69,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
             [key: string]: string;
           };
         };
-      }
+      },
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -82,11 +82,11 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       Default<Record<string, unknown>[]> & {
         range: string;
         spec: {
-          spec: Config<ConfigSpec>;
+          spec: Config<InputSpec>;
           "display-as": null | string;
           "unique-by": null | UniqueBy;
         };
-      }
+      },
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { spec: previousSpecSpec, ...restSpec } = previousSpec;
@@ -121,13 +121,13 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
               [key: string]: string;
             };
           };
-          variants: Variants<{ [key: string]: ConfigSpec }>;
+          variants: Variants<{ [key: string]: InputSpec }>;
           "display-as": null | string;
           "unique-by": UniqueBy;
           default: string;
         };
       },
-    B extends string
+    B extends string,
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;

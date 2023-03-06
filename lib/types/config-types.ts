@@ -1,4 +1,4 @@
-export type ConfigSpec = Record<string, ValueSpec>;
+export type InputSpec = Record<string, ValueSpec>;
 
 export type ValueType =
   | "string"
@@ -53,13 +53,13 @@ export interface ValueSpecBoolean extends WithStandalone {
 export interface ValueSpecUnion {
   type: "union";
   tag: UnionTagSpec;
-  variants: { [key: string]: ConfigSpec };
+  variants: { [key: string]: InputSpec };
   default: string;
 }
 
 export interface ValueSpecObject extends WithStandalone {
   type: "object";
-  spec: ConfigSpec;
+  spec: InputSpec;
 }
 
 export interface WithStandalone {
@@ -111,7 +111,7 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
 // sometimes the type checker needs just a little bit of help
 export function isValueSpecListOf<S extends ListValueSpecType>(
   t: ValueSpecList,
-  s: S
+  s: S,
 ): t is ValueSpecListOf<S> {
   return t.subtype === s;
 }
@@ -136,7 +136,7 @@ export interface ListValueSpecEnum {
 }
 
 export interface ListValueSpecObject {
-  spec: ConfigSpec; // this is a mapped type of the config object at this level, replacing the object's values with specs on those values
+  spec: InputSpec; // this is a mapped type of the config object at this level, replacing the object's values with specs on those values
   "unique-by": UniqueBy; // indicates whether duplicates can be permitted in the list
   "display-as": null | string; // this should be a handlebars template which can make use of the entire config which corresponds to 'spec'
 }
@@ -150,7 +150,7 @@ export type UniqueBy =
 
 export interface ListValueSpecUnion {
   tag: UnionTagSpec;
-  variants: { [key: string]: ConfigSpec };
+  variants: { [key: string]: InputSpec };
   "display-as": null | string; // this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id
   "unique-by": UniqueBy;
   default: string; // this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list

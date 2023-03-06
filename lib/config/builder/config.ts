@@ -1,4 +1,4 @@
-import { ConfigSpec, ValueSpec } from "../../types/config-types";
+import { InputSpec, ValueSpec } from "../../types/config-types";
 import { typeFromProps } from "../../util";
 import { BuilderExtract, IBuilder } from "./builder";
 import { Value } from "./value";
@@ -483,19 +483,19 @@ import { Value } from "./value";
 
   ```
  */
-export class Config<A extends ConfigSpec> extends IBuilder<A> {
+export class Config<A extends InputSpec> extends IBuilder<A> {
   static empty() {
     return new Config({});
   }
   static withValue<K extends string, B extends ValueSpec>(
     key: K,
-    value: Value<B>
+    value: Value<B>,
   ) {
     return Config.empty().withValue(key, value);
   }
   static addValue<K extends string, B extends ValueSpec>(
     key: K,
-    value: Value<B>
+    value: Value<B>,
   ) {
     return Config.empty().withValue(key, value);
   }

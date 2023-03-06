@@ -1,4 +1,4 @@
-import { Effects, ResultType } from "../types";
+import { Effects } from "../types";
 import { isKnownError } from "../util";
 import { HealthResult } from "./healthRunner";
 
@@ -10,10 +10,10 @@ import { HealthResult } from "./healthRunner";
  */
 export const checkWebUrl: (
   url: string,
-  createSuccess?: null | ((response?: string | null) => string)
+  createSuccess?: null | ((response?: string | null) => string),
 ) => (effects: Effects, duration: number) => Promise<HealthResult> = (
   url,
-  createSuccess = null
+  createSuccess = null,
 ) => {
   return async (effects, duration) => {
     const errorValue = guardDurationAboveMinimum({
@@ -55,22 +55,12 @@ export const runHealthScript =
     args: string[];
     message: ((result: unknown) => string) | null;
   }) =>
-  async (
-    effects: Effects,
-    _duration: number
-  ): Promise<ResultType<HealthResult>> => {
+  async (effects: Effects, _duration: number): Promise<HealthResult> => {
     const res = await effects.runCommand({ command, args });
-    if ("result" in res) {
-      return {
-        result: {
-          success:
-            message?.(res) ??
-            `Have ran script ${command} and the result: ${res.result}`,
-        },
-      };
-    } else {
-      throw res;
-    }
+    return {
+      success:
+        message?.(res) ?? `Have ran script ${command} and the result: ${res}`,
+    };
   };
 
 // Ensure the starting duration is pass a minimum

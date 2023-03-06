@@ -1,5 +1,5 @@
 import * as matches from "ts-matches";
-import { ConfigSpec, ValueSpec as ValueSpecAny } from "../types/config-types";
+import { InputSpec, ValueSpec as ValueSpecAny } from "../types/config-types";
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -107,7 +107,7 @@ function charRange(value = "") {
  */
 export function generateDefault(
   generate: { charset: string; len: number },
-  { random = () => Math.random() } = {}
+  { random = () => Math.random() } = {},
 ) {
   const validCharSets: number[][] = generate.charset
     .split(",")
@@ -118,7 +118,7 @@ export function generateDefault(
   }
   const max = validCharSets.reduce(
     (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
-    0
+    0,
   );
   let i = 0;
   const answer: string[] = Array(generate.len);
@@ -127,7 +127,7 @@ export function generateDefault(
     const inRange = validCharSets.reduce(
       (acc, [lower, upper]) =>
         acc || (nextValue >= lower && nextValue <= upper),
-      false
+      false,
     );
     if (!inRange) continue;
     answer[i] = String.fromCharCode(nextValue);
@@ -155,7 +155,7 @@ export function matchNumberWithRange(range: string) {
         ? "any"
         : left === "["
         ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`
+        : `greaterThan${leftValue}`,
     )
     .validate(
       // prettier-ignore
@@ -165,7 +165,7 @@ export function matchNumberWithRange(range: string) {
       // prettier-ignore
       rightValue === "*" ? "any" :
       right === "]" ? `lessThanOrEqualTo${rightValue}` :
-      `lessThan${rightValue}`
+      `lessThan${rightValue}`,
     );
 }
 function withIntegral(parser: matches.Parser<unknown, number>, value: unknown) {
@@ -186,12 +186,12 @@ const isGenerator = matches.shape({
 }).test;
 function defaultNullable<A>(
   parser: matches.Parser<unknown, A>,
-  value: unknown
+  value: unknown,
 ) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) {
       return parser.defaultTo(
-        parser.unsafeCast(generateDefault(value.default))
+        parser.unsafeCast(generateDefault(value.default)),
       );
     }
     return parser.defaultTo(value.default);
@@ -201,7 +201,7 @@ function defaultNullable<A>(
 }
 
 /**
- * ConfigSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
+ * InputSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
  * ValueSpecAny: This is any of the values in a config spec.
  *
  * Use this when we want to convert a value spec any into a parser for what a config will look like
@@ -209,7 +209,7 @@ function defaultNullable<A>(
  * @returns
  */
 export function guardAll<A extends ValueSpecAny>(
-  value: A
+  value: A,
 ): matches.Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
     return matches.unknown as any;
@@ -224,7 +224,7 @@ export function guardAll<A extends ValueSpecAny>(
     case "number":
       return defaultNullable(
         withIntegral(withRange(value), value),
-        value
+        value,
       ) as any;
 
     case "object":
@@ -244,14 +244,14 @@ export function guardAll<A extends ValueSpecAny>(
         matches
           .arrayOf(guardAll({ type: subtype, ...spec } as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
-        value
+        value,
       ) as any;
     }
     case "enum":
       if (matchValues.test(value)) {
         return defaultNullable(
           matches.literals(value.values[0], ...value.values),
-          value
+          value,
         ) as any;
       }
       return matches.unknown as any;
@@ -261,8 +261,8 @@ export function guardAll<A extends ValueSpecAny>(
           ...Object.entries(value.variants).map(([variant, spec]) =>
             matches
               .shape({ [value.tag.id]: matches.literal(variant) })
-              .concat(typeFromProps(spec))
-          )
+              .concat(typeFromProps(spec)),
+          ),
         ) as any;
       }
       return matches.unknown as any;
@@ -271,15 +271,15 @@ export function guardAll<A extends ValueSpecAny>(
   return matches.unknown as any;
 }
 /**
- * ConfigSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
+ * InputSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
  * ValueSpecAny: This is any of the values in a config spec.
  *
  * Use this when we want to convert a config spec into a parser for what a config will look like
  * @param valueDictionary
  * @returns
  */
-export function typeFromProps<A extends ConfigSpec>(
-  valueDictionary: A
+export function typeFromProps<A extends InputSpec>(
+  valueDictionary: A,
 ): matches.Parser<unknown, TypeFromProps<A>> {
   if (!recordString.test(valueDictionary)) return matches.unknown as any;
   return matches.shape(
@@ -287,7 +287,7 @@ export function typeFromProps<A extends ConfigSpec>(
       Object.entries(valueDictionary).map(([key, value]) => [
         key,
         guardAll(value),
-      ])
-    )
+      ]),
+    ),
   ) as any;
 }

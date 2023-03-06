@@ -12,6 +12,9 @@ bundle:  fmt $(TS_FILES) .FORCE node_modules
 	npx tsc-multi
 	npx tsc --emitDeclarationOnly
 
+check:
+	npm run check
+
 fmt: node_modules
 	npx prettier --write "**/*.ts"
 

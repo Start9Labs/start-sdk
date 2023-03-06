@@ -6,6 +6,7 @@ export const enable = Value.boolean({
   description: "Allow remote RPC requests.",
   warning: null,
 });
+
 export const username = Value.string({
   name: "Username",
   default: "bitcoin",
@@ -438,12 +439,12 @@ export const advanced1 = Value.object({
   spec: advancedSpec1,
   "value-names": {},
 });
-export const configSpec = Config.of({
+export const InputSpec = Config.of({
   rpc: rpc,
   "zmq-enabled": zmqEnabled,
   txindex: txindex,
   wallet: wallet,
   advanced: advanced1,
 });
-export const matchConfigSpec = configSpec.validator();
-export type ConfigSpec = typeof matchConfigSpec._TYPE;
+export const matchInputSpec = InputSpec.validator();
+export type InputSpec = typeof matchInputSpec._TYPE;
