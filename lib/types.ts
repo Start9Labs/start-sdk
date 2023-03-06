@@ -257,6 +257,11 @@ export type Effects = {
     description: string;
     id: string;
     input: null | InputSpec;
+
+    /**
+     * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions
+     */
+    group?: string;
   }): Promise<void>;
   /**
    * Remove an action that was exported. Used problably during main or during setConfig.
