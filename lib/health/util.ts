@@ -10,10 +10,10 @@ import { HealthResult } from "./healthRunner";
  */
 export const checkWebUrl: (
   url: string,
-  createSuccess?: null | ((response?: string | null) => string),
+  createSuccess?: null | ((response?: string | null) => string)
 ) => (effects: Effects, duration: number) => Promise<HealthResult> = (
   url,
-  createSuccess = null,
+  createSuccess = null
 ) => {
   return async (effects, duration) => {
     const errorValue = guardDurationAboveMinimum({

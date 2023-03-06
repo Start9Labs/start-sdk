@@ -39,12 +39,12 @@ import { Config } from ".";
 ```
  */
 export class Variants<
-  A extends { [key: string]: InputSpec },
+  A extends { [key: string]: InputSpec }
 > extends IBuilder<A> {
   static of<
     A extends {
       [key: string]: Config<InputSpec>;
-    },
+    }
   >(a: A) {
     const variants: { [K in keyof A]: BuilderExtract<A[K]> } = {} as any;
     for (const key in a) {
@@ -58,7 +58,7 @@ export class Variants<
   }
   static withVariant<K extends string, B extends InputSpec>(
     key: K,
-    value: Config<B>,
+    value: Config<B>
   ) {
     return Variants.empty().withVariant(key, value);
   }

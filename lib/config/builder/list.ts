@@ -38,7 +38,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       Default<string[]> & {
         range: string;
         spec: StringSpec;
-      },
+      }
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -51,7 +51,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       Default<number[]> & {
         range: string;
         spec: NumberSpec;
-      },
+      }
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -69,7 +69,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
             [key: string]: string;
           };
         };
-      },
+      }
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -86,7 +86,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
           "display-as": null | string;
           "unique-by": null | UniqueBy;
         };
-      },
+      }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { spec: previousSpecSpec, ...restSpec } = previousSpec;
@@ -127,7 +127,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
           default: string;
         };
       },
-    B extends string,
+    B extends string
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;

@@ -111,7 +111,7 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
 // sometimes the type checker needs just a little bit of help
 export function isValueSpecListOf<S extends ListValueSpecType>(
   t: ValueSpecList,
-  s: S,
+  s: S
 ): t is ValueSpecListOf<S> {
   return t.subtype === s;
 }

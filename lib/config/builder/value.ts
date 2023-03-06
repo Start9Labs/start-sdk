@@ -80,7 +80,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     A extends Description &
       NullableDefault<DefaultString> &
       Nullable &
-      StringSpec,
+      StringSpec
   >(a: A) {
     return new Value({
       type: "string" as const,
@@ -88,7 +88,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     } as ValueSpecString);
   }
   static number<
-    A extends Description & NullableDefault<number> & Nullable & NumberSpec,
+    A extends Description & NullableDefault<number> & Nullable & NumberSpec
   >(a: A) {
     return new Value({
       type: "number" as const,
@@ -100,7 +100,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       Default<string> & {
         values: readonly string[] | string[];
         "value-names": Record<string, string>;
-      },
+      }
   >(a: A) {
     return new Value({
       type: "enum" as const,
@@ -117,7 +117,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       "unique-by": null | string;
       spec: Config<InputSpec>;
       "value-names": Record<string, string>;
-    },
+    }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const spec = previousSpec.build() as BuilderExtract<A["spec"]>;
@@ -143,7 +143,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
         "display-as": string | null;
         "unique-by": UniqueBy;
       },
-    B extends string,
+    B extends string
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
     const variants = previousVariants.build() as BuilderExtract<A["variants"]>;

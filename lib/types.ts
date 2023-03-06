@@ -269,6 +269,19 @@ export type Effects = {
    * @param configured
    */
   setConfigured(configured: boolean): Promise<void>;
+
+  /**
+   *
+   * @returns  PEM encoded fullchain (ecdsa)
+   */
+  getSslCertificate: (
+    packageId: string,
+    algorithm?: "ecdsa" | "ed25519",
+  ) => [string, string, string];
+  /**
+   * @returns PEM encoded ssl key (ecdsa)
+   */
+  getSslKey: (packageId: string, algorithm?: "ecdsa" | "ed25519") => string;
 };
 
 /* rsync options: https://linux.die.net/man/1/rsync
