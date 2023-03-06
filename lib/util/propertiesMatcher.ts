@@ -11,7 +11,6 @@ type TypePointer = "pointer";
 type TypeUnion = "union";
 
 // prettier-ignore
-// deno-fmt-ignore
 type GuardDefaultNullable<A, Type> = 
     A extends { readonly default: unknown} ? Type :
     A extends { readonly nullable: true} ? Type :
@@ -19,24 +18,20 @@ type GuardDefaultNullable<A, Type> =
     Type
 
 // prettier-ignore
-// deno-fmt-ignore
 type GuardNumber<A> = 
     A extends {readonly type:TypeNumber} ? GuardDefaultNullable<A, number> :
     unknown
 // prettier-ignore
-// deno-fmt-ignore
 type GuardString<A> = 
     A extends {readonly type:TypeString} ? GuardDefaultNullable<A, string> :
     unknown
 
 // prettier-ignore
-// deno-fmt-ignore
 type GuardBoolean<A> = 
     A extends {readonly type:TypeBoolean} ? GuardDefaultNullable<A, boolean> :    
     unknown
 
 // prettier-ignore
-// deno-fmt-ignore
 type GuardObject<A> = 
     A extends {readonly type: TypeObject, readonly spec: infer B} ? (
         B extends Record<string, unknown> ? {readonly [K in keyof B & string]: _<GuardAll<B[K]>>} :
@@ -45,24 +40,19 @@ type GuardObject<A> =
     unknown
 
 // prettier-ignore
-// deno-fmt-ignore
 export type GuardList<A> = 
     A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {spec?: infer C }} ? ReadonlyArray<GuardAll<Omit<A, "type" | "spec"> & ({type: B, spec: C})>> :
-    // deno-lint-ignore ban-types
     A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {}} ? ReadonlyArray<GuardAll<Omit<A, "type" > & ({type: B})>> :
     unknown
 // prettier-ignore
-// deno-fmt-ignore
 type GuardPointer<A> = 
     A extends {readonly type:TypePointer} ? (string | null) :
     unknown
 // prettier-ignore
-// deno-fmt-ignore
 type GuardEnum<A> = 
     A extends {readonly type:TypeEnum, readonly values: ArrayLike<infer B>} ? GuardDefaultNullable<A, B> :
     unknown
 // prettier-ignore
-// deno-fmt-ignore
 type GuardUnion<A> = 
     A extends {readonly type:TypeUnion, readonly tag: {id: infer Id & string}, variants: infer Variants & Record<string, unknown>} ? {[K in keyof Variants]: {[keyType in Id & string]: K}&TypeFromProps<Variants[K]>}[keyof Variants] :
     unknown
@@ -77,7 +67,6 @@ export type GuardAll<A> = GuardNumber<A> &
   GuardUnion<A> &
   GuardEnum<A>;
 // prettier-ignore
-// deno-fmt-ignore
 export type TypeFromProps<A> = 
  A extends Record<string, unknown> ? {readonly [K in keyof A & string]: _<GuardAll<A[K]>>} :
  unknown;
@@ -118,7 +107,7 @@ function charRange(value = "") {
  */
 export function generateDefault(
   generate: { charset: string; len: number },
-  { random = () => Math.random() } = {}
+  { random = () => Math.random() } = {},
 ) {
   const validCharSets: number[][] = generate.charset
     .split(",")
@@ -129,7 +118,7 @@ export function generateDefault(
   }
   const max = validCharSets.reduce(
     (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
-    0
+    0,
   );
   let i = 0;
   const answer: string[] = Array(generate.len);
@@ -138,7 +127,7 @@ export function generateDefault(
     const inRange = validCharSets.reduce(
       (acc, [lower, upper]) =>
         acc || (nextValue >= lower && nextValue <= upper),
-      false
+      false,
     );
     if (!inRange) continue;
     answer[i] = String.fromCharCode(nextValue);
@@ -166,19 +155,17 @@ export function matchNumberWithRange(range: string) {
         ? "any"
         : left === "["
         ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`
+        : `greaterThan${leftValue}`,
     )
     .validate(
-      rightValue === "*"
-        ? (_) => true
-        : right === "]"
-        ? (x) => x <= Number(rightValue)
-        : (x) => x < Number(rightValue),
-      rightValue === "*"
-        ? "any"
-        : right === "]"
-        ? `lessThanOrEqualTo${rightValue}`
-        : `lessThan${rightValue}`
+      // prettier-ignore
+      rightValue === "*" ? (_) => true :
+      right === "]"? (x) => x <= Number(rightValue) :
+      (x) => x < Number(rightValue),
+      // prettier-ignore
+      rightValue === "*" ? "any" :
+      right === "]" ? `lessThanOrEqualTo${rightValue}` :
+      `lessThan${rightValue}`,
     );
 }
 function withIntegral(parser: matches.Parser<unknown, number>, value: unknown) {
@@ -199,12 +186,12 @@ const isGenerator = matches.shape({
 }).test;
 function defaultNullable<A>(
   parser: matches.Parser<unknown, A>,
-  value: unknown
+  value: unknown,
 ) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) {
       return parser.defaultTo(
-        parser.unsafeCast(generateDefault(value.default))
+        parser.unsafeCast(generateDefault(value.default)),
       );
     }
     return parser.defaultTo(value.default);
@@ -222,34 +209,28 @@ function defaultNullable<A>(
  * @returns
  */
 export function guardAll<A extends ValueSpecAny>(
-  value: A
+  value: A,
 ): matches.Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
-    // deno-lint-ignore no-explicit-any
     return matches.unknown as any;
   }
   switch (value.type) {
     case "boolean":
-      // deno-lint-ignore no-explicit-any
       return defaultNullable(matches.boolean, value) as any;
 
     case "string":
-      // deno-lint-ignore no-explicit-any
       return defaultNullable(withPattern(value), value) as any;
 
     case "number":
       return defaultNullable(
         withIntegral(withRange(value), value),
-        value
-        // deno-lint-ignore no-explicit-any
+        value,
       ) as any;
 
     case "object":
       if (matchSpec.test(value)) {
-        // deno-lint-ignore no-explicit-any
         return defaultNullable(typeFromProps(value.spec), value) as any;
       }
-      // deno-lint-ignore no-explicit-any
       return matches.unknown as any;
 
     case "list": {
@@ -261,22 +242,18 @@ export function guardAll<A extends ValueSpecAny>(
       const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultNullable(
         matches
-          // deno-lint-ignore no-explicit-any
           .arrayOf(guardAll({ type: subtype, ...spec } as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
-        value
-        // deno-lint-ignore no-explicit-any
+        value,
       ) as any;
     }
     case "enum":
       if (matchValues.test(value)) {
         return defaultNullable(
           matches.literals(value.values[0], ...value.values),
-          value
-          // deno-lint-ignore no-explicit-any
+          value,
         ) as any;
       }
-      // deno-lint-ignore no-explicit-any
       return matches.unknown as any;
     case "union":
       if (matchUnion.test(value)) {
@@ -284,15 +261,13 @@ export function guardAll<A extends ValueSpecAny>(
           ...Object.entries(value.variants).map(([variant, spec]) =>
             matches
               .shape({ [value.tag.id]: matches.literal(variant) })
-              .concat(typeFromProps(spec))
-          ) // deno-lint-ignore no-explicit-any
+              .concat(typeFromProps(spec)),
+          ),
         ) as any;
       }
-      // deno-lint-ignore no-explicit-any
       return matches.unknown as any;
   }
 
-  // deno-lint-ignore no-explicit-any
   return matches.unknown as any;
 }
 /**
@@ -304,17 +279,15 @@ export function guardAll<A extends ValueSpecAny>(
  * @returns
  */
 export function typeFromProps<A extends ConfigSpec>(
-  valueDictionary: A
+  valueDictionary: A,
 ): matches.Parser<unknown, TypeFromProps<A>> {
-  // deno-lint-ignore no-explicit-any
   if (!recordString.test(valueDictionary)) return matches.unknown as any;
   return matches.shape(
     Object.fromEntries(
       Object.entries(valueDictionary).map(([key, value]) => [
         key,
         guardAll(value),
-      ])
-    )
-    // deno-lint-ignore no-explicit-any
+      ]),
+    ),
   ) as any;
 }

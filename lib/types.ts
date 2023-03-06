@@ -1,9 +1,7 @@
 export * as configTypes from "./types/config-types";
 import { ConfigSpec } from "./types/config-types";
 
-// deno-lint-ignore no-namespace
 export namespace ExpectedExports {
-  // deno-lint-ignore no-unused-labels
   version: 1;
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
   export type setConfig = (options: {
@@ -41,16 +39,6 @@ export namespace ExpectedExports {
   };
 
   /**
-   * Migrations are used when we are changing versions when updating/ downgrading.
-   * There are times that we need to move files around, and do other operations during a migration.
-   */
-  export type migration = (options: {
-    effects: Effects;
-    input: VersionString;
-    args: unknown[];
-  }) => Promise<ResultType<MigrationRes>>;
-
-  /**
    * Actions are used so we can effect the service, like deleting a directory.
    * One old use case is to add a action where we add a file, that will then be run during the
    * service starting, and that file would indicate that it would rescan all the data.
@@ -70,72 +58,25 @@ export namespace ExpectedExports {
     effects: Effects;
     started(): null;
   }) => Promise<ResultType<unknown>>;
+
+  /**
+   * Every time a package completes an install, this function is called before the main.
+   * Can be used to do migration like things.
+   */
+  export type init = (options: {
+    effects: Effects;
+    previousVersion: null | string;
+  }) => Promise<ResultType<unknown>>;
+  /** This will be ran during any time a package is uninstalled, for example during a update
+   * this will be called.
+   */
+  export type uninit = (options: {
+    effects: Effects;
+    nextVersion: null | string;
+  }) => Promise<ResultType<unknown>>;
 }
 export type TimeMs = number;
 export type VersionString = string;
-
-/** @deprecated */
-// deno-lint-ignore no-namespace
-export namespace LegacyExpectedExports {
-  /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
-  export type setConfig = (
-    effects: Effects,
-    input: Record<string, unknown>
-  ) => Promise<ResultType<SetResult>>;
-  /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
-  export type getConfig = (effects: Effects) => Promise<ResultType<ConfigRes>>;
-  /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
-  export type dependencies = Dependencies;
-  /** For backing up service data though the embassyOS UI */
-  export type createBackup = (effects: Effects) => Promise<ResultType<unknown>>;
-  /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
-  export type restoreBackup = (
-    effects: Effects
-  ) => Promise<ResultType<unknown>>;
-  /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
-  export type properties = (
-    effects: Effects
-  ) => Promise<ResultType<Properties>>;
-
-  /** Health checks are used to determine if the service is working properly after starting
-   * A good use case is if we are using a web server, seeing if we can get to the web server.
-   */
-  export type health = {
-    /** Should be the health check id */
-    [id: string]: (
-      effects: Effects,
-      dateMs: number
-    ) => Promise<ResultType<unknown>>;
-  };
-
-  /**
-   * Migrations are used when we are changing versions when updating/ downgrading.
-   * There are times that we need to move files around, and do other operations during a migration.
-   */
-  export type migration = (
-    effects: Effects,
-    version: string,
-    ...args: unknown[]
-  ) => Promise<ResultType<MigrationRes>>;
-
-  /**
-   * Actions are used so we can effect the service, like deleting a directory.
-   * One old use case is to add a action where we add a file, that will then be run during the
-   * service starting, and that file would indicate that it would rescan all the data.
-   */
-  export type action = {
-    [id: string]: (
-      effects: Effects,
-      config?: ConfigSpec
-    ) => Promise<ResultType<ActionResult>>;
-  };
-
-  /**
-   * This is the entrypoint for the main container. Used to start up something like the service that the
-   * package represents, like running a bitcoind in a bitcoind-wrapper.
-   */
-  export type main = (effects: Effects) => Promise<ResultType<unknown>>;
-}
 
 export type ConfigRes = {
   /** This should be the previous config, that way during set config we start with the previous */
@@ -184,7 +125,9 @@ export type Effects = {
     term(): Promise<void>;
   };
 
+  /** Uses the chown on the system */
   chown(input: { volumeId: string; path: string; uid: string }): Promise<null>;
+  /** Uses the chmod on the system */
   chmod(input: { volumeId: string; path: string; mode: string }): Promise<null>;
 
   sleep(timeMs: TimeMs): Promise<null>;
@@ -203,25 +146,31 @@ export type Effects = {
   /** Sandbox mode lets us read but not write */
   is_sandboxed(): boolean;
 
+  /** Check that a file exists or not */
   exists(input: { volumeId: string; path: string }): Promise<boolean>;
+  /** Declaring that we are opening a interface on some protocal for local network */
   bindLocal(options: {
     internalPort: number;
     name: string;
     externalPort: number;
   }): Promise<string>;
+  /** Declaring that we are opening a interface on some protocal for tor network */
   bindTor(options: {
     internalPort: number;
     name: string;
     externalPort: number;
   }): Promise<string>;
 
+  /** Similar to the fetch api via the mdn, this is simplified but the point is
+   * to get something from some website, and return the response.
+   */
   fetch(
     url: string,
     options?: {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
       headers?: Record<string, string>;
       body?: string;
-    }
+    },
   ): Promise<{
     method: string;
     ok: boolean;
@@ -234,6 +183,10 @@ export type Effects = {
     json(): Promise<unknown>;
   }>;
 
+  /**
+   * Run rsync between two volumes. This is used to backup data between volumes.
+   * This is a long running process, and a structure that we can either wait for, or get the progress of.
+   */
   runRsync(options: {
     srcVolume: string;
     dstVolume: string;
@@ -246,15 +199,82 @@ export type Effects = {
     wait: () => Promise<null>;
     progress: () => Promise<number>;
   };
+
+  /** Get the address for another service for local internet*/
+  getServiceLocalAddress(options: {
+    packageId: string;
+    interfaceName: string;
+  }): Promise<string>;
+  /** Get the address for another service for tor interfaces */
+  getServiceTorAddress(options: {
+    packageId: string;
+    interfaceName: string;
+  }): Promise<string>;
+  /**
+   * Get the port address for another service
+   */
+  getServicePortForward(options: {
+    packageId: string;
+    internalPort: number;
+  }): Promise<string>;
+
+  /** When we want to create a link in the front end interfaces, and example is
+   * exposing a url to view a web service
+   */
+  exportAddress(options: {
+    /** The title of this field to be dsimplayed */
+    name: string;
+    /** Human readable description, used as tooltip usually */
+    description: string;
+    /** URI location */
+    address: string;
+    id: string;
+    /** Defaults to false, but describes if this address can be opened in a browser as an
+     * ui interface
+     */
+    ui?: boolean;
+  }): Promise<string>;
+
+  /**
+   *Remove an address that was exported. Used problably during main or during setConfig.
+   * @param options
+   */
+  removeAddress(options: { id: string }): Promise<void>;
+
+  /**
+   *
+   * @param options
+   */
+  exportAction(options: {
+    name: string;
+    description: string;
+    id: string;
+    input: null | ConfigSpec;
+  }): Promise<void>;
+  /**
+   * Remove an action that was exported. Used problably during main or during setConfig.
+   */
+  removeAction(options: { id: string }): Promise<void>;
+
+  getConfigured(): Promise<boolean>;
+  /**
+   * This called after a valid set config as well as during init.
+   * @param configured
+   */
+  setConfigured(configured: boolean): Promise<void>;
 };
 
-// rsync options: https://linux.die.net/man/1/rsync
+/* rsync options: https://linux.die.net/man/1/rsync
+ */
 export type BackupOptions = {
   delete: boolean;
   force: boolean;
   ignoreExisting: boolean;
   exclude: string[];
 };
+/**
+ * This is the metadata that is returned from the metadata call.
+ */
 export type Metadata = {
   fileType: string;
   isDir: boolean;
@@ -362,12 +382,12 @@ export type Dependencies = {
     /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
     check(
       effects: Effects,
-      input: ConfigSpec
+      input: ConfigSpec,
     ): Promise<ResultType<void | null>>;
     /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
     autoConfigure(
       effects: Effects,
-      input: ConfigSpec
+      input: ConfigSpec,
     ): Promise<ResultType<ConfigSpec>>;
   };
 };

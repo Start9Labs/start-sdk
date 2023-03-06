@@ -501,10 +501,8 @@ export class Config<A extends ConfigSpec> extends IBuilder<A> {
   }
 
   static of<B extends { [key: string]: Value<ValueSpec> }>(spec: B) {
-    // deno-lint-ignore no-explicit-any
     const answer: { [K in keyof B]: BuilderExtract<B[K]> } = {} as any;
     for (const key in spec) {
-      // deno-lint-ignore no-explicit-any
       answer[key] = spec[key].build() as any;
     }
     return new Config(answer);

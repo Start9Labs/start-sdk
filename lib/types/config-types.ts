@@ -1,4 +1,3 @@
-// deno-lint-ignore-file ban-types
 export type ConfigSpec = Record<string, ValueSpec>;
 
 export type ValueType =

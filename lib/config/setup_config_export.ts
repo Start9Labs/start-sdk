@@ -4,6 +4,13 @@ import { ConfigSpec } from "../types/config-types";
 import { nullIfEmpty, okOf } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
 
+/**
+ * We want to setup a config export with a get and set, this
+ * is going to be the default helper to setup config, because it will help
+ * enforce that we have a spec, write, and reading.
+ * @param options
+ * @returns
+ */
 export function setupConfigExports<A extends ConfigSpec>(options: {
   spec: Config<A>;
   dependsOn: DependsOn;
