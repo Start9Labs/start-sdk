@@ -3,7 +3,7 @@ import { object, string } from "ts-matches";
 
 export type HealthCheck = (
   effects: Types.Effects,
-  dateMs: number,
+  dateMs: number
 ) => Promise<HealthResult>;
 export type HealthResult =
   | { success: string }
@@ -23,7 +23,7 @@ function safelyStringify(e: unknown) {
 }
 async function timeoutHealth(
   effects: Types.Effects,
-  timeMs: number,
+  timeMs: number
 ): Promise<HealthResult> {
   await effects.sleep(timeMs);
   return { failure: "Timed out " };
@@ -39,7 +39,7 @@ async function timeoutHealth(
 export default function healthRunner(
   name: string,
   fn: HealthCheck,
-  { defaultIntervalS = 60 } = {},
+  { defaultIntervalS = 60 } = {}
 ) {
   return {
     create(effects: Types.Effects, defaultIntervalCreatedS = defaultIntervalS) {

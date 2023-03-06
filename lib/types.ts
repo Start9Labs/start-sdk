@@ -170,7 +170,7 @@ export type Effects = {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
       headers?: Record<string, string>;
       body?: string;
-    },
+    }
   ): Promise<{
     method: string;
     ok: boolean;
@@ -382,12 +382,12 @@ export type Dependencies = {
     /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
     check(
       effects: Effects,
-      input: ConfigSpec,
+      input: ConfigSpec
     ): Promise<ResultType<void | null>>;
     /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
     autoConfigure(
       effects: Effects,
-      input: ConfigSpec,
+      input: ConfigSpec
     ): Promise<ResultType<ConfigSpec>>;
   };
 };

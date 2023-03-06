@@ -1,5 +1,5 @@
 import { Effects, ResultType } from "../types";
-import { error, errorCode, isKnownError, ok, okOf } from "../util";
+import { isKnownError } from "../util";
 import { HealthResult } from "./healthRunner";
 
 /**
@@ -10,32 +10,30 @@ import { HealthResult } from "./healthRunner";
  */
 export const checkWebUrl: (
   url: string,
-  createSuccess?: null | ((response?: string | null) => string),
-) => (
-  effects: Effects,
-  duration: number,
-) => Promise<ResultType<HealthResult>> = (url, createSuccess = null) => {
+  createSuccess?: null | ((response?: string | null) => string)
+) => (effects: Effects, duration: number) => Promise<HealthResult> = (
+  url,
+  createSuccess = null
+) => {
   return async (effects, duration) => {
-    let errorValue;
-    if (
-      (errorValue = guardDurationAboveMinimum({ duration, minimumTime: 5000 }))
-    ) {
+    const errorValue = guardDurationAboveMinimum({
+      duration,
+      minimumTime: 5000,
+    });
+    if (!!errorValue) {
       return errorValue;
     }
 
     return await effects
       .fetch(url)
-      .then((x) =>
-        okOf({
-          success:
-            createSuccess?.(x.body) ?? `Successfully fetched URL: ${url}`,
-        }),
-      )
+      .then((x) => ({
+        success: createSuccess?.(x.body) ?? `Successfully fetched URL: ${url}`,
+      }))
       .catch((e) => {
         effects.warn(`Error while fetching URL: ${url}`);
         effects.error(JSON.stringify(e));
         effects.error(e.toString());
-        return error(`Error while fetching URL: ${url}`);
+        return { failure: `Error while fetching URL: ${url}` };
       });
   };
 };
@@ -59,7 +57,7 @@ export const runHealthScript =
   }) =>
   async (
     effects: Effects,
-    _duration: number,
+    _duration: number
   ): Promise<ResultType<HealthResult>> => {
     const res = await effects.runCommand({ command, args });
     if ("result" in res) {
@@ -79,10 +77,11 @@ export const runHealthScript =
 export const guardDurationAboveMinimum = (input: {
   duration: number;
   minimumTime: number;
-}) => (input.duration <= input.minimumTime ? errorCode(60, "Starting") : null);
+}): null | HealthResult =>
+  input.duration <= input.minimumTime ? { starting: null } : null;
 
 export const catchError = (effects: Effects) => (e: unknown) => {
   if (isKnownError(e)) return e;
   effects.error(`Health check failed: ${e}`);
-  return error("Error while running health check");
+  return { failure: "Error while running health check" };
 };
