@@ -7,6 +7,7 @@ export type ValueType =
   | "enum"
   | "list"
   | "object"
+  | "file"
   | "union";
 export type ValueSpec = ValueSpecOf<ValueType>;
 
@@ -23,6 +24,8 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
   ? ValueSpecList
   : T extends "object"
   ? ValueSpecObject
+  : T extends "file"
+  ? ValueSpecFile
   : T extends "union"
   ? ValueSpecUnion
   : never;
@@ -55,6 +58,13 @@ export interface ValueSpecUnion {
   tag: UnionTagSpec;
   variants: { [key: string]: InputSpec };
   default: string;
+}
+
+export interface ValueSpecFile extends WithStandalone {
+  type: 'file';
+  placeholder: null | string;
+  nullable: boolean;
+  extensions: string[];
 }
 
 export interface ValueSpecObject extends WithStandalone {
@@ -101,11 +111,11 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
     | string[]
     | number[]
     | DefaultString[]
-    | object[]
+    | Record<string, unknown>[]
     | readonly string[]
     | readonly number[]
     | readonly DefaultString[]
-    | readonly object[];
+    | readonly Record<string, unknown>[];
 }
 
 // sometimes the type checker needs just a little bit of help
