@@ -19,7 +19,7 @@ import { Value } from "./value";
 
   The idea of a config is that now the form is going to ask for
   Test: [ ] and the value is going to be checked as a boolean.
-  There are more complex values like enums, lists, and objects. See {@link Value}
+  There are more complex values like selects, lists, and objects. See {@link Value}
 
   Also, there is the ability to get a validator/parser from this config spec.
   ```ts
@@ -81,7 +81,7 @@ import { Value } from "./value";
       "warning": null,
     });
     export const auth = Value.list(authorizationList);
-    export const serialversion = Value.enum({
+    export const serialversion = Value.select({
       "name": "Serialization Version",
       "description":
         "Return raw transaction or block hex with Segwit or non-SegWit serialization.",

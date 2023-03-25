@@ -4,7 +4,8 @@ export type ValueType =
   | "string"
   | "number"
   | "boolean"
-  | "enum"
+  | "select"
+  | "multiselect"
   | "list"
   | "object"
   | "file"
@@ -18,8 +19,10 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
   ? ValueSpecNumber
   : T extends "boolean"
   ? ValueSpecBoolean
-  : T extends "enum"
-  ? ValueSpecEnum
+  : T extends "select"
+  ? ValueSpecSelect
+  : T extends "multiselect"
+  ? ValueSpecMultiselect
   : T extends "list"
   ? ValueSpecList
   : T extends "object"
@@ -43,9 +46,15 @@ export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   default: null | number;
 }
 
-export interface ValueSpecEnum extends ListValueSpecEnum, WithStandalone {
-  type: "enum";
+export interface ValueSpecSelect extends SelectBase, WithStandalone {
+  type: "select";
   default: string;
+}
+
+export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
+  type: "multiselect";
+  range: string; // '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules
+  default: string[];
 }
 
 export interface ValueSpecBoolean extends WithStandalone {
@@ -78,11 +87,15 @@ export interface WithStandalone {
   warning: null | string;
 }
 
+export interface SelectBase {
+  values: string[] | readonly string[];
+  "value-names": { [value: string]: string };
+}
+
 // no lists of booleans, lists
 export type ListValueSpecType =
   | "string"
   | "number"
-  | "enum"
   | "object"
   | "union";
 
@@ -91,8 +104,6 @@ export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
   ? ListValueSpecString
   : T extends "number"
   ? ListValueSpecNumber
-  : T extends "enum"
-  ? ListValueSpecEnum
   : T extends "object"
   ? ListValueSpecObject
   : T extends "union"
@@ -134,15 +145,10 @@ export interface ListValueSpecString {
 }
 
 export interface ListValueSpecNumber {
-  range: string;
+  range: string; // '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules
   integral: boolean;
   units: null | string;
   placeholder: null | string;
-}
-
-export interface ListValueSpecEnum {
-  values: string[] | readonly string[];
-  "value-names": { [value: string]: string };
 }
 
 export interface ListValueSpecObject {

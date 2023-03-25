@@ -3,9 +3,9 @@ import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from ".";
 
 /**
- * Used in the the Value.enum { @link './value.ts' }
- * to indicate the type of enums variants that are available. The key for the record passed in will be the
- * key to the tag.id in the Value.enum
+ * Used in the the Value.select { @link './value.ts' }
+ * to indicate the type of select variants that are available. The key for the record passed in will be the
+ * key to the tag.id in the Value.select
 ```ts
  export const pruningSettingsVariants = Variants.of({
     "disabled": disabled,

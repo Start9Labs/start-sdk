@@ -1,5 +1,4 @@
 import { writeConvertedFile } from "../../scripts/oldSpecToBuilder";
-import { writeFileSync, readFileSync } from "fs";
 
 writeConvertedFile(
   "./lib/util/artifacts/output.ts",
@@ -66,7 +65,7 @@ writeConvertedFile(
               name: "Serialization Version",
               description:
                 "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
-              type: "enum",
+              type: "select",
               values: ["non-segwit", "segwit"],
               "value-names": {},
               default: "segwit",

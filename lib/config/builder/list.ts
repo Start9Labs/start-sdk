@@ -59,24 +59,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       ...a,
     });
   }
-  static enum<
-    A extends Description &
-      Default<string[]> & {
-        range: string;
-        spec: {
-          values: string[];
-          "value-names": {
-            [key: string]: string;
-          };
-        };
-      }
-  >(a: A) {
-    return new List({
-      type: "list" as const,
-      subtype: "enum" as const,
-      ...a,
-    });
-  }
   static obj<
     A extends Description &
       Default<Record<string, unknown>[]> & {

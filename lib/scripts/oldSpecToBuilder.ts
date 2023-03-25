@@ -97,7 +97,7 @@ export default async function makeFileContent(
         )})`;
       }
       case "enum": {
-        return `Value.enum(${JSON.stringify(
+        return `Value.select(${JSON.stringify(
           {
             name: value.name || null,
             description: value.description || null,
@@ -205,14 +205,12 @@ export default async function makeFileContent(
         )})`;
       }
       case "enum": {
-        return `List.enum(${JSON.stringify(
+        return `Value.multiselect(${JSON.stringify(
           {
             name: value.name || null,
             range: value.range || null,
-            spec: {
-              values: value?.spec?.["values"] || null,
-              "value-names": value?.spec?.["value-names"] || {},
-            },
+            values: value?.spec?.["values"] || null,
+            "value-names": value?.spec?.["value-names"] || {},
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,

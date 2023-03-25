@@ -6,7 +6,8 @@ type TypeString = "string";
 type TypeNumber = "number";
 type TypeObject = "object";
 type TypeList = "list";
-type TypeEnum = "enum";
+type TypeSelect = "select";
+type TypeMultiselect = "multiselect";
 type TypePointer = "pointer";
 type TypeUnion = "union";
 
@@ -49,8 +50,12 @@ type GuardPointer<A> =
     A extends {readonly type:TypePointer} ? (string | null) :
     unknown
 // prettier-ignore
-type GuardEnum<A> = 
-    A extends {readonly type:TypeEnum, readonly values: ArrayLike<infer B>} ? GuardDefaultNullable<A, B> :
+type GuardSelect<A> = 
+    A extends {readonly type:TypeSelect, readonly values: ArrayLike<infer B>} ? GuardDefaultNullable<A, B> :
+    unknown
+// prettier-ignore
+type GuardMultiselect<A> = 
+    A extends {readonly type:TypeMultiselect, readonly values: ArrayLike<infer B>} ? GuardDefaultNullable<A, B> :
     unknown
 // prettier-ignore
 type GuardUnion<A> = 
@@ -65,7 +70,8 @@ export type GuardAll<A> = GuardNumber<A> &
   GuardList<A> &
   GuardPointer<A> &
   GuardUnion<A> &
-  GuardEnum<A>;
+  GuardSelect<A> &
+  GuardMultiselect<A>;
 // prettier-ignore
 export type TypeFromProps<A> = 
  A extends Record<string, unknown> ? {readonly [K in keyof A & string]: _<GuardAll<A[K]>>} :
@@ -247,10 +253,24 @@ export function guardAll<A extends ValueSpecAny>(
         value
       ) as any;
     }
-    case "enum":
+    case "select":
       if (matchValues.test(value)) {
         return defaultNullable(
           matches.literals(value.values[0], ...value.values),
+          value
+        ) as any;
+      }
+      return matches.unknown as any;
+    case "multiselect":
+      if (matchValues.test(value)) {
+        const rangeValidate =
+          (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
+          (() => true);
+
+        return defaultNullable(
+          matches
+            .literals(value.values[0], ...value.values)
+            .validate((x) => rangeValidate(x.length), "valid length"),
           value
         ) as any;
       }
