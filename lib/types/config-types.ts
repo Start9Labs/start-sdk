@@ -4,22 +4,25 @@ export type ValueType =
   | "string"
   | "number"
   | "boolean"
-  | "enum"
+  | "select"
+  | "multiselect"
   | "list"
   | "object"
   | "file"
   | "union";
 export type ValueSpec = ValueSpecOf<ValueType>;
 
-// core spec types. These types provide the metadata for performing validations
+/** core spec types. These types provide the metadata for performing validations */
 export type ValueSpecOf<T extends ValueType> = T extends "string"
   ? ValueSpecString
   : T extends "number"
   ? ValueSpecNumber
   : T extends "boolean"
   ? ValueSpecBoolean
-  : T extends "enum"
-  ? ValueSpecEnum
+  : T extends "select"
+  ? ValueSpecSelect
+  : T extends "multiselect"
+  ? ValueSpecMultiselect
   : T extends "list"
   ? ValueSpecList
   : T extends "object"
@@ -43,9 +46,16 @@ export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   default: null | number;
 }
 
-export interface ValueSpecEnum extends ListValueSpecEnum, WithStandalone {
-  type: "enum";
+export interface ValueSpecSelect extends SelectBase, WithStandalone {
+  type: "select";
   default: string;
+}
+
+export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
+  type: "multiselect";
+  /**'[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules */
+  range: string;
+  default: string[];
 }
 
 export interface ValueSpecBoolean extends WithStandalone {
@@ -61,7 +71,7 @@ export interface ValueSpecUnion {
 }
 
 export interface ValueSpecFile extends WithStandalone {
-  type: 'file';
+  type: "file";
   placeholder: null | string;
   nullable: boolean;
   extensions: string[];
@@ -78,31 +88,28 @@ export interface WithStandalone {
   warning: null | string;
 }
 
-// no lists of booleans, lists
-export type ListValueSpecType =
-  | "string"
-  | "number"
-  | "enum"
-  | "object"
-  | "union";
+export interface SelectBase {
+  values: string[] | readonly string[];
+  "value-names": { [value: string]: string };
+}
 
-// represents a spec for the values of a list
+/**  no lists of booleans, lists*/
+export type ListValueSpecType = "string" | "number" | "object" | "union";
+
+/** represents a spec for the values of a list */
 export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
   ? ListValueSpecString
   : T extends "number"
   ? ListValueSpecNumber
-  : T extends "enum"
-  ? ListValueSpecEnum
   : T extends "object"
   ? ListValueSpecObject
   : T extends "union"
   ? ListValueSpecUnion
   : never;
 
-// represents a spec for a list
+/** represents a spec for a list */
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>;
-export interface ValueSpecListOf<T extends ListValueSpecType>
-  extends WithStandalone {
+export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStandalone {
   type: "list";
   subtype: T;
   spec: ListValueSpecOf<T>;
@@ -119,10 +126,7 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
 }
 
 // sometimes the type checker needs just a little bit of help
-export function isValueSpecListOf<S extends ListValueSpecType>(
-  t: ValueSpecList,
-  s: S
-): t is ValueSpecListOf<S> {
+export function isValueSpecListOf<S extends ListValueSpecType>(t: ValueSpecList, s: S): t is ValueSpecListOf<S> {
   return t.subtype === s;
 }
 
@@ -134,21 +138,20 @@ export interface ListValueSpecString {
 }
 
 export interface ListValueSpecNumber {
+  /** '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules */
   range: string;
   integral: boolean;
   units: null | string;
   placeholder: null | string;
 }
 
-export interface ListValueSpecEnum {
-  values: string[] | readonly string[];
-  "value-names": { [value: string]: string };
-}
-
 export interface ListValueSpecObject {
-  spec: InputSpec; // this is a mapped type of the config object at this level, replacing the object's values with specs on those values
-  "unique-by": UniqueBy; // indicates whether duplicates can be permitted in the list
-  "display-as": null | string; // this should be a handlebars template which can make use of the entire config which corresponds to 'spec'
+  /** this is a mapped type of the config object at this level, replacing the object's values with specs on those values */
+  spec: InputSpec;
+  /** indicates whether duplicates can be permitted in the list */
+  "unique-by": UniqueBy;
+  /** this should be a handlebars template which can make use of the entire config which corresponds to 'spec' */
+  "display-as": null | string;
 }
 
 export type UniqueBy =
@@ -161,15 +164,18 @@ export type UniqueBy =
 export interface ListValueSpecUnion {
   tag: UnionTagSpec;
   variants: { [key: string]: InputSpec };
-  "display-as": null | string; // this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id
+  /** this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id*/
+  "display-as": null | string;
   "unique-by": UniqueBy;
-  default: string; // this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list
+  /** this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list*/
+  default: string;
 }
 
 export interface UnionTagSpec {
-  id: string; // The name of the field containing one of the union variants
+  /** The name of the field containing one of the union variants*/
+  id: string;
   "variant-names": {
-    // the name of each variant
+    /** the name of each variant*/
     [variant: string]: string;
   };
   name: string;

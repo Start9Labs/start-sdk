@@ -51,7 +51,7 @@ export const authorizationList = List.string({
   warning: null,
 });
 export const auth = Value.list(authorizationList);
-export const serialversion = Value.enum({
+export const serialversion = Value.select({
   name: "Serialization Version",
   description:
     "Return raw transaction or block hex with Segwit or non-SegWit serialization.",

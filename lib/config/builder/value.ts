@@ -95,7 +95,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       ...a,
     } as ValueSpecNumber);
   }
-  static enum<
+  static select<
     A extends Description &
       Default<string> & {
         values: readonly string[] | string[];
@@ -103,7 +103,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       }
   >(a: A) {
     return new Value({
-      type: "enum" as const,
+      type: "select" as const,
       ...a,
     });
   }
