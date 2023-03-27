@@ -14,9 +14,9 @@ import {
 export type DefaultString =
   | string
   | {
-      charset: string | null | undefined;
-      len: number;
-    };
+    charset: string | null | undefined;
+    len: number;
+  };
 export type Description = {
   name: string;
   description: string | null;
@@ -78,9 +78,9 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static string<
     A extends Description &
-      NullableDefault<DefaultString> &
-      Nullable &
-      StringSpec
+    NullableDefault<DefaultString> &
+    Nullable &
+    StringSpec
   >(a: A) {
     return new Value({
       type: "string" as const,
@@ -97,10 +97,9 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static select<
     A extends Description &
-      Default<string> & {
-        values: readonly string[] | string[];
-        valueNames: Record<string, string>;
-      }
+    Default<string> & {
+      values: Record<string, string>;
+    }
   >(a: A) {
     return new Value({
       type: "select" as const,
@@ -129,21 +128,14 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static union<
     A extends Description &
-      Default<string> & {
-        tag: {
-          id: B;
-          name: string;
-          description: string | null;
-          warning: string | null;
-          variantNames: {
-            [key: string]: string;
-          };
-        };
-        variants: Variants<{ [key: string]: InputSpec }>;
-        displayAs: string | null;
-        uniqueBy: UniqueBy;
-      },
-    B extends string
+    Default<string> & {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
+      displayAs: string | null;
+      uniqueBy: UniqueBy;
+    }
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;
     const variants = previousVariants.build() as BuilderExtract<A["variants"]>;
