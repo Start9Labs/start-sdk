@@ -12,55 +12,55 @@ type TypePointer = "pointer";
 type TypeUnion = "union";
 
 // prettier-ignore
-type GuardDefaultNullable<A, Type> = 
-    A extends { readonly default: unknown} ? Type :
-    A extends { readonly nullable: true} ? Type :
-    A extends {readonly  nullable: false} ? Type | null | undefined :
-    Type
+type GuardDefaultNullable<A, Type> =
+  A extends { readonly default: unknown } ? Type :
+  A extends { readonly nullable: true } ? Type :
+  A extends { readonly nullable: false } ? Type | null | undefined :
+  Type
 
 // prettier-ignore
-type GuardNumber<A> = 
-    A extends {readonly type:TypeNumber} ? GuardDefaultNullable<A, number> :
-    unknown
+type GuardNumber<A> =
+  A extends { readonly type: TypeNumber } ? GuardDefaultNullable<A, number> :
+  unknown
 // prettier-ignore
-type GuardString<A> = 
-    A extends {readonly type:TypeString} ? GuardDefaultNullable<A, string> :
-    unknown
+type GuardString<A> =
+  A extends { readonly type: TypeString } ? GuardDefaultNullable<A, string> :
+  unknown
 
 // prettier-ignore
-type GuardBoolean<A> = 
-    A extends {readonly type:TypeBoolean} ? GuardDefaultNullable<A, boolean> :    
-    unknown
+type GuardBoolean<A> =
+  A extends { readonly type: TypeBoolean } ? GuardDefaultNullable<A, boolean> :
+  unknown
 
 // prettier-ignore
-type GuardObject<A> = 
-    A extends {readonly type: TypeObject, readonly spec: infer B} ? (
-        B extends Record<string, unknown> ? {readonly [K in keyof B & string]: _<GuardAll<B[K]>>} :
-        {_error: "Invalid Spec"}
-    ) :
-    unknown
+type GuardObject<A> =
+  A extends { readonly type: TypeObject, readonly spec: infer B } ? (
+    B extends Record<string, unknown> ? { readonly [K in keyof B & string]: _<GuardAll<B[K]>> } :
+    { _error: "Invalid Spec" }
+  ) :
+  unknown
 
 // prettier-ignore
-export type GuardList<A> = 
-    A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {spec?: infer C }} ? ReadonlyArray<GuardAll<Omit<A, "type" | "spec"> & ({type: B, spec: C})>> :
-    A extends {readonly type:TypeList, readonly subtype: infer B, spec?: {}} ? ReadonlyArray<GuardAll<Omit<A, "type" > & ({type: B})>> :
-    unknown
+export type GuardList<A> =
+  A extends { readonly type: TypeList, readonly subtype: infer B, spec?: { spec?: infer C } } ? ReadonlyArray<GuardAll<Omit<A, "type" | "spec"> & ({ type: B, spec: C })>> :
+  A extends { readonly type: TypeList, readonly subtype: infer B, spec?: {} } ? ReadonlyArray<GuardAll<Omit<A, "type"> & ({ type: B })>> :
+  unknown
 // prettier-ignore
-type GuardPointer<A> = 
-    A extends {readonly type:TypePointer} ? (string | null) :
-    unknown
+type GuardPointer<A> =
+  A extends { readonly type: TypePointer } ? (string | null) :
+  unknown
 // prettier-ignore
-type GuardSelect<A> = 
-    A extends {readonly type:TypeSelect, readonly values: ArrayLike<infer B>} ? GuardDefaultNullable<A, B> :
-    unknown
+type GuardSelect<A> =
+  A extends { readonly type: TypeSelect, readonly values: ArrayLike<infer B> } ? GuardDefaultNullable<A, B> :
+  unknown
 // prettier-ignore
-type GuardMultiselect<A> = 
-    A extends {readonly type:TypeMultiselect, readonly values: ArrayLike<infer B>} ? GuardDefaultNullable<A, B> :
-    unknown
+type GuardMultiselect<A> =
+  A extends { readonly type: TypeMultiselect, readonly values: ArrayLike<infer B> } ? GuardDefaultNullable<A, B> :
+  unknown
 // prettier-ignore
-type GuardUnion<A> = 
-    A extends {readonly type:TypeUnion, readonly tag: {id: infer Id & string}, variants: infer Variants & Record<string, unknown>} ? {[K in keyof Variants]: {[keyType in Id & string]: K}&TypeFromProps<Variants[K]>}[keyof Variants] :
-    unknown
+type GuardUnion<A> =
+  A extends { readonly type: TypeUnion, readonly tag: { id: infer Id & string }, variants: infer Variants & Record<string, unknown> } ? { [K in keyof Variants]: { [keyType in Id & string]: K } & TypeFromProps<Variants[K]> }[keyof Variants] :
+  unknown
 
 type _<T> = T;
 export type GuardAll<A> = GuardNumber<A> &
@@ -73,9 +73,9 @@ export type GuardAll<A> = GuardNumber<A> &
   GuardSelect<A> &
   GuardMultiselect<A>;
 // prettier-ignore
-export type TypeFromProps<A> = 
- A extends Record<string, unknown> ? {readonly [K in keyof A & string]: _<GuardAll<A[K]>>} :
- unknown;
+export type TypeFromProps<A> =
+  A extends Record<string, unknown> ? { readonly [K in keyof A & string]: _<GuardAll<A[K]>> } :
+  unknown;
 
 const isType = matches.shape({ type: matches.string });
 const recordString = matches.dictionary([matches.string, matches.unknown]);
@@ -155,23 +155,23 @@ export function matchNumberWithRange(range: string) {
       leftValue === "*"
         ? (_) => true
         : left === "["
-        ? (x) => x >= Number(leftValue)
-        : (x) => x > Number(leftValue),
+          ? (x) => x >= Number(leftValue)
+          : (x) => x > Number(leftValue),
       leftValue === "*"
         ? "any"
         : left === "["
-        ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`
+          ? `greaterThanOrEqualTo${leftValue}`
+          : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore
       rightValue === "*" ? (_) => true :
-      right === "]"? (x) => x <= Number(rightValue) :
-      (x) => x < Number(rightValue),
+        right === "]" ? (x) => x <= Number(rightValue) :
+          (x) => x < Number(rightValue),
       // prettier-ignore
       rightValue === "*" ? "any" :
-      right === "]" ? `lessThanOrEqualTo${rightValue}` :
-      `lessThan${rightValue}`
+        right === "]" ? `lessThanOrEqualTo${rightValue}` :
+          `lessThan${rightValue}`
     );
 }
 function withIntegral(parser: matches.Parser<unknown, number>, value: unknown) {

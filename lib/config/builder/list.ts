@@ -35,10 +35,10 @@ import {
 export class List<A extends ValueSpecList> extends IBuilder<A> {
   static string<
     A extends Description &
-      Default<string[]> & {
-        range: string;
-        spec: StringSpec;
-      }
+    Default<string[]> & {
+      range: string;
+      spec: StringSpec;
+    }
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -48,10 +48,10 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
   }
   static number<
     A extends Description &
-      Default<number[]> & {
-        range: string;
-        spec: NumberSpec;
-      }
+    Default<number[]> & {
+      range: string;
+      spec: NumberSpec;
+    }
   >(a: A) {
     return new List({
       type: "list" as const,
@@ -61,14 +61,14 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
   }
   static obj<
     A extends Description &
-      Default<Record<string, unknown>[]> & {
-        range: string;
-        spec: {
-          spec: Config<InputSpec>;
-          displayAs: null | string;
-          uniqueBy: null | UniqueBy;
-        };
-      }
+    Default<Record<string, unknown>[]> & {
+      range: string;
+      spec: {
+        spec: Config<InputSpec>;
+        displayAs: null | string;
+        uniqueBy: null | UniqueBy;
+      };
+    }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { spec: previousSpecSpec, ...restSpec } = previousSpec;
@@ -91,20 +91,18 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
   }
   static union<
     A extends Description &
-      Default<string[]> & {
-        range: string;
-        spec: {
-          id: B;
-          name: string;
-          description: null | string;
-          warning: null | string;
-          variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
-          displayAs: null | string;
-          uniqueBy: UniqueBy;
-          default: string;
-        };
-      },
-    B extends string
+    Default<string[]> & {
+      range: string;
+      spec: {
+        name: string;
+        description: null | string;
+        warning: null | string;
+        variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
+        displayAs: null | string;
+        uniqueBy: UniqueBy;
+        default: string;
+      };
+    }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
     const { variants: previousVariants, ...restSpec } = previousSpec;

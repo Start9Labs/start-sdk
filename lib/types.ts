@@ -171,7 +171,7 @@ export type Effects = {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
       headers?: Record<string, string>;
       body?: string;
-    },
+    }
   ): Promise<{
     method: string;
     ok: boolean;
@@ -281,7 +281,7 @@ export type Effects = {
    */
   getSslCertificate: (
     packageId: string,
-    algorithm?: "ecdsa" | "ed25519",
+    algorithm?: "ecdsa" | "ed25519"
   ) => [string, string, string];
   /**
    * @returns PEM encoded ssl key (ecdsa)

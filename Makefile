@@ -5,8 +5,9 @@ test: $(TS_FILES)
 
 make clean:
 	rm -rf dist
-# utils/test/output.ts: utils/test/config.json scripts/oldSpecToBuilder.ts
-# 	cat utils/test/config.json | deno run scripts/oldSpecToBuilder.ts "../../mod" |deno fmt -  > utils/test/output.ts
+	
+lib/util/artifacts/output.ts: lib/util/artifacts/makeOutput.ts lib/scripts/oldSpecToBuilder.ts
+	npm run buildOutput
 
 bundle:  fmt $(TS_FILES) .FORCE node_modules
 	npx tsc-multi
