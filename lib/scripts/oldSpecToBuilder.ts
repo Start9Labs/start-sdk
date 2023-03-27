@@ -60,7 +60,7 @@ export default async function makeFileContent(
             masked: value.masked || null,
             placeholder: value.placeholder || null,
             pattern: value.pattern || null,
-            "pattern-description": value["pattern-description"] || null,
+            patternDescription: value["pattern-description"] || null,
             textarea: value.textarea || null,
           },
           null,
@@ -104,7 +104,7 @@ export default async function makeFileContent(
             warning: value.warning || null,
             default: value.default || null,
             values: value.values || null,
-            "value-names": value["value-names"] || null,
+            valueNames: value["value-names"] || null,
           },
           null,
           2
@@ -120,10 +120,10 @@ export default async function makeFileContent(
         description: ${JSON.stringify(value.description || null)},
         warning: ${JSON.stringify(value.warning || null)},
         default: ${JSON.stringify(value.default || null)},
-        "display-as": ${JSON.stringify(value["display-as"] || null)},
-        "unique-by": ${JSON.stringify(value["unique-by"] || null)},
+        displayAs: ${JSON.stringify(value["display-as"] || null)},
+        uniqueBy: ${JSON.stringify(value["unique-by"] || null)},
         spec: ${specName},
-        "value-names": ${JSON.stringify(value["value-names"] || {})},
+        valueNames: ${JSON.stringify(value["value-names"] || {})},
       })`;
       }
       case "union": {
@@ -138,15 +138,15 @@ export default async function makeFileContent(
         default: ${JSON.stringify(value.default || null)},
         variants: ${variants},
         tag: ${JSON.stringify({
-          id: value?.tag?.["id"] || null,
-          name: value?.tag?.["name"] || null,
-          description: value?.tag?.["description"] || null,
-          warning: value?.tag?.["warning"] || null,
-          "variant-names": value?.tag?.["variant-names"] || {},
+          id: value?.tag?.id || null,
+          name: value?.tag?.name || null,
+          description: value?.tag?.description || null,
+          warning: value?.tag?.warning || null,
+          variantNames: value?.tag?.["variant-names"] || {},
         })},
-        "display-as": ${JSON.stringify(value["display-as"] || null)},
-        "unique-by": ${JSON.stringify(value["unique-by"] || null)},
-        "variant-names": ${JSON.stringify(
+        displayAs: ${JSON.stringify(value["display-as"] || null)},
+        uniqueBy: ${JSON.stringify(value["unique-by"] || null)},
+        variantNames: ${JSON.stringify(
           (value["variant-names"] as any) || null
         )},
       })`;
@@ -170,12 +170,12 @@ export default async function makeFileContent(
             name: value.name || null,
             range: value.range || null,
             spec: {
-              masked: value?.spec?.["masked"] || null,
-              placeholder: value?.spec?.["placeholder"] || null,
-              pattern: value?.spec?.["pattern"] || null,
-              "pattern-description":
+              masked: value?.spec?.masked || null,
+              placeholder: value?.spec?.placeholder || null,
+              pattern: value?.spec?.pattern || null,
+              patternDescription:
                 value?.spec?.["pattern-description"] || null,
-              textarea: value?.spec?.["textarea"] || false,
+              textarea: value?.spec?.textarea || false,
             },
             default: value.default || null,
             description: value.description || null,
@@ -210,7 +210,7 @@ export default async function makeFileContent(
             name: value.name || null,
             range: value.range || null,
             values: value?.spec?.["values"] || null,
-            "value-names": value?.spec?.["value-names"] || {},
+            valueNames: value?.spec?.["value-names"] || {},
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
@@ -229,10 +229,10 @@ export default async function makeFileContent(
         range: ${JSON.stringify(value.range || null)},
         spec: {
             spec: ${specName},
-            "display-as": ${JSON.stringify(
+            displayAs: ${JSON.stringify(
               value?.spec?.["display-as"] || null
             )},
-            "unique-by": ${JSON.stringify(value?.spec?.["unique-by"] || null)},
+            uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
         },
         default: ${JSON.stringify(value.default || null)},
         description: ${JSON.stringify(value.description || null)},
@@ -252,26 +252,26 @@ export default async function makeFileContent(
                 tag: {
                     "id":${JSON.stringify(value?.spec?.tag?.["id"] || null)},
                     "name": ${JSON.stringify(
-                      value?.spec?.tag?.["name"] || null
+                      value?.spec?.tag?.name || null
                     )},
                     "description": ${JSON.stringify(
-                      value?.spec?.tag?.["description"] || null
+                      value?.spec?.tag?.description || null
                     )},
                     "warning": ${JSON.stringify(
-                      value?.spec?.tag?.["warning"] || null
+                      value?.spec?.tag?.warning || null
                     )},
-                    "variant-names": ${JSON.stringify(
+                    variantNames: ${JSON.stringify(
                       value?.spec?.tag?.["variant-names"] || {}
                     )},
                 },
                 variants: ${variants},
-                "display-as": ${JSON.stringify(
+                displayAs: ${JSON.stringify(
                   value?.spec?.["display-as"] || null
                 )},
-                "unique-by": ${JSON.stringify(
+                uniqueBy: ${JSON.stringify(
                   value?.spec?.["unique-by"] || null
                 )},
-                default: ${JSON.stringify(value?.spec?.["default"] || null)},
+                default: ${JSON.stringify(value?.spec?.default || null)},
             },
             default: ${JSON.stringify(value.default || null)},
             description: ${JSON.stringify(value.description || null)},

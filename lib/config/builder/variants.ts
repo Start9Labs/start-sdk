@@ -26,15 +26,15 @@ import { Config } from ".";
       "description":
         '- Disabled: Disable pruning\n- Automatic: Limit blockchain size on disk to a certain number of megabytes\n- Manual: Prune blockchain with the "pruneblockchain" RPC\n',
       "warning": null,
-      "variant-names": {
+      "variantNames": {
         "disabled": "Disabled",
         "automatic": "Automatic",
         "manual": "Manual",
       },
     },
-    "display-as": null,
-    "unique-by": null,
-    "variant-names": null,
+    "displayAs": null,
+    "uniqueBy": null,
+    "variantNames": null,
   });
 ```
  */

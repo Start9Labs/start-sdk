@@ -65,7 +65,7 @@ writeConvertedFile(
               name: "Serialization Version",
               description:
                 "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
-              type: "select",
+              type: "enum",
               values: ["non-segwit", "segwit"],
               "value-names": {},
               default: "segwit",

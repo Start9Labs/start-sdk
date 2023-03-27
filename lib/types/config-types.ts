@@ -63,10 +63,9 @@ export interface ValueSpecBoolean extends WithStandalone {
   default: boolean;
 }
 
-export interface ValueSpecUnion {
+export interface ValueSpecUnion extends WithStandalone {
   type: "union";
-  tag: UnionTagSpec;
-  variants: { [key: string]: InputSpec };
+  variants: { [key: string]: { name: string, spec: InputSpec } };
   default: string;
 }
 
@@ -89,8 +88,7 @@ export interface WithStandalone {
 }
 
 export interface SelectBase {
-  values: string[] | readonly string[];
-  "value-names": { [value: string]: string };
+  values: { [value: string]: string };
 }
 
 /**  no lists of booleans, lists*/
@@ -132,7 +130,7 @@ export function isValueSpecListOf<S extends ListValueSpecType>(t: ValueSpecList,
 
 export interface ListValueSpecString {
   pattern: null | string;
-  "pattern-description": null | string;
+  patternDescription: null | string;
   masked: boolean;
   placeholder: null | string;
 }
@@ -149,9 +147,9 @@ export interface ListValueSpecObject {
   /** this is a mapped type of the config object at this level, replacing the object's values with specs on those values */
   spec: InputSpec;
   /** indicates whether duplicates can be permitted in the list */
-  "unique-by": UniqueBy;
+  uniqueBy: UniqueBy;
   /** this should be a handlebars template which can make use of the entire config which corresponds to 'spec' */
-  "display-as": null | string;
+  displayAs: null | string;
 }
 
 export type UniqueBy =
@@ -162,25 +160,12 @@ export type UniqueBy =
   | { all: readonly UniqueBy[] | UniqueBy[] };
 
 export interface ListValueSpecUnion {
-  tag: UnionTagSpec;
-  variants: { [key: string]: InputSpec };
+  variants: { [key: string]: { name: string, spec: InputSpec } };
   /** this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id*/
-  "display-as": null | string;
-  "unique-by": UniqueBy;
+  displayAs: null | string;
+  uniqueBy: UniqueBy;
   /** this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list*/
   default: string;
-}
-
-export interface UnionTagSpec {
-  /** The name of the field containing one of the union variants*/
-  id: string;
-  "variant-names": {
-    /** the name of each variant*/
-    [variant: string]: string;
-  };
-  name: string;
-  description: null | string;
-  warning: null | string;
 }
 
 export type DefaultString = string | { charset: string; len: number };

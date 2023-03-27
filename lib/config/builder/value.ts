@@ -33,7 +33,7 @@ export type StringSpec = {
   masked: boolean | null;
   placeholder: string | null;
   pattern: null | string;
-  "pattern-description": null | string;
+  patternDescription: null | string;
   textarea: boolean | null;
 };
 export type NumberSpec = {
@@ -64,7 +64,7 @@ export type Nullable = {
       masked: null, // If there is a masked, then the value is going to be masked in the FE, like a password
       placeholder: null, // If there is a placeholder, then the value is going to be masked in the FE, like a password
       pattern: null, // A regex pattern to validate the value
-      "pattern-description": null,
+      patternDescription: null,
       textarea: null
     })
  ```
@@ -99,7 +99,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     A extends Description &
       Default<string> & {
         values: readonly string[] | string[];
-        "value-names": Record<string, string>;
+        valueNames: Record<string, string>;
       }
   >(a: A) {
     return new Value({
@@ -113,10 +113,10 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       description: string | null;
       warning: string | null;
       default: null | { [k: string]: unknown };
-      "display-as": null | string;
-      "unique-by": null | string;
+      displayAs: null | string;
+      uniqueBy: null | string;
       spec: Config<InputSpec>;
-      "value-names": Record<string, string>;
+      valueNames: Record<string, string>;
     }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
@@ -135,13 +135,13 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
           name: string;
           description: string | null;
           warning: string | null;
-          "variant-names": {
+          variantNames: {
             [key: string]: string;
           };
         };
         variants: Variants<{ [key: string]: InputSpec }>;
-        "display-as": string | null;
-        "unique-by": UniqueBy;
+        displayAs: string | null;
+        uniqueBy: UniqueBy;
       },
     B extends string
   >(a: A) {

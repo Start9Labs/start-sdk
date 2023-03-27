@@ -21,7 +21,7 @@ import {
       "masked": null,
       "placeholder": null,
       "pattern": "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
-      "pattern-description":
+      "patternDescription":
         'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
       "textarea": false,
     },
@@ -65,8 +65,8 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
         range: string;
         spec: {
           spec: Config<InputSpec>;
-          "display-as": null | string;
-          "unique-by": null | UniqueBy;
+          displayAs: null | string;
+          uniqueBy: null | UniqueBy;
         };
       }
   >(a: A) {
@@ -94,18 +94,13 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       Default<string[]> & {
         range: string;
         spec: {
-          tag: {
-            id: B;
-            name: string;
-            description: null | string;
-            warning: null | string;
-            "variant-names": {
-              [key: string]: string;
-            };
-          };
-          variants: Variants<{ [key: string]: InputSpec }>;
-          "display-as": null | string;
-          "unique-by": UniqueBy;
+          id: B;
+          name: string;
+          description: null | string;
+          warning: null | string;
+          variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
+          displayAs: null | string;
+          uniqueBy: UniqueBy;
           default: string;
         };
       },
