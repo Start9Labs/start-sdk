@@ -9,9 +9,8 @@ make clean:
 lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
-bundle:  fmt $(TS_FILES) .FORCE node_modules
-	npx tsc-multi
-	npx tsc --emitDeclarationOnly
+bundle:  fmt $(TS_FILES) package.json .FORCE node_modules
+	npx tsc
 
 check:
 	npm run check
@@ -22,7 +21,7 @@ fmt: node_modules
 node_modules: package.json
 	npm install
 
-publish: bundle	
+publish: bundle	 package.json README.md LICENSE
 	cp package.json dist/package.json
 	cp README.md dist/README.md
 	cp LICENSE dist/LICENSE

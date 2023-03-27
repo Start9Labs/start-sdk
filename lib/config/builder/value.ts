@@ -7,15 +7,17 @@ import {
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
+  ValueSpecOf,
   ValueSpecString,
 } from "../config-types";
+import { guardAll } from "../../util";
 
 export type DefaultString =
   | string
   | {
-      charset: string | null | undefined;
-      len: number;
-    };
+    charset: string | null | undefined;
+    len: number;
+  };
 
 /**
  * A value is going to be part of the form in the FE of the OS.
@@ -98,8 +100,9 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       warning: string | null;
       nullable: boolean;
       default: string | null;
-      values: Record<string, string>;
-    }
+      values: B;
+    },
+    B extends Record<string, string>
   >(a: A) {
     return new Value({
       type: "select" as const,
@@ -156,7 +159,10 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     });
   }
 
-  static list<A extends List<ValueSpecList>>(a: A) {
+  static list<A extends ValueSpecList>(a: List<A>) {
     return new Value(a.build());
+  }
+  public validator() {
+    return guardAll(this.a);
   }
 }

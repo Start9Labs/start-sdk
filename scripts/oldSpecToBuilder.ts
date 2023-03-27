@@ -98,9 +98,9 @@ export default async function makeFileContent(
         )})`;
       }
       case "enum": {
-        const allValueNames = new Set(
-          ...(value?.spec?.["values"] || []),
-          ...Object.keys(value?.spec?.["value-names"] || {})
+        const allValueNames = new Set([
+          ...(value?.["values"] || []),
+          ...Object.keys(value?.["value-names"] || {})]
         );
         const values = Object.fromEntries(
           Array.from(allValueNames)
@@ -118,7 +118,7 @@ export default async function makeFileContent(
           },
           null,
           2
-        )})`;
+        )} as const)`;
       }
       case "object": {
         const specName = newConst(
@@ -255,8 +255,8 @@ export default async function makeFileContent(
             spec: {
                 variants: ${variants},
                 displayAs: ${JSON.stringify(
-                  value?.spec?.["display-as"] || null
-                )},
+          value?.spec?.["display-as"] || null
+        )},
                 uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
                 default: ${JSON.stringify(value?.spec?.default || null)},
             },
@@ -277,9 +277,8 @@ export default async function makeFileContent(
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
       const variantSpec = newConst(key, convertInputSpec(value));
-      answer += `"${key}": {name: "${
-        variantNames[key] || key
-      }", spec: ${variantSpec}},`;
+      answer += `"${key}": {name: "${variantNames[key] || key
+        }", spec: ${variantSpec}},`;
     }
     return `${answer}})`;
   }

@@ -1,5 +1,7 @@
+import { typeFromProps } from "../../util";
+
 export class IBuilder<A> {
-  protected constructor(readonly a: A) {}
+  protected constructor(readonly a: A) { }
 
   public build(): A {
     return this.a;

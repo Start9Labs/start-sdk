@@ -10,7 +10,8 @@ testOutput<InputSpec["rpc"]["enable"], string>()(null);
 testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
 testOutput<InputSpec["rpc"]["username"], string>()(null);
 
-// testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
+testOutput<InputSpec["rpc"]["advanced"]["auth"], readonly string[]>()(null);
+testOutput<InputSpec["rpc"]["advanced"]["serialversion"], readonly string[]>()(null);
 describe("Inputs", () => {
   test("test", () => {
     expect(true).toEqual(true);

@@ -42,20 +42,34 @@ type GuardObject<A> =
     { _error: "Invalid Spec" }
   ) :
   unknown
-
 // prettier-ignore
 export type GuardList<A> =
-  A extends { readonly type: TypeList, readonly subtype: infer B, spec?: { spec?: infer C } } ? ReadonlyArray<GuardAll<Omit<A, "type" | "spec"> & ({ type: B, spec: C })>> :
+  A extends { readonly type: TypeList, readonly subtype: infer B, spec?: { spec?: infer C } } ? ReadonlyArray<GuardAll<Omit<A, "type" | "subtype" | "spec"> & ({ type: B, spec: C })>> :
   A extends { readonly type: TypeList, readonly subtype: infer B, spec?: {} } ? ReadonlyArray<GuardAll<Omit<A, "type"> & ({ type: B })>> :
   unknown
 // prettier-ignore
 type GuardSelect<A> =
-  A extends { readonly type: TypeSelect, variants: { [key in infer B & string]: string } } ? B :
+  A extends { readonly type: TypeSelect, variants: infer B } ? (
+    B extends Record<string, string> ? keyof B : never
+  ) :
   unknown
-// prettier-ignore
-type GuardMultiselect<A> =
-  A extends { readonly type: TypeMultiselect, variants: { [key in infer B & string]: string } } ? B[] :
-  unknown
+
+const bluj: GuardSelect<{
+  type: "select";
+} & {
+  readonly name: "Serialization Version";
+  readonly description: "Return raw transaction or block hex with Segwit or non-SegWit serialization.";
+  readonly warning: null;
+  readonly default: "segwit";
+  readonly nullable: false;
+  readonly values: {
+      ...;
+  };
+}>
+  // prettier-ignore
+  type GuardMultiselect<A> =
+    A extends { readonly type: TypeMultiselect, variants: { [key in infer B & string]: string } } ?B[] :
+unknown
 
 // prettier-ignore
 type VariantValue<A> =
@@ -158,13 +172,13 @@ export function matchNumberWithRange(range: string) {
       leftValue === "*"
         ? (_) => true
         : left === "["
-        ? (x) => x >= Number(leftValue)
-        : (x) => x > Number(leftValue),
+          ? (x) => x >= Number(leftValue)
+          : (x) => x > Number(leftValue),
       leftValue === "*"
         ? "any"
         : left === "["
-        ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`
+          ? `greaterThanOrEqualTo${leftValue}`
+          : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore

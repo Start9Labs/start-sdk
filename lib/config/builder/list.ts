@@ -7,6 +7,7 @@ import {
   ValueSpecList,
   ValueSpecListOf,
 } from "../config-types";
+import { guardAll, typeFromProps } from "../../util";
 
 /**
  * Used as a subtype of Value.list
@@ -39,7 +40,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       default: string[];
       range: string;
       spec: {
-        masked: boolean | null;
+        masked: boolean;
         placeholder: string | null;
         pattern: string | null;
         patternDescription: string | null;
@@ -51,7 +52,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       type: "list" as const,
       subtype: "string" as const,
       ...a,
-    } as ValueSpecListOf<"string">);
+    });
   }
   static number<
     A extends {
@@ -142,5 +143,9 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       subtype: "union" as const,
       ...value,
     });
+  }
+
+  public validator() {
+    return guardAll(this.a);
   }
 }
