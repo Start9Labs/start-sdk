@@ -1,5 +1,5 @@
 
-import { Config, Value, List, Variants } from '../../config/builder';
+  import {Config, Value, List, Variants} from '../../config/builder';
 
 export const enable = Value.boolean({
   "name": "Enable",
@@ -54,6 +54,7 @@ export const serialversion = Value.select({
   "description": "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
   "warning": null,
   "default": "segwit",
+  "nullable": false,
   "values": {}
 });
 export const servertimeout = Value.number({
@@ -89,28 +90,22 @@ export const workqueue = Value.number({
   "units": "requests",
   "placeholder": null
 });
-export const advancedSpec = Config.of({ "auth": auth, "serialversion": serialversion, "servertimeout": servertimeout, "threads": threads, "workqueue": workqueue, });;
+export const advancedSpec = Config.of({"auth": auth,"serialversion": serialversion,"servertimeout": servertimeout,"threads": threads,"workqueue": workqueue,});;
 export const advanced = Value.object({
-  name: "Advanced",
-  description: "Advanced RPC Settings",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: advancedSpec,
-  valueNames: {},
-});
-export const rpcSettingsSpec = Config.of({ "enable": enable, "username": username, "password": password, "advanced": advanced, });;
+        name: "Advanced",
+        description: "Advanced RPC Settings",
+        warning: null,
+        default: null,
+        spec: advancedSpec,
+      });
+export const rpcSettingsSpec = Config.of({"enable": enable,"username": username,"password": password,"advanced": advanced,});;
 export const rpc = Value.object({
-  name: "RPC Settings",
-  description: "RPC configuration options.",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: rpcSettingsSpec,
-  valueNames: {},
-});
+        name: "RPC Settings",
+        description: "RPC configuration options.",
+        warning: null,
+        default: null,
+        spec: rpcSettingsSpec,
+      });
 export const zmqEnabled = Value.boolean({
   "name": "ZeroMQ Enabled",
   "default": true,
@@ -146,17 +141,14 @@ export const discardfee = Value.number({
   "units": "BTC/kB",
   "placeholder": null
 });
-export const walletSpec = Config.of({ "enable": enable1, "avoidpartialspends": avoidpartialspends, "discardfee": discardfee, });;
+export const walletSpec = Config.of({"enable": enable1,"avoidpartialspends": avoidpartialspends,"discardfee": discardfee,});;
 export const wallet = Value.object({
-  name: "Wallet",
-  description: "Wallet Settings",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: walletSpec,
-  valueNames: {},
-});
+        name: "Wallet",
+        description: "Wallet Settings",
+        warning: null,
+        default: null,
+        spec: walletSpec,
+      });
 export const mempoolfullrbf = Value.boolean({
   "name": "Enable Full RBF",
   "default": false,
@@ -191,17 +183,14 @@ export const mempoolexpiry = Value.number({
   "units": "Hr",
   "placeholder": null
 });
-export const mempoolSpec = Config.of({ "mempoolfullrbf": mempoolfullrbf, "persistmempool": persistmempool, "maxmempool": maxmempool, "mempoolexpiry": mempoolexpiry, });;
+export const mempoolSpec = Config.of({"mempoolfullrbf": mempoolfullrbf,"persistmempool": persistmempool,"maxmempool": maxmempool,"mempoolexpiry": mempoolexpiry,});;
 export const mempool = Value.object({
-  name: "Mempool",
-  description: "Mempool Settings",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: mempoolSpec,
-  valueNames: {},
-});
+        name: "Mempool",
+        description: "Mempool Settings",
+        warning: null,
+        default: null,
+        spec: mempoolSpec,
+      });
 export const listen = Value.boolean({
   "name": "Make Public",
   "default": true,
@@ -243,31 +232,28 @@ export const port = Value.number({
   "units": null,
   "placeholder": null
 });
-export const addNodesSpec = Config.of({ "hostname": hostname, "port": port, });;
+export const addNodesSpec = Config.of({"hostname": hostname,"port": port,});;
 export const addNodesList = List.obj({
-  name: "Add Nodes",
-  range: "[0,*)",
-  spec: {
-    spec: addNodesSpec,
-    displayAs: null,
-    uniqueBy: null,
-  },
-  default: [],
-  description: "Add addresses of nodes to connect to.",
-  warning: null,
-});
+        name: "Add Nodes",
+        range: "[0,*)",
+        spec: {
+            spec: addNodesSpec,
+            displayAs: null,
+            uniqueBy: null,
+        },
+        default: [],
+        description: "Add addresses of nodes to connect to.",
+        warning: null,
+      });
 export const addnode = Value.list(addNodesList);
-export const peersSpec = Config.of({ "listen": listen, "onlyconnect": onlyconnect, "onlyonion": onlyonion, "addnode": addnode, });;
+export const peersSpec = Config.of({"listen": listen,"onlyconnect": onlyconnect,"onlyonion": onlyonion,"addnode": addnode,});;
 export const peers = Value.object({
-  name: "Peers",
-  description: "Peer Connection Settings",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: peersSpec,
-  valueNames: {},
-});
+        name: "Peers",
+        description: "Peer Connection Settings",
+        warning: null,
+        default: null,
+        spec: peersSpec,
+      });
 export const dbcache = Value.number({
   "name": "Database Cache",
   "default": null,
@@ -291,7 +277,7 @@ export const size = Value.number({
   "units": "MiB",
   "placeholder": null
 });
-export const automatic = Config.of({ "size": size, });;
+export const automatic = Config.of({"size": size,});;
 export const size1 = Value.number({
   "name": "Failsafe Chain Size",
   "default": 65536,
@@ -303,19 +289,15 @@ export const size1 = Value.number({
   "units": "MiB",
   "placeholder": null
 });
-export const manual = Config.of({ "size": size1, });;
-export const pruningSettingsVariants = Variants.of({ "disabled": disabled, "automatic": automatic, "manual": manual, });
+export const manual = Config.of({"size": size1,});;
+export const pruningSettingsVariants = Variants.of({"disabled": {name: disabled, spec: disabled},"automatic": {name: automatic, spec: automatic},"manual": {name: manual, spec: manual},});
 export const pruning = Value.union({
-  name: "Pruning Settings",
-  description: "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
-  warning: "If you set pruning to Manual and your disk is smaller than the total size of the blockchain, you MUST have something running that prunes these blocks or you may overfill your disk!\nDisabling pruning will convert your node into a full archival node. This requires a resync of the entire blockchain, a process that may take several days. Make sure you have enough free disk space or you may fill up your disk.\n",
-  default: "disabled",
-  variants: pruningSettingsVariants,
-  tag: { "id": "mode", "name": "Pruning Mode", "description": "- Disabled: Disable pruning\n- Automatic: Limit blockchain size on disk to a certain number of megabytes\n- Manual: Prune blockchain with the \"pruneblockchain\" RPC\n", "warning": null, "variantNames": { "disabled": "Disabled", "automatic": "Automatic", "manual": "Manual" } },
-  displayAs: null,
-  uniqueBy: null,
-  variantNames: null,
-});
+        name: "Pruning Settings",
+        description: "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
+        warning: "If you set pruning to Manual and your disk is smaller than the total size of the blockchain, you MUST have something running that prunes these blocks or you may overfill your disk!\nDisabling pruning will convert your node into a full archival node. This requires a resync of the entire blockchain, a process that may take several days. Make sure you have enough free disk space or you may fill up your disk.\n",
+        default: "disabled",
+        variants: pruningSettingsVariants,
+      });
 export const blockfilterindex = Value.boolean({
   "name": "Compute Compact Block Filters (BIP158)",
   "default": true,
@@ -328,45 +310,36 @@ export const peerblockfilters = Value.boolean({
   "description": "Serve Compact Block Filters as a peer service to other nodes on the network. This is useful if you wish to connect an SPV client to your node to make it efficient to scan transactions without having to download all block data.  'Compute Compact Block Filters (BIP158)' is required.",
   "warning": null
 });
-export const blockFiltersSpec = Config.of({ "blockfilterindex": blockfilterindex, "peerblockfilters": peerblockfilters, });;
+export const blockFiltersSpec = Config.of({"blockfilterindex": blockfilterindex,"peerblockfilters": peerblockfilters,});;
 export const blockfilters = Value.object({
-  name: "Block Filters",
-  description: "Settings for storing and serving compact block filters",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: blockFiltersSpec,
-  valueNames: {},
-});
+        name: "Block Filters",
+        description: "Settings for storing and serving compact block filters",
+        warning: null,
+        default: null,
+        spec: blockFiltersSpec,
+      });
 export const peerbloomfilters = Value.boolean({
   "name": "Serve Bloom Filters to Peers",
   "default": false,
   "description": "Peers have the option of setting filters on each connection they make after the version handshake has completed. Bloom filters are for clients implementing SPV (Simplified Payment Verification) that want to check that block headers  connect together correctly, without needing to verify the full blockchain.  The client must trust that the transactions in the chain are in fact valid.  It is highly recommended AGAINST using for anything except Bisq integration.",
   "warning": "This is ONLY for use with Bisq integration, please use Block Filters for all other applications."
 });
-export const bloomFiltersBip37Spec = Config.of({ "peerbloomfilters": peerbloomfilters, });;
+export const bloomFiltersBip37Spec = Config.of({"peerbloomfilters": peerbloomfilters,});;
 export const bloomfilters = Value.object({
-  name: "Bloom Filters (BIP37)",
-  description: "Setting for serving Bloom Filters",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: bloomFiltersBip37Spec,
-  valueNames: {},
-});
-export const advancedSpec1 = Config.of({ "mempool": mempool, "peers": peers, "dbcache": dbcache, "pruning": pruning, "blockfilters": blockfilters, "bloomfilters": bloomfilters, });;
+        name: "Bloom Filters (BIP37)",
+        description: "Setting for serving Bloom Filters",
+        warning: null,
+        default: null,
+        spec: bloomFiltersBip37Spec,
+      });
+export const advancedSpec1 = Config.of({"mempool": mempool,"peers": peers,"dbcache": dbcache,"pruning": pruning,"blockfilters": blockfilters,"bloomfilters": bloomfilters,});;
 export const advanced1 = Value.object({
-  name: "Advanced",
-  description: "Advanced Settings",
-  warning: null,
-  default: null,
-  displayAs: null,
-  uniqueBy: null,
-  spec: advancedSpec1,
-  valueNames: {},
-});
-export const inputSpec = Config.of({ "rpc": rpc, "zmq-enabled": zmqEnabled, "txindex": txindex, "wallet": wallet, "advanced": advanced1, });;
+        name: "Advanced",
+        description: "Advanced Settings",
+        warning: null,
+        default: null,
+        spec: advancedSpec1,
+      });
+export const inputSpec = Config.of({"rpc": rpc,"zmq-enabled": zmqEnabled,"txindex": txindex,"wallet": wallet,"advanced": advanced1,});;
 export const matchInputSpec = inputSpec.validator();
 export type InputSpec = typeof matchInputSpec._TYPE;

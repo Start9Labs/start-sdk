@@ -48,7 +48,8 @@ export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
 
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select";
-  default: string;
+  nullable: boolean
+  default: null | string;
 
 }
 
@@ -61,13 +62,13 @@ export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
 
 export interface ValueSpecBoolean extends WithStandalone {
   type: "boolean";
-  default: boolean;
+  default: null | boolean;
 }
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
   variants: { [key: string]: { name: string, spec: InputSpec } };
-  default: string;
+  default: null | string;
 }
 
 export interface ValueSpecFile extends WithStandalone {
@@ -170,7 +171,7 @@ export interface ListValueSpecUnion {
   displayAs: null | string;
   uniqueBy: UniqueBy;
   /** this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list*/
-  default: string;
+  default: null | string;
 }
 
 export type DefaultString = string | { charset: string; len: number };

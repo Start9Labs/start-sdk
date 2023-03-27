@@ -4,7 +4,6 @@ import { List } from "./list";
 import { Variants } from "./variants";
 import {
   InputSpec,
-  UniqueBy,
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
@@ -17,34 +16,6 @@ export type DefaultString =
     charset: string | null | undefined;
     len: number;
   };
-export type Description = {
-  name: string;
-  description: string | null;
-  warning: string | null;
-};
-export type Default<A> = {
-  default: A;
-};
-export type NullableDefault<A> = {
-  default: null | A;
-};
-
-export type StringSpec = {
-  masked: boolean | null;
-  placeholder: string | null;
-  pattern: null | string;
-  patternDescription: null | string;
-  textarea: boolean | null;
-};
-export type NumberSpec = {
-  range: string;
-  integral: boolean;
-  units: string | null;
-  placeholder: string | null;
-};
-export type Nullable = {
-  nullable: boolean;
-};
 
 /**
  * A value is going to be part of the form in the FE of the OS.
@@ -70,17 +41,32 @@ export type Nullable = {
  ```
  */
 export class Value<A extends ValueSpec> extends IBuilder<A> {
-  static boolean<A extends Description & Default<boolean>>(a: A) {
+  static boolean<
+    A extends {
+      name: string,
+      description: string | null
+      warning: string | null
+      default: boolean | null
+    }
+  >(a: A) {
     return new Value({
       type: "boolean" as const,
       ...a,
     });
   }
   static string<
-    A extends Description &
-    NullableDefault<DefaultString> &
-    Nullable &
-    StringSpec
+    A extends {
+      name: string,
+      description: string | null
+      warning: string | null
+      nullable: boolean
+      default: DefaultString | null
+      masked: boolean | null;
+      placeholder: string | null;
+      pattern: string | null;
+      patternDescription: string | null;
+      textarea: boolean | null;
+    }
   >(a: A) {
     return new Value({
       type: "string" as const,
@@ -88,7 +74,17 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     } as ValueSpecString);
   }
   static number<
-    A extends Description & NullableDefault<number> & Nullable & NumberSpec
+    A extends {
+      name: string
+      description: string | null
+      warning: string | null
+      nullable: boolean
+      default: number | null
+      range: string;
+      integral: boolean;
+      units: string | null;
+      placeholder: string | null;
+    }
   >(a: A) {
     return new Value({
       type: "number" as const,
@@ -96,13 +92,32 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     } as ValueSpecNumber);
   }
   static select<
-    A extends Description &
-    Default<string> & {
+    A extends {
+      name: string
+      description: string | null
+      warning: string | null
+      nullable: boolean
+      default: string | null
       values: Record<string, string>;
     }
   >(a: A) {
     return new Value({
       type: "select" as const,
+      ...a,
+    });
+  }
+  static multiselect<
+    A extends {
+      name: string
+      description: string | null
+      warning: string | null
+      default: string[]
+      values: Record<string, string>;
+      range: string
+    }
+  >(a: A) {
+    return new Value({
+      type: "multiselect" as const,
       ...a,
     });
   }
@@ -112,10 +127,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       description: string | null;
       warning: string | null;
       default: null | { [k: string]: unknown };
-      displayAs: null | string;
-      uniqueBy: null | string;
       spec: Config<InputSpec>;
-      valueNames: Record<string, string>;
     }
   >(a: A) {
     const { spec: previousSpec, ...rest } = a;
@@ -127,14 +139,12 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     });
   }
   static union<
-    A extends Description &
-    Default<string> & {
+    A extends  {
       name: string;
       description: string | null;
       warning: string | null;
       variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
-      displayAs: string | null;
-      uniqueBy: UniqueBy;
+      default: string;
     }
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;

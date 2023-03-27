@@ -1,7 +1,5 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import { Default, NumberSpec, StringSpec } from "./value";
-import { Description } from "./value";
 import { Variants } from "./variants";
 import {
   InputSpec,
@@ -34,10 +32,19 @@ import {
  */
 export class List<A extends ValueSpecList> extends IBuilder<A> {
   static string<
-    A extends Description &
-    Default<string[]> & {
+    A extends {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: string[]
       range: string;
-      spec: StringSpec;
+      spec: {
+        masked: boolean | null;
+        placeholder: string | null;
+        pattern: string | null;
+        patternDescription: string | null;
+        textarea: boolean | null;
+      };
     }
   >(a: A) {
     return new List({
@@ -47,10 +54,18 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     } as ValueSpecListOf<"string">);
   }
   static number<
-    A extends Description &
-    Default<number[]> & {
+    A extends {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: string[]
       range: string;
-      spec: NumberSpec;
+      spec: {
+        range: string;
+        integral: boolean;
+        units: string | null;
+        placeholder: string | null;
+      };
     }
   >(a: A) {
     return new List({
@@ -60,8 +75,11 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     });
   }
   static obj<
-    A extends Description &
-    Default<Record<string, unknown>[]> & {
+    A extends {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: Record<string, unknown>[]
       range: string;
       spec: {
         spec: Config<InputSpec>;
@@ -90,13 +108,13 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     });
   }
   static union<
-    A extends Description &
-    Default<string[]> & {
+    A extends {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: Record<string, unknown>[]
       range: string;
       spec: {
-        name: string;
-        description: null | string;
-        warning: null | string;
         variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
         displayAs: null | string;
         uniqueBy: UniqueBy;

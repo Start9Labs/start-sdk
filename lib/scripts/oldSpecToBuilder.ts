@@ -113,6 +113,7 @@ export default async function makeFileContent(
             description: value.description || null,
             warning: value.warning || null,
             default: value.default || null,
+            nullable: false,
             values,
           },
           null,
@@ -129,35 +130,21 @@ export default async function makeFileContent(
         description: ${JSON.stringify(value.description || null)},
         warning: ${JSON.stringify(value.warning || null)},
         default: ${JSON.stringify(value.default || null)},
-        displayAs: ${JSON.stringify(value["display-as"] || null)},
-        uniqueBy: ${JSON.stringify(value["unique-by"] || null)},
         spec: ${specName},
-        valueNames: ${JSON.stringify(value["value-names"] || {})},
       })`;
       }
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertVariants(value.variants)
+          convertVariants(value.variants, value["variant-names"] || {})
         );
+
         return `Value.union({
         name: ${JSON.stringify(value.name || null)},
         description: ${JSON.stringify(value.description || null)},
         warning: ${JSON.stringify(value.warning || null)},
         default: ${JSON.stringify(value.default || null)},
         variants: ${variants},
-        tag: ${JSON.stringify({
-          id: value?.tag?.id || null,
-          name: value?.tag?.name || null,
-          description: value?.tag?.description || null,
-          warning: value?.tag?.warning || null,
-          variantNames: value?.tag?.["variant-names"] || {},
-        })},
-        displayAs: ${JSON.stringify(value["display-as"] || null)},
-        uniqueBy: ${JSON.stringify(value["unique-by"] || null)},
-        variantNames: ${JSON.stringify(
-          (value["variant-names"] as any) || null
-        )},
       })`;
       }
       case "list": {
@@ -259,14 +246,13 @@ export default async function makeFileContent(
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertInputSpec(value.spec.variants)
+          convertVariants(value.spec.variants, value.spec['variant-names'] || {})
         );
         return `List.union(
         {
             name:${JSON.stringify(value.name || null)},
             range:${JSON.stringify(value.range || null)},
             spec: {
-                
                 variants: ${variants},
                 displayAs: ${JSON.stringify(
           value?.spec?.["display-as"] || null
@@ -286,11 +272,11 @@ export default async function makeFileContent(
     throw new Error(`Unknown subtype "${value.subtype}"`);
   }
 
-  function convertVariants(variants: any) {
+  function convertVariants(variants: Record<string, unknown>, variantNames: Record<string, string>): string {
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
-      const variableName = newConst(key, convertInputSpec(value));
-      answer += `"${key}": ${variableName},`;
+      const variantSpec = newConst(key, convertInputSpec(value));
+      answer += `"${key}": {name: ${variantNames[key] || key}, spec: ${variantSpec}},`;
     }
     return `${answer}})`;
   }
