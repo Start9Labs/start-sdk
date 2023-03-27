@@ -1,6 +1,6 @@
 {
   "name": "start-sdk",
-  "version": "0.4.0-lib0.alpha9",
+  "version": "0.4.0-alpha10",
   "description": "For making the patterns that are wanted in making services for the startOS.",
   "main": "./index.cjs",
   "types": "./index.d.ts",
@@ -32,6 +32,8 @@
     "jest": "^29.4.3",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
+    "tsc": "^2.0.4",
+    "tsc-multi": "^0.6.1",
     "tsconfig-paths": "^3.14.2",
     "typescript": "^4.9.5",
     "vitest": "^0.29.2"

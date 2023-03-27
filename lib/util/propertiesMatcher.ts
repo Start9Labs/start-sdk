@@ -166,13 +166,13 @@ export function matchNumberWithRange(range: string) {
       leftValue === "*"
         ? (_) => true
         : left === "["
-        ? (x) => x >= Number(leftValue)
-        : (x) => x > Number(leftValue),
+          ? (x) => x >= Number(leftValue)
+          : (x) => x > Number(leftValue),
       leftValue === "*"
         ? "any"
         : left === "["
-        ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`
+          ? `greaterThanOrEqualTo${leftValue}`
+          : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore

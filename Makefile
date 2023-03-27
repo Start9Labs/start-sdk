@@ -1,17 +1,17 @@
 TS_FILES := $(shell find ./**/*.ts )
 version = $(shell git tag --sort=committerdate | tail -1)
-test: $(TS_FILES) 
+test: $(TS_FILES) lib/test/output.ts
 	npm test
 
 make clean:
 	rm -rf dist
 	
-lib/util/artifacts/output.ts: lib/util/artifacts/makeOutput.ts lib/scripts/oldSpecToBuilder.ts
+lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
 bundle:  fmt $(TS_FILES) .FORCE node_modules
-	npx tsc-multi
-	npx tsc --emitDeclarationOnly
+	npm run tsc-multi
+	npm run tsc --emitDeclarationOnly
 
 check:
 	npm run check
