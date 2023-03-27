@@ -2,7 +2,16 @@ import * as matches from "ts-matches";
 import { Parser } from "ts-matches";
 import { InputSpec, ValueSpec as ValueSpecAny } from "../config/config-types";
 
-const { string, some, object, arrayOf, dictionary, unknown, number, literals, boolean, array } = matches
+const {
+  string,
+  some,
+  object,
+  dictionary,
+  unknown,
+  number,
+  literals,
+  boolean,
+} = matches;
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -83,8 +92,8 @@ export type TypeFromProps<A> =
 const isType = object({ type: string });
 const matchVariant = object({
   name: string,
-  spec: unknown
-})
+  spec: unknown,
+});
 const recordString = dictionary([string, unknown]);
 const matchDefault = object({ default: unknown });
 const matchNullable = object({ nullable: literals(true) });
@@ -157,13 +166,13 @@ export function matchNumberWithRange(range: string) {
       leftValue === "*"
         ? (_) => true
         : left === "["
-          ? (x) => x >= Number(leftValue)
-          : (x) => x > Number(leftValue),
+        ? (x) => x >= Number(leftValue)
+        : (x) => x > Number(leftValue),
       leftValue === "*"
         ? "any"
         : left === "["
-          ? `greaterThanOrEqualTo${leftValue}`
-          : `greaterThan${leftValue}`
+        ? `greaterThanOrEqualTo${leftValue}`
+        : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore
@@ -192,10 +201,7 @@ const isGenerator = object({
   charset: string,
   len: number,
 }).test;
-function defaultNullable<A>(
-  parser: Parser<unknown, A>,
-  value: unknown
-) {
+function defaultNullable<A>(parser: Parser<unknown, A>, value: unknown) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) {
       return parser.defaultTo(
@@ -257,7 +263,7 @@ export function guardAll<A extends ValueSpecAny>(
     }
     case "select":
       if (matchValues.test(value)) {
-        const valueKeys = Object.keys(value.values)
+        const valueKeys = Object.keys(value.values);
         return defaultNullable(
           literals(valueKeys[0], ...valueKeys),
           value
@@ -270,7 +276,7 @@ export function guardAll<A extends ValueSpecAny>(
           (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
           (() => true);
 
-        const valueKeys = Object.keys(value.values)
+        const valueKeys = Object.keys(value.values);
         return defaultNullable(
           matches
             .literals(valueKeys[0], ...valueKeys)

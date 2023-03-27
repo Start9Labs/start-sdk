@@ -48,9 +48,8 @@ export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
 
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select";
-  nullable: boolean
+  nullable: boolean;
   default: null | string;
-
 }
 
 export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
@@ -67,7 +66,7 @@ export interface ValueSpecBoolean extends WithStandalone {
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
-  variants: { [key: string]: { name: string, spec: InputSpec } };
+  variants: { [key: string]: { name: string; spec: InputSpec } };
   default: null | string;
 }
 
@@ -116,14 +115,14 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
   spec: ListValueSpecOf<T>;
   range: string; // '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules
   default:
-  | string[]
-  | number[]
-  | DefaultString[]
-  | Record<string, unknown>[]
-  | readonly string[]
-  | readonly number[]
-  | readonly DefaultString[]
-  | readonly Record<string, unknown>[];
+    | string[]
+    | number[]
+    | DefaultString[]
+    | Record<string, unknown>[]
+    | readonly string[]
+    | readonly number[]
+    | readonly DefaultString[]
+    | readonly Record<string, unknown>[];
 }
 
 // sometimes the type checker needs just a little bit of help
@@ -166,7 +165,7 @@ export type UniqueBy =
   | { all: readonly UniqueBy[] | UniqueBy[] };
 
 export interface ListValueSpecUnion {
-  variants: { [key: string]: { name: string, spec: InputSpec } };
+  variants: { [key: string]: { name: string; spec: InputSpec } };
   /** this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id*/
   displayAs: null | string;
   uniqueBy: UniqueBy;

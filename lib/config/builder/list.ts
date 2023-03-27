@@ -36,7 +36,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       name: string;
       description: string | null;
       warning: string | null;
-      default: string[]
+      default: string[];
       range: string;
       spec: {
         masked: boolean | null;
@@ -58,7 +58,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       name: string;
       description: string | null;
       warning: string | null;
-      default: string[]
+      default: string[];
       range: string;
       spec: {
         range: string;
@@ -79,7 +79,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       name: string;
       description: string | null;
       warning: string | null;
-      default: Record<string, unknown>[]
+      default: Record<string, unknown>[];
       range: string;
       spec: {
         spec: Config<InputSpec>;
@@ -112,10 +112,12 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       name: string;
       description: string | null;
       warning: string | null;
-      default: Record<string, unknown>[]
+      default: Record<string, unknown>[];
       range: string;
       spec: {
-        variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
+        variants: Variants<{
+          [key: string]: { name: string; spec: InputSpec };
+        }>;
         displayAs: null | string;
         uniqueBy: UniqueBy;
         default: string;

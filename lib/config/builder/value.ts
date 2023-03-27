@@ -13,9 +13,9 @@ import {
 export type DefaultString =
   | string
   | {
-    charset: string | null | undefined;
-    len: number;
-  };
+      charset: string | null | undefined;
+      len: number;
+    };
 
 /**
  * A value is going to be part of the form in the FE of the OS.
@@ -43,10 +43,10 @@ export type DefaultString =
 export class Value<A extends ValueSpec> extends IBuilder<A> {
   static boolean<
     A extends {
-      name: string,
-      description: string | null
-      warning: string | null
-      default: boolean | null
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: boolean | null;
     }
   >(a: A) {
     return new Value({
@@ -56,11 +56,11 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static string<
     A extends {
-      name: string,
-      description: string | null
-      warning: string | null
-      nullable: boolean
-      default: DefaultString | null
+      name: string;
+      description: string | null;
+      warning: string | null;
+      nullable: boolean;
+      default: DefaultString | null;
       masked: boolean | null;
       placeholder: string | null;
       pattern: string | null;
@@ -75,11 +75,11 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static number<
     A extends {
-      name: string
-      description: string | null
-      warning: string | null
-      nullable: boolean
-      default: number | null
+      name: string;
+      description: string | null;
+      warning: string | null;
+      nullable: boolean;
+      default: number | null;
       range: string;
       integral: boolean;
       units: string | null;
@@ -93,11 +93,11 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static select<
     A extends {
-      name: string
-      description: string | null
-      warning: string | null
-      nullable: boolean
-      default: string | null
+      name: string;
+      description: string | null;
+      warning: string | null;
+      nullable: boolean;
+      default: string | null;
       values: Record<string, string>;
     }
   >(a: A) {
@@ -108,12 +108,12 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static multiselect<
     A extends {
-      name: string
-      description: string | null
-      warning: string | null
-      default: string[]
+      name: string;
+      description: string | null;
+      warning: string | null;
+      default: string[];
       values: Record<string, string>;
-      range: string
+      range: string;
     }
   >(a: A) {
     return new Value({
@@ -139,11 +139,11 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     });
   }
   static union<
-    A extends  {
+    A extends {
       name: string;
       description: string | null;
       warning: string | null;
-      variants: Variants<{ [key: string]: { name: string, spec: InputSpec } }>;
+      variants: Variants<{ [key: string]: { name: string; spec: InputSpec } }>;
       default: string;
     }
   >(a: A) {

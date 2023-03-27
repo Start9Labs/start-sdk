@@ -99,14 +99,14 @@ export default async function makeFileContent(
       }
       case "enum": {
         const allValueNames = new Set(
-          ...value?.spec?.["values"] || [],
+          ...(value?.spec?.["values"] || []),
           ...Object.keys(value?.spec?.["value-names"] || {})
         );
         const values = Object.fromEntries(
           Array.from(allValueNames)
             .filter(string.test)
-            .map(key => [key, value?.spec?.["value-names"]?.[key] || key])
-        )
+            .map((key) => [key, value?.spec?.["value-names"]?.[key] || key])
+        );
         return `Value.select(${JSON.stringify(
           {
             name: value.name || null,
@@ -169,8 +169,7 @@ export default async function makeFileContent(
               masked: value?.spec?.masked || null,
               placeholder: value?.spec?.placeholder || null,
               pattern: value?.spec?.pattern || null,
-              patternDescription:
-                value?.spec?.["pattern-description"] || null,
+              patternDescription: value?.spec?.["pattern-description"] || null,
               textarea: value?.spec?.textarea || false,
             },
             default: value.default || null,
@@ -202,14 +201,14 @@ export default async function makeFileContent(
       }
       case "enum": {
         const allValueNames = new Set(
-          ...value?.spec?.["values"] || [],
+          ...(value?.spec?.["values"] || []),
           ...Object.keys(value?.spec?.["value-names"] || {})
         );
         const values = Object.fromEntries(
           Array.from(allValueNames)
             .filter(string.test)
-            .map(key => [key, value?.spec?.["value-names"]?.[key] || key])
-        )
+            .map((key) => [key, value?.spec?.["value-names"]?.[key] || key])
+        );
         return `Value.multiselect(${JSON.stringify(
           {
             name: value.name || null,
@@ -233,9 +232,7 @@ export default async function makeFileContent(
         range: ${JSON.stringify(value.range || null)},
         spec: {
             spec: ${specName},
-            displayAs: ${JSON.stringify(
-          value?.spec?.["display-as"] || null
-        )},
+            displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
             uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
         },
         default: ${JSON.stringify(value.default || null)},
@@ -246,7 +243,10 @@ export default async function makeFileContent(
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertVariants(value.spec.variants, value.spec['variant-names'] || {})
+          convertVariants(
+            value.spec.variants,
+            value.spec["variant-names"] || {}
+          )
         );
         return `List.union(
         {
@@ -255,11 +255,9 @@ export default async function makeFileContent(
             spec: {
                 variants: ${variants},
                 displayAs: ${JSON.stringify(
-          value?.spec?.["display-as"] || null
-        )},
-                uniqueBy: ${JSON.stringify(
-          value?.spec?.["unique-by"] || null
-        )},
+                  value?.spec?.["display-as"] || null
+                )},
+                uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
                 default: ${JSON.stringify(value?.spec?.default || null)},
             },
             default: ${JSON.stringify(value.default || null)},
@@ -272,11 +270,16 @@ export default async function makeFileContent(
     throw new Error(`Unknown subtype "${value.subtype}"`);
   }
 
-  function convertVariants(variants: Record<string, unknown>, variantNames: Record<string, string>): string {
+  function convertVariants(
+    variants: Record<string, unknown>,
+    variantNames: Record<string, string>
+  ): string {
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
       const variantSpec = newConst(key, convertInputSpec(value));
-      answer += `"${key}": {name: "${variantNames[key] || key}", spec: ${variantSpec}},`;
+      answer += `"${key}": {name: "${
+        variantNames[key] || key
+      }", spec: ${variantSpec}},`;
     }
     return `${answer}})`;
   }
