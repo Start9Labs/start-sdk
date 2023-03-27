@@ -357,6 +357,6 @@ writeConvertedFile(
     },
   },
   {
-    startSdk: "../..",
+    startSdk: "..",
   }
 );
