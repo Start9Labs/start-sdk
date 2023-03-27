@@ -1,5 +1,6 @@
 import camelCase from "lodash/camelCase";
 import * as fs from "fs";
+import { string } from "ts-matches";
 
 export async function writeConvertedFile(
   file: string,
@@ -97,14 +98,22 @@ export default async function makeFileContent(
         )})`;
       }
       case "enum": {
+        const allValueNames = new Set(
+          ...value?.spec?.["values"] || [],
+          ...Object.keys(value?.spec?.["value-names"] || {})
+        );
+        const values = Object.fromEntries(
+          Array.from(allValueNames)
+            .filter(string.test)
+            .map(key => [key, value?.spec?.["value-names"]?.[key] || key])
+        )
         return `Value.select(${JSON.stringify(
           {
             name: value.name || null,
             description: value.description || null,
             warning: value.warning || null,
             default: value.default || null,
-            values: value.values || null,
-            valueNames: value["value-names"] || null,
+            values,
           },
           null,
           2
@@ -205,15 +214,23 @@ export default async function makeFileContent(
         )})`;
       }
       case "enum": {
+        const allValueNames = new Set(
+          ...value?.spec?.["values"] || [],
+          ...Object.keys(value?.spec?.["value-names"] || {})
+        );
+        const values = Object.fromEntries(
+          Array.from(allValueNames)
+            .filter(string.test)
+            .map(key => [key, value?.spec?.["value-names"]?.[key] || key])
+        )
         return `Value.multiselect(${JSON.stringify(
           {
             name: value.name || null,
             range: value.range || null,
-            values: value?.spec?.["values"] || null,
-            valueNames: value?.spec?.["value-names"] || {},
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
+            values,
           },
           null,
           2
@@ -230,8 +247,8 @@ export default async function makeFileContent(
         spec: {
             spec: ${specName},
             displayAs: ${JSON.stringify(
-              value?.spec?.["display-as"] || null
-            )},
+          value?.spec?.["display-as"] || null
+        )},
             uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
         },
         default: ${JSON.stringify(value.default || null)},
@@ -249,28 +266,14 @@ export default async function makeFileContent(
             name:${JSON.stringify(value.name || null)},
             range:${JSON.stringify(value.range || null)},
             spec: {
-                tag: {
-                    "id":${JSON.stringify(value?.spec?.tag?.["id"] || null)},
-                    "name": ${JSON.stringify(
-                      value?.spec?.tag?.name || null
-                    )},
-                    "description": ${JSON.stringify(
-                      value?.spec?.tag?.description || null
-                    )},
-                    "warning": ${JSON.stringify(
-                      value?.spec?.tag?.warning || null
-                    )},
-                    variantNames: ${JSON.stringify(
-                      value?.spec?.tag?.["variant-names"] || {}
-                    )},
-                },
+                
                 variants: ${variants},
                 displayAs: ${JSON.stringify(
-                  value?.spec?.["display-as"] || null
-                )},
+          value?.spec?.["display-as"] || null
+        )},
                 uniqueBy: ${JSON.stringify(
-                  value?.spec?.["unique-by"] || null
-                )},
+          value?.spec?.["unique-by"] || null
+        )},
                 default: ${JSON.stringify(value?.spec?.default || null)},
             },
             default: ${JSON.stringify(value.default || null)},

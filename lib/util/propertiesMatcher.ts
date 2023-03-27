@@ -1,5 +1,8 @@
 import * as matches from "ts-matches";
+import { Parser } from "ts-matches";
 import { InputSpec, ValueSpec as ValueSpecAny } from "../types/config-types";
+
+const { string, some, object, arrayOf, dictionary, unknown, number, literals, boolean, array } = matches
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -8,7 +11,6 @@ type TypeObject = "object";
 type TypeList = "list";
 type TypeSelect = "select";
 type TypeMultiselect = "multiselect";
-type TypePointer = "pointer";
 type TypeUnion = "union";
 
 // prettier-ignore
@@ -46,20 +48,22 @@ export type GuardList<A> =
   A extends { readonly type: TypeList, readonly subtype: infer B, spec?: {} } ? ReadonlyArray<GuardAll<Omit<A, "type"> & ({ type: B })>> :
   unknown
 // prettier-ignore
-type GuardPointer<A> =
-  A extends { readonly type: TypePointer } ? (string | null) :
-  unknown
-// prettier-ignore
 type GuardSelect<A> =
-  A extends { readonly type: TypeSelect, readonly values: ArrayLike<infer B> } ? GuardDefaultNullable<A, B> :
+  A extends { readonly type: TypeSelect, variants: { [key in infer B & string]: string } } ? B :
   unknown
 // prettier-ignore
 type GuardMultiselect<A> =
-  A extends { readonly type: TypeMultiselect, readonly values: ArrayLike<infer B> } ? GuardDefaultNullable<A, B> :
+  A extends { readonly type: TypeMultiselect, variants: { [key in infer B & string]: string } } ? B[] :
   unknown
+
+// prettier-ignore
+type VariantValue<A> =
+  A extends { name: string, spec: infer B } ? { name: A['name'], spec: TypeFromProps<B> } :
+  never
 // prettier-ignore
 type GuardUnion<A> =
-  A extends { readonly type: TypeUnion, readonly tag: { id: infer Id & string }, variants: infer Variants & Record<string, unknown> } ? { [K in keyof Variants]: { [keyType in Id & string]: K } & TypeFromProps<Variants[K]> }[keyof Variants] :
+  A extends { readonly type: TypeUnion, variants: infer Variants & Record<string, unknown> } ?
+  { [K in keyof Variants]: { [key in K]: VariantValue<Variants[K]>['spec'] } }[keyof Variants] :
   unknown
 
 type _<T> = T;
@@ -68,7 +72,6 @@ export type GuardAll<A> = GuardNumber<A> &
   GuardBoolean<A> &
   GuardObject<A> &
   GuardList<A> &
-  GuardPointer<A> &
   GuardUnion<A> &
   GuardSelect<A> &
   GuardMultiselect<A>;
@@ -77,22 +80,25 @@ export type TypeFromProps<A> =
   A extends Record<string, unknown> ? { readonly [K in keyof A & string]: _<GuardAll<A[K]>> } :
   unknown;
 
-const isType = matches.shape({ type: matches.string });
-const recordString = matches.dictionary([matches.string, matches.unknown]);
-const matchDefault = matches.shape({ default: matches.unknown });
-const matchNullable = matches.shape({ nullable: matches.literal(true) });
-const matchPattern = matches.shape({ pattern: matches.string });
+const isType = object({ type: string });
+const matchVariant = object({
+  name: string,
+  spec: unknown
+})
+const recordString = dictionary([string, unknown]);
+const matchDefault = object({ default: unknown });
+const matchNullable = object({ nullable: literals(true) });
+const matchPattern = object({ pattern: string });
 const rangeRegex = /(\[|\()(\*|(\d|\.)+),(\*|(\d|\.)+)(\]|\))/;
-const matchRange = matches.shape({ range: matches.regex(rangeRegex) });
-const matchIntegral = matches.shape({ integral: matches.literal(true) });
-const matchSpec = matches.shape({ spec: recordString });
-const matchSubType = matches.shape({ subtype: matches.string });
-const matchUnion = matches.shape({
-  tag: matches.shape({ id: matches.string }),
-  variants: recordString,
+const matchRange = object({ range: string });
+const matchIntegral = object({ integral: literals(true) });
+const matchSpec = object({ spec: recordString });
+const matchSubType = object({ subtype: string });
+const matchUnion = object({
+  variants: dictionary([string, matchVariant]),
 });
-const matchValues = matches.shape({
-  values: matches.arrayOf(matches.string),
+const matchValues = object({
+  values: dictionary([string, string]),
 });
 
 function charRange(value = "") {
@@ -142,15 +148,11 @@ export function generateDefault(
   return answer.join("");
 }
 
-function withPattern<A>(value: unknown) {
-  if (matchPattern.test(value)) return matches.regex(RegExp(value.pattern));
-  return matches.string;
-}
 export function matchNumberWithRange(range: string) {
   const matched = rangeRegex.exec(range);
-  if (!matched) return matches.number;
+  if (!matched) return number;
   const [, left, leftValue, , rightValue, , right] = matched;
-  return matches.number
+  return number
     .validate(
       leftValue === "*"
         ? (_) => true
@@ -174,7 +176,7 @@ export function matchNumberWithRange(range: string) {
           `lessThan${rightValue}`
     );
 }
-function withIntegral(parser: matches.Parser<unknown, number>, value: unknown) {
+function withIntegral(parser: Parser<unknown, number>, value: unknown) {
   if (matchIntegral.test(value)) {
     return parser.validate(Number.isInteger, "isIntegral");
   }
@@ -184,14 +186,14 @@ function withRange(value: unknown) {
   if (matchRange.test(value)) {
     return matchNumberWithRange(value.range);
   }
-  return matches.number;
+  return number;
 }
-const isGenerator = matches.shape({
-  charset: matches.string,
-  len: matches.number,
+const isGenerator = object({
+  charset: string,
+  len: number,
 }).test;
 function defaultNullable<A>(
-  parser: matches.Parser<unknown, A>,
+  parser: Parser<unknown, A>,
   value: unknown
 ) {
   if (matchDefault.test(value)) {
@@ -216,16 +218,16 @@ function defaultNullable<A>(
  */
 export function guardAll<A extends ValueSpecAny>(
   value: A
-): matches.Parser<unknown, GuardAll<A>> {
+): Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
-    return matches.unknown as any;
+    return unknown as any;
   }
   switch (value.type) {
     case "boolean":
-      return defaultNullable(matches.boolean, value) as any;
+      return defaultNullable(boolean, value) as any;
 
     case "string":
-      return defaultNullable(withPattern(value), value) as any;
+      return defaultNullable(string, value) as any;
 
     case "number":
       return defaultNullable(
@@ -237,7 +239,7 @@ export function guardAll<A extends ValueSpecAny>(
       if (matchSpec.test(value)) {
         return defaultNullable(typeFromProps(value.spec), value) as any;
       }
-      return matches.unknown as any;
+      return unknown as any;
 
     case "list": {
       const spec = (matchSpec.test(value) && value.spec) || {};
@@ -255,40 +257,40 @@ export function guardAll<A extends ValueSpecAny>(
     }
     case "select":
       if (matchValues.test(value)) {
+        const valueKeys = Object.keys(value.values)
         return defaultNullable(
-          matches.literals(value.values[0], ...value.values),
+          literals(valueKeys[0], ...valueKeys),
           value
         ) as any;
       }
-      return matches.unknown as any;
+      return unknown as any;
     case "multiselect":
       if (matchValues.test(value)) {
         const rangeValidate =
           (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
           (() => true);
 
+        const valueKeys = Object.keys(value.values)
         return defaultNullable(
           matches
-            .literals(value.values[0], ...value.values)
+            .literals(valueKeys[0], ...valueKeys)
             .validate((x) => rangeValidate(x.length), "valid length"),
           value
         ) as any;
       }
-      return matches.unknown as any;
+      return unknown as any;
     case "union":
       if (matchUnion.test(value)) {
-        return matches.some(
-          ...Object.entries(value.variants).map(([variant, spec]) =>
-            matches
-              .shape({ [value.tag.id]: matches.literal(variant) })
-              .concat(typeFromProps(spec))
+        return some(
+          ...Object.entries(value.variants).map(([_, { spec }]) =>
+            typeFromProps(spec)
           )
         ) as any;
       }
-      return matches.unknown as any;
+      return unknown as any;
   }
 
-  return matches.unknown as any;
+  return unknown as any;
 }
 /**
  * InputSpec: Tells the UI how to ask for information, verification, and will send the service a config in a shape via the spec.
@@ -300,9 +302,9 @@ export function guardAll<A extends ValueSpecAny>(
  */
 export function typeFromProps<A extends InputSpec>(
   valueDictionary: A
-): matches.Parser<unknown, TypeFromProps<A>> {
-  if (!recordString.test(valueDictionary)) return matches.unknown as any;
-  return matches.shape(
+): Parser<unknown, TypeFromProps<A>> {
+  if (!recordString.test(valueDictionary)) return unknown as any;
+  return object(
     Object.fromEntries(
       Object.entries(valueDictionary).map(([key, value]) => [
         key,

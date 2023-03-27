@@ -49,6 +49,7 @@ export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select";
   default: string;
+
 }
 
 export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
@@ -114,14 +115,14 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
   spec: ListValueSpecOf<T>;
   range: string; // '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules
   default:
-    | string[]
-    | number[]
-    | DefaultString[]
-    | Record<string, unknown>[]
-    | readonly string[]
-    | readonly number[]
-    | readonly DefaultString[]
-    | readonly Record<string, unknown>[];
+  | string[]
+  | number[]
+  | DefaultString[]
+  | Record<string, unknown>[]
+  | readonly string[]
+  | readonly number[]
+  | readonly DefaultString[]
+  | readonly Record<string, unknown>[];
 }
 
 // sometimes the type checker needs just a little bit of help
