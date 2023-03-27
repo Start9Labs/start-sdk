@@ -7,6 +7,6 @@ export * as healthUtil from "./health/util";
 export * as util from "./util";
 export * as configBuilder from "./config/builder";
 export * as backup from "./backup";
-export * as configTypes from "./types/config-types";
+export * as configTypes from "./config/config-types";
 export * as config from "./config";
 export * as health from "./health";

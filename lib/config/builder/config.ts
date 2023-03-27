@@ -1,4 +1,4 @@
-import { InputSpec, ValueSpec } from "../../types/config-types";
+import { InputSpec, ValueSpec } from "../config-types";
 import { typeFromProps } from "../../util";
 import { BuilderExtract, IBuilder } from "./builder";
 import { Value } from "./value";

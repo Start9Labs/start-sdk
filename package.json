@@ -7,7 +7,7 @@
   "module": "./index.mjs",
   "scripts": {
     "test": "jest -c ./jest.config.js",
-    "buildOutput": "ts-node --esm ./lib/util/artifacts/makeOutput.ts",
+    "buildOutput": "ts-node --esm ./lib/test/makeOutput.ts",
     "check": "tsc --noEmit"
   },
   "repository": {

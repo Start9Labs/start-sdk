@@ -1,5 +1,5 @@
-export * as configTypes from "./types/config-types";
-import { InputSpec } from "./types/config-types";
+export * as configTypes from "./config/config-types";
+import { InputSpec } from "./config/config-types";
 
 export namespace ExpectedExports {
   version: 1;

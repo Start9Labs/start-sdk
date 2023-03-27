@@ -276,7 +276,7 @@ export default async function makeFileContent(
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
       const variantSpec = newConst(key, convertInputSpec(value));
-      answer += `"${key}": {name: ${variantNames[key] || key}, spec: ${variantSpec}},`;
+      answer += `"${key}": {name: "${variantNames[key] || key}", spec: ${variantSpec}},`;
     }
     return `${answer}})`;
   }

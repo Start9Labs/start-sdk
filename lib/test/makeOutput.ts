@@ -1,7 +1,7 @@
 import { writeConvertedFile } from "../../scripts/oldSpecToBuilder";
 
 writeConvertedFile(
-  "./lib/util/artifacts/output.ts",
+  "./lib/test/output.ts",
   {
     rpc: {
       type: "object",

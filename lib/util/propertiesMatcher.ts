@@ -1,6 +1,6 @@
 import * as matches from "ts-matches";
 import { Parser } from "ts-matches";
-import { InputSpec, ValueSpec as ValueSpecAny } from "../types/config-types";
+import { InputSpec, ValueSpec as ValueSpecAny } from "../config/config-types";
 
 const { string, some, object, arrayOf, dictionary, unknown, number, literals, boolean, array } = matches
 

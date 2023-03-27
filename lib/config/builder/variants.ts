@@ -1,4 +1,4 @@
-import { InputSpec } from "../../types/config-types";
+import { InputSpec } from "../config-types";
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from ".";
 

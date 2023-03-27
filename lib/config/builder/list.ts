@@ -6,7 +6,7 @@ import {
   UniqueBy,
   ValueSpecList,
   ValueSpecListOf,
-} from "../../types/config-types";
+} from "../config-types";
 
 /**
  * Used as a subtype of Value.list
