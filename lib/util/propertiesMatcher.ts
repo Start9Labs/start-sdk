@@ -2,16 +2,8 @@ import * as matches from "ts-matches";
 import { Parser } from "ts-matches";
 import { InputSpec, ValueSpec as ValueSpecAny } from "../config/config-types";
 
-const {
-  string,
-  some,
-  object,
-  dictionary,
-  unknown,
-  number,
-  literals,
-  boolean,
-} = matches;
+const { string, some, object, dictionary, unknown, number, literals, boolean } =
+  matches;
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -166,13 +158,13 @@ export function matchNumberWithRange(range: string) {
       leftValue === "*"
         ? (_) => true
         : left === "["
-          ? (x) => x >= Number(leftValue)
-          : (x) => x > Number(leftValue),
+        ? (x) => x >= Number(leftValue)
+        : (x) => x > Number(leftValue),
       leftValue === "*"
         ? "any"
         : left === "["
-          ? `greaterThanOrEqualTo${leftValue}`
-          : `greaterThan${leftValue}`
+        ? `greaterThanOrEqualTo${leftValue}`
+        : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore

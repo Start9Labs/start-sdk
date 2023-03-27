@@ -10,8 +10,8 @@ lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
 bundle:  fmt $(TS_FILES) .FORCE node_modules
-	npm run tsc-multi
-	npm run tsc --emitDeclarationOnly
+	npx tsc-multi
+	npx tsc --emitDeclarationOnly
 
 check:
 	npm run check
