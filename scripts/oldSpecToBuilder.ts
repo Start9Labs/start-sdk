@@ -1,6 +1,7 @@
 import camelCase from "lodash/camelCase";
 import * as fs from "fs";
 import { string } from "ts-matches";
+import { unionSelectKey } from "../lib/config/config-types";
 
 export async function writeConvertedFile(
   file: string,
@@ -249,13 +250,13 @@ export default async function makeFileContent(
             value.spec["variant-names"] || {}
           )
         );
-
+        // @TODO BluJ
         return `List.obj({
           name:${JSON.stringify(value.name || null)},
           range:${JSON.stringify(value.range || null)},
           spec: {
             spec: {
-              ${value?.spec?.tag?.id || 'type'}: {
+              ${unionSelectKey}: {
                 type: "union",
                 name: ${JSON.stringify(
                   value?.spec?.tag?.name || null
