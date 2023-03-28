@@ -67,7 +67,7 @@ export interface ValueSpecBoolean extends WithStandalone {
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
   nullable: boolean;
-  default: null | string
+  default: null | string;
   variants: Record<string, { name: string; spec: InputSpec }>;
 }
 
@@ -105,8 +105,7 @@ export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
 
 /** represents a spec for a list */
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>;
-export interface ValueSpecListOf<T extends ListValueSpecType>
-  extends WithStandalone {
+export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStandalone {
   type: "list";
   subtype: T;
   spec: ListValueSpecOf<T>;
@@ -123,10 +122,7 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
 }
 
 // sometimes the type checker needs just a little bit of help
-export function isValueSpecListOf<S extends ListValueSpecType>(
-  t: ValueSpecList,
-  s: S
-): t is ValueSpecListOf<S> {
+export function isValueSpecListOf<S extends ListValueSpecType>(t: ValueSpecList, s: S): t is ValueSpecListOf<S> {
   return t.subtype === s;
 }
 
@@ -162,4 +158,5 @@ export type UniqueBy =
 
 export type DefaultString = string | { charset: string; len: number };
 
-export const unionSelectKey = 'unionSelectKey' as const
+export const unionSelectKey = "unionSelectKey" as const;
+export type UnionSelectKey = typeof unionSelectKey;

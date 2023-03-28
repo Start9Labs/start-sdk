@@ -1,10 +1,6 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import {
-  InputSpec,
-  UniqueBy,
-  ValueSpecList,
-} from "../config-types";
+import { InputSpec, UniqueBy, ValueSpecList } from "../config-types";
 import { guardAll } from "../../util";
 
 /**

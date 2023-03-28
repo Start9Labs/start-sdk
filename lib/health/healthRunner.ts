@@ -40,8 +40,8 @@ async function timeoutHealth(
 const defaultParams = {
   defaultIntervalS: 60,
   defaultTimeoutS: 10,
-  defaultDelayS: 10
-}
+  defaultDelayS: 10,
+};
 
 export default function healthRunner(
   name: string,
@@ -52,15 +52,14 @@ export default function healthRunner(
     /** \
      * All values in seconds
      * defaults:
-       * interval: 60s
-       * timeout: 10s
-       * delay: 10s
-    */
-    create(effects: Types.Effects, {
-      interval = 60,
-      timeout = 10,
-      delay = 10,
-    } = {}) {
+     * interval: 60s
+     * timeout: 10s
+     * delay: 10s
+     */
+    create(
+      effects: Types.Effects,
+      { interval = 60, timeout = 10, delay = 10 } = {}
+    ) {
       let running: any;
       function startFn() {
         clearInterval(running);

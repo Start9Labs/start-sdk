@@ -14,9 +14,9 @@ import { guardAll } from "../../util";
 export type DefaultString =
   | string
   | {
-    charset: string | null | undefined;
-    len: number;
-  };
+      charset: string | null | undefined;
+      len: number;
+    };
 
 /**
  * A value is going to be part of the form in the FE of the OS.

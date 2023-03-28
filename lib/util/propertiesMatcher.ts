@@ -1,9 +1,8 @@
 import * as matches from "ts-matches";
 import { Parser } from "ts-matches";
-import { InputSpec, ValueSpec as ValueSpecAny } from "../config/config-types";
+import { InputSpec, unionSelectKey, ValueSpec as ValueSpecAny } from "../config/config-types";
 
-const { string, some, object, dictionary, unknown, number, literals, boolean } =
-  matches;
+const { string, some, object, dictionary, unknown, number, literals, boolean } = matches;
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -16,69 +15,57 @@ type TypeUnion = "union";
 
 // prettier-ignore
 type GuardDefaultNullable<A, Type> =
-  A extends { readonly default: unknown } ? Type :
-  A extends { readonly nullable: true } ? Type :
-  A extends { readonly nullable: false } ? Type | null | undefined :
+  A extends {  default: unknown } ? Type :
+  A extends {  nullable: true } ? Type :
+  A extends {  nullable: false } ? Type | null | undefined :
   Type
 
 // prettier-ignore
 type GuardNumber<A> =
-  A extends { readonly type: TypeNumber } ? GuardDefaultNullable<A, number> :
+  A extends {  type: TypeNumber } ? GuardDefaultNullable<A, number> :
   unknown
 // prettier-ignore
 type GuardString<A> =
-  A extends { readonly type: TypeString } ? GuardDefaultNullable<A, string> :
+  A extends {  type: TypeString } ? GuardDefaultNullable<A, string> :
   unknown
 
 // prettier-ignore
 type GuardBoolean<A> =
-  A extends { readonly type: TypeBoolean } ? GuardDefaultNullable<A, boolean> :
+  A extends {  type: TypeBoolean } ? GuardDefaultNullable<A, boolean> :
   unknown
 
 // prettier-ignore
 type GuardObject<A> =
-  A extends { readonly type: TypeObject, readonly spec: infer B } ? (
-    B extends Record<string, unknown> ? { readonly [K in keyof B & string]: _<GuardAll<B[K]>> } :
+  A extends {  type: TypeObject,  spec: infer B } ? (
+    B extends Record<string, unknown> ? {  [K in keyof B & string]: _<GuardAll<B[K]>> } :
     { _error: "Invalid Spec" }
   ) :
   unknown
 // prettier-ignore
 export type GuardList<A> =
-  A extends { readonly type: TypeList, readonly subtype: infer B, spec?: { spec?: infer C } } ? ReadonlyArray<GuardAll<Omit<A, "type" | "subtype" | "spec"> & ({ type: B, spec: C })>> :
-  A extends { readonly type: TypeList, readonly subtype: infer B, spec?: {} } ? ReadonlyArray<GuardAll<Omit<A, "type"> & ({ type: B })>> :
+  A extends {  type: TypeList,  subtype: infer B, spec?: { spec?: infer C } } ? Array<GuardAll<Omit<A, "type" | "subtype" | "spec"> & ({ type: B, spec: C })>> :
+  A extends {  type: TypeList,  subtype: infer B, spec?: {} } ? Array<GuardAll<Omit<A, "type"> & ({ type: B })>> :
   unknown
 // prettier-ignore
 type GuardSelect<A> =
-  A extends { readonly type: TypeSelect, variants: infer B } ? (
+  A extends {  type: TypeSelect, values: infer B } ? (
     B extends Record<string, string> ? keyof B : never
   ) :
   unknown
 
-const bluj: GuardSelect<{
-  type: "select";
-} & {
-  readonly name: "Serialization Version";
-  readonly description: "Return raw transaction or block hex with Segwit or non-SegWit serialization.";
-  readonly warning: null;
-  readonly default: "segwit";
-  readonly nullable: false;
-  readonly values: {
-      ...;
-  };
-}>
-  // prettier-ignore
-  type GuardMultiselect<A> =
-    A extends { readonly type: TypeMultiselect, variants: { [key in infer B & string]: string } } ?B[] :
+// prettier-ignore
+type GuardMultiselect<A> =
+    A extends {  type: TypeMultiselect, variants: { [key in infer B & string]: string } } ?B[] :
 unknown
 
 // prettier-ignore
 type VariantValue<A> =
-  A extends { name: string, spec: infer B } ? { name: A['name'], spec: TypeFromProps<B> } :
+  A extends { name: string, spec: infer B } ?  TypeFromProps<B>  :
   never
 // prettier-ignore
 type GuardUnion<A> =
-  A extends { readonly type: TypeUnion, variants: infer Variants & Record<string, unknown> } ?
-  { [K in keyof Variants]: { [key in K]: VariantValue<Variants[K]>['spec'] } }[keyof Variants] :
+  A extends {  type: TypeUnion, variants: infer Variants & Record<string, unknown> } ?
+  { [key in keyof Variants]: _<{[unionSelectKey]: key} & VariantValue<Variants[key]>> }[keyof Variants] :
   unknown
 
 type _<T> = T;
@@ -92,7 +79,7 @@ export type GuardAll<A> = GuardNumber<A> &
   GuardMultiselect<A>;
 // prettier-ignore
 export type TypeFromProps<A> =
-  A extends Record<string, unknown> ? { readonly [K in keyof A & string]: _<GuardAll<A[K]>> } :
+  A extends Record<string, unknown> ? {  [K in keyof A & string]: _<GuardAll<A[K]>> } :
   unknown;
 
 const isType = object({ type: string });
@@ -131,28 +118,18 @@ function charRange(value = "") {
  * @param param1
  * @returns
  */
-export function generateDefault(
-  generate: { charset: string; len: number },
-  { random = () => Math.random() } = {}
-) {
-  const validCharSets: number[][] = generate.charset
-    .split(",")
-    .map(charRange)
-    .filter(Array.isArray);
+export function generateDefault(generate: { charset: string; len: number }, { random = () => Math.random() } = {}) {
+  const validCharSets: number[][] = generate.charset.split(",").map(charRange).filter(Array.isArray);
   if (validCharSets.length === 0) {
     throw new Error("Expecing that we have a valid charset");
   }
-  const max = validCharSets.reduce(
-    (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
-    0
-  );
+  const max = validCharSets.reduce((acc, x) => x.reduce((x, y) => Math.max(x, y), acc), 0);
   let i = 0;
   const answer: string[] = Array(generate.len);
   while (i < generate.len) {
     const nextValue = Math.round(random() * max);
     const inRange = validCharSets.reduce(
-      (acc, [lower, upper]) =>
-        acc || (nextValue >= lower && nextValue <= upper),
+      (acc, [lower, upper]) => acc || (nextValue >= lower && nextValue <= upper),
       false
     );
     if (!inRange) continue;
@@ -168,16 +145,8 @@ export function matchNumberWithRange(range: string) {
   const [, left, leftValue, , rightValue, , right] = matched;
   return number
     .validate(
-      leftValue === "*"
-        ? (_) => true
-        : left === "["
-          ? (x) => x >= Number(leftValue)
-          : (x) => x > Number(leftValue),
-      leftValue === "*"
-        ? "any"
-        : left === "["
-          ? `greaterThanOrEqualTo${leftValue}`
-          : `greaterThan${leftValue}`
+      leftValue === "*" ? (_) => true : left === "[" ? (x) => x >= Number(leftValue) : (x) => x > Number(leftValue),
+      leftValue === "*" ? "any" : left === "[" ? `greaterThanOrEqualTo${leftValue}` : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore
@@ -209,9 +178,7 @@ const isGenerator = object({
 function defaultNullable<A>(parser: Parser<unknown, A>, value: unknown) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) {
-      return parser.defaultTo(
-        parser.unsafeCast(generateDefault(value.default))
-      );
+      return parser.defaultTo(parser.unsafeCast(generateDefault(value.default)));
     }
     return parser.defaultTo(value.default);
   }
@@ -227,9 +194,7 @@ function defaultNullable<A>(parser: Parser<unknown, A>, value: unknown) {
  * @param value
  * @returns
  */
-export function guardAll<A extends ValueSpecAny>(
-  value: A
-): Parser<unknown, GuardAll<A>> {
+export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
     return unknown as any;
   }
@@ -241,10 +206,7 @@ export function guardAll<A extends ValueSpecAny>(
       return defaultNullable(string, value) as any;
 
     case "number":
-      return defaultNullable(
-        withIntegral(withRange(value), value),
-        value
-      ) as any;
+      return defaultNullable(withIntegral(withRange(value), value), value) as any;
 
     case "object":
       if (matchSpec.test(value)) {
@@ -254,9 +216,7 @@ export function guardAll<A extends ValueSpecAny>(
 
     case "list": {
       const spec = (matchSpec.test(value) && value.spec) || {};
-      const rangeValidate =
-        (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
-        (() => true);
+      const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
 
       const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultNullable(
@@ -269,34 +229,23 @@ export function guardAll<A extends ValueSpecAny>(
     case "select":
       if (matchValues.test(value)) {
         const valueKeys = Object.keys(value.values);
-        return defaultNullable(
-          literals(valueKeys[0], ...valueKeys),
-          value
-        ) as any;
+        return defaultNullable(literals(valueKeys[0], ...valueKeys), value) as any;
       }
       return unknown as any;
     case "multiselect":
       if (matchValues.test(value)) {
-        const rangeValidate =
-          (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
-          (() => true);
+        const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
 
         const valueKeys = Object.keys(value.values);
         return defaultNullable(
-          matches
-            .literals(valueKeys[0], ...valueKeys)
-            .validate((x) => rangeValidate(x.length), "valid length"),
+          matches.literals(valueKeys[0], ...valueKeys).validate((x) => rangeValidate(x.length), "valid length"),
           value
         ) as any;
       }
       return unknown as any;
     case "union":
       if (matchUnion.test(value)) {
-        return some(
-          ...Object.entries(value.variants).map(([_, { spec }]) =>
-            typeFromProps(spec)
-          )
-        ) as any;
+        return some(...Object.entries(value.variants).map(([_, { spec }]) => typeFromProps(spec))) as any;
       }
       return unknown as any;
   }
@@ -311,16 +260,9 @@ export function guardAll<A extends ValueSpecAny>(
  * @param valueDictionary
  * @returns
  */
-export function typeFromProps<A extends InputSpec>(
-  valueDictionary: A
-): Parser<unknown, TypeFromProps<A>> {
+export function typeFromProps<A extends InputSpec>(valueDictionary: A): Parser<unknown, TypeFromProps<A>> {
   if (!recordString.test(valueDictionary)) return unknown as any;
   return object(
-    Object.fromEntries(
-      Object.entries(valueDictionary).map(([key, value]) => [
-        key,
-        guardAll(value),
-      ])
-    )
+    Object.fromEntries(Object.entries(valueDictionary).map(([key, value]) => [key, guardAll(value)]))
   ) as any;
 }
