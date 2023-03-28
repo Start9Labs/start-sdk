@@ -36,6 +36,7 @@ function _mergeDeep<A extends unknown[]>(
   return _mergeDeep(target, ...sources);
 }
 
+/// Testing the types of the input spec
 // @ts-expect-error Because enable should be a boolean
 testOutput<InputSpec["rpc"]["enable"], string>()(null);
 testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
@@ -45,6 +46,8 @@ testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
 testOutput<InputSpec["rpc"]["advanced"]["serialversion"], "segwit" | "non-segwit">()(null);
 testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null);
 testOutput<InputSpec["advanced"]["peers"]["addnode"][0]["hostname"], string>()(null);
+
+/// Here we test the output of the matchInputSpec function
 describe("Inputs", () => {
   const validInput: InputSpec = {
     rpc: {
@@ -104,5 +107,6 @@ describe("Inputs", () => {
     expect(() =>
       matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { advanced: { serialversion: "testing" } } }))
     ).toThrowError();
+    matchInputSpec.unsafeCast(validInput);
   });
 });
