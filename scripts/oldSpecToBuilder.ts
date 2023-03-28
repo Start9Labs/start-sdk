@@ -136,13 +136,14 @@ export default async function makeFileContent(
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertVariants(value.variants, value["variant-names"] || {})
+          convertVariants(value.variants, value.tag["variant-names"] || {})
         );
 
         return `Value.union({
         name: ${JSON.stringify(value.name || null)},
-        description: ${JSON.stringify(value.description || null)},
-        warning: ${JSON.stringify(value.warning || null)},
+        description: ${JSON.stringify(value.tag.description || null)},
+        warning: ${JSON.stringify(value.tag.warning || null)},
+        selectKey: ${JSON.stringify(value.tag.id || null)},
         nullable: false,
         default: ${JSON.stringify(value.default || null)},
         variants: ${variants},
