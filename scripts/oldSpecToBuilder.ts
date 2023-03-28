@@ -228,25 +228,37 @@ export default async function makeFileContent(inputData: Promise<any> | any, { s
           value.name + "_variants",
           convertVariants(value.spec.variants, value.spec["variant-names"] || {})
         );
+        const unionValueName = newConst(
+          value.name + "_union",
+          `
+          Value.union({
+            name: ${JSON.stringify(value?.spec?.tag?.name || null)},
+            description: ${JSON.stringify(value?.spec?.tag?.description || null)},
+            warning: ${JSON.stringify(value?.spec?.tag?.warning || null)},
+            variants: ${variants},
+            nullable: ${JSON.stringify(value?.spec?.tag?.nullable || false)},
+            default: ${JSON.stringify(value?.spec?.default || null)},
+          })
+        `
+        );
+        const listConfig = newConst(
+          value.name + "_list_config",
+          `
+          Config.of({
+            ${unionSelectKey}: ${unionValueName}
+          })
+        `
+        );
         // @TODO BluJ
         return `List.obj({
           name:${JSON.stringify(value.name || null)},
           range:${JSON.stringify(value.range || null)},
           spec: {
-            spec: {
-              ${unionSelectKey}: {
-                type: "union",
-                name: ${JSON.stringify(value?.spec?.tag?.name || null)},
-                description: ${JSON.stringify(value?.spec?.tag?.description || null)},
-                warning: ${JSON.stringify(value?.spec?.tag?.warning || null)},
-                variants: ${variants},
-                nullable: false,
-              }
-            }
+            spec: ${listConfig},
             displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
             uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
           },
-          default: ${JSON.stringify(value.default || null)},
+          default: [],
           description: ${JSON.stringify(value.description || null)},
           warning: ${JSON.stringify(value.warning || null)},
         })`;

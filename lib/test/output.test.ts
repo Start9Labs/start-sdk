@@ -1,4 +1,4 @@
-import { unionSelectKey } from "../config/config-types";
+import { UnionSelectKey, unionSelectKey } from "../config/config-types";
 import { InputSpec, matchInputSpec, threads } from "./output";
 
 type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T ? 1 : 2) extends <G>() => G extends U ? 1 : 2
@@ -46,10 +46,20 @@ testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
 testOutput<InputSpec["rpc"]["advanced"]["serialversion"], "segwit" | "non-segwit">()(null);
 testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null);
 testOutput<InputSpec["advanced"]["peers"]["addnode"][0]["hostname"], string>()(null);
+testOutput<InputSpec["testListUnion"][0][UnionSelectKey]["name"], string>()(null);
+testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "lnd">()(null);
+
+// @ts-expect-error Expect that the string is the one above
+testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "unionSelectKey">()(null);
 
 /// Here we test the output of the matchInputSpec function
 describe("Inputs", () => {
   const validInput: InputSpec = {
+    testListUnion: [
+      {
+        [unionSelectKey]: { [unionSelectKey]: "lnd", name: "string" },
+      },
+    ],
     rpc: {
       enable: true,
       username: "test",
