@@ -143,7 +143,6 @@ export default async function makeFileContent(
         name: ${JSON.stringify(value.name || null)},
         description: ${JSON.stringify(value.tag.description || null)},
         warning: ${JSON.stringify(value.tag.warning || null)},
-        selectKey: ${JSON.stringify(value.tag.id || null)},
         nullable: false,
         default: ${JSON.stringify(value.default || null)},
         variants: ${variants},
@@ -266,9 +265,6 @@ export default async function makeFileContent(
                 )},
                 warning: ${JSON.stringify(
                   value?.spec?.tag?.warning || null
-                )},
-                selectKey: ${JSON.stringify(
-                  value?.spec?.tag?.id || null
                 )},
                 variants: ${variants},
                 nullable: false,

@@ -66,7 +66,6 @@ export interface ValueSpecBoolean extends WithStandalone {
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
-  selectKey: string;
   nullable: boolean;
   variants: Record<string, { name: string; spec: InputSpec }>;
 }
@@ -161,3 +160,5 @@ export type UniqueBy =
   | { all: readonly UniqueBy[] | UniqueBy[] };
 
 export type DefaultString = string | { charset: string; len: number };
+
+export const unionSelectKey = 'unionSelectKey' as const
