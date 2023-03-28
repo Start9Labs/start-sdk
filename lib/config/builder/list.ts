@@ -5,9 +5,8 @@ import {
   InputSpec,
   UniqueBy,
   ValueSpecList,
-  ValueSpecListOf,
 } from "../config-types";
-import { guardAll, typeFromProps } from "../../util";
+import { guardAll } from "../../util";
 
 /**
  * Used as a subtype of Value.list
@@ -116,6 +115,11 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       default: Record<string, unknown>[];
       range: string;
       spec: {
+        select: {
+          name: string;
+          description: string | null;
+          warning: string | null;
+        }
         variants: Variants<{
           [key: string]: { name: string; spec: InputSpec };
         }>;

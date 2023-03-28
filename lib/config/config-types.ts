@@ -159,17 +159,22 @@ export interface ListValueSpecObject {
 
 export type UniqueBy =
   | null
-  | undefined
   | string
   | { any: readonly UniqueBy[] | UniqueBy[] }
   | { all: readonly UniqueBy[] | UniqueBy[] };
 
 export interface ListValueSpecUnion {
+  select: {
+    name: string
+    description: null | string
+    warning: null | string
+  }
   variants: { [key: string]: { name: string; spec: InputSpec } };
-  /** this may be a handlebars template which can conditionally (on tag.id) make use of each union's entries, or if left blank will display as tag.id*/
+  /** a handlebars template for labeling each union list item */
   displayAs: null | string;
+  /** indicates whether duplicates can be permitted in the list */
   uniqueBy: UniqueBy;
-  /** this should be the variantName which one prefers a user to start with by default when creating a new union instance in a list*/
+  /** the default variant when creating a new union instance in the list*/
   default: null | string;
 }
 

@@ -103,7 +103,6 @@ const matchVariant = object({
 const recordString = dictionary([string, unknown]);
 const matchDefault = object({ default: unknown });
 const matchNullable = object({ nullable: literals(true) });
-const matchPattern = object({ pattern: string });
 const rangeRegex = /(\[|\()(\*|(\d|\.)+),(\*|(\d|\.)+)(\]|\))/;
 const matchRange = object({ range: string });
 const matchIntegral = object({ integral: literals(true) });

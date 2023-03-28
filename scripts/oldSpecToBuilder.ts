@@ -253,10 +253,21 @@ export default async function makeFileContent(
             name:${JSON.stringify(value.name || null)},
             range:${JSON.stringify(value.range || null)},
             spec: {
+                select: {
+                    "name": ${JSON.stringify(
+                      value?.spec?.tag?.["name"] || null
+                    )},
+                    "description": ${JSON.stringify(
+                      value?.spec?.tag?.["description"] || null
+                    )},
+                    "warning": ${JSON.stringify(
+                      value?.spec?.tag?.["warning"] || null
+                    )},
+                },
                 variants: ${variants},
                 displayAs: ${JSON.stringify(
-          value?.spec?.["display-as"] || null
-        )},
+                  value?.spec?.["display-as"] || null
+                )},
                 uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
                 default: ${JSON.stringify(value?.spec?.default || null)},
             },
