@@ -7,7 +7,6 @@ import {
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
-  ValueSpecOf,
   ValueSpecString,
 } from "../config-types";
 import { guardAll } from "../../util";
@@ -146,8 +145,10 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       name: string;
       description: string | null;
       warning: string | null;
+      selectKey: string;
       variants: Variants<{ [key: string]: { name: string; spec: InputSpec } }>;
-      default: string;
+      nullable: boolean;
+      default: string | null;
     }
   >(a: A) {
     const { variants: previousVariants, ...rest } = a;

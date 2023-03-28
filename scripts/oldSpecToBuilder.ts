@@ -228,17 +228,17 @@ export default async function makeFileContent(
           convertInputSpec(value.spec.spec)
         );
         return `List.obj({
-        name: ${JSON.stringify(value.name || null)},
-        range: ${JSON.stringify(value.range || null)},
-        spec: {
-            spec: ${specName},
-            displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
-            uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
-        },
-        default: ${JSON.stringify(value.default || null)},
-        description: ${JSON.stringify(value.description || null)},
-        warning: ${JSON.stringify(value.warning || null)},
-      })`;
+          name: ${JSON.stringify(value.name || null)},
+          range: ${JSON.stringify(value.range || null)},
+          spec: {
+              spec: ${specName},
+              displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
+              uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
+          },
+          default: ${JSON.stringify(value.default || null)},
+          description: ${JSON.stringify(value.description || null)},
+          warning: ${JSON.stringify(value.warning || null)},
+        })`;
       }
       case "union": {
         const variants = newConst(
@@ -248,34 +248,37 @@ export default async function makeFileContent(
             value.spec["variant-names"] || {}
           )
         );
-        return `List.union(
-        {
-            name:${JSON.stringify(value.name || null)},
-            range:${JSON.stringify(value.range || null)},
+
+        return `List.obj({
+          name:${JSON.stringify(value.name || null)},
+          range:${JSON.stringify(value.range || null)},
+          spec: {
             spec: {
-                select: {
-                    "name": ${JSON.stringify(
-                      value?.spec?.tag?.["name"] || null
-                    )},
-                    "description": ${JSON.stringify(
-                      value?.spec?.tag?.["description"] || null
-                    )},
-                    "warning": ${JSON.stringify(
-                      value?.spec?.tag?.["warning"] || null
-                    )},
-                },
-                variants: ${variants},
-                displayAs: ${JSON.stringify(
-                  value?.spec?.["display-as"] || null
+              ${value?.spec?.tag?.id || 'type'}: {
+                type: "union",
+                name: ${JSON.stringify(
+                  value?.spec?.tag?.name || null
                 )},
-                uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
-                default: ${JSON.stringify(value?.spec?.default || null)},
-            },
-            default: ${JSON.stringify(value.default || null)},
-            description: ${JSON.stringify(value.description || null)},
-            warning: ${JSON.stringify(value.warning || null)},
-          }
-      )`;
+                description: ${JSON.stringify(
+                  value?.spec?.tag?.description || null
+                )},
+                warning: ${JSON.stringify(
+                  value?.spec?.tag?.warning || null
+                )},
+                selectKey: ${JSON.stringify(
+                  value?.spec?.tag?.id || null
+                )},
+                variants: ${variants},
+                nullable: false,
+              }
+            }
+            displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
+            uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
+          },
+          default: ${JSON.stringify(value.default || null)},
+          description: ${JSON.stringify(value.description || null)},
+          warning: ${JSON.stringify(value.warning || null)},
+        })`;
       }
     }
     throw new Error(`Unknown subtype "${value.subtype}"`);

@@ -66,13 +66,13 @@ export interface ValueSpecBoolean extends WithStandalone {
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
-  variants: { [key: string]: { name: string; spec: InputSpec } };
-  default: null | string;
+  selectKey: string;
+  nullable: boolean
+  variants: Record<string, { name: string; spec: InputSpec }>;
 }
 
 export interface ValueSpecFile extends WithStandalone {
   type: "file";
-  placeholder: null | string;
   nullable: boolean;
   extensions: string[];
 }
@@ -89,11 +89,10 @@ export interface WithStandalone {
 }
 
 export interface SelectBase {
-  values: { [value: string]: string };
+  values: Record<string, string>;
 }
 
-/**  no lists of booleans, lists*/
-export type ListValueSpecType = "string" | "number" | "object" | "union";
+export type ListValueSpecType = "string" | "number" | "object";
 
 /** represents a spec for the values of a list */
 export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
@@ -102,8 +101,6 @@ export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
   ? ListValueSpecNumber
   : T extends "object"
   ? ListValueSpecObject
-  : T extends "union"
-  ? ListValueSpecUnion
   : never;
 
 /** represents a spec for a list */
@@ -162,20 +159,5 @@ export type UniqueBy =
   | string
   | { any: readonly UniqueBy[] | UniqueBy[] }
   | { all: readonly UniqueBy[] | UniqueBy[] };
-
-export interface ListValueSpecUnion {
-  select: {
-    name: string
-    description: null | string
-    warning: null | string
-  }
-  variants: { [key: string]: { name: string; spec: InputSpec } };
-  /** a handlebars template for labeling each union list item */
-  displayAs: null | string;
-  /** indicates whether duplicates can be permitted in the list */
-  uniqueBy: UniqueBy;
-  /** the default variant when creating a new union instance in the list*/
-  default: null | string;
-}
 
 export type DefaultString = string | { charset: string; len: number };

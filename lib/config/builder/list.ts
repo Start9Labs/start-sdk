@@ -1,6 +1,5 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import { Variants } from "./variants";
 import {
   InputSpec,
   UniqueBy,
@@ -104,47 +103,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     return new List({
       type: "list" as const,
       subtype: "object" as const,
-      ...value,
-    });
-  }
-  static union<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      default: Record<string, unknown>[];
-      range: string;
-      spec: {
-        select: {
-          name: string;
-          description: string | null;
-          warning: string | null;
-        }
-        variants: Variants<{
-          [key: string]: { name: string; spec: InputSpec };
-        }>;
-        displayAs: null | string;
-        uniqueBy: UniqueBy;
-        default: string;
-      };
-    }
-  >(a: A) {
-    const { spec: previousSpec, ...rest } = a;
-    const { variants: previousVariants, ...restSpec } = previousSpec;
-    const variants = previousVariants.build() as BuilderExtract<
-      A["spec"]["variants"]
-    >;
-    const spec = {
-      ...restSpec,
-      variants,
-    };
-    const value = {
-      spec,
-      ...rest,
-    };
-    return new List({
-      type: "list" as const,
-      subtype: "union" as const,
       ...value,
     });
   }
