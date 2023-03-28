@@ -145,7 +145,6 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       name: string;
       description: string | null;
       warning: string | null;
-      selectKey: string;
       variants: Variants<{ [key: string]: { name: string; spec: InputSpec } }>;
       nullable: boolean;
       default: string | null;

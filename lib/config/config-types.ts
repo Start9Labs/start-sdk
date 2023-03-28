@@ -66,8 +66,7 @@ export interface ValueSpecBoolean extends WithStandalone {
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
-  selectKey: string;
-  nullable: boolean
+  nullable: boolean;
   variants: Record<string, { name: string; spec: InputSpec }>;
 }
 

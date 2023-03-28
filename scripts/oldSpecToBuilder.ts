@@ -143,6 +143,7 @@ export default async function makeFileContent(
         name: ${JSON.stringify(value.name || null)},
         description: ${JSON.stringify(value.description || null)},
         warning: ${JSON.stringify(value.warning || null)},
+        nullable: false,
         default: ${JSON.stringify(value.default || null)},
         variants: ${variants},
       })`;
