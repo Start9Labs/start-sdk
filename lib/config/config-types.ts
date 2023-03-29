@@ -2,6 +2,7 @@ export type InputSpec = Record<string, ValueSpec>;
 
 export type ValueType =
   | "string"
+  | "textarea"
   | "number"
   | "boolean"
   | "select"
@@ -16,6 +17,8 @@ export type ValueSpec = ValueSpecOf<ValueType>;
 export type ValueSpecOf<T extends ValueType> = T extends "string"
   ? ValueSpecString
   : T extends "number"
+  ? ValueSpecTextarea
+  : T extends "textarea"
   ? ValueSpecNumber
   : T extends "boolean"
   ? ValueSpecBoolean
@@ -37,7 +40,12 @@ export interface ValueSpecString extends ListValueSpecString, WithStandalone {
   type: "string";
   default: null | DefaultString;
   nullable: boolean;
-  textarea: null | boolean;
+}
+
+export interface ValueSpecTextarea extends WithStandalone {
+  type: "textarea";
+  placeholder: null | string;
+  nullable: boolean;
 }
 
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {

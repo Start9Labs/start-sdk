@@ -76,6 +76,18 @@ writeConvertedFile(
           copyable: true,
           masked: true,
         },
+        bio: {
+          type: "string",
+          nullable: false,
+          name: "Username",
+          description: "The username for connecting to Bitcoin over RPC.",
+          default: "bitcoin",
+          masked: true,
+          pattern: "^[a-zA-Z0-9_]+$",
+          "pattern-description":
+            "Must be alphanumeric (can contain underscore).",
+          textarea: true,
+        },
         advanced: {
           type: "object",
           name: "Advanced",

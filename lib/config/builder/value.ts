@@ -8,6 +8,7 @@ import {
   ValueSpecList,
   ValueSpecNumber,
   ValueSpecString,
+  ValueSpecTextarea,
 } from "../config-types";
 import { guardAll } from "../../util";
 
@@ -66,13 +67,26 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       placeholder: string | null;
       pattern: string | null;
       patternDescription: string | null;
-      textarea: boolean | null;
     }
   >(a: A) {
     return new Value({
       type: "string" as const,
       ...a,
     } as ValueSpecString);
+  }
+  static textarea<
+    A extends {
+      name: string;
+      description: string | null;
+      warning: string | null;
+      nullable: boolean;
+      placeholder: string | null;
+    }
+  >(a: A) {
+    return new Value({
+      type: "textarea" as const,
+      ...a,
+    } as ValueSpecTextarea);
   }
   static number<
     A extends {

@@ -52,6 +52,19 @@ export default async function makeFileContent(
   function convertValueSpec(value: any): string {
     switch (value.type) {
       case "string": {
+        if (value.textarea) {
+          return `Value.textarea(${JSON.stringify(
+            {
+              name: value.name || null,
+              description: value.description || null,
+              warning: value.warning || null,
+              nullable: value.nullable || false,
+              placeholder: value.placeholder || null,
+            },
+            null,
+            2
+          )})`;
+        }
         return `Value.string(${JSON.stringify(
           {
             name: value.name || null,
@@ -63,7 +76,6 @@ export default async function makeFileContent(
             placeholder: value.placeholder || null,
             pattern: value.pattern || null,
             patternDescription: value["pattern-description"] || null,
-            textarea: value.textarea || null,
           },
           null,
           2

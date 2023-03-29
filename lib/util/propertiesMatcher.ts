@@ -11,6 +11,7 @@ const { string, some, object, dictionary, unknown, number, literals, boolean } =
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
+type TypeTextarea = "textarea";
 type TypeNumber = "number";
 type TypeObject = "object";
 type TypeList = "list";
@@ -32,6 +33,10 @@ type GuardNumber<A> =
 // prettier-ignore
 type GuardString<A> =
   A extends {  type: TypeString } ? GuardDefaultNullable<A, string> :
+  unknown
+// prettier-ignore
+type GuardTextarea<A> =
+  A extends {  type: TypeTextarea } ? GuardDefaultNullable<A, string> :
   unknown
 
 // prettier-ignore
@@ -76,6 +81,7 @@ type GuardUnion<A> =
 type _<T> = T;
 export type GuardAll<A> = GuardNumber<A> &
   GuardString<A> &
+  GuardTextarea<A> &
   GuardBoolean<A> &
   GuardObject<A> &
   GuardList<A> &
@@ -232,6 +238,9 @@ export function guardAll<A extends ValueSpecAny>(
     case "string":
       return defaultNullable(string, value) as any;
 
+    case "textarea":
+      return defaultNullable(string, value) as any;
+
     case "number":
       return defaultNullable(
         withIntegral(withRange(value), value),
@@ -267,6 +276,7 @@ export function guardAll<A extends ValueSpecAny>(
         ) as any;
       }
       return unknown as any;
+
     case "multiselect":
       if (matchValues.test(value)) {
         const rangeValidate =
@@ -282,6 +292,7 @@ export function guardAll<A extends ValueSpecAny>(
         ) as any;
       }
       return unknown as any;
+
     case "union":
       if (matchUnion.test(value)) {
         return some(

@@ -24,7 +24,6 @@ describe("builder tests", () => {
         placeholder: null,
         pattern: null,
         patternDescription: null,
-        textarea: null,
       }),
     }).build();
     expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
@@ -39,8 +38,7 @@ describe("builder tests", () => {
       "masked": true,
       "placeholder": null,
       "pattern": null,
-      "patternDescription": null,
-      "textarea": null
+      "patternDescription": null
     }}`
         .replaceAll("\n", " ")
         .replaceAll(/\s{2,}/g, "")

@@ -38,7 +38,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
         placeholder: string | null;
         pattern: string | null;
         patternDescription: string | null;
-        textarea: boolean | null;
       };
     }
   >(a: A) {
