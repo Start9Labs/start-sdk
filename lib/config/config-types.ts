@@ -38,25 +38,25 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
 
 export interface ValueSpecString extends ListValueSpecString, WithStandalone {
   type: "string";
+  required: boolean;
   default: DefaultString | null;
-  nullable: boolean;
 }
 
 export interface ValueSpecTextarea extends WithStandalone {
   type: "textarea";
   placeholder: string | null;
-  nullable: boolean;
+  required: boolean;
 }
 
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   type: "number";
-  nullable: boolean;
+  required: boolean;
   default: number | null;
 }
 
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select";
-  nullable: boolean;
+  required: boolean;
   default: string | null;
 }
 
@@ -74,15 +74,15 @@ export interface ValueSpecBoolean extends WithStandalone {
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
-  nullable: boolean;
-  default: string | null;
   variants: Record<string, { name: string; spec: InputSpec }>;
+  required: boolean;
+  default: string | null;
 }
 
 export interface ValueSpecFile extends WithStandalone {
   type: "file";
-  nullable: boolean;
   extensions: string[];
+  required: boolean;
 }
 
 export interface ValueSpecObject extends WithStandalone {
@@ -141,8 +141,8 @@ export function isValueSpecListOf<S extends ListValueSpecType>(
 export interface ListValueSpecString {
   pattern: string | null;
   patternDescription: string | null;
-  masked: boolean;
-  inputmode: 'text' | 'email' | 'tel' | 'url'
+  masked: boolean; // default = false
+  inputmode: 'text' | 'email' | 'tel' | 'url' // default = 'text'
   placeholder: string | null;
 }
 
