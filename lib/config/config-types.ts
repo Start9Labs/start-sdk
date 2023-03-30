@@ -38,26 +38,26 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
 
 export interface ValueSpecString extends ListValueSpecString, WithStandalone {
   type: "string";
-  default: null | DefaultString;
+  default: DefaultString | null;
   nullable: boolean;
 }
 
 export interface ValueSpecTextarea extends WithStandalone {
   type: "textarea";
-  placeholder: null | string;
+  placeholder: string | null;
   nullable: boolean;
 }
 
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   type: "number";
   nullable: boolean;
-  default: null | number;
+  default: number | null;
 }
 
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select";
   nullable: boolean;
-  default: null | string;
+  default: string | null;
 }
 
 export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
@@ -69,13 +69,13 @@ export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
 
 export interface ValueSpecBoolean extends WithStandalone {
   type: "boolean";
-  default: null | boolean;
+  default: boolean | null;
 }
 
 export interface ValueSpecUnion extends WithStandalone {
   type: "union";
   nullable: boolean;
-  default: null | string;
+  default: string | null;
   variants: Record<string, { name: string; spec: InputSpec }>;
 }
 
@@ -92,8 +92,8 @@ export interface ValueSpecObject extends WithStandalone {
 
 export interface WithStandalone {
   name: string;
-  description: null | string;
-  warning: null | string;
+  description: string | null;
+  warning: string | null;
 }
 
 export interface SelectBase {
@@ -139,18 +139,20 @@ export function isValueSpecListOf<S extends ListValueSpecType>(
 }
 
 export interface ListValueSpecString {
-  pattern: null | string;
-  patternDescription: null | string;
+  pattern: string | null;
+  patternDescription: string | null;
   masked: boolean;
-  placeholder: null | string;
+  inputmode: 'text' | 'email' | 'tel' | 'url'
+  placeholder: string | null;
 }
 
 export interface ListValueSpecNumber {
   /** '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules */
   range: string;
-  integral: boolean;
-  units: null | string;
-  placeholder: null | string;
+  integral: boolean; // default = false
+  units: string | null;
+  inputmode: 'numeric' | 'decimal' // default = 'decimal'
+  placeholder: string | null;
 }
 
 export interface ListValueSpecObject {
@@ -159,7 +161,7 @@ export interface ListValueSpecObject {
   /** indicates whether duplicates can be permitted in the list */
   uniqueBy: UniqueBy;
   /** this should be a handlebars template which can make use of the entire config which corresponds to 'spec' */
-  displayAs: null | string;
+  displayAs: string | null;
 }
 
 export type UniqueBy =
