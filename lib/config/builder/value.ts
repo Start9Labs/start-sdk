@@ -4,6 +4,8 @@ import { List } from "./list";
 import { Variants } from "./variants";
 import {
   InputSpec,
+  ListValueSpecNumber,
+  ListValueSpecString,
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
@@ -11,14 +13,7 @@ import {
   ValueSpecTextarea,
 } from "../config-types";
 import { guardAll } from "../../util";
-
-export type DefaultString =
-  | string
-  | {
-      charset: string | null | undefined;
-      len: number;
-    };
-
+import { DefaultString } from "../config-types";
 /**
  * A value is going to be part of the form in the FE of the OS.
  * Something like a boolean, a string, a number, etc.
@@ -43,132 +38,152 @@ export type DefaultString =
  ```
  */
 export class Value<A extends ValueSpec> extends IBuilder<A> {
-  static boolean<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      default: boolean | null;
-    }
-  >(a: A) {
+  static boolean(a: { name: string; description?: string | null; warning?: string | null; default?: boolean | null }) {
     return new Value({
+      description: null,
+      warning: null,
+      default: null,
       type: "boolean" as const,
       ...a,
     });
   }
-  static string<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      nullable: boolean;
-      default: DefaultString | null;
-      masked: boolean | null;
-      placeholder: string | null;
-      pattern: string | null;
-      patternDescription: string | null;
-    }
-  >(a: A) {
+  static string(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: boolean;
+    default?: DefaultString | null;
+    /** Default = false */
+    masked?: boolean;
+    placeholder?: string | null;
+    pattern?: string | null;
+    patternDescription?: string | null;
+    /** Default = 'text' */
+    inputmode?: ListValueSpecString["inputmode"];
+  }) {
     return new Value({
       type: "string" as const,
+      default: null,
+      description: null,
+      warning: null,
+      masked: false,
+      placeholder: null,
+      pattern: null,
+      patternDescription: null,
+      inputmode: "text",
       ...a,
-    } as ValueSpecString);
+    });
   }
-  static textarea<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      nullable: boolean;
-      placeholder: string | null;
-    }
-  >(a: A) {
+  static textarea(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: boolean;
+    placeholder?: string | null;
+  }) {
     return new Value({
+      description: null,
+      warning: null,
+      placeholder: null,
       type: "textarea" as const,
       ...a,
     } as ValueSpecTextarea);
   }
-  static number<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      nullable: boolean;
-      default: number | null;
-      range: string;
-      integral: boolean;
-      units: string | null;
-      placeholder: string | null;
-    }
-  >(a: A) {
+  static number(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: boolean;
+    default?: number | null;
+    /** default = "(\*,\*)" */
+    range?: string;
+    integral: boolean;
+    units?: string | null;
+    placeholder?: string | null;
+    /** Default = 'decimal' */
+    inputmode?: ListValueSpecNumber["inputmode"];
+  }) {
     return new Value({
       type: "number" as const,
+      inputmode: "decimal",
+      description: null,
+      warning: null,
+      default: null,
+      range: "(*,*)",
+      units: null,
+      placeholder: null,
       ...a,
     } as ValueSpecNumber);
   }
-  static select<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      nullable: boolean;
-      default: string | null;
-      values: B;
-    },
-    B extends Record<string, string>
-  >(a: A) {
+  static select<B extends Record<string, string>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: boolean;
+    default?: string | null;
+    values: B;
+  }) {
     return new Value({
+      description: null,
+      warning: null,
+      default: null,
       type: "select" as const,
       ...a,
     });
   }
-  static multiselect<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      default: string[];
-      values: Record<string, string>;
-      range: string;
-    }
-  >(a: A) {
+  static multiselect<Values extends Record<string, string>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    default?: string[];
+    values: Values;
+    /** default = "(\*,\*)" */
+    range?: string;
+  }) {
     return new Value({
       type: "multiselect" as const,
+      range: "(*,*)",
+      warning: null,
+      default: [],
+      description: null,
       ...a,
     });
   }
-  static object<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      default: null | { [k: string]: unknown };
-      spec: Config<InputSpec>;
-    }
-  >(a: A) {
+  static object<Spec extends Config<InputSpec>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    default?: null | { [k: string]: unknown };
+    spec: Spec;
+  }) {
     const { spec: previousSpec, ...rest } = a;
-    const spec = previousSpec.build() as BuilderExtract<A["spec"]>;
+    const spec = previousSpec.build() as BuilderExtract<Spec>;
     return new Value({
       type: "object" as const,
+      description: null,
+      warning: null,
+      default: null,
       ...rest,
       spec,
     });
   }
-  static union<
-    A extends {
+  static union<V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>>(
+    a: {
       name: string;
-      description: string | null;
-      warning: string | null;
-      variants: Variants<{ [key: string]: { name: string; spec: InputSpec } }>;
-      nullable: boolean;
-      default: string | null;
-    }
-  >(a: A) {
-    const { variants: previousVariants, ...rest } = a;
-    const variants = previousVariants.build() as BuilderExtract<A["variants"]>;
+      description?: string | null;
+      warning?: string | null;
+      required: boolean;
+      default?: string | null;
+    },
+    aVariants: V
+  ) {
+    const variants = aVariants.build() as BuilderExtract<V>;
     return new Value({
       type: "union" as const,
-      ...rest,
+      description: null,
+      warning: null,
+      default: null,
+      ...a,
       variants,
     });
   }

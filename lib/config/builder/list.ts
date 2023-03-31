@@ -1,7 +1,8 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import { InputSpec, UniqueBy, ValueSpecList } from "../config-types";
+import { InputSpec, ListValueSpecNumber, ListValueSpecString, UniqueBy, ValueSpecList } from "../config-types";
 import { guardAll } from "../../util";
+import { range } from "lodash";
 
 /**
  * Used as a subtype of Value.list
@@ -26,76 +27,115 @@ import { guardAll } from "../../util";
 ```
  */
 export class List<A extends ValueSpecList> extends IBuilder<A> {
-  static string<
-    A extends {
+  static string(
+    a: {
       name: string;
-      description: string | null;
-      warning: string | null;
-      default: string[];
-      range: string;
-      spec: {
-        masked: boolean;
-        placeholder: string | null;
-        pattern: string | null;
-        patternDescription: string | null;
-      };
+      description?: string | null;
+      warning?: string | null;
+      /** Default = [] */
+      default?: string[];
+      /** Default = "(\*,\*)" */
+      range?: string;
+    },
+    aSpec: {
+      /** Default = false */
+      masked?: boolean;
+      placeholder?: string | null;
+      pattern?: string | null;
+      patternDescription?: string | null;
+      /** Default = "text" */
+      inputmode?: ListValueSpecString["inputmode"];
     }
-  >(a: A) {
+  ) {
+    const spec = {
+      placeholder: null,
+      pattern: null,
+      patternDescription: null,
+      masked: false,
+      inputmode: "text" as const,
+      ...aSpec,
+    };
     return new List({
+      description: null,
+      warning: null,
+      default: [],
       type: "list" as const,
       subtype: "string" as const,
+      range: "(*,*)",
       ...a,
+      spec,
     });
   }
-  static number<
-    A extends {
+  static number(
+    a: {
       name: string;
-      description: string | null;
-      warning: string | null;
-      default: string[];
-      range: string;
-      spec: {
-        range: string;
-        integral: boolean;
-        units: string | null;
-        placeholder: string | null;
-      };
+      description?: string | null;
+      warning?: string | null;
+      /** Default = [] */
+      default?: string[];
+      /** Default = "(\*,\*)" */
+      range?: string;
+    },
+    aSpec: {
+      integral: boolean;
+      /** Default = "(\*,\*)" */
+      range?: string;
+      units?: string | null;
+      placeholder?: string | null;
+      /** Default = "decimal" */
+      inputmode?: ListValueSpecNumber["inputmode"];
     }
-  >(a: A) {
+  ) {
+    const spec = {
+      placeholder: null,
+      inputmode: "decimal" as const,
+      range: "(*,*)",
+      units: null,
+      ...aSpec,
+    };
     return new List({
+      description: null,
+      warning: null,
+      units: null,
+      range: "(*,*)",
+      default: [],
       type: "list" as const,
       subtype: "number" as const,
       ...a,
+      spec,
     });
   }
-  static obj<
-    A extends {
+  static obj<Spec extends Config<InputSpec>>(
+    a: {
       name: string;
-      description: string | null;
-      warning: string | null;
+      description?: string | null;
+      warning?: string | null;
       default: Record<string, unknown>[];
-      range: string;
-      spec: {
-        spec: Config<InputSpec>;
-        displayAs: null | string;
-        uniqueBy: null | UniqueBy;
-      };
+      /** Default = "(\*,\*)" */
+      range?: string;
+    },
+    aSpec: {
+      spec: Spec;
+      displayAs?: null | string;
+      uniqueBy?: null | UniqueBy;
     }
-  >(a: A) {
-    const { spec: previousSpec, ...rest } = a;
-    const { spec: previousSpecSpec, ...restSpec } = previousSpec;
-    const specSpec = previousSpecSpec.build() as BuilderExtract<
-      A["spec"]["spec"]
-    >;
+  ) {
+    const { spec: previousSpecSpec, ...restSpec } = aSpec;
+    const specSpec = previousSpecSpec.build() as BuilderExtract<Spec>;
     const spec = {
+      displayAs: null,
+      uniqueBy: null,
       ...restSpec,
       spec: specSpec,
     };
     const value = {
       spec,
-      ...rest,
+      ...a,
     };
     return new List({
+      description: null,
+      warning: null,
+      range: "(*,*)",
       type: "list" as const,
       subtype: "object" as const,
       ...value,

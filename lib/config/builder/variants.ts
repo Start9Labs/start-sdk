@@ -67,10 +67,7 @@ export class Variants<
   static empty() {
     return Variants.of({});
   }
-  static withVariant<K extends string, B extends InputSpec>(
-    key: K,
-    value: Config<B>
-  ) {
+  static withVariant<K extends string, B extends InputSpec>(key: K, value: Config<B>) {
     return Variants.empty().withVariant(key, value);
   }
 
