@@ -1,6 +1,12 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import { InputSpec, ListValueSpecString, UniqueBy, ValueSpecList } from "../config-types";
+import {
+  InputSpec,
+  ListValueSpecNumber,
+  ListValueSpecString,
+  UniqueBy,
+  ValueSpecList,
+} from "../config-types";
 import { guardAll } from "../../util";
 
 export class List<A extends ValueSpecList> extends IBuilder<A> {

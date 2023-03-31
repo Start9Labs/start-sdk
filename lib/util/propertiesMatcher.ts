@@ -1,9 +1,23 @@
 import * as matches from "ts-matches";
 import { Parser, Validator } from "ts-matches";
 import { Variants } from "../config/builder";
-import { InputSpec, unionSelectKey, ValueSpec as ValueSpecAny } from "../config/config-types";
+import {
+  InputSpec,
+  unionSelectKey,
+  ValueSpec as ValueSpecAny,
+} from "../config/config-types";
 
-const { string, some, arrayOf, object, dictionary, unknown, number, literals, boolean } = matches;
+const {
+  string,
+  some,
+  arrayOf,
+  object,
+  dictionary,
+  unknown,
+  number,
+  literals,
+  boolean,
+} = matches;
 
 type TypeBoolean = "boolean";
 type TypeString = "string";
@@ -125,18 +139,28 @@ function charRange(value = "") {
  * @param param1
  * @returns
  */
-export function generateDefault(generate: { charset: string; len: number }, { random = () => Math.random() } = {}) {
-  const validCharSets: number[][] = generate.charset.split(",").map(charRange).filter(Array.isArray);
+export function generateDefault(
+  generate: { charset: string; len: number },
+  { random = () => Math.random() } = {}
+) {
+  const validCharSets: number[][] = generate.charset
+    .split(",")
+    .map(charRange)
+    .filter(Array.isArray);
   if (validCharSets.length === 0) {
     throw new Error("Expecing that we have a valid charset");
   }
-  const max = validCharSets.reduce((acc, x) => x.reduce((x, y) => Math.max(x, y), acc), 0);
+  const max = validCharSets.reduce(
+    (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
+    0
+  );
   let i = 0;
   const answer: string[] = Array(generate.len);
   while (i < generate.len) {
     const nextValue = Math.round(random() * max);
     const inRange = validCharSets.reduce(
-      (acc, [lower, upper]) => acc || (nextValue >= lower && nextValue <= upper),
+      (acc, [lower, upper]) =>
+        acc || (nextValue >= lower && nextValue <= upper),
       false
     );
     if (!inRange) continue;
@@ -153,8 +177,16 @@ export function matchNumberWithRange(range: string) {
 
   return number
     .validate(
-      leftValue === "*" ? (_) => true : left === "[" ? (x) => x >= Number(leftValue) : (x) => x > Number(leftValue),
-      leftValue === "*" ? "any" : left === "[" ? `greaterThanOrEqualTo${leftValue}` : `greaterThan${leftValue}`
+      leftValue === "*"
+        ? (_) => true
+        : left === "["
+        ? (x) => x >= Number(leftValue)
+        : (x) => x > Number(leftValue),
+      leftValue === "*"
+        ? "any"
+        : left === "["
+        ? `greaterThanOrEqualTo${leftValue}`
+        : `greaterThan${leftValue}`
     )
     .validate(
       // prettier-ignore
@@ -186,7 +218,9 @@ const isGenerator = object({
 function defaultRequired<A>(parser: Parser<unknown, A>, value: unknown) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) {
-      return parser.defaultTo(parser.unsafeCast(generateDefault(value.default)));
+      return parser.defaultTo(
+        parser.unsafeCast(generateDefault(value.default))
+      );
     }
     return parser.defaultTo(value.default);
   }
@@ -202,7 +236,9 @@ function defaultRequired<A>(parser: Parser<unknown, A>, value: unknown) {
  * @param value
  * @returns
  */
-export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, GuardAll<A>> {
+export function guardAll<A extends ValueSpecAny>(
+  value: A
+): Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
     return unknown as any;
   }
@@ -217,7 +253,10 @@ export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, Guar
       return defaultRequired(string, value) as any;
 
     case "number":
-      return defaultRequired(withIntegral(withRange(value), value), value) as any;
+      return defaultRequired(
+        withIntegral(withRange(value), value),
+        value
+      ) as any;
 
     case "object":
       if (matchSpec.test(value)) {
@@ -227,7 +266,9 @@ export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, Guar
 
     case "list": {
       const spec = (matchSpec.test(value) && value.spec) || {};
-      const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
+      const rangeValidate =
+        (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
+        (() => true);
 
       return defaultRequired(
         matches
@@ -239,25 +280,40 @@ export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, Guar
     case "select":
       if (matchValues.test(value)) {
         const valueKeys = Object.keys(value.values);
-        return defaultRequired(literals(valueKeys[0], ...valueKeys), value) as any;
+        return defaultRequired(
+          literals(valueKeys[0], ...valueKeys),
+          value
+        ) as any;
       }
       return unknown as any;
 
     case "multiselect":
       if (matchValues.test(value)) {
-        const maybeAddRangeValidate = <X extends Validator<unknown, B[]>, B>(x: X) => {
+        const maybeAddRangeValidate = <X extends Validator<unknown, B[]>, B>(
+          x: X
+        ) => {
           if (!matchRange.test(value)) return x;
-          return x.validate((x) => matchNumberWithRange(value.range).test(x.length), "validLength");
+          return x.validate(
+            (x) => matchNumberWithRange(value.range).test(x.length),
+            "validLength"
+          );
         };
 
         const valueKeys = Object.keys(value.values);
-        return defaultRequired(maybeAddRangeValidate(arrayOf(literals(valueKeys[0], ...valueKeys))), value) as any;
+        return defaultRequired(
+          maybeAddRangeValidate(arrayOf(literals(valueKeys[0], ...valueKeys))),
+          value
+        ) as any;
       }
       return unknown as any;
 
     case "union":
       if (matchUnion.test(value)) {
-        return some(...Object.entries(value.variants).map(([_, { spec }]) => typeFromProps(spec))) as any;
+        return some(
+          ...Object.entries(value.variants).map(([_, { spec }]) =>
+            typeFromProps(spec)
+          )
+        ) as any;
       }
       return unknown as any;
   }
@@ -272,9 +328,16 @@ export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, Guar
  * @param valueDictionary
  * @returns
  */
-export function typeFromProps<A extends InputSpec>(valueDictionary: A): Parser<unknown, TypeFromProps<A>> {
+export function typeFromProps<A extends InputSpec>(
+  valueDictionary: A
+): Parser<unknown, TypeFromProps<A>> {
   if (!recordString.test(valueDictionary)) return unknown as any;
   return object(
-    Object.fromEntries(Object.entries(valueDictionary).map(([key, value]) => [key, guardAll(value)]))
+    Object.fromEntries(
+      Object.entries(valueDictionary).map(([key, value]) => [
+        key,
+        guardAll(value),
+      ])
+    )
   ) as any;
 }

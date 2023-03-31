@@ -140,7 +140,7 @@ export interface ListValueSpecString {
   pattern: string | null;
   patternDescription: string | null;
   masked: boolean; // default = false
-  inputmode: 'text' | 'email' | 'tel' | 'url'; // default = 'text'
+  inputmode: "text" | "email" | "tel" | "url"; // default = 'text'
   placeholder: string | null;
 }
 
@@ -150,6 +150,7 @@ export interface ListValueSpecNumber {
   range: string;
   integral: boolean; // default = false
   units: string | null;
+  inputmode: "numeric" | "decimal"; // default = 'decimal'
   placeholder: string | null;
 }
 

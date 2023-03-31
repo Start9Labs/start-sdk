@@ -1,7 +1,9 @@
 import { UnionSelectKey, unionSelectKey } from "../config/config-types";
 import { InputSpec, matchInputSpec } from "./output";
 
-export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T ? 1 : 2) extends <G>() => G extends U ? 1 : 2
+export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
+  ? 1
+  : 2) extends <G>() => G extends U ? 1 : 2
   ? Y
   : N;
 export function testOutput<A, B>(): (c: IfEquals<A, B>) => null {
@@ -11,7 +13,11 @@ export function testOutput<A, B>(): (c: IfEquals<A, B>) => null {
 function isObject(item: unknown): item is object {
   return !!(item && typeof item === "object" && !Array.isArray(item));
 }
-type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
+type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
+  x: infer R
+) => any
+  ? R
+  : never;
 export function mergeDeep<A extends unknown[]>(...sources: A) {
   return _mergeDeep({}, ...sources);
 }
@@ -43,11 +49,21 @@ testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
 testOutput<InputSpec["rpc"]["username"], string>()(null);
 
 testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
-testOutput<InputSpec["rpc"]["advanced"]["serialversion"], "segwit" | "non-segwit">()(null);
+testOutput<
+  InputSpec["rpc"]["advanced"]["serialversion"],
+  "segwit" | "non-segwit"
+>()(null);
 testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null);
-testOutput<InputSpec["advanced"]["peers"]["addnode"][0]["hostname"], string>()(null);
-testOutput<InputSpec["testListUnion"][0][UnionSelectKey]["name"], string>()(null);
-testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "lnd">()(null);
+testOutput<InputSpec["advanced"]["peers"]["addnode"][0]["hostname"], string>()(
+  null
+);
+testOutput<InputSpec["testListUnion"][0][UnionSelectKey]["name"], string>()(
+  null
+);
+testOutput<
+  InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey],
+  "lnd"
+>()(null);
 // prettier-ignore
 // @ts-expect-error Expect that the string is the one above
 testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "unionSelectKey">()(null);
@@ -111,9 +127,13 @@ describe("Inputs", () => {
   });
   test("test errors", () => {
     expect(() =>
-      matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { advanced: { threads: 0 } } }))
+      matchInputSpec.unsafeCast(
+        mergeDeep(validInput, { rpc: { advanced: { threads: 0 } } })
+      )
     ).toThrowError();
-    expect(() => matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { enable: 2 } }))).toThrowError();
+    expect(() =>
+      matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { enable: 2 } }))
+    ).toThrowError();
 
     expect(() =>
       matchInputSpec.unsafeCast(
