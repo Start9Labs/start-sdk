@@ -37,7 +37,6 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
   : never;
 
 export interface ValueSpecString extends ListValueSpecString, WithStandalone {
-  type: "string";
   required: boolean;
   default: DefaultString | null;
 }
@@ -49,7 +48,6 @@ export interface ValueSpecTextarea extends WithStandalone {
 }
 
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
-  type: "number";
   required: boolean;
   default: number | null;
 }
@@ -116,7 +114,6 @@ export type ValueSpecList = ValueSpecListOf<ListValueSpecType>;
 export interface ValueSpecListOf<T extends ListValueSpecType>
   extends WithStandalone {
   type: "list";
-  subtype: T;
   spec: ListValueSpecOf<T>;
   range: string; // '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules
   default:
@@ -135,27 +132,29 @@ export function isValueSpecListOf<S extends ListValueSpecType>(
   t: ValueSpecList,
   s: S
 ): t is ValueSpecListOf<S> {
-  return t.subtype === s;
+  return t.spec.type === s;
 }
 
 export interface ListValueSpecString {
+  type: 'string'
   pattern: string | null;
   patternDescription: string | null;
   masked: boolean; // default = false
-  inputmode: 'text' | 'email' | 'tel' | 'url' // default = 'text'
+  inputmode: 'text' | 'email' | 'tel' | 'url'; // default = 'text'
   placeholder: string | null;
 }
 
 export interface ListValueSpecNumber {
+  type: 'number';
   /** '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules */
   range: string;
   integral: boolean; // default = false
   units: string | null;
-  inputmode: 'numeric' | 'decimal' // default = 'decimal'
   placeholder: string | null;
 }
 
 export interface ListValueSpecObject {
+  type: 'object';
   /** this is a mapped type of the config object at this level, replacing the object's values with specs on those values */
   spec: InputSpec;
   /** indicates whether duplicates can be permitted in the list */
