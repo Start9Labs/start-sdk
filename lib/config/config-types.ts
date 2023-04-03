@@ -111,7 +111,8 @@ export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
 
 /** represents a spec for a list */
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>;
-export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStandalone {
+export interface ValueSpecListOf<T extends ListValueSpecType>
+  extends WithStandalone {
   type: "list";
   spec: ListValueSpecOf<T>;
   range: string; // '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules
@@ -127,7 +128,10 @@ export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStanda
 }
 
 // sometimes the type checker needs just a little bit of help
-export function isValueSpecListOf<S extends ListValueSpecType>(t: ValueSpecList, s: S): t is ValueSpecListOf<S> {
+export function isValueSpecListOf<S extends ListValueSpecType>(
+  t: ValueSpecList,
+  s: S
+): t is ValueSpecListOf<S> {
   return t.spec.type === s;
 }
 
