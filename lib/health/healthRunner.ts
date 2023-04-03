@@ -37,28 +37,23 @@ async function timeoutHealth(
  * The stop function is used to stop the health check.
  */
 
-const defaultParams = {
-  defaultIntervalS: 60,
-  defaultTimeoutS: 10,
-  defaultDelayS: 10,
-};
-
 export default function healthRunner(
   name: string,
   fn: HealthCheck,
-  params = defaultParams
 ) {
   return {
-    /** \
-     * All values in seconds
-     * defaults:
+    /**
+     * All values in seconds. Defaults):
+     * 
      * interval: 60s
+     * 
      * timeout: 10s
+     * 
      * delay: 10s
      */
     create(
       effects: Types.Effects,
-      { interval = 60, timeout = 10, delay = 10 } = {}
+      options = { interval: 60, timeout: 10, delay: 10 }
     ) {
       let running: any;
       function startFn() {
@@ -66,7 +61,7 @@ export default function healthRunner(
         setTimeout(() => {
           running = setInterval(async () => {
             const result = await Promise.race([
-              timeoutHealth(effects, timeout * 1000),
+              timeoutHealth(effects, options.timeout * 1000),
               fn(effects, 123),
             ]).catch((e) => {
               return { failure: safelyStringify(e) };
@@ -75,8 +70,8 @@ export default function healthRunner(
               name,
               result,
             });
-          }, interval * 1000);
-        }, delay * 1000);
+          }, options.interval * 1000);
+        }, options.delay * 1000);
       }
 
       const self = {
