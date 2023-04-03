@@ -1,8 +1,4 @@
-import {
-  ListValueSpecOf,
-  ValueSpecList,
-  isValueSpecListOf,
-} from "../config-types";
+import { ListValueSpecOf, ValueSpecList, isValueSpecListOf } from "../config-types";
 import { Config } from "./config";
 import { List } from "./list";
 import { Value } from "./value";
@@ -19,6 +15,8 @@ describe("Config Types", () => {
         someList.spec satisfies ListValueSpecOf<"number">;
       } else if (isValueSpecListOf(someList, "object")) {
         someList.spec satisfies ListValueSpecOf<"object">;
+      } else {
+        throw new Error("Failed to figure out the type: " + JSON.stringify(someList));
       }
     }
   });
