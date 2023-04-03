@@ -1,14 +1,20 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import {
-  InputSpec,
-  ListValueSpecNumber,
-  ListValueSpecString,
-  UniqueBy,
-  ValueSpecList,
-} from "../config-types";
+import { InputSpec, ListValueSpecNumber, ListValueSpecString, UniqueBy, ValueSpecList } from "../config-types";
 import { guardAll } from "../../util";
-
+/**
+ * Used as a subtype of Value.list
+```ts
+export const authorizationList = List.string({
+  "name": "Authorization",
+  "range": "[0,*)",
+  "default": [],
+  "description": "Username and hashed password for JSON-RPC connections. RPC clients connect using the usual http basic authentication.",
+  "warning": null
+}, {"masked":false,"placeholder":null,"pattern":"^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$","patternDescription":"Each item must be of the form \"<USERNAME>:<SALT>$<HASH>\"."});
+export const auth = Value.list(authorizationList);
+```
+*/
 export class List<A extends ValueSpecList> extends IBuilder<A> {
   static string(
     a: {
@@ -31,7 +37,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     }
   ) {
     const spec = {
-      type: 'string' as const,
+      type: "string" as const,
       placeholder: null,
       pattern: null,
       patternDescription: null,
@@ -65,6 +71,8 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       range?: string;
       units?: string | null;
       placeholder?: string | null;
+      /** Default = 'numeric */
+      inputmode?: "numeric" | "decimal";
     }
   ) {
     const spec = {
@@ -72,6 +80,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       placeholder: null,
       range: "(*,*)",
       units: null,
+      inputmode: "numeric" as const,
       ...aSpec,
     };
     return new List({

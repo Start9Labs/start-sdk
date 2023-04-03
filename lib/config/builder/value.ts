@@ -21,18 +21,17 @@ import { DefaultString } from "../config-types";
  * Keep an eye out for another config builder types as params.
  * Note, usually this is going to be used in a `Config` {@link Config} builder.
  ```ts
-    Value.string({
-      name: "Name of This Value",
-      description: "Going to be what the description is in the FE, hover over",
-      warning: "What the warning is going to be on warning situations",
-      default: null,
-      nullable: false,
-      masked: null, // If there is a masked, then the value is going to be masked in the FE, like a password
-      placeholder: null, // If there is a placeholder, then the value is going to be masked in the FE, like a password
-      pattern: null, // A regex pattern to validate the value
-      patternDescription: null,
-      textarea: null
-    })
+const username = Value.string({
+  name: "Username",
+  default: "bitcoin",
+  description: "The username for connecting to Bitcoin over RPC.",
+  warning: null,
+  required: true,
+  masked: true,
+  placeholder: null,
+  pattern: "^[a-zA-Z0-9_]+$",
+  patternDescription: "Must be alphanumeric (can contain underscore).",
+});
  ```
  */
 export class Value<A extends ValueSpec> extends IBuilder<A> {

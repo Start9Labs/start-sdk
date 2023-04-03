@@ -12,7 +12,6 @@ describe("test", () => {
 
 describe("builder tests", () => {
   test("String", () => {
-    console.log("BLUJ->");
     const bitcoinPropertiesBuilt: {
       "peer-tor-address": {
         name: string;

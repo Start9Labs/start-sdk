@@ -8,15 +8,10 @@ export async function writeConvertedFile(
   inputData: Promise<any> | any,
   options: Parameters<typeof makeFileContent>[1]
 ) {
-  await fs.writeFile(file, await makeFileContent(inputData, options), (err) =>
-    console.error(err)
-  );
+  await fs.writeFile(file, await makeFileContent(inputData, options), (err) => console.error(err));
 }
 
-export default async function makeFileContent(
-  inputData: Promise<any> | any,
-  { startSdk = "start-sdk" } = {}
-) {
+export default async function makeFileContent(inputData: Promise<any> | any, { startSdk = "start-sdk" } = {}) {
   const outputLines: string[] = [];
   outputLines.push(`
   import {Config, Value, List, Variants} from '${startSdk}/config/builder';
@@ -25,13 +20,8 @@ export default async function makeFileContent(
 
   const namedConsts = new Set(["Config", "Value", "List"]);
   const configName = newConst("InputSpec", convertInputSpec(data));
-  const configMatcherName = newConst(
-    "matchInputSpec",
-    `${configName}.validator()`
-  );
-  outputLines.push(
-    `export type InputSpec = typeof ${configMatcherName}._TYPE;`
-  );
+  const configMatcherName = newConst("matchInputSpec", `${configName}.validator()`);
+  outputLines.push(`export type InputSpec = typeof ${configMatcherName}._TYPE;`);
 
   return outputLines.join("\n");
 
@@ -111,10 +101,7 @@ export default async function makeFileContent(
         )})`;
       }
       case "enum": {
-        const allValueNames = new Set([
-          ...(value?.["values"] || []),
-          ...Object.keys(value?.["value-names"] || {}),
-        ]);
+        const allValueNames = new Set([...(value?.["values"] || []), ...Object.keys(value?.["value-names"] || {})]);
         const values = Object.fromEntries(
           Array.from(allValueNames)
             .filter(string.test)
@@ -134,10 +121,7 @@ export default async function makeFileContent(
         )} as const)`;
       }
       case "object": {
-        const specName = newConst(
-          value.name + "_spec",
-          convertInputSpec(value.spec)
-        );
+        const specName = newConst(value.name + "_spec", convertInputSpec(value.spec));
         return `Value.object({
         name: ${JSON.stringify(value.name || null)},
         description: ${JSON.stringify(value.description || null)},
@@ -174,9 +158,7 @@ export default async function makeFileContent(
   function convertList(value: any) {
     switch (value.subtype) {
       case "string": {
-        return `List.${
-          value?.spec?.textarea === true ? "textarea" : "string"
-        }(${JSON.stringify(
+        return `List.${value?.spec?.textarea === true ? "textarea" : "string"}(${JSON.stringify(
           {
             name: value.name || null,
             range: value.range || null,
@@ -235,10 +217,7 @@ export default async function makeFileContent(
         )})`;
       }
       case "object": {
-        const specName = newConst(
-          value.name + "_spec",
-          convertInputSpec(value.spec.spec)
-        );
+        const specName = newConst(value.name + "_spec", convertInputSpec(value.spec.spec));
         return `List.obj({
           name: ${JSON.stringify(value.name || null)},
           range: ${JSON.stringify(value.range || null)},
@@ -254,19 +233,14 @@ export default async function makeFileContent(
       case "union": {
         const variants = newConst(
           value.name + "_variants",
-          convertVariants(
-            value.spec.variants,
-            value.spec["variant-names"] || {}
-          )
+          convertVariants(value.spec.variants, value.spec["variant-names"] || {})
         );
         const unionValueName = newConst(
           value.name + "_union",
           `
           Value.union({
             name: ${JSON.stringify(value?.spec?.tag?.name || null)},
-            description: ${JSON.stringify(
-              value?.spec?.tag?.description || null
-            )},
+            description: ${JSON.stringify(value?.spec?.tag?.description || null)},
             warning: ${JSON.stringify(value?.spec?.tag?.warning || null)},
             required: ${JSON.stringify(!(value?.spec?.tag?.nullable || false))},
             default: ${JSON.stringify(value?.spec?.default || null)},
@@ -281,7 +255,6 @@ export default async function makeFileContent(
           })
         `
         );
-        // @TODO BluJ
         return `List.obj({
           name:${JSON.stringify(value.name || null)},
           range:${JSON.stringify(value.range || null)},
@@ -298,16 +271,11 @@ export default async function makeFileContent(
     throw new Error(`Unknown subtype "${value.subtype}"`);
   }
 
-  function convertVariants(
-    variants: Record<string, unknown>,
-    variantNames: Record<string, string>
-  ): string {
+  function convertVariants(variants: Record<string, unknown>, variantNames: Record<string, string>): string {
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
       const variantSpec = newConst(key, convertInputSpec(value));
-      answer += `"${key}": {name: "${
-        variantNames[key] || key
-      }", spec: ${variantSpec}},`;
+      answer += `"${key}": {name: "${variantNames[key] || key}", spec: ${variantSpec}},`;
     }
     return `${answer}})`;
   }

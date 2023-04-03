@@ -7,35 +7,48 @@ import { Config } from ".";
  * to indicate the type of select variants that are available. The key for the record passed in will be the
  * key to the tag.id in the Value.select
 ```ts
- export const pruningSettingsVariants = Variants.of({
-    "disabled": disabled,
-    "automatic": automatic,
-    "manual": manual,
-  });
-  export const pruning = Value.union({
+ 
+export const disabled = Config.of({});
+export const size = Value.number({
+  name: "Max Chain Size",
+  default: 550,
+  description: "Limit of blockchain size on disk.",
+  warning: "Increasing this value will require re-syncing your node.",
+  required: true,
+  range: "[550,1000000)",
+  integral: true,
+  units: "MiB",
+  placeholder: null,
+});
+export const automatic = Config.of({ size: size });
+export const size1 = Value.number({
+  name: "Failsafe Chain Size",
+  default: 65536,
+  description: "Prune blockchain if size expands beyond this.",
+  warning: null,
+  required: true,
+  range: "[550,1000000)",
+  integral: true,
+  units: "MiB",
+  placeholder: null,
+});
+export const manual = Config.of({ size: size1 });
+export const pruningSettingsVariants = Variants.of({
+  disabled: { name: "Disabled", spec: disabled },
+  automatic: { name: "Automatic", spec: automatic },
+  manual: { name: "Manual", spec: manual },
+});
+export const pruning = Value.union(
+  {
     name: "Pruning Settings",
     description:
-      "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
-    warning:
-      "If you set pruning to Manual and your disk is smaller than the total size of the blockchain, you MUST have something running that prunes these blocks or you may overfill your disk!\nDisabling pruning will convert your node into a full archival node. This requires a resync of the entire blockchain, a process that may take several days. Make sure you have enough free disk space or you may fill up your disk.\n",
+      '- Disabled: Disable pruning\n- Automatic: Limit blockchain size on disk to a certain number of megabytes\n- Manual: Prune blockchain with the "pruneblockchain" RPC\n',
+    warning: null,
+    required: true,
     default: "disabled",
-    variants: pruningSettingsVariants,
-    tag: {
-      "id": "mode",
-      "name": "Pruning Mode",
-      "description":
-        '- Disabled: Disable pruning\n- Automatic: Limit blockchain size on disk to a certain number of megabytes\n- Manual: Prune blockchain with the "pruneblockchain" RPC\n',
-      "warning": null,
-      "variantNames": {
-        "disabled": "Disabled",
-        "automatic": "Automatic",
-        "manual": "Manual",
-      },
-    },
-    "displayAs": null,
-    "uniqueBy": null,
-    "variantNames": null,
-  });
+  },
+  pruningSettingsVariants
+);
 ```
  */
 export class Variants<
@@ -67,10 +80,7 @@ export class Variants<
   static empty() {
     return Variants.of({});
   }
-  static withVariant<K extends string, B extends InputSpec>(
-    key: K,
-    value: Config<B>
-  ) {
+  static withVariant<K extends string, B extends InputSpec>(key: K, value: Config<B>) {
     return Variants.empty().withVariant(key, value);
   }
 
