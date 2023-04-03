@@ -1,31 +1,8 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import { InputSpec, ListValueSpecNumber, ListValueSpecString, UniqueBy, ValueSpecList } from "../config-types";
+import { InputSpec, ListValueSpecString, UniqueBy, ValueSpecList } from "../config-types";
 import { guardAll } from "../../util";
-import { range } from "lodash";
 
-/**
- * Used as a subtype of Value.list
-```ts
-
-  export const authorizationList = List.string({
-    "name": "Authorization",
-    "range": "[0,*)",
-    "spec": {
-      "masked": null,
-      "placeholder": null,
-      "pattern": "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
-      "patternDescription":
-        'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
-      "textarea": false,
-    },
-    "default": [],
-    "description":
-      "Username and hashed password for JSON-RPC connections. RPC clients connect using the usual http basic authentication.",
-    "warning": null,
-  });
-```
- */
 export class List<A extends ValueSpecList> extends IBuilder<A> {
   static string(
     a: {
@@ -48,6 +25,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     }
   ) {
     const spec = {
+      type: 'string' as const,
       placeholder: null,
       pattern: null,
       patternDescription: null,
@@ -60,7 +38,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning: null,
       default: [],
       type: "list" as const,
-      subtype: "string" as const,
       range: "(*,*)",
       ...a,
       spec,
@@ -82,13 +59,11 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       range?: string;
       units?: string | null;
       placeholder?: string | null;
-      /** Default = "decimal" */
-      inputmode?: ListValueSpecNumber["inputmode"];
     }
   ) {
     const spec = {
+      type: "number" as const,
       placeholder: null,
-      inputmode: "decimal" as const,
       range: "(*,*)",
       units: null,
       ...aSpec,
@@ -100,7 +75,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       range: "(*,*)",
       default: [],
       type: "list" as const,
-      subtype: "number" as const,
       ...a,
       spec,
     });
@@ -123,6 +97,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     const { spec: previousSpecSpec, ...restSpec } = aSpec;
     const specSpec = previousSpecSpec.build() as BuilderExtract<Spec>;
     const spec = {
+      type: "object" as const,
       displayAs: null,
       uniqueBy: null,
       ...restSpec,
@@ -137,7 +112,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning: null,
       range: "(*,*)",
       type: "list" as const,
-      subtype: "object" as const,
       ...value,
     });
   }

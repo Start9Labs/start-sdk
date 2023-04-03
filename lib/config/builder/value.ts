@@ -4,12 +4,10 @@ import { List } from "./list";
 import { Variants } from "./variants";
 import {
   InputSpec,
-  ListValueSpecNumber,
   ListValueSpecString,
   ValueSpec,
   ValueSpecList,
   ValueSpecNumber,
-  ValueSpecString,
   ValueSpecTextarea,
 } from "../config-types";
 import { guardAll } from "../../util";
@@ -100,12 +98,9 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     integral: boolean;
     units?: string | null;
     placeholder?: string | null;
-    /** Default = 'decimal' */
-    inputmode?: ListValueSpecNumber["inputmode"];
   }) {
     return new Value({
       type: "number" as const,
-      inputmode: "decimal",
       description: null,
       warning: null,
       default: null,

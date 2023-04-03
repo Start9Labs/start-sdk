@@ -49,8 +49,8 @@ type GuardObject<A> =
   unknown
 // prettier-ignore
 export type GuardList<A> =
-  A extends {  type: TypeList,  subtype: infer B, spec?: { spec?: infer C } } ? Array<GuardAll<Omit<A, "type" | "subtype" | "spec"> & ({ type: B, spec: C })>> :
-  A extends {  type: TypeList,  subtype: infer B, spec?: {} } ? Array<GuardAll<Omit<A, "type"> & ({ type: B })>> :
+  A extends {  type: TypeList, spec?: { type: infer B, spec?: infer C } } ? Array<GuardAll<Omit<A, "type" | "spec"> & ({ type: B, spec: C })>> :
+  A extends {  type: TypeList, spec?: { type: infer B } } ? Array<GuardAll<Omit<A, "type"> & ({ type: B })>> :
   unknown
 // prettier-ignore
 type GuardSelect<A> =
@@ -102,7 +102,6 @@ const rangeRegex = /(\[|\()(\*|(\d|\.)+),(\*|(\d|\.)+)(\]|\))/;
 const matchRange = object({ range: string });
 const matchIntegral = object({ integral: literals(true) });
 const matchSpec = object({ spec: recordString });
-const matchSubType = object({ subtype: string });
 const matchUnion = object({
   variants: dictionary([string, matchVariant]),
 });
@@ -230,10 +229,9 @@ export function guardAll<A extends ValueSpecAny>(value: A): Parser<unknown, Guar
       const spec = (matchSpec.test(value) && value.spec) || {};
       const rangeValidate = (matchRange.test(value) && matchNumberWithRange(value.range).test) || (() => true);
 
-      const subtype = matchSubType.unsafeCast(value).subtype;
       return defaultRequired(
         matches
-          .arrayOf(guardAll({ type: subtype, ...spec } as any))
+          .arrayOf(guardAll(spec as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
         value
       ) as any;

@@ -1,15 +1,15 @@
-describe("test", () => {
-  test("test", () => {
-    expect(true).toEqual(true);
-  });
-});
-import { values } from "lodash";
-import { Validator } from "ts-matches";
 import { testOutput } from "../../test/output.test";
 import { Config } from "./config";
 import { List } from "./list";
 import { Value } from "./value";
 import { Variants } from "./variants";
+
+describe("test", () => {
+  test("test", () => {
+    expect(true).toEqual(true);
+  });
+});
+
 describe("builder tests", () => {
   test("String", () => {
     console.log("BLUJ->");
