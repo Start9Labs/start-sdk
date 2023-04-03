@@ -158,3 +158,47 @@ describe("values", () => {
     testOutput<typeof validator._TYPE, number[]>()(null);
   });
 });
+
+describe("Builder List", () => {
+  test("obj", () => {
+    const value = Value.list(
+      List.obj(
+        {
+          name: "test",
+        },
+        {
+          spec: Config.of({ test: Value.boolean({ name: "test" }) }),
+        }
+      )
+    );
+    const validator = value.validator();
+    validator.unsafeCast([{ test: true }]);
+    testOutput<typeof validator._TYPE, { test: boolean }[]>()(null);
+  });
+  test("string", () => {
+    const value = Value.list(
+      List.string(
+        {
+          name: "test",
+        },
+        {}
+      )
+    );
+    const validator = value.validator();
+    validator.unsafeCast(["test", "text"]);
+    testOutput<typeof validator._TYPE, string[]>()(null);
+  });
+  test("number", () => {
+    const value = Value.list(
+      List.number(
+        {
+          name: "test",
+        },
+        { integral: true }
+      )
+    );
+    const validator = value.validator();
+    validator.unsafeCast([12, 45]);
+    testOutput<typeof validator._TYPE, number[]>()(null);
+  });
+});
