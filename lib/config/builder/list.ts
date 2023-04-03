@@ -1,12 +1,6 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import {
-  InputSpec,
-  ListValueSpecNumber,
-  ListValueSpecString,
-  UniqueBy,
-  ValueSpecList,
-} from "../config-types";
+import { InputSpec, ListValueSpecNumber, ListValueSpecString, UniqueBy, ValueSpecList } from "../config-types";
 import { guardAll } from "../../util";
 /**
  * Used as a subtype of Value.list
@@ -77,8 +71,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       range?: string;
       units?: string | null;
       placeholder?: string | null;
-      /** Default = 'numeric */
-      inputmode?: "numeric" | "decimal";
     }
   ) {
     const spec = {
@@ -86,7 +78,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       placeholder: null,
       range: "(*,*)",
       units: null,
-      inputmode: "numeric" as const,
       ...aSpec,
     };
     return new List({

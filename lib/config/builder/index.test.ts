@@ -4,12 +4,6 @@ import { List } from "./list";
 import { Value } from "./value";
 import { Variants } from "./variants";
 
-describe("test", () => {
-  test("test", () => {
-    expect(true).toEqual(true);
-  });
-});
-
 describe("builder tests", () => {
   test("String", () => {
     const bitcoinPropertiesBuilt: {
