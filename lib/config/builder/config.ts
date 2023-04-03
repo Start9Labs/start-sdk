@@ -63,10 +63,16 @@ export class Config<A extends InputSpec> extends IBuilder<A> {
   static empty() {
     return new Config({});
   }
-  static withValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
+  static withValue<K extends string, B extends ValueSpec>(
+    key: K,
+    value: Value<B>
+  ) {
     return Config.empty().withValue(key, value);
   }
-  static addValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
+  static addValue<K extends string, B extends ValueSpec>(
+    key: K,
+    value: Value<B>
+  ) {
     return Config.empty().withValue(key, value);
   }
 

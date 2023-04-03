@@ -136,7 +136,7 @@ export function isValueSpecListOf<S extends ListValueSpecType>(
 }
 
 export interface ListValueSpecString {
-  type: 'string'
+  type: "string";
   pattern: string | null;
   patternDescription: string | null;
   masked: boolean; // default = false
@@ -145,7 +145,7 @@ export interface ListValueSpecString {
 }
 
 export interface ListValueSpecNumber {
-  type: 'number';
+  type: "number";
   /** '[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules */
   range: string;
   integral: boolean; // default = false
@@ -155,7 +155,7 @@ export interface ListValueSpecNumber {
 }
 
 export interface ListValueSpecObject {
-  type: 'object';
+  type: "object";
   /** this is a mapped type of the config object at this level, replacing the object's values with specs on those values */
   spec: InputSpec;
   /** indicates whether duplicates can be permitted in the list */
