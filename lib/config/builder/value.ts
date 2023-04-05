@@ -35,7 +35,12 @@ const username = Value.string({
  ```
  */
 export class Value<A extends ValueSpec> extends IBuilder<A> {
-  static boolean(a: { name: string; description?: string | null; warning?: string | null; default?: boolean | null }) {
+  static boolean(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    default?: boolean | null;
+  }) {
     return new Value({
       description: null,
       warning: null,
@@ -161,7 +166,9 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       spec,
     });
   }
-  static union<V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>>(
+  static union<
+    V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>
+  >(
     a: {
       name: string;
       description?: string | null;

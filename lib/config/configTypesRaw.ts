@@ -101,7 +101,8 @@ export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
   : never;
 /** represents a spec for a list */
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>;
-export interface ValueSpecListOf<T extends ListValueSpecType> extends WithStandalone {
+export interface ValueSpecListOf<T extends ListValueSpecType>
+  extends WithStandalone {
   type: "list";
   spec: ListValueSpecOf<T>;
   range?: string;

@@ -1,6 +1,12 @@
 import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
-import { InputSpec, ListValueSpecNumber, ListValueSpecString, UniqueBy, ValueSpecList } from "../configTypes";
+import {
+  InputSpec,
+  ListValueSpecNumber,
+  ListValueSpecString,
+  UniqueBy,
+  ValueSpecList,
+} from "../configTypes";
 import { guardAll } from "../../util";
 /**
  * Used as a subtype of Value.list

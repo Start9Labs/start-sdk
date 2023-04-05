@@ -141,7 +141,10 @@ describe("values", () => {
     const validator = value.validator();
     validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } });
     type Test = typeof validator._TYPE;
-    testOutput<Test, { unionSelectKey: "a" } & { unionValueKey: { b: boolean } }>()(null);
+    testOutput<
+      Test,
+      { unionSelectKey: "a" } & { unionValueKey: { b: boolean } }
+    >()(null);
   });
   test("list", () => {
     const value = Value.list(

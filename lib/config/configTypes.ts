@@ -11,7 +11,9 @@ export type InputSpec = Record<string, WithOutOptionals<C.ValueSpec>>;
 export type ValueSpec = WithOutOptionals<C.ValueSpec>;
 
 /** core spec types. These types provide the metadata for performing validations */
-export type ValueSpecOf<T extends ValueType> = WithOutOptionals<C.ValueSpecOf<T>>;
+export type ValueSpecOf<T extends ValueType> = WithOutOptionals<
+  C.ValueSpecOf<T>
+>;
 
 export type ValueSpecString = WithOutOptionals<C.ValueSpecString>;
 export type ValueSpecTextarea = WithOutOptionals<C.ValueSpecTextarea>;
@@ -27,11 +29,15 @@ export type SelectBase = WithOutOptionals<C.SelectBase>;
 export type ListValueSpecType = WithOutOptionals<C.ListValueSpecType>;
 
 /** represents a spec for the values of a list */
-export type ListValueSpecOf<T extends ListValueSpecType> = WithOutOptionals<C.ListValueSpecOf<T>>;
+export type ListValueSpecOf<T extends ListValueSpecType> = WithOutOptionals<
+  C.ListValueSpecOf<T>
+>;
 
 /** represents a spec for a list */
 export type ValueSpecList = WithOutOptionals<C.ValueSpecList>;
-export type ValueSpecListOf<T extends ListValueSpecType> = WithOutOptionals<C.ValueSpecListOf<T>>;
+export type ValueSpecListOf<T extends ListValueSpecType> = WithOutOptionals<
+  C.ValueSpecListOf<T>
+>;
 
 // sometimes the type checker needs just a little bit of help
 export function isValueSpecListOf<S extends ListValueSpecType>(

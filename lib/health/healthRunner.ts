@@ -37,18 +37,15 @@ async function timeoutHealth(
  * The stop function is used to stop the health check.
  */
 
-export default function healthRunner(
-  name: string,
-  fn: HealthCheck,
-) {
+export default function healthRunner(name: string, fn: HealthCheck) {
   return {
     /**
      * All values in seconds. Defaults):
-     * 
+     *
      * interval: 60s
-     * 
+     *
      * timeout: 10s
-     * 
+     *
      * delay: 10s
      */
     create(
