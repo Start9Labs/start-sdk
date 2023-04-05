@@ -10,6 +10,7 @@ lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
 bundle:  fmt $(TS_FILES) package.json .FORCE node_modules
+	rm -rf dist || true
 	npx tsc
 
 check:
