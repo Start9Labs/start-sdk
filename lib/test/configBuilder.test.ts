@@ -3,6 +3,7 @@ import { Config } from "../config/builder/config";
 import { List } from "../config/builder/list";
 import { Value } from "../config/builder/value";
 import { Variants } from "../config/builder/variants";
+import { Parser } from "ts-matches";
 
 describe("builder tests", () => {
   test("String", () => {
@@ -138,9 +139,9 @@ describe("values", () => {
       })
     );
     const validator = value.validator();
-    validator.unsafeCast({ unionSelectKey: "a", unionSelectValue: { b: false } });
+    validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } });
     type Test = typeof validator._TYPE;
-    testOutput<Test, { unionSelectKey: "a" } & { unionSelectValue:  { b: boolean } }>()(null);
+    testOutput<Test, { unionSelectKey: "a" } & { unionValueKey: { b: boolean } }>()(null);
   });
   test("list", () => {
     const value = Value.list(

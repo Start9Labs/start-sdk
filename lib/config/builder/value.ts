@@ -9,9 +9,9 @@ import {
   ValueSpecList,
   ValueSpecNumber,
   ValueSpecTextarea,
-} from "../config-types";
+} from "../configTypes";
 import { guardAll } from "../../util";
-import { DefaultString } from "../config-types";
+import { DefaultString } from "../configTypes";
 /**
  * A value is going to be part of the form in the FE of the OS.
  * Something like a boolean, a string, a number, etc.
@@ -35,12 +35,7 @@ const username = Value.string({
  ```
  */
 export class Value<A extends ValueSpec> extends IBuilder<A> {
-  static boolean(a: {
-    name: string;
-    description?: string | null;
-    warning?: string | null;
-    default?: boolean | null;
-  }) {
+  static boolean(a: { name: string; description?: string | null; warning?: string | null; default?: boolean | null }) {
     return new Value({
       description: null,
       warning: null,
@@ -166,9 +161,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       spec,
     });
   }
-  static union<
-    V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>
-  >(
+  static union<V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>>(
     a: {
       name: string;
       description?: string | null;

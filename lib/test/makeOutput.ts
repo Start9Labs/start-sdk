@@ -18,8 +18,7 @@ writeConvertedFile(
         tag: {
           id: "type",
           name: "Type",
-          description:
-            "- LND: Lightning Network Daemon from Lightning Labs\n- CLN: Core Lightning from Blockstream\n",
+          description: "- LND: Lightning Network Daemon from Lightning Labs\n- CLN: Core Lightning from Blockstream\n",
           "variant-names": {
             lnd: "Lightning Network Daemon (LND)",
             "c-lightning": "Core Lightning (CLN)",
@@ -58,8 +57,7 @@ writeConvertedFile(
           default: "bitcoin",
           masked: true,
           pattern: "^[a-zA-Z0-9_]+$",
-          "pattern-description":
-            "Must be alphanumeric (can contain underscore).",
+          "pattern-description": "Must be alphanumeric (can contain underscore).",
         },
         password: {
           type: "string",
@@ -71,8 +69,7 @@ writeConvertedFile(
             len: 20,
           },
           pattern: '^[^\\n"]*$',
-          "pattern-description":
-            "Must not contain newline or quote characters.",
+          "pattern-description": "Must not contain newline or quote characters.",
           copyable: true,
           masked: true,
         },
@@ -84,8 +81,7 @@ writeConvertedFile(
           default: "bitcoin",
           masked: true,
           pattern: "^[a-zA-Z0-9_]+$",
-          "pattern-description":
-            "Must be alphanumeric (can contain underscore).",
+          "pattern-description": "Must be alphanumeric (can contain underscore).",
           textarea: true,
         },
         advanced: {
@@ -101,18 +97,15 @@ writeConvertedFile(
               subtype: "string",
               default: [],
               spec: {
-                pattern:
-                  "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
-                "pattern-description":
-                  'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
+                pattern: "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
+                "pattern-description": 'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
                 masked: false,
               },
               range: "[0,*)",
             },
             serialversion: {
               name: "Serialization Version",
-              description:
-                "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
+              description: "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
               type: "enum",
               values: ["non-segwit", "segwit"],
               "value-names": {},
@@ -120,8 +113,7 @@ writeConvertedFile(
             },
             servertimeout: {
               name: "Rpc Server Timeout",
-              description:
-                "Number of seconds after which an uncompleted RPC call will time out.",
+              description: "Number of seconds after which an uncompleted RPC call will time out.",
               type: "number",
               nullable: false,
               range: "[5,300]",
@@ -224,8 +216,7 @@ writeConvertedFile(
               type: "number",
               nullable: false,
               name: "Max Mempool Size",
-              description:
-                "Keep the transaction memory pool below <n> megabytes.",
+              description: "Keep the transaction memory pool below <n> megabytes.",
               range: "[1,*)",
               integral: true,
               units: "MiB",
@@ -235,8 +226,7 @@ writeConvertedFile(
               type: "number",
               nullable: false,
               name: "Mempool Expiration",
-              description:
-                "Do not keep transactions in the mempool longer than <n> hours.",
+              description: "Do not keep transactions in the mempool longer than <n> hours.",
               range: "[1,*)",
               integral: true,
               units: "Hr",
@@ -252,8 +242,7 @@ writeConvertedFile(
             listen: {
               type: "boolean",
               name: "Make Public",
-              description:
-                "Allow other nodes to find your server on the network.",
+              description: "Allow other nodes to find your server on the network.",
               default: true,
             },
             onlyconnect: {
@@ -293,8 +282,7 @@ writeConvertedFile(
                     type: "number",
                     nullable: true,
                     name: "Port",
-                    description:
-                      "Port that peer is listening on for inbound p2p connections",
+                    description: "Port that peer is listening on for inbound p2p connections",
                     range: "[0,65535]",
                     integral: true,
                   },
@@ -318,8 +306,7 @@ writeConvertedFile(
         pruning: {
           type: "union",
           name: "Pruning Settings",
-          description:
-            "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
+          description: "Blockchain Pruning Options\nReduce the blockchain size on disk\n",
           warning:
             "If you set pruning to Manual and your disk is smaller than the total size of the blockchain, you MUST have something running that prunes these blocks or you may overfill your disk!\nDisabling pruning will convert your node into a full archival node. This requires a resync of the entire blockchain, a process that may take several days. Make sure you have enough free disk space or you may fill up your disk.\n",
           tag: {
@@ -341,8 +328,7 @@ writeConvertedFile(
                 nullable: false,
                 name: "Max Chain Size",
                 description: "Limit of blockchain size on disk.",
-                warning:
-                  "Increasing this value will require re-syncing your node.",
+                warning: "Increasing this value will require re-syncing your node.",
                 default: 550,
                 range: "[550,1000000)",
                 integral: true,
