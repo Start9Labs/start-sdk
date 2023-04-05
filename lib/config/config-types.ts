@@ -171,5 +171,8 @@ export type UniqueBy =
 
 export type DefaultString = string | { charset: string; len: number };
 
-export const unionSelectKey = "unionSelectKey" as const;
+export declare const unionSelectKey: "unionSelectKey";
 export type UnionSelectKey = typeof unionSelectKey;
+
+export declare const unionValueKey: "unionValueKey";
+export type UnionValueKey = typeof unionValueKey;
