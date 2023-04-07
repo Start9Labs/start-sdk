@@ -145,6 +145,7 @@ export type Effects = {
   runDaemon(input: { command: string; args?: string[] }): {
     wait(): Promise<string>;
     term(): Promise<void>;
+    [DaemonProof]: never;
   };
 
   /** Uses the chown on the system */
