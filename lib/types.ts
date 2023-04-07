@@ -129,10 +129,6 @@ export type Effects = {
     path: string;
   }): Promise<Record<string, unknown>>;
 
-  shell(
-    command: string,
-    options?: { timeoutMillis?: number | null }
-  ): Promise<string>;
   runCommand(input: {
     command: string;
     args?: string[];

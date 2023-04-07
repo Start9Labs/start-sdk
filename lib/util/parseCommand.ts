@@ -46,7 +46,10 @@ const quoteSeperated = (s: string, quote: typeof quotes) => {
   return values;
 };
 
-export function sh(shellCommand: string) {
+type ValidIfNoStupidEscape<A> = A extends `${string}'"'"'${string}` ? never : A;
+export function parseCommand<T extends string>(
+  shellCommand: ValidIfNoStupidEscape<T>
+) {
   const [command, ...args] = quoteSeperated(shellCommand, quotes).filter(
     Boolean
   );
