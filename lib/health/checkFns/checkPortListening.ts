@@ -1,4 +1,5 @@
 import { Effects } from "../../types";
+import { CheckResult } from "./CheckResult";
 export function containsAddress(x: string, port: number) {
   const readPorts = x
     .split("\n")
@@ -15,12 +16,22 @@ export function containsAddress(x: string, port: number) {
  * This is used to check if a port is listening on the system.
  * Used during the health check fn or the check main fn.
  */
-export async function checkPortListening(effects: Effects, port: number) {
+export async function checkPortListening(
+  effects: Effects,
+  port: number,
+  {
+    error = `Port ${port} is not listening`,
+    message = `Port ${port} is available`,
+  } = {}
+): Promise<CheckResult> {
   const hasAddress =
     containsAddress(await effects.shell("cat /proc/net/tcp"), port) ||
     containsAddress(await effects.shell("cat /proc/net/udp"), port);
   if (hasAddress) {
-    return;
+    return { status: "passing", message };
   }
-  throw new Error(`Port ${port} is not listening`);
+  return {
+    status: "failing",
+    message: error,
+  };
 }
