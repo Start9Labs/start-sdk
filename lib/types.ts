@@ -85,6 +85,19 @@ export type ConfigRes = {
   /** Shape that is describing the form in the ui */
   spec: InputSpec;
 };
+
+declare const DaemonProof: unique symbol;
+export type DaemonReceipt = {
+  [DaemonProof]: never;
+};
+export type Daemon = {
+  wait(): Promise<string>;
+  term(): Promise<void>;
+  [DaemonProof]: never;
+};
+
+export type HealthStatus = "passing" | "warning" | "failing" | "disabled";
+
 /** Used to reach out from the pure js runtime */
 export type Effects = {
   /** Usable when not sandboxed */
@@ -125,6 +138,10 @@ export type Effects = {
     args?: string[];
     timeoutMillis?: number;
   }): Promise<string>;
+  runShellDaemon(command: string): {
+    wait(): Promise<string>;
+    term(): Promise<void>;
+  };
   runDaemon(input: { command: string; args?: string[] }): {
     wait(): Promise<string>;
     term(): Promise<void>;
@@ -154,11 +171,7 @@ export type Effects = {
   /** Check that a file exists or not */
   exists(input: { volumeId: string; path: string }): Promise<boolean>;
   /** Declaring that we are opening a interface on some protocal for local network */
-  bindLocal(options: {
-    internalPort: number;
-    name: string;
-    externalPort: number;
-  }): Promise<string>;
+  bindLan(options: { internalPort: number; name: string }): Promise<string[]>;
   /** Declaring that we are opening a interface on some protocal for tor network */
   bindTor(options: {
     internalPort: number;
@@ -244,6 +257,20 @@ export type Effects = {
      * ui interface
      */
     ui?: boolean;
+
+    /**
+     * The id is that a path will create a link in the ui that can go to specific pages, like
+     * admin, or settings, or something like that.
+     * Default = ''
+     */
+    path?: string;
+
+    /**
+     * This is the query params in the url, and is a map of key value pairs
+     * Default = {}
+     * if empty then will not be added to the url
+     */
+    search?: Record<string, string>;
   }): Promise<string>;
 
   /**
@@ -291,6 +318,12 @@ export type Effects = {
    * @returns PEM encoded ssl key (ecdsa)
    */
   getSslKey: (packageId: string, algorithm?: "ecdsa" | "ed25519") => string;
+
+  setHealth(o: {
+    name: string;
+    status: HealthStatus;
+    message?: string;
+  }): Promise<void>;
 };
 
 /* rsync options: https://linux.die.net/man/1/rsync

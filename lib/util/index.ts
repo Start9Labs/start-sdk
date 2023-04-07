@@ -3,6 +3,7 @@ import * as T from "../types";
 export { guardAll, typeFromProps } from "./propertiesMatcher";
 export { default as nullIfEmpty } from "./nullIfEmpty";
 export { FileHelper } from "./fileHelper";
+export { sh } from "./shell";
 
 /** Used to check if the file exists before hand */
 export const exists = (
