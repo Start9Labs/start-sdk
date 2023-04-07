@@ -4,5 +4,5 @@ export function sh(shellCommand: string) {
   return {
     command: "sh",
     args: ["-c", shellCommand],
-  } as Parameters<Effects["runCommand"]>[0];
+  } satisfies Parameters<Effects["runCommand"]>[0];
 }
