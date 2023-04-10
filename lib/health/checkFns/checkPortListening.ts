@@ -1,5 +1,4 @@
 import { Effects } from "../../types";
-import { parseCommand } from "../../util/parseCommand";
 import { CheckResult } from "./CheckResult";
 export function containsAddress(x: string, port: number) {
   const readPorts = x
@@ -26,14 +25,8 @@ export async function checkPortListening(
   } = {}
 ): Promise<CheckResult> {
   const hasAddress =
-    containsAddress(
-      await effects.runCommand(parseCommand("cat /proc/net/tcp")),
-      port
-    ) ||
-    containsAddress(
-      await effects.runCommand(parseCommand("cat /proc/net/udp")),
-      port
-    );
+    containsAddress(await effects.runCommand(`cat /proc/net/tcp`), port) ||
+    containsAddress(await effects.runCommand("cat /proc/net/udp"), port);
   if (hasAddress) {
     return { status: "passing", message };
   }

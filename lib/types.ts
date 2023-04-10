@@ -79,6 +79,14 @@ export namespace ExpectedExports {
 export type TimeMs = number;
 export type VersionString = string;
 
+type ValidIfNoStupidEscape<A> = A extends
+  | `${string}'"'"'${string}`
+  | `${string}\\"${string}`
+  ? never
+  : "" extends A & ""
+  ? never
+  : A;
+
 export type ConfigRes = {
   /** This should be the previous config, that way during set config we start with the previous */
   config?: null | Record<string, unknown>;
@@ -97,6 +105,10 @@ export type Daemon = {
 };
 
 export type HealthStatus = "passing" | "warning" | "failing" | "disabled";
+
+export type CommandType<A extends string> =
+  | ValidIfNoStupidEscape<A>
+  | [string, ...string[]];
 
 /** Used to reach out from the pure js runtime */
 export type Effects = {
@@ -129,16 +141,19 @@ export type Effects = {
     path: string;
   }): Promise<Record<string, unknown>>;
 
-  runCommand(input: {
-    command: string;
-    args?: string[];
-    timeoutMillis?: number;
-  }): Promise<string>;
+  runCommand<A extends string>(
+    command: ValidIfNoStupidEscape<A> | [string, ...string[]],
+    input?: {
+      timeoutMillis?: number;
+    }
+  ): Promise<string>;
   runShellDaemon(command: string): {
     wait(): Promise<string>;
     term(): Promise<void>;
   };
-  runDaemon(input: { command: string; args?: string[] }): {
+  runDaemon<A extends string>(
+    command: ValidIfNoStupidEscape<A> | [string, ...string[]]
+  ): {
     wait(): Promise<string>;
     term(): Promise<void>;
     [DaemonProof]: never;

@@ -1,4 +1,4 @@
-import { Effects } from "../../types";
+import { CommandType, Effects } from "../../types";
 import { CheckResult } from "./CheckResult";
 import { timeoutPromise } from "./index";
 
@@ -9,18 +9,18 @@ import { timeoutPromise } from "./index";
  * @param param0
  * @returns
  */
-export const runHealthScript = async (
+export const runHealthScript = async <A extends string>(
   effects: Effects,
-  runCommand: Parameters<Effects["runCommand"]>[0],
+  runCommand: CommandType<A>,
   {
     timeout = 30000,
     errorMessage = `Error while running command: ${runCommand}`,
     message = (res: string) =>
       `Have ran script ${runCommand} and the result: ${res}`,
-  }
+  } = {}
 ): Promise<CheckResult> => {
   const res = await Promise.race([
-    effects.runCommand(runCommand),
+    effects.runCommand(runCommand, { timeoutMillis: timeout }),
     timeoutPromise(timeout),
   ]).catch((e) => {
     effects.warn(errorMessage);
