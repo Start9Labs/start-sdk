@@ -12,11 +12,14 @@ export const name = Value.string({
   patternDescription: null,
 });
 export const lnd = Config.of({ name: name });
-export const lightningNodesVariants = Variants.of({ lnd: { name: "lnd", spec: lnd } });
+export const lightningNodesVariants = Variants.of({
+  lnd: { name: "lnd", spec: lnd },
+});
 export const lightningNodesUnion = Value.union(
   {
     name: "Type",
-    description: "- LND: Lightning Network Daemon from Lightning Labs\n- CLN: Core Lightning from Blockstream\n",
+    description:
+      "- LND: Lightning Network Daemon from Lightning Labs\n- CLN: Core Lightning from Blockstream\n",
     warning: null,
     required: true,
     default: "lnd",
@@ -92,13 +95,15 @@ export const authorizationList = List.string(
     masked: false,
     placeholder: null,
     pattern: "^[a-zA-Z0-9_-]+:([0-9a-fA-F]{2})+\\$([0-9a-fA-F]{2})+$",
-    patternDescription: 'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
+    patternDescription:
+      'Each item must be of the form "<USERNAME>:<SALT>$<HASH>".',
   }
 );
 export const auth = Value.list(authorizationList);
 export const serialversion = Value.select({
   name: "Serialization Version",
-  description: "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
+  description:
+    "Return raw transaction or block hex with Segwit or non-SegWit serialization.",
   warning: null,
   default: "segwit",
   required: true,
@@ -110,7 +115,8 @@ export const serialversion = Value.select({
 export const servertimeout = Value.number({
   name: "Rpc Server Timeout",
   default: 30,
-  description: "Number of seconds after which an uncompleted RPC call will time out.",
+  description:
+    "Number of seconds after which an uncompleted RPC call will time out.",
   warning: null,
   required: true,
   range: "[5,300]",
@@ -200,7 +206,8 @@ export const avoidpartialspends = Value.boolean({
 export const discardfee = Value.number({
   name: "Discard Change Tolerance",
   default: 0.0001,
-  description: "The fee rate (in BTC/kB) that indicates your tolerance for discarding change by adding it to the fee.",
+  description:
+    "The fee rate (in BTC/kB) that indicates your tolerance for discarding change by adding it to the fee.",
   warning: null,
   required: true,
   range: "[0,.01]",
@@ -410,7 +417,10 @@ export const peerblockfilters = Value.boolean({
     "Serve Compact Block Filters as a peer service to other nodes on the network. This is useful if you wish to connect an SPV client to your node to make it efficient to scan transactions without having to download all block data.  'Compute Compact Block Filters (BIP158)' is required.",
   warning: null,
 });
-export const blockFiltersSpec = Config.of({ blockfilterindex: blockfilterindex, peerblockfilters: peerblockfilters });
+export const blockFiltersSpec = Config.of({
+  blockfilterindex: blockfilterindex,
+  peerblockfilters: peerblockfilters,
+});
 export const blockfilters = Value.object(
   {
     name: "Block Filters",
@@ -424,9 +434,12 @@ export const peerbloomfilters = Value.boolean({
   default: false,
   description:
     "Peers have the option of setting filters on each connection they make after the version handshake has completed. Bloom filters are for clients implementing SPV (Simplified Payment Verification) that want to check that block headers  connect together correctly, without needing to verify the full blockchain.  The client must trust that the transactions in the chain are in fact valid.  It is highly recommended AGAINST using for anything except Bisq integration.",
-  warning: "This is ONLY for use with Bisq integration, please use Block Filters for all other applications.",
+  warning:
+    "This is ONLY for use with Bisq integration, please use Block Filters for all other applications.",
 });
-export const bloomFiltersBip37Spec = Config.of({ peerbloomfilters: peerbloomfilters });
+export const bloomFiltersBip37Spec = Config.of({
+  peerbloomfilters: peerbloomfilters,
+});
 export const bloomfilters = Value.object(
   {
     name: "Bloom Filters (BIP37)",
