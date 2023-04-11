@@ -11,29 +11,26 @@ import { TypeFromProps } from "../util/propertiesMatcher";
  * @param options
  * @returns
  */
-export function setupConfigExports<A extends InputSpec>(options: {
+export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
   spec: Config<A>;
   dependsOn: DependsOn;
-  write(effects: Effects, config: TypeFromProps<A>): Promise<void>;
-  read(effects: Effects): Promise<null | DeepPartial<TypeFromProps<A>>>;
+  write(options: { effects: Effects; input: TypeFromProps<A> }): Promise<ConfigType>;
+  read(options: { effects: Effects; config: ConfigType }): Promise<null | DeepPartial<TypeFromProps<A>>>;
 }) {
   const validator = options.spec.validator();
   return {
-    setConfig: (async ({ effects, input: config }) => {
-      if (!validator.test(config)) {
-        await effects.error(String(validator.errorMessage(config)));
+    setConfig: (async ({ effects, input }) => {
+      if (!validator.test(input)) {
+        await effects.error(String(validator.errorMessage(input)));
         return { error: "Set config type error for config" };
       }
-      await options.write(effects, config);
-      return {
-        signal: "SIGTERM",
-        "depends-on": options.dependsOn,
-      };
+      const output = await options.write({ input, effects });
+      return output;
     }) as ExpectedExports.setConfig,
-    getConfig: (async ({ effects }) => {
+    getConfig: (async ({ effects, config }) => {
       return {
         spec: options.spec.build(),
-        config: nullIfEmpty(await options.read(effects)),
+        config: nullIfEmpty(await options.read({ effects, config: config as ConfigType })),
       };
     }) as ExpectedExports.getConfig,
   };

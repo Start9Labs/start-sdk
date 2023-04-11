@@ -13,8 +13,8 @@ type Daemon<
 
   ready: {
     display: null | {
-      name: "Websocket Live";
-      message: "The websocket is live";
+      name: string;
+      message: string;
     };
     fn: () => Promise<CheckResult> | CheckResult;
     trigger?: Trigger;
