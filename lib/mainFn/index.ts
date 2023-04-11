@@ -9,6 +9,18 @@ export { Origin } from "./Origin";
 export { TorBinding } from "./TorBinding";
 export { TorHostname } from "./TorHostname";
 
+export { Daemons } from "./Daemons";
+
+/**
+ * Used to ensure that the main function is running with the valid proofs.
+ * We first do the folowing order of things
+ * 1. We get the interfaces
+ * 2. We setup all the commands to setup the system
+ * 3. We create the health checks
+ * 4. We setup the daemons init system
+ * @param fn
+ * @returns
+ */
 export const runningMain: (
   fn: (o: {
     effects: Effects;

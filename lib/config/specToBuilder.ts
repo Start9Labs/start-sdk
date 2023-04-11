@@ -8,9 +8,14 @@ export async function specToBuilderFile(
   inputData: Promise<InputSpecRaw> | InputSpecRaw,
   options: Parameters<typeof specToBuilder>[1]
 ) {
-  await fs.writeFile(file, await specToBuilder(inputData, options), (err) => console.error(err));
+  await fs.writeFile(file, await specToBuilder(inputData, options), (err) =>
+    console.error(err)
+  );
 }
-export async function specToBuilder(inputData: Promise<InputSpecRaw> | InputSpecRaw, { startSdk = "start-sdk" } = {}) {
+export async function specToBuilder(
+  inputData: Promise<InputSpecRaw> | InputSpecRaw,
+  { startSdk = "start-sdk" } = {}
+) {
   const outputLines: string[] = [];
   outputLines.push(`
   import {Config, Value, List, Variants} from '${startSdk}/config/builder';
@@ -19,8 +24,13 @@ export async function specToBuilder(inputData: Promise<InputSpecRaw> | InputSpec
 
   const namedConsts = new Set(["Config", "Value", "List"]);
   const configName = newConst("InputSpec", convertInputSpec(data));
-  const configMatcherName = newConst("matchInputSpec", `${configName}.validator()`);
-  outputLines.push(`export type InputSpec = typeof ${configMatcherName}._TYPE;`);
+  const configMatcherName = newConst(
+    "matchInputSpec",
+    `${configName}.validator()`
+  );
+  outputLines.push(
+    `export type InputSpec = typeof ${configMatcherName}._TYPE;`
+  );
 
   return outputLines.join("\n");
 
@@ -61,7 +71,10 @@ export async function specToBuilder(inputData: Promise<InputSpecRaw> | InputSpec
       }
       case "union": {
         const { variants, type, ...rest } = value;
-        const variantVariable = newConst(value.name + "_variants", convertVariants(variants));
+        const variantVariable = newConst(
+          value.name + "_variants",
+          convertVariants(variants)
+        );
 
         return `Value.union(${JSON.stringify(rest)}, ${variantVariable})`;
       }
@@ -116,7 +129,10 @@ export async function specToBuilder(inputData: Promise<InputSpecRaw> | InputSpec
         })})`;
       }
       case "object": {
-        const specName = newConst(value.name + "_spec", convertInputSpec(spec.spec));
+        const specName = newConst(
+          value.name + "_spec",
+          convertInputSpec(spec.spec)
+        );
         return `List.obj({
           name: ${JSON.stringify(value.name || null)},
           range: ${JSON.stringify(value.range || null)},

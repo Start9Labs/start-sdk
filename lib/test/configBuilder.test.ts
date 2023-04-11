@@ -113,14 +113,16 @@ describe("values", () => {
     testOutput<typeof validator._TYPE, Array<"a" | "b">>()(null);
   });
   test("object", () => {
-    const value = Value.object({
-      name: "Testing",
-      spec: Config.of({
+    const value = Value.object(
+      {
+        name: "Testing",
+      },
+      Config.of({
         a: Value.boolean({
           name: "test",
         }),
-      }),
-    });
+      })
+    );
     const validator = value.validator();
     validator.unsafeCast({ a: true });
     testOutput<typeof validator._TYPE, { a: boolean }>()(null);

@@ -1,5 +1,5 @@
 import { Daemon } from "../types";
-import { ReadyProof } from "../health/ReadyProof";
+import { ReadyProof } from "./ReadyProof";
 
 export type RunningMainRet = {
   [ReadyProof]: never;

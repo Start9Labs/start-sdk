@@ -79,7 +79,7 @@ export namespace ExpectedExports {
 export type TimeMs = number;
 export type VersionString = string;
 
-type ValidIfNoStupidEscape<A> = A extends
+export type ValidIfNoStupidEscape<A> = A extends
   | `${string}'"'"'${string}`
   | `${string}\\"${string}`
   ? never
@@ -236,23 +236,20 @@ export type Effects = {
     callback?: (config: unknown, previousConfig: unknown) => void;
   }): Promise<unknown>;
 
-  /** Get the address for another service for local internet*/
-  getServiceLocalAddress(options: {
-    packageId: string;
-    interfaceName: string;
-  }): Promise<string>;
+  getLocalHostname(): Promise<string>;
+  getIPHostname(): Promise<string>;
   /** Get the address for another service for tor interfaces */
-  getServiceTorAddress(options: {
-    packageId: string;
-    interfaceName: string;
-  }): Promise<string>;
+  getServiceTorHostname(
+    interfaceId: string,
+    packageId?: string
+  ): Promise<string>;
   /**
    * Get the port address for another service
    */
-  getServicePortForward(options: {
-    packageId: string;
-    internalPort: number;
-  }): Promise<string>;
+  getServicePortForward(
+    internalPort: number,
+    packageId?: string
+  ): Promise<number>;
 
   /** When we want to create a link in the front end interfaces, and example is
    * exposing a url to view a web service
