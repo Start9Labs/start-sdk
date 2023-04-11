@@ -22,13 +22,10 @@ export { Daemons } from "./Daemons";
  * @returns
  */
 export const runningMain: (
-  fn: (o: {
-    effects: Effects;
-    started(onTerm: () => void): null;
-  }) => Promise<Daemons<any>>
+  fn: (o: { effects: Effects; started(onTerm: () => void): null }) => Promise<Daemons<any>>
 ) => ExpectedExports.main = (fn) => {
   return async (options) => {
-    /// TODO BLUJ
-    return null as any;
+    const result = await fn(options);
+    await result.build().then((x) => x.wait());
   };
 };
