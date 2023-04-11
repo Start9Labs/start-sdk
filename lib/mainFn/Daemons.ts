@@ -3,7 +3,6 @@ import { CheckResult } from "../health/checkFns";
 import { Trigger } from "../health/trigger";
 import { Effects, ValidIfNoStupidEscape } from "../types";
 import { InterfaceReceipt } from "./interfaceReceipt";
-import { RunningMainRet } from "./RunningMainRet";
 type Daemon<
   Ids extends string | never,
   Command extends string,
@@ -54,10 +53,10 @@ export class Daemons<Ids extends string | never> {
   private constructor(
     readonly effects: Effects,
     readonly started: (onTerm: () => void) => null,
-    readonly daemons?: Daemon<Ids, "command", never>[]
+    readonly daemons?: Daemon<Ids, "command", any>[]
   ) {}
 
-  static with(config: {
+  static of(config: {
     effects: Effects;
     started: (onTerm: () => void) => null;
     interfaceReceipt: InterfaceReceipt;
@@ -74,6 +73,6 @@ export class Daemons<Ids extends string | never> {
   }
 
   build() {
-    return todo<RunningMainRet>();
+    return todo<any>();
   }
 }

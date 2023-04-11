@@ -1,5 +1,5 @@
-import { RunningMainRet } from "./RunningMainRet";
 import { Effects, ExpectedExports } from "../types";
+import { Daemons } from "./Daemons";
 export * as network from "./exportInterfaces";
 export { LocalBinding } from "./LocalBinding";
 export { LocalPort } from "./LocalPort";
@@ -25,10 +25,10 @@ export const runningMain: (
   fn: (o: {
     effects: Effects;
     started(onTerm: () => void): null;
-  }) => Promise<RunningMainRet>
+  }) => Promise<Daemons<any>>
 ) => ExpectedExports.main = (fn) => {
   return async (options) => {
-    const { daemon } = await fn(options);
-    daemon.wait();
+    /// TODO BLUJ
+    return null as any;
   };
 };
