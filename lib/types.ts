@@ -4,24 +4,39 @@ import { InputSpec } from "./config/configTypes";
 export namespace ExpectedExports {
   version: 1;
   /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
-  export type setConfig = (options: { effects: Effects; input: Record<string, unknown> }) => Promise<unknown>;
+  export type setConfig = (options: {
+    effects: Effects;
+    input: Record<string, unknown>;
+  }) => Promise<unknown>;
   /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
-  export type getConfig = (options: { effects: Effects; config: unknown }) => Promise<ConfigRes>;
+  export type getConfig = (options: {
+    effects: Effects;
+    config: unknown;
+  }) => Promise<ConfigRes>;
   /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
   export type dependencies = Dependencies;
   /** For backing up service data though the embassyOS UI */
-  export type createBackup = (options: { effects: Effects }) => Promise<unknown>;
+  export type createBackup = (options: {
+    effects: Effects;
+  }) => Promise<unknown>;
   /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
-  export type restoreBackup = (options: { effects: Effects }) => Promise<unknown>;
+  export type restoreBackup = (options: {
+    effects: Effects;
+  }) => Promise<unknown>;
   /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
-  export type properties = (options: { effects: Effects }) => Promise<Properties>;
+  export type properties = (options: {
+    effects: Effects;
+  }) => Promise<Properties | null | undefined | void>;
 
   /** Health checks are used to determine if the service is working properly after starting
    * A good use case is if we are using a web server, seeing if we can get to the web server.
    */
   export type health = {
     /** Should be the health check id */
-    [id: string]: (options: { effects: Effects; input: TimeMs }) => Promise<unknown>;
+    [id: string]: (options: {
+      effects: Effects;
+      input: TimeMs;
+    }) => Promise<unknown>;
   };
 
   /**
@@ -30,29 +45,43 @@ export namespace ExpectedExports {
    * service starting, and that file would indicate that it would rescan all the data.
    */
   export type action = {
-    [id: string]: (options: { effects: Effects; input?: Record<string, unknown> }) => Promise<ActionResult>;
+    [id: string]: (options: {
+      effects: Effects;
+      input?: Record<string, unknown>;
+    }) => Promise<ActionResult>;
   };
 
   /**
    * This is the entrypoint for the main container. Used to start up something like the service that the
    * package represents, like running a bitcoind in a bitcoind-wrapper.
    */
-  export type main = (options: { effects: Effects; started(onTerm: () => void): null }) => Promise<unknown>;
+  export type main = (options: {
+    effects: Effects;
+    started(onTerm: () => void): null;
+  }) => Promise<unknown>;
 
   /**
    * Every time a package completes an install, this function is called before the main.
    * Can be used to do migration like things.
    */
-  export type init = (options: { effects: Effects; previousVersion: null | string }) => Promise<unknown>;
+  export type init = (options: {
+    effects: Effects;
+    previousVersion: null | string;
+  }) => Promise<unknown>;
   /** This will be ran during any time a package is uninstalled, for example during a update
    * this will be called.
    */
-  export type uninit = (options: { effects: Effects; nextVersion: null | string }) => Promise<unknown>;
+  export type uninit = (options: {
+    effects: Effects;
+    nextVersion: null | string;
+  }) => Promise<unknown>;
 }
 export type TimeMs = number;
 export type VersionString = string;
 
-export type ValidIfNoStupidEscape<A> = A extends `${string}'"'"'${string}` | `${string}\\"${string}`
+export type ValidIfNoStupidEscape<A> = A extends
+  | `${string}'"'"'${string}`
+  | `${string}\\"${string}`
   ? never
   : "" extends A & ""
   ? never
@@ -77,7 +106,9 @@ export type Daemon = {
 
 export type HealthStatus = "passing" | "warning" | "failing" | "disabled";
 
-export type CommandType<A extends string> = ValidIfNoStupidEscape<A> | [string, ...string[]];
+export type CommandType<A extends string> =
+  | ValidIfNoStupidEscape<A>
+  | [string, ...string[]];
 
 export type DaemonReturned = {
   wait(): Promise<string>;
@@ -87,7 +118,11 @@ export type DaemonReturned = {
 /** Used to reach out from the pure js runtime */
 export type Effects = {
   /** Usable when not sandboxed */
-  writeFile(input: { path: string; volumeId: string; toWrite: string }): Promise<void>;
+  writeFile(input: {
+    path: string;
+    volumeId: string;
+    toWrite: string;
+  }): Promise<void>;
   readFile(input: { volumeId: string; path: string }): Promise<string>;
   metadata(input: { volumeId: string; path: string }): Promise<Metadata>;
   /** Create a directory. Usable when not sandboxed */
@@ -99,10 +134,17 @@ export type Effects = {
   removeFile(input: { volumeId: string; path: string }): Promise<void>;
 
   /** Write a json file into an object. Usable when not sandboxed */
-  writeJsonFile(input: { volumeId: string; path: string; toWrite: Record<string, unknown> }): Promise<void>;
+  writeJsonFile(input: {
+    volumeId: string;
+    path: string;
+    toWrite: Record<string, unknown>;
+  }): Promise<void>;
 
   /** Read a json file into an object */
-  readJsonFile(input: { volumeId: string; path: string }): Promise<Record<string, unknown>>;
+  readJsonFile(input: {
+    volumeId: string;
+    path: string;
+  }): Promise<Record<string, unknown>>;
 
   runCommand<A extends string>(
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
@@ -114,7 +156,9 @@ export type Effects = {
     wait(): Promise<string>;
     term(): Promise<void>;
   };
-  runDaemon<A extends string>(command: ValidIfNoStupidEscape<A> | [string, ...string[]]): DaemonReturned;
+  runDaemon<A extends string>(
+    command: ValidIfNoStupidEscape<A> | [string, ...string[]]
+  ): DaemonReturned;
 
   /** Uses the chown on the system */
   chown(input: { volumeId: string; path: string; uid: string }): Promise<null>;
@@ -142,7 +186,11 @@ export type Effects = {
   /** Declaring that we are opening a interface on some protocal for local network */
   bindLan(options: { internalPort: number; name: string }): Promise<string[]>;
   /** Declaring that we are opening a interface on some protocal for tor network */
-  bindTor(options: { internalPort: number; name: string; externalPort: number }): Promise<string>;
+  bindTor(options: {
+    internalPort: number;
+    name: string;
+    externalPort: number;
+  }): Promise<string>;
 
   /** Similar to the fetch api via the mdn, this is simplified but the point is
    * to get something from some website, and return the response.
@@ -192,11 +240,17 @@ export type Effects = {
   getLocalHostname(): Promise<string>;
   getIPHostname(): Promise<string>;
   /** Get the address for another service for tor interfaces */
-  getServiceTorHostname(interfaceId: string, packageId?: string): Promise<string>;
+  getServiceTorHostname(
+    interfaceId: string,
+    packageId?: string
+  ): Promise<string>;
   /**
    * Get the port address for another service
    */
-  getServicePortForward(internalPort: number, packageId?: string): Promise<number>;
+  getServicePortForward(
+    internalPort: number,
+    packageId?: string
+  ): Promise<number>;
 
   /** When we want to create a link in the front end interfaces, and example is
    * exposing a url to view a web service
@@ -266,13 +320,20 @@ export type Effects = {
    *
    * @returns  PEM encoded fullchain (ecdsa)
    */
-  getSslCertificate: (packageId: string, algorithm?: "ecdsa" | "ed25519") => [string, string, string];
+  getSslCertificate: (
+    packageId: string,
+    algorithm?: "ecdsa" | "ed25519"
+  ) => [string, string, string];
   /**
    * @returns PEM encoded ssl key (ecdsa)
    */
   getSslKey: (packageId: string, algorithm?: "ecdsa" | "ed25519") => string;
 
-  setHealth(o: { name: string; status: HealthStatus; message?: string }): Promise<void>;
+  setHealth(o: {
+    name: string;
+    status: HealthStatus;
+    message?: string;
+  }): Promise<void>;
 };
 
 /* rsync options: https://linux.die.net/man/1/rsync
@@ -396,4 +457,6 @@ export type Dependencies = {
   };
 };
 
-export type DeepPartial<T> = T extends {} ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
+export type DeepPartial<T> = T extends {}
+  ? { [P in keyof T]?: DeepPartial<T[P]> }
+  : T;

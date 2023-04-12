@@ -4,7 +4,11 @@ import { Trigger } from "../health/trigger";
 import { defaultTrigger } from "../health/trigger/defaultTrigger";
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types";
 import { InterfaceReceipt } from "./interfaceReceipt";
-type Daemon<Ids extends string | never, Command extends string, Id extends string> = {
+type Daemon<
+  Ids extends string | never,
+  Command extends string,
+  Id extends string
+> = {
   id: Id;
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]];
 
@@ -59,7 +63,9 @@ export class Daemons<Ids extends string | never> {
   }) {
     return new Daemons<never>(config.effects, config.started);
   }
-  addDaemon<Id extends string, Command extends string>(newDaemon: Daemon<Ids, Command, Id>) {
+  addDaemon<Id extends string, Command extends string>(
+    newDaemon: Daemon<Ids, Command, Id>
+  ) {
     const daemons = ((this?.daemons ?? []) as any[]).concat(newDaemon);
     return new Daemons<Ids | Id>(this.effects, this.started, daemons);
   }
@@ -70,13 +76,19 @@ export class Daemons<Ids extends string | never> {
     const daemons = this.daemons ?? [];
     const _config = await effects.getServiceConfig();
     for (const daemon of daemons) {
-      const requiredPromise = Promise.all(daemon.requires?.map((id) => daemonsStarted[id]) ?? []);
+      const requiredPromise = Promise.all(
+        daemon.requires?.map((id) => daemonsStarted[id]) ?? []
+      );
       daemonsStarted[daemon.id] = requiredPromise.then(async () => {
         const { command } = daemon;
 
         const child = effects.runDaemon(command);
         const trigger = (daemon.ready.trigger ?? defaultTrigger)();
-        for (let res = await trigger.next({}); !res.done; res = await trigger.next({})) {
+        for (
+          let res = await trigger.next({});
+          !res.done;
+          res = await trigger.next({})
+        ) {
           const response = await daemon.ready.fn();
           if (response.status === "passing") {
             return child;
@@ -87,10 +99,18 @@ export class Daemons<Ids extends string | never> {
     }
     return {
       async term() {
-        await Promise.all(Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) => x.then((x) => x.term())));
+        await Promise.all(
+          Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
+            x.then((x) => x.term())
+          )
+        );
       },
       async wait() {
-        await Promise.all(Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) => x.then((x) => x.wait())));
+        await Promise.all(
+          Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
+            x.then((x) => x.wait())
+          )
+        );
       },
     };
   }

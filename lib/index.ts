@@ -11,3 +11,4 @@ export * as TOML from "@iarna/toml";
 export * as Types from "./types";
 export * as util from "./util";
 export * as YAML from "yaml";
+export * as properties from "./properties";
