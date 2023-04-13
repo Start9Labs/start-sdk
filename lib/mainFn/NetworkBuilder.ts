@@ -9,9 +9,9 @@ export class NetworkBuilder {
   private constructor(private effects: Effects) {}
 
   getTorHostName(id: string) {
-    return new TorHostname(id, this.effects);
+    return new TorHostname(this.effects, id);
   }
   getPort(id: string) {
-    return new LocalPort(id, this.effects);
+    return new LocalPort(this.effects, id);
   }
 }

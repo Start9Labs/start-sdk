@@ -74,7 +74,6 @@ export class Daemons<Ids extends string | never> {
     const daemonsStarted = {} as Record<Ids, Promise<DaemonReturned>>;
     const { effects } = this;
     const daemons = this.daemons ?? [];
-    const _config = await effects.getServiceConfig();
     for (const daemon of daemons) {
       const requiredPromise = Promise.all(
         daemon.requires?.map((id) => daemonsStarted[id]) ?? []

@@ -9,8 +9,8 @@ import { timeoutPromise } from "./index";
  * @returns
  */
 export const checkWebUrl = async (
-  url: string,
   effects: Effects,
+  url: string,
   {
     timeout = 1000,
     successMessage = `Reached ${url}`,
