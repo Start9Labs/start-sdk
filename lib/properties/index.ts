@@ -6,9 +6,7 @@ export { PropertyObject } from "./PropertyObject";
 export { PropertyString } from "./PropertyString";
 
 export const test = "";
-export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
-  ? R
-  : never;
+export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any ? R : never;
 
 /**
  * This is used during creating the type of properties fn in the service package.
@@ -20,8 +18,12 @@ export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
 export function setupPropertiesExport(
   fn: (
     ...args: Parameters<ExpectedExports.properties>
-  ) => Promise<Properties<PackagePropertiesV2>>
+  ) => void | Promise<void> | Promise<Properties<PackagePropertiesV2>>
 ): ExpectedExports.properties {
-  return (...args: Parameters<ExpectedExports.properties>) =>
-    fn(...args).then((x) => x.build());
+  return async (...args: Parameters<ExpectedExports.properties>) => {
+    const result = await fn(...args);
+    if (result) {
+      return result.build();
+    }
+  };
 }
