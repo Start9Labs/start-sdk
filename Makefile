@@ -9,7 +9,7 @@ make clean:
 lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
-bundle:  fmt $(TS_FILES) package.json .FORCE node_modules
+bundle:  fmt $(TS_FILES) package.json .FORCE node_modules test
 	rm -rf dist || true
 	npx tsc
 

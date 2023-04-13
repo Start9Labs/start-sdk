@@ -1,3 +1,11 @@
+export {
+  InputSpec,
+  UnionSelectKey,
+  UnionValueKey,
+  unionSelectKey,
+  unionValueKey,
+} from "./configTypes";
+
 export type InputSpecRaw = Record<string, ValueSpec>;
 export type ValueType =
   | "string"
@@ -33,6 +41,7 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
   : T extends "union"
   ? ValueSpecUnion
   : never;
+
 export interface ValueSpecString extends ListValueSpecString, WithStandalone {
   required: boolean;
   default?: DefaultString | null;
