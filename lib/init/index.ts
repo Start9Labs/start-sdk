@@ -4,12 +4,15 @@ declare const ActionProof: unique symbol;
 export type ActionReceipt = {
   [ActionProof]: never;
 };
+export function noActions(): ActionReceipt {
+  return {} as ActionReceipt;
+}
 
 declare const MigrationProof: unique symbol;
 export type MigrationReceipt = {
   [MigrationProof]: never;
 };
-export function noMigration(): MigrationReceipt {
+export function noMigrationsUp(): MigrationReceipt {
   return {} as MigrationReceipt;
 }
 export function migrationUp(fn: () => Promise<unknown>): MigrationReceipt {
@@ -21,7 +24,7 @@ declare const MigrationDownProof: unique symbol;
 export type MigrationDownReceipt = {
   [MigrationDownProof]: never;
 };
-export function noMigrationDown(): MigrationDownReceipt {
+export function noMigrationsDown(): MigrationDownReceipt {
   return {} as MigrationDownReceipt;
 }
 export function migrationDown(
