@@ -1,5 +1,6 @@
 export * as configTypes from "./config/configTypes";
 import { InputSpec } from "./config/configTypes";
+import { ActionReceipt } from "./init";
 
 export namespace ExpectedExports {
   version: 1;
@@ -13,8 +14,8 @@ export namespace ExpectedExports {
     effects: Effects;
     config: unknown;
   }) => Promise<ConfigRes>;
-  /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
-  export type dependencies = Dependencies;
+  // /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
+  // export type dependencies = Dependencies;
   /** For backing up service data though the embassyOS UI */
   export type createBackup = (options: {
     effects: Effects;
@@ -28,16 +29,13 @@ export namespace ExpectedExports {
     effects: Effects;
   }) => Promise<Properties | null | undefined | void>;
 
-  /** Health checks are used to determine if the service is working properly after starting
-   * A good use case is if we are using a web server, seeing if we can get to the web server.
-   */
-  export type health = {
-    /** Should be the health check id */
-    [id: string]: (options: {
-      effects: Effects;
-      input: TimeMs;
-    }) => Promise<unknown>;
-  };
+  // /** Health checks are used to determine if the service is working properly after starting
+  //  * A good use case is if we are using a web server, seeing if we can get to the web server.
+  //  */
+  // export type health = {
+  //   /** Should be the health check id */
+  //   [id: string]: (options: { effects: Effects; input: TimeMs }) => Promise<unknown>;
+  // };
 
   /**
    * Actions are used so we can effect the service, like deleting a directory.
@@ -308,12 +306,12 @@ export type Effects = {
     description: string;
     id: string;
     input: null | InputSpec;
-
+    runningOnly: boolean;
     /**
      * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions
      */
     group?: string;
-  }): Promise<void>;
+  }): Promise<void & ActionReceipt>;
   /**
    * Remove an action that was exported. Used problably during main or during setConfig.
    */
@@ -448,6 +446,11 @@ export type PackagePropertyString = {
   qr?: boolean;
   /** Hiding the value unless toggled off for field */
   masked?: boolean;
+
+  watch?: {
+    packageId?: string;
+    path: string;
+  };
 };
 export type PackagePropertyObject = {
   value: PackagePropertiesV2;

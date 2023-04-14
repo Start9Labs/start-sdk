@@ -31,7 +31,9 @@ export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
         return { error: "Set config type error for config" };
       }
       const output = await options.write({ input, effects });
-      return output;
+      if (output) {
+        await effects.setWrapperData({ path: "config", value: output });
+      }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects, config }) => {
       return {
