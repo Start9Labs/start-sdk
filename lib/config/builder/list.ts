@@ -103,7 +103,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       description?: string | null;
       warning?: string | null;
       /** Default [] */
-      default?: Record<string, unknown>[];
+      default?: [];
       /** Default = "(\*,\*)" */
       range?: string;
     },

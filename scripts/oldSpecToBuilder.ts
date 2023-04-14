@@ -217,7 +217,10 @@ export default async function makeFileContent(
         const values = Object.fromEntries(
           Array.from(allValueNames)
             .filter(string.test)
-            .map((key) => [key, value?.spec?.["value-names"]?.[key] || key])
+            .map((key: string) => [
+              key,
+              value?.spec?.["value-names"]?.[key] || key,
+            ])
         );
         return `Value.multiselect(${JSON.stringify(
           {

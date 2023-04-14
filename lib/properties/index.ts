@@ -6,7 +6,9 @@ export { PropertyObject } from "./PropertyObject";
 export { PropertyString } from "./PropertyString";
 
 export const test = "";
-export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any ? R : never;
+export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
+  ? R
+  : never;
 
 /**
  * This is used during creating the type of properties fn in the service package.
