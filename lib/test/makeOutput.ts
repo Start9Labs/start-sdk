@@ -1,7 +1,7 @@
 import { writeConvertedFile } from "../../scripts/oldSpecToBuilder";
 
 writeConvertedFile(
-  "./output.ts", // Make the location
+  "./lib/test/output.ts", // Make the location
   {
     // Put the config here
     testListUnion: {
@@ -406,6 +406,6 @@ writeConvertedFile(
     },
   },
   {
-    startSdk: "start-sdk",
+    startSdk: "../",
   }
 );

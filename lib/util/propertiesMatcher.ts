@@ -1,14 +1,11 @@
 import * as matches from "ts-matches";
 import { Parser, Validator } from "ts-matches";
-import { Variants } from "../config/builder";
 import {
-  InputSpec,
   UnionSelectKey,
-  unionSelectKey,
-  unionValueKey,
   UnionValueKey,
   ValueSpec as ValueSpecAny,
-} from "../config/configTypes";
+} from "../config/configTypesRaw";
+import { InputSpecRaw } from "../config/configTypesRaw";
 
 const {
   string,
@@ -336,7 +333,7 @@ export function guardAll<A extends ValueSpecAny>(
  * @param valueDictionary
  * @returns
  */
-export function typeFromProps<A extends InputSpec>(
+export function typeFromProps<A extends InputSpecRaw>(
   valueDictionary: A
 ): Parser<unknown, TypeFromProps<A>> {
   if (!recordString.test(valueDictionary)) return unknown as any;

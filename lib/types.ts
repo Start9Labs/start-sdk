@@ -231,11 +231,21 @@ export type Effects = {
     progress: () => Promise<number>;
   };
 
-  getServiceConfig(options?: {
+  /** Get a value in a json like data, can be observed and subscribed */
+  getWrapperData(options?: {
+    /** If there is no packageId it is assumed the current package */
     packageId?: string;
+    /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
     path?: string;
-    callback?: (config: unknown, previousConfig: unknown) => void;
+    callback: (config: unknown, previousConfig: unknown) => void;
   }): Promise<unknown>;
+
+  /** Used to store values that can be accessed and subscribed to */
+  setWrapperData(options?: {
+    /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+    path?: string;
+    value: unknown;
+  }): Promise<void>;
 
   getLocalHostname(): Promise<string>;
   getIPHostname(): Promise<string>;
@@ -334,6 +344,9 @@ export type Effects = {
     status: HealthStatus;
     message?: string;
   }): Promise<void>;
+
+  restart(): void;
+  shutdown(): void;
 };
 
 /* rsync options: https://linux.die.net/man/1/rsync
