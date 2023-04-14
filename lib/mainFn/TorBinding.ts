@@ -1,8 +1,8 @@
 import { Origin } from "./Origin";
 
 export class TorBinding {
-  constructor(readonly address: string) {}
+  constructor(readonly host: string) {}
   createOrigin(protocol: string) {
-    return new Origin(protocol, this.address);
+    return new Origin(protocol, this.host);
   }
 }

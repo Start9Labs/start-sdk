@@ -1,11 +1,11 @@
 import { Origin } from "./Origin";
 
 export class LocalBinding {
-  constructor(readonly localAddress: string, readonly ipAddress: string) {}
+  constructor(readonly localHost: string, readonly ipHost: string) {}
   createOrigins(protocol: string) {
     return {
-      local: new Origin(protocol, this.localAddress),
-      ip: new Origin(protocol, this.ipAddress),
+      local: new Origin(protocol, this.localHost),
+      ip: new Origin(protocol, this.ipHost),
     };
   }
 }

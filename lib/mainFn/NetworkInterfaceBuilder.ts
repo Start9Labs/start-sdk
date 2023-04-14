@@ -18,11 +18,8 @@ export class NetworkInterfaceBuilder {
 
   async exportAddresses(addresses: Iterable<Origin>) {
     const { name, description, id, ui, path, search } = this.options;
-    // prettier-ignore
-    const urlAuth = !!(this.options?.basic) ? `${this.options.basic.username}:${this.options.basic.password}@` :
-            '';
     for (const origin of addresses) {
-      const address = `${origin.protocol}://${urlAuth}${origin.address}`;
+      const address = origin.withAuth(this.options.basic);
       await this.options.effects.exportAddress({
         name,
         description,

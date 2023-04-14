@@ -20,8 +20,10 @@ export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
 export function setupPropertiesExport(
   fn: (
     ...args: Parameters<ExpectedExports.properties>
-  ) => Promise<Properties<PackagePropertiesV2>>
+  ) => Promise<void> | void | Promise<Properties<PackagePropertiesV2>>
 ): ExpectedExports.properties {
-  return (...args: Parameters<ExpectedExports.properties>) =>
-    fn(...args).then((x) => x.build());
+  return async (...args: Parameters<ExpectedExports.properties>) => {
+    const value = await fn(...args);
+    if (value) return value.build();
+  };
 }
