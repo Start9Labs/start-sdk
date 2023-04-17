@@ -1,5 +1,11 @@
 import { Config } from "./builder";
-import { DeepPartial, Dependencies, DependsOn, Effects, ExpectedExports } from "../types";
+import {
+  DeepPartial,
+  Dependencies,
+  DependsOn,
+  Effects,
+  ExpectedExports,
+} from "../types";
 import { InputSpec } from "./configTypes";
 import { nullIfEmpty } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
@@ -13,8 +19,14 @@ import { TypeFromProps } from "../util/propertiesMatcher";
  */
 export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
   spec: Config<A>;
-  write(options: { effects: Effects; input: TypeFromProps<A> }): Promise<[ConfigType, Dependencies]>;
-  read(options: { effects: Effects; config: ConfigType }): Promise<null | DeepPartial<TypeFromProps<A>>>;
+  write(options: {
+    effects: Effects;
+    input: TypeFromProps<A>;
+  }): Promise<[ConfigType, Dependencies]>;
+  read(options: {
+    effects: Effects;
+    config: ConfigType;
+  }): Promise<null | DeepPartial<TypeFromProps<A>>>;
 }) {
   const validator = options.spec.validator();
   return {
@@ -31,7 +43,9 @@ export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
     getConfig: (async ({ effects, config }) => {
       return {
         spec: options.spec.build(),
-        config: nullIfEmpty(await options.read({ effects, config: config as ConfigType })),
+        config: nullIfEmpty(
+          await options.read({ effects, config: config as ConfigType })
+        ),
       };
     }) as ExpectedExports.getConfig,
   };
