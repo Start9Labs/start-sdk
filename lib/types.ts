@@ -81,9 +81,25 @@ export namespace ExpectedExports {
     effects: Effects;
     nextVersion: null | string;
   }) => Promise<unknown>;
+
+  /** Auto configure is used to make sure that other dependencies have the values t
+   * that this service could use.
+   */
+  export type autoConfig<Config> = Record<PackageId, AutoConfigure<Config>>;
 }
 export type TimeMs = number;
 export type VersionString = string;
+
+/**
+ * AutoConfigure is used as the value to the key of package id,
+ * this is used to make sure that other dependencies have the values that this service could use.
+ */
+export type AutoConfigure<Config> = {
+  /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
+  check(effects: Effects, input: Config): Promise<void>;
+  /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
+  autoConfigure(effects: Effects, input: Config): Promise<Config>;
+};
 
 export type ValidIfNoStupidEscape<A> = A extends
   | `${string}'"'"'${string}`

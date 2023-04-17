@@ -10,7 +10,6 @@ lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
 bundle:  fmt $(TS_FILES) package.json .FORCE node_modules test
-	rm -rf dist || true
 	npx tsc
 
 check:
@@ -22,7 +21,7 @@ fmt: node_modules
 node_modules: package.json
 	npm install
 
-publish: bundle	 package.json README.md LICENSE
+publish: clean bundle	 package.json README.md LICENSE
 	cp package.json dist/package.json
 	cp README.md dist/README.md
 	cp LICENSE dist/LICENSE
