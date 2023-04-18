@@ -4,8 +4,8 @@ import {
   UnionSelectKey,
   UnionValueKey,
   ValueSpec as ValueSpecAny,
-} from "../config/configTypesRaw";
-import { InputSpecRaw } from "../config/configTypesRaw";
+  InputSpec,
+} from "../config/configTypes";
 
 const {
   string,
@@ -333,7 +333,7 @@ export function guardAll<A extends ValueSpecAny>(
  * @param valueDictionary
  * @returns
  */
-export function typeFromProps<A extends InputSpecRaw>(
+export function typeFromProps<A extends InputSpec>(
   valueDictionary: A
 ): Parser<unknown, TypeFromProps<A>> {
   if (!recordString.test(valueDictionary)) return unknown as any;

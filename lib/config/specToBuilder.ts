@@ -1,11 +1,11 @@
 import camelCase from "lodash/camelCase";
 import * as fs from "fs";
-import { InputSpecRaw } from "./configTypesRaw";
-import * as C from "./configTypesRaw";
+import { InputSpec } from "./configTypes";
+import * as C from "./configTypes";
 
 export async function specToBuilderFile(
   file: string,
-  inputData: Promise<InputSpecRaw> | InputSpecRaw,
+  inputData: Promise<InputSpec> | InputSpec,
   options: Parameters<typeof specToBuilder>[1]
 ) {
   await fs.writeFile(file, await specToBuilder(inputData, options), (err) =>
@@ -13,7 +13,7 @@ export async function specToBuilderFile(
   );
 }
 export async function specToBuilder(
-  inputData: Promise<InputSpecRaw> | InputSpecRaw,
+  inputData: Promise<InputSpec> | InputSpec,
   { startSdk = "start-sdk" } = {}
 ) {
   const outputLines: string[] = [];
@@ -39,7 +39,7 @@ export async function specToBuilder(
     outputLines.push(`export const ${variableName} = ${data};`);
     return variableName;
   }
-  function convertInputSpec(data: C.InputSpecRaw) {
+  function convertInputSpec(data: C.InputSpec) {
     let answer = "Config.of({";
     for (const [key, value] of Object.entries(data)) {
       const variableName = newConst(key, convertValueSpec(value));
@@ -153,7 +153,7 @@ export async function specToBuilder(
       string,
       {
         name: string;
-        spec: C.InputSpecRaw;
+        spec: C.InputSpec;
       }
     >
   ): string {

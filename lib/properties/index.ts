@@ -1,11 +1,12 @@
-import { ExpectedExports, PackagePropertiesV2 } from "../types";
+import { ExpectedExports, Properties } from "../types";
 import "../util/extensions";
-import { Properties } from "./Properties";
-export { Properties } from "./Properties";
-export { PropertyObject } from "./PropertyObject";
+import { PropertyGroup } from "./PropertyGroup";
+import { PropertyString } from "./PropertyString";
+export { PropertyGroup } from "./PropertyGroup";
 export { PropertyString } from "./PropertyString";
 
 export const test = "";
+
 export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
   ? R
   : never;
@@ -20,12 +21,13 @@ export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
 export function setupPropertiesExport(
   fn: (
     ...args: Parameters<ExpectedExports.properties>
-  ) => void | Promise<void> | Promise<Properties<PackagePropertiesV2>>
+  ) => void | Promise<void> | Promise<(PropertyGroup | PropertyString)[]>
 ): ExpectedExports.properties {
-  return async (...args: Parameters<ExpectedExports.properties>) => {
+  return (async (...args) => {
     const result = await fn(...args);
     if (result) {
-      return result.build();
+      const answer: Properties = result.map((x) => x.data);
+      return answer;
     }
-  };
+  }) as ExpectedExports.properties;
 }

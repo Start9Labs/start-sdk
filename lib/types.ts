@@ -25,8 +25,8 @@ export namespace ExpectedExports {
     effects: Effects;
   }) => Promise<unknown>;
   /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
-  export type properties = (options: {
-    effects: Effects;
+  export type properties = <WrapperData>(options: {
+    wrapperData: WrapperData;
   }) => Promise<Properties | null | undefined | void>;
 
   // /** Health checks are used to determine if the service is working properly after starting
@@ -256,7 +256,7 @@ export type Effects = {
   };
 
   /** Get a value in a json like data, can be observed and subscribed */
-  getWrapperData(options?: {
+  getWrapperData(options: {
     /** If there is no packageId it is assumed the current package */
     packageId?: string;
     /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
@@ -265,7 +265,7 @@ export type Effects = {
   }): Promise<unknown>;
 
   /** Used to store values that can be accessed and subscribed to */
-  setWrapperData(options?: {
+  setWrapperData(options: {
     /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
     path?: string;
     value: unknown;
@@ -469,35 +469,27 @@ export type KnownError =
       "error-code": [number, string] | readonly [number, string];
     };
 
-export type PackagePropertiesV2 = {
-  [name: string]: PackagePropertyObject | PackagePropertyString;
-};
+export type PackageProperties = PackagePropertyGroup | PackagePropertyString;
 export type PackagePropertyString = {
   type: "string";
-  description?: string;
+  name: string;
+  description: string | null;
   value: string;
   /** Let's the ui make this copyable button */
-  copyable?: boolean;
+  copyable: boolean;
   /** Let the ui create a qr for this field */
-  qr?: boolean;
+  qr: boolean;
   /** Hiding the value unless toggled off for field */
-  masked?: boolean;
-
-  watch?: {
-    packageId?: string;
-    path: string;
-  };
+  masked: boolean;
 };
-export type PackagePropertyObject = {
-  value: PackagePropertiesV2;
+export type PackagePropertyGroup = {
+  value: PackageProperties[];
   type: "object";
+  name: string;
   description: string;
 };
 
-export type Properties = {
-  version: 2;
-  data: PackagePropertiesV2;
-};
+export type Properties = PackageProperties[];
 
 export type Dependency = {
   id: PackageId;
