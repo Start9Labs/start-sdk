@@ -22,11 +22,17 @@ export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
   write(options: {
     effects: Effects;
     input: TypeFromProps<A>;
-  }): Promise<{ config?: ConfigType; dependencies?: Dependencies }>;
+  }): Promise<ConfigType>;
   read(options: {
     effects: Effects;
     config: ConfigType;
   }): Promise<null | DeepPartial<TypeFromProps<A>>>;
+
+  dependencies(options: {
+    effects: Effects;
+    input: TypeFromProps<A>;
+    config: ConfigType;
+  }): Promise<Dependencies | void>;
 }) {
   const validator = options.spec.validator();
   return {
@@ -35,9 +41,13 @@ export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
         await effects.error(String(validator.errorMessage(input)));
         return { error: "Set config type error for config" };
       }
-      const { config, dependencies } = await options.write({ input, effects });
-
-      await effects.setDependencies(dependencies || []);
+      const config = await options.write({
+        input: JSON.parse(JSON.stringify(input)),
+        effects,
+      });
+      const dependencies =
+        (await options.dependencies({ effects, input, config })) || [];
+      await effects.setDependencies(dependencies);
       await effects.setWrapperData({ path: "config", value: config || null });
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects, config }) => {
