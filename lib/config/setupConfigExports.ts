@@ -1,15 +1,19 @@
 import { Config } from "./builder";
-import {
-  DeepPartial,
-  Dependencies,
-  DependsOn,
-  Effects,
-  ExpectedExports,
-} from "../types";
+import { DeepPartial, Dependencies, DependsOn, Effects, ExpectedExports } from "../types";
 import { InputSpec } from "./configTypes";
 import { nullIfEmpty } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
 
+export type Write<A, ConfigType> = (options: { effects: Effects; input: TypeFromProps<A> }) => Promise<ConfigType>;
+export type Read<A, ConfigType> = (options: {
+  effects: Effects;
+  config: ConfigType;
+}) => Promise<null | DeepPartial<TypeFromProps<A>>>;
+export type DependenciesFn<A, ConfigType> = (options: {
+  effects: Effects;
+  input: TypeFromProps<A>;
+  config: ConfigType;
+}) => Promise<Dependencies | void>;
 /**
  * We want to setup a config export with a get and set, this
  * is going to be the default helper to setup config, because it will help
@@ -19,20 +23,9 @@ import { TypeFromProps } from "../util/propertiesMatcher";
  */
 export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
   spec: Config<A>;
-  write(options: {
-    effects: Effects;
-    input: TypeFromProps<A>;
-  }): Promise<ConfigType>;
-  read(options: {
-    effects: Effects;
-    config: ConfigType;
-  }): Promise<null | DeepPartial<TypeFromProps<A>>>;
-
-  dependencies(options: {
-    effects: Effects;
-    input: TypeFromProps<A>;
-    config: ConfigType;
-  }): Promise<Dependencies | void>;
+  write: Write<A, ConfigType>;
+  read: Read<A, ConfigType>;
+  dependencies: DependenciesFn<A, ConfigType>;
 }) {
   const validator = options.spec.validator();
   return {
@@ -45,17 +38,14 @@ export function setupConfigExports<A extends InputSpec, ConfigType>(options: {
         input: JSON.parse(JSON.stringify(input)),
         effects,
       });
-      const dependencies =
-        (await options.dependencies({ effects, input, config })) || [];
+      const dependencies = (await options.dependencies({ effects, input, config })) || [];
       await effects.setDependencies(dependencies);
       await effects.setWrapperData({ path: "config", value: config || null });
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects, config }) => {
       return {
         spec: options.spec.build(),
-        config: nullIfEmpty(
-          await options.read({ effects, config: config as ConfigType })
-        ),
+        config: nullIfEmpty(await options.read({ effects, config: config as ConfigType })),
       };
     }) as ExpectedExports.getConfig,
   };
