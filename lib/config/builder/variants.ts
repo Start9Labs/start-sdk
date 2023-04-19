@@ -57,12 +57,12 @@ export class Variants<
       name: string;
       spec: InputSpec;
     };
-  }
+  },
 > extends IBuilder<A> {
   static of<
     A extends {
       [key: string]: { name: string; spec: Config<InputSpec> };
-    }
+    },
   >(a: A) {
     const variants: {
       [K in keyof A]: { name: string; spec: BuilderExtract<A[K]["spec"]> };
@@ -82,7 +82,7 @@ export class Variants<
   }
   static withVariant<K extends string, B extends InputSpec>(
     key: K,
-    value: Config<B>
+    value: Config<B>,
   ) {
     return Variants.empty().withVariant(key, value);
   }

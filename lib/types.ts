@@ -85,7 +85,7 @@ export namespace ExpectedExports {
   /** Auto configure is used to make sure that other dependencies have the values t
    * that this service could use.
    */
-  export type autoConfig<Config> = Record<PackageId, AutoConfigure<Config>>;
+  export type autoConfig = Record<PackageId, AutoConfigure>;
 }
 export type TimeMs = number;
 export type VersionString = string;
@@ -94,11 +94,19 @@ export type VersionString = string;
  * AutoConfigure is used as the value to the key of package id,
  * this is used to make sure that other dependencies have the values that this service could use.
  */
-export type AutoConfigure<Config> = {
+export type AutoConfigure = {
   /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
-  check(effects: Effects, input: Config): Promise<void>;
+  check(options: {
+    effects: Effects;
+    localConfig: unknown;
+    remoteConfig: unknown;
+  }): Promise<void>;
   /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
-  autoConfigure(effects: Effects, input: Config): Promise<Config>;
+  autoConfigure(options: {
+    effects: Effects;
+    localConfig: unknown;
+    remoteConfig: unknown;
+  }): Promise<unknown>;
 };
 
 export type ValidIfNoStupidEscape<A> = A extends
@@ -172,14 +180,14 @@ export type Effects = {
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
     input?: {
       timeoutMillis?: number;
-    }
+    },
   ): Promise<string>;
   runShellDaemon(command: string): {
     wait(): Promise<string>;
     term(): Promise<void>;
   };
   runDaemon<A extends string>(
-    command: ValidIfNoStupidEscape<A> | [string, ...string[]]
+    command: ValidIfNoStupidEscape<A> | [string, ...string[]],
   ): DaemonReturned;
 
   /** Uses the chown on the system */
@@ -225,7 +233,7 @@ export type Effects = {
       method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH";
       headers?: Record<string, string>;
       body?: string;
-    }
+    },
   ): Promise<{
     method: string;
     ok: boolean;
@@ -256,19 +264,19 @@ export type Effects = {
   };
 
   /** Get a value in a json like data, can be observed and subscribed */
-  getWrapperData(options: {
+  getWrapperData<WrapperData = never, Path extends string = never>(options: {
     /** If there is no packageId it is assumed the current package */
     packageId?: string;
     /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
-    path?: string;
+    path: Path & EnsureWrapperDataPath<WrapperData, Path>;
     callback: (config: unknown, previousConfig: unknown) => void;
-  }): Promise<unknown>;
+  }): Promise<ExtractWrapperData<WrapperData, Path>>;
 
   /** Used to store values that can be accessed and subscribed to */
-  setWrapperData(options: {
+  setWrapperData<WrapperData = never, Path extends string = never>(options: {
     /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
-    path?: string;
-    value: unknown;
+    path: Path & EnsureWrapperDataPath<WrapperData, Path>;
+    value: ExtractWrapperData<WrapperData, Path>;
   }): Promise<void>;
 
   getLocalHostname(): Promise<string>;
@@ -276,14 +284,14 @@ export type Effects = {
   /** Get the address for another service for tor interfaces */
   getServiceTorHostname(
     interfaceId: string,
-    packageId?: string
+    packageId?: string,
   ): Promise<string>;
   /**
    * Get the port address for another service
    */
   getServicePortForward(
     internalPort: number,
-    packageId?: string
+    packageId?: string,
   ): Promise<number>;
 
   /** When we want to create a link in the front end interfaces, and example is
@@ -356,7 +364,7 @@ export type Effects = {
    */
   getSslCertificate: (
     packageId: string,
-    algorithm?: "ecdsa" | "ed25519"
+    algorithm?: "ecdsa" | "ed25519",
   ) => [string, string, string];
   /**
    * @returns PEM encoded ssl key (ecdsa)
@@ -378,6 +386,20 @@ export type Effects = {
   restart(): void;
   shutdown(): void;
 };
+
+// prettier-ignore
+export type ExtractWrapperData<WrapperData, Path extends string> = 
+  Path extends `/${infer A }/${infer Rest }` ? (A extends keyof WrapperData ? ExtractWrapperData<WrapperData[A], `/${Rest}`> : never) :
+  Path extends `/${infer A }` ? (A extends keyof WrapperData ? WrapperData[A] : never) :
+  never
+
+// prettier-ignore
+type _EnsureWrapperDataPath<WrapperData, Path extends string, Origin extends string> = 
+Path extends `/${infer A }/${infer Rest }` ? (A extends keyof WrapperData ? ExtractWrapperData<WrapperData[A], `/${Rest}`> : never) :
+Path extends `/${infer A }` ? (A extends keyof WrapperData ? Origin : never) :
+never
+// prettier-ignore
+export type EnsureWrapperDataPath<WrapperData, Path extends string> = _EnsureWrapperDataPath<WrapperData, Path, Path>
 
 /* rsync options: https://linux.die.net/man/1/rsync
  */

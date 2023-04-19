@@ -160,7 +160,7 @@ export type DefaultString =
 // sometimes the type checker needs just a little bit of help
 export function isValueSpecListOf<S extends ListValueSpecType>(
   t: ValueSpecListOf<ListValueSpecType>,
-  s: S
+  s: S,
 ): t is ValueSpecListOf<S> & { spec: ListValueSpecOf<S> } {
   return t.spec.type === s;
 }

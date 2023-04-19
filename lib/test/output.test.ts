@@ -20,7 +20,7 @@ function isObject(item: unknown): item is object {
   return !!(item && typeof item === "object" && !Array.isArray(item));
 }
 type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
-  x: infer R
+  x: infer R,
 ) => any
   ? R
   : never;
@@ -61,14 +61,14 @@ testOutput<
 >()(null);
 testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null);
 testOutput<InputSpec["advanced"]["peers"]["addnode"][0]["hostname"], string>()(
-  null
+  null,
 );
 testOutput<
   InputSpec["testListUnion"][0]["union"][UnionValueKey]["name"],
   string
 >()(null);
 testOutput<InputSpec["testListUnion"][0]["union"][UnionSelectKey], "lnd">()(
-  null
+  null,
 );
 // prettier-ignore
 // @ts-expect-error Expect that the string is the one above
@@ -139,19 +139,19 @@ describe("Inputs", () => {
   test("test errors", () => {
     expect(() =>
       matchInputSpec.unsafeCast(
-        mergeDeep(validInput, { rpc: { advanced: { threads: 0 } } })
-      )
+        mergeDeep(validInput, { rpc: { advanced: { threads: 0 } } }),
+      ),
     ).toThrowError();
     expect(() =>
-      matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { enable: 2 } }))
+      matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { enable: 2 } })),
     ).toThrowError();
 
     expect(() =>
       matchInputSpec.unsafeCast(
         mergeDeep(validInput, {
           rpc: { advanced: { serialversion: "testing" } },
-        })
-      )
+        }),
+      ),
     ).toThrowError();
   });
 });

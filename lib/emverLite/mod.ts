@@ -248,7 +248,7 @@ export class Checker {
      * Check is the function that will be given a emver or unparsed emver and should give if it follows
      * a pattern
      */
-    public readonly check: (value: string | EmVer) => boolean
+    public readonly check: (value: string | EmVer) => boolean,
   ) {}
 
   /**

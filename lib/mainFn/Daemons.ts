@@ -7,7 +7,7 @@ import { InterfaceReceipt } from "./interfaceReceipt";
 type Daemon<
   Ids extends string | never,
   Command extends string,
-  Id extends string
+  Id extends string,
 > = {
   id: Id;
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]];
@@ -52,7 +52,7 @@ export class Daemons<Ids extends string | never> {
   private constructor(
     readonly effects: Effects,
     readonly started: (onTerm: () => void) => null,
-    readonly daemons?: Daemon<Ids, "command", Ids>[]
+    readonly daemons?: Daemon<Ids, "command", Ids>[],
   ) {}
 
   static of(config: {
@@ -64,7 +64,7 @@ export class Daemons<Ids extends string | never> {
     return new Daemons<never>(config.effects, config.started);
   }
   addDaemon<Id extends string, Command extends string>(
-    newDaemon: Daemon<Ids, Command, Id>
+    newDaemon: Daemon<Ids, Command, Id>,
   ) {
     const daemons = ((this?.daemons ?? []) as any[]).concat(newDaemon);
     return new Daemons<Ids | Id>(this.effects, this.started, daemons);
@@ -76,7 +76,7 @@ export class Daemons<Ids extends string | never> {
     const daemons = this.daemons ?? [];
     for (const daemon of daemons) {
       const requiredPromise = Promise.all(
-        daemon.requires?.map((id) => daemonsStarted[id]) ?? []
+        daemon.requires?.map((id) => daemonsStarted[id]) ?? [],
       );
       daemonsStarted[daemon.id] = requiredPromise.then(async () => {
         const { command } = daemon;
@@ -100,15 +100,15 @@ export class Daemons<Ids extends string | never> {
       async term() {
         await Promise.all(
           Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
-            x.then((x) => x.term())
-          )
+            x.then((x) => x.term()),
+          ),
         );
       },
       async wait() {
         await Promise.all(
           Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
-            x.then((x) => x.wait())
-          )
+            x.then((x) => x.wait()),
+          ),
         );
       },
     };

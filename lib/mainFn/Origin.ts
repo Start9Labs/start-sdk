@@ -8,7 +8,7 @@ export class Origin {
           username: string;
         }
       | null
-      | undefined
+      | undefined,
   ) {
     // prettier-ignore
     const urlAuth = !!(origin) ? `${origin.username}:${origin.password}@` :

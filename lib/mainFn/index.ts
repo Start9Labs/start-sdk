@@ -25,7 +25,7 @@ export const runningMain: (
   fn: (o: {
     effects: Effects;
     started(onTerm: () => void): null;
-  }) => Promise<Daemons<any>>
+  }) => Promise<Daemons<any>>,
 ) => ExpectedExports.main = (fn) => {
   return async (options) => {
     const result = await fn(options);

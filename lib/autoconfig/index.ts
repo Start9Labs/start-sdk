@@ -6,4 +6,4 @@ export type MaybePromise<A> = Promise<A> | A;
 export type Message = string;
 
 export { AutoConfig } from "./AutoConfig";
-export { autoconfigSetup } from "./autoconfigSetup";
+export { setupAutoConfig } from "./setupAutoConfig";

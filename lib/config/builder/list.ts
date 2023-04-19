@@ -40,7 +40,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       patternDescription?: string | null;
       /** Default = "text" */
       inputmode?: ListValueSpecString["inputmode"];
-    }
+    },
   ) {
     const spec = {
       type: "string" as const,
@@ -77,7 +77,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       range?: string;
       units?: string | null;
       placeholder?: string | null;
-    }
+    },
   ) {
     const spec = {
       type: "number" as const,
@@ -111,7 +111,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       spec: Spec;
       displayAs?: null | string;
       uniqueBy?: null | UniqueBy;
-    }
+    },
   ) {
     const { spec: previousSpecSpec, ...restSpec } = aSpec;
     const specSpec = previousSpecSpec.build() as BuilderExtract<Spec>;

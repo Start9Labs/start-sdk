@@ -8,7 +8,7 @@ type UnReadonly<A> = { -readonly [k in keyof A]: A[k] };
 declare global {
   interface Object {
     entries<T extends {}>(
-      this: T
+      this: T,
     ): Array<{ -readonly [K in keyof T]: [K, T[K]] }[keyof T]>;
     values<T extends {}>(this: T): Array<T[keyof T]>;
     keys<T extends {}>(this: T): Array<keyof T>;

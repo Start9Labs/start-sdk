@@ -154,7 +154,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       description?: string | null;
       warning?: string | null;
     },
-    previousSpec: Spec
+    previousSpec: Spec,
   ) {
     const spec = previousSpec.build() as BuilderExtract<Spec>;
     return new Value({
@@ -166,7 +166,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     });
   }
   static union<
-    V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>
+    V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>,
   >(
     a: {
       name: string;
@@ -175,7 +175,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       required: boolean;
       default?: string | null;
     },
-    aVariants: V
+    aVariants: V,
   ) {
     const variants = aVariants.build() as BuilderExtract<V>;
     return new Value({

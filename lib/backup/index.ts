@@ -40,7 +40,7 @@ export class Backups {
 
   constructor(
     private options = DEFAULT_OPTIONS,
-    private backupSet = [] as BackupSet[]
+    private backupSet = [] as BackupSet[],
   ) {}
   static volumes(...volumeNames: string[]) {
     return new Backups().addSets(
@@ -49,7 +49,7 @@ export class Backups {
         srcPath: "./",
         dstPath: `./${srcVolume}/`,
         dstVolume: Backups.BACKUP,
-      }))
+      })),
     );
   }
   static addSets(...options: BackupSet[]) {
@@ -72,12 +72,12 @@ export class Backups {
         srcPath: "./",
         dstPath: `./${srcVolume}/`,
         dstVolume: Backups.BACKUP,
-      }))
+      })),
     );
   }
   addSets(...options: BackupSet[]) {
     options.forEach((x) =>
-      this.backupSet.push({ ...x, options: { ...this.options, ...x.options } })
+      this.backupSet.push({ ...x, options: { ...this.options, ...x.options } }),
     );
     return this;
   }
@@ -98,7 +98,7 @@ export class Backups {
         .map((x) => x.dstPath)
         .map((x) => x.replace(/\.\/([^]*)\//, "$1"));
       const filteredItems = previousItems.filter(
-        (x) => backupPaths.indexOf(x) === -1
+        (x) => backupPaths.indexOf(x) === -1,
       );
       for (const itemToRemove of filteredItems) {
         effects.error(`Trying to remove ${itemToRemove}`);
@@ -111,7 +111,7 @@ export class Backups {
             effects.removeFile({
               volumeId: Backups.BACKUP,
               path: itemToRemove,
-            })
+            }),
           )
           .catch(() => {
             effects.warn(`Failed to remove ${itemToRemove} from backup volume`);

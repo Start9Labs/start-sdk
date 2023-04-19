@@ -141,7 +141,7 @@ function charRange(value = "") {
  */
 export function generateDefault(
   generate: { charset: string; len: number },
-  { random = () => Math.random() } = {}
+  { random = () => Math.random() } = {},
 ) {
   const validCharSets: number[][] = generate.charset
     .split(",")
@@ -152,7 +152,7 @@ export function generateDefault(
   }
   const max = validCharSets.reduce(
     (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
-    0
+    0,
   );
   let i = 0;
   const answer: string[] = Array(generate.len);
@@ -161,7 +161,7 @@ export function generateDefault(
     const inRange = validCharSets.reduce(
       (acc, [lower, upper]) =>
         acc || (nextValue >= lower && nextValue <= upper),
-      false
+      false,
     );
     if (!inRange) continue;
     answer[i] = String.fromCharCode(nextValue);
@@ -186,7 +186,7 @@ export function matchNumberWithRange(range: string) {
         ? "any"
         : left === "["
         ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`
+        : `greaterThan${leftValue}`,
     )
     .validate(
       // prettier-ignore
@@ -196,7 +196,7 @@ export function matchNumberWithRange(range: string) {
       // prettier-ignore
       rightValue === "*" ? "any" :
         right === "]" ? `lessThanOrEqualTo${rightValue}` :
-          `lessThan${rightValue}`
+          `lessThan${rightValue}`,
     );
 }
 function withIntegral(parser: Parser<unknown, number>, value: unknown) {
@@ -219,7 +219,7 @@ function defaultRequired<A>(parser: Parser<unknown, A>, value: unknown) {
   if (matchDefault.test(value)) {
     if (isGenerator(value.default)) {
       return parser.defaultTo(
-        parser.unsafeCast(generateDefault(value.default))
+        parser.unsafeCast(generateDefault(value.default)),
       );
     }
     return parser.defaultTo(value.default);
@@ -237,7 +237,7 @@ function defaultRequired<A>(parser: Parser<unknown, A>, value: unknown) {
  * @returns
  */
 export function guardAll<A extends ValueSpecAny>(
-  value: A
+  value: A,
 ): Parser<unknown, GuardAll<A>> {
   if (!isType.test(value)) {
     return unknown as any;
@@ -255,7 +255,7 @@ export function guardAll<A extends ValueSpecAny>(
     case "number":
       return defaultRequired(
         withIntegral(withRange(value), value),
-        value
+        value,
       ) as any;
 
     case "object":
@@ -274,7 +274,7 @@ export function guardAll<A extends ValueSpecAny>(
         matches
           .arrayOf(guardAll(spec as any))
           .validate((x) => rangeValidate(x.length), "valid length"),
-        value
+        value,
       ) as any;
     }
     case "select":
@@ -282,7 +282,7 @@ export function guardAll<A extends ValueSpecAny>(
         const valueKeys = Object.keys(value.values);
         return defaultRequired(
           literals(valueKeys[0], ...valueKeys),
-          value
+          value,
         ) as any;
       }
       return unknown as any;
@@ -290,19 +290,19 @@ export function guardAll<A extends ValueSpecAny>(
     case "multiselect":
       if (matchValues.test(value)) {
         const maybeAddRangeValidate = <X extends Validator<unknown, B[]>, B>(
-          x: X
+          x: X,
         ) => {
           if (!matchRange.test(value)) return x;
           return x.validate(
             (x) => matchNumberWithRange(value.range).test(x.length),
-            "validLength"
+            "validLength",
           );
         };
 
         const valueKeys = Object.keys(value.values);
         return defaultRequired(
           maybeAddRangeValidate(arrayOf(literals(valueKeys[0], ...valueKeys))),
-          value
+          value,
         ) as any;
       }
       return unknown as any;
@@ -316,8 +316,8 @@ export function guardAll<A extends ValueSpecAny>(
               object({
                 unionSelectKey: literals(name),
                 unionValueKey: typeFromProps(spec),
-              })
-            )
+              }),
+            ),
         ) as any;
       }
       return unknown as any;
@@ -334,7 +334,7 @@ export function guardAll<A extends ValueSpecAny>(
  * @returns
  */
 export function typeFromProps<A extends InputSpec>(
-  valueDictionary: A
+  valueDictionary: A,
 ): Parser<unknown, TypeFromProps<A>> {
   if (!recordString.test(valueDictionary)) return unknown as any;
   return object(
@@ -342,7 +342,7 @@ export function typeFromProps<A extends InputSpec>(
       Object.entries(valueDictionary).map(([key, value]) => [
         key,
         guardAll(value),
-      ])
-    )
+      ]),
+    ),
   ) as any;
 }

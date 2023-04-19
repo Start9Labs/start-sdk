@@ -17,7 +17,7 @@ export const runHealthScript = async <A extends string>(
     errorMessage = `Error while running command: ${runCommand}`,
     message = (res: string) =>
       `Have ran script ${runCommand} and the result: ${res}`,
-  } = {}
+  } = {},
 ): Promise<CheckResult> => {
   const res = await Promise.race([
     effects.runCommand(runCommand, { timeoutMillis: timeout }),

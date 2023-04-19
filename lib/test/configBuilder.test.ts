@@ -43,7 +43,7 @@ describe("builder tests", () => {
     }}`
         .replaceAll("\n", " ")
         .replaceAll(/\s{2,}/g, "")
-        .replaceAll(": ", ":")
+        .replaceAll(": ", ":"),
     );
   });
 });
@@ -121,7 +121,7 @@ describe("values", () => {
         a: Value.boolean({
           name: "test",
         }),
-      })
+      }),
     );
     const validator = value.validator();
     validator.unsafeCast({ a: true });
@@ -138,7 +138,7 @@ describe("values", () => {
           name: "a",
           spec: Config.of({ b: Value.boolean({ name: "b" }) }),
         },
-      })
+      }),
     );
     const validator = value.validator();
     validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } });
@@ -156,8 +156,8 @@ describe("values", () => {
         },
         {
           integral: false,
-        }
-      )
+        },
+      ),
     );
     const validator = value.validator();
     validator.unsafeCast([1, 2, 3]);
@@ -174,8 +174,8 @@ describe("Builder List", () => {
         },
         {
           spec: Config.of({ test: Value.boolean({ name: "test" }) }),
-        }
-      )
+        },
+      ),
     );
     const validator = value.validator();
     validator.unsafeCast([{ test: true }]);
@@ -187,8 +187,8 @@ describe("Builder List", () => {
         {
           name: "test",
         },
-        {}
-      )
+        {},
+      ),
     );
     const validator = value.validator();
     validator.unsafeCast(["test", "text"]);
@@ -200,8 +200,8 @@ describe("Builder List", () => {
         {
           name: "test",
         },
-        { integral: true }
-      )
+        { integral: true },
+      ),
     );
     const validator = value.validator();
     validator.unsafeCast([12, 45]);

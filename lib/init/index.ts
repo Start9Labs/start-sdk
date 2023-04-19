@@ -28,7 +28,7 @@ export function noMigrationsDown(): MigrationDownReceipt {
   return {} as MigrationDownReceipt;
 }
 export function migrationDown(
-  fn: () => Promise<unknown>
+  fn: () => Promise<unknown>,
 ): MigrationDownReceipt {
   fn();
   return {} as MigrationDownReceipt;
@@ -37,7 +37,7 @@ export function migrationDown(
 export function setupInit(
   fn: (
     ...args: Parameters<ExpectedExports.init>
-  ) => Promise<[MigrationReceipt, ActionReceipt]>
+  ) => Promise<[MigrationReceipt, ActionReceipt]>,
 ) {
   const initFn: ExpectedExports.init = (...args) => fn(...args);
   return initFn;
@@ -46,7 +46,7 @@ export function setupInit(
 export function setupUninit(
   fn: (
     ...args: Parameters<ExpectedExports.uninit>
-  ) => Promise<[MigrationDownReceipt]>
+  ) => Promise<[MigrationDownReceipt]>,
 ) {
   const uninitFn: ExpectedExports.uninit = (...args) => fn(...args);
   return uninitFn;

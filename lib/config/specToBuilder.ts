@@ -6,15 +6,15 @@ import * as C from "./configTypes";
 export async function specToBuilderFile(
   file: string,
   inputData: Promise<InputSpec> | InputSpec,
-  options: Parameters<typeof specToBuilder>[1]
+  options: Parameters<typeof specToBuilder>[1],
 ) {
   await fs.writeFile(file, await specToBuilder(inputData, options), (err) =>
-    console.error(err)
+    console.error(err),
   );
 }
 export async function specToBuilder(
   inputData: Promise<InputSpec> | InputSpec,
-  { startSdk = "start-sdk" } = {}
+  { startSdk = "start-sdk" } = {},
 ) {
   const outputLines: string[] = [];
   outputLines.push(`
@@ -26,10 +26,10 @@ export async function specToBuilder(
   const configName = newConst("InputSpec", convertInputSpec(data));
   const configMatcherName = newConst(
     "matchInputSpec",
-    `${configName}.validator()`
+    `${configName}.validator()`,
   );
   outputLines.push(
-    `export type InputSpec = typeof ${configMatcherName}._TYPE;`
+    `export type InputSpec = typeof ${configMatcherName}._TYPE;`,
   );
 
   return outputLines.join("\n");
@@ -73,7 +73,7 @@ export async function specToBuilder(
         const { variants, type, ...rest } = value;
         const variantVariable = newConst(
           value.name + "_variants",
-          convertVariants(variants)
+          convertVariants(variants),
         );
 
         return `Value.union(${JSON.stringify(rest)}, ${variantVariable})`;
@@ -101,7 +101,7 @@ export async function specToBuilder(
             warning: value.warning || null,
           },
           null,
-          2
+          2,
         )}, ${JSON.stringify({
           masked: spec?.masked || false,
           placeholder: spec?.placeholder || null,
@@ -120,7 +120,7 @@ export async function specToBuilder(
             warning: value.warning || null,
           },
           null,
-          2
+          2,
         )}, ${JSON.stringify({
           range: spec?.range || null,
           integral: spec?.integral || false,
@@ -131,7 +131,7 @@ export async function specToBuilder(
       case "object": {
         const specName = newConst(
           value.name + "_spec",
-          convertInputSpec(spec.spec)
+          convertInputSpec(spec.spec),
         );
         return `List.obj({
           name: ${JSON.stringify(value.name || null)},
@@ -155,7 +155,7 @@ export async function specToBuilder(
         name: string;
         spec: C.InputSpec;
       }
-    >
+    >,
   ): string {
     let answer = "Variants.of({";
     for (const [key, { name, spec }] of Object.entries(variants)) {

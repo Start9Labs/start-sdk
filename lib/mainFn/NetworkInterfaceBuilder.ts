@@ -13,7 +13,7 @@ export class NetworkInterfaceBuilder {
       basic?: null | { password: string; username: string };
       path?: string;
       search?: Record<string, string>;
-    }
+    },
   ) {}
 
   async exportAddresses(addresses: Iterable<Origin>) {

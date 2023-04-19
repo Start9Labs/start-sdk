@@ -56,7 +56,7 @@ export class FileHelper<A> {
     readonly path: string,
     readonly volume: string,
     readonly writeData: (dataIn: A) => string,
-    readonly readData: (stringValue: string) => A
+    readonly readData: (stringValue: string) => A,
   ) {}
   async write(data: A, effects: T.Effects) {
     let matched;
@@ -86,21 +86,21 @@ export class FileHelper<A> {
       await effects.readFile({
         path: this.path,
         volumeId: this.volume,
-      })
+      }),
     );
   }
   static raw<A>(
     path: string,
     volume: string,
     toFile: (dataIn: A) => string,
-    fromFile: (rawData: string) => A
+    fromFile: (rawData: string) => A,
   ) {
     return new FileHelper<A>(path, volume, toFile, fromFile);
   }
   static json<A>(
     path: string,
     volume: string,
-    shape: matches.Validator<unknown, A>
+    shape: matches.Validator<unknown, A>,
   ) {
     return new FileHelper<A>(
       path,
@@ -110,13 +110,13 @@ export class FileHelper<A> {
       },
       (inString) => {
         return shape.unsafeCast(JSON.parse(inString));
-      }
+      },
     );
   }
   static toml<A extends Record<string, unknown>>(
     path: string,
     volume: string,
-    shape: matches.Validator<unknown, A>
+    shape: matches.Validator<unknown, A>,
   ) {
     return new FileHelper<A>(
       path,
@@ -126,13 +126,13 @@ export class FileHelper<A> {
       },
       (inString) => {
         return shape.unsafeCast(TOML.parse(inString));
-      }
+      },
     );
   }
   static yaml<A extends Record<string, unknown>>(
     path: string,
     volume: string,
-    shape: matches.Validator<unknown, A>
+    shape: matches.Validator<unknown, A>,
   ) {
     return new FileHelper<A>(
       path,
@@ -142,7 +142,7 @@ export class FileHelper<A> {
       },
       (inString) => {
         return shape.unsafeCast(YAML.parse(inString));
-      }
+      },
     );
   }
 }

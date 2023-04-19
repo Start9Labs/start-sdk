@@ -21,7 +21,7 @@ describe("Config Types", () => {
         someList.spec satisfies ListValueSpecOf<"object">;
       } else {
         throw new Error(
-          "Failed to figure out the type: " + JSON.stringify(someList)
+          "Failed to figure out the type: " + JSON.stringify(someList),
         );
       }
     }

@@ -22,7 +22,7 @@ export async function checkPortListening(
   {
     error = `Port ${port} is not listening`,
     message = `Port ${port} is available`,
-  } = {}
+  } = {},
 ): Promise<CheckResult> {
   const hasAddress =
     containsAddress(await effects.runCommand(`cat /proc/net/tcp`), port) ||

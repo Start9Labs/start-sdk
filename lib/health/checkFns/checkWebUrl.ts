@@ -15,7 +15,7 @@ export const checkWebUrl = async (
     timeout = 1000,
     successMessage = `Reached ${url}`,
     errorMessage = `Error while fetching URL: ${url}`,
-  } = {}
+  } = {},
 ): Promise<CheckResult> => {
   return Promise.race([effects.fetch(url), timeoutPromise(timeout)])
     .then((x) => ({

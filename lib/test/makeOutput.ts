@@ -407,5 +407,5 @@ writeConvertedFile(
   },
   {
     startSdk: "../",
-  }
+  },
 );

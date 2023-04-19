@@ -1,6 +1,6 @@
 {
   "name": "start-sdk",
-  "version": "0.4.0-lib0.charlie30",
+  "version": "0.4.0-lib0.charlie31",
   "description": "For making the patterns that are wanted in making services for the startOS.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -25,6 +25,12 @@
     "lodash": "^4.17.21",
     "ts-matches": "^5.4.1",
     "yaml": "^2.2.1"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": false
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
