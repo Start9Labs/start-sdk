@@ -2,17 +2,19 @@ import camelCase from "lodash/camelCase";
 import * as fs from "fs";
 import { string } from "ts-matches";
 
-export async function writeConvertedFile(
+export async function writeConvertedFileFromOld(
   file: string,
   inputData: Promise<any> | any,
-  options: Parameters<typeof makeFileContent>[1],
+  options: Parameters<typeof makeFileContentFromOld>[1],
 ) {
-  await fs.writeFile(file, await makeFileContent(inputData, options), (err) =>
-    console.error(err),
+  await fs.writeFile(
+    file,
+    await makeFileContentFromOld(inputData, options),
+    (err) => console.error(err),
   );
 }
 
-export default async function makeFileContent(
+export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
   { startSdk = "start-sdk" } = {},
 ) {
@@ -52,7 +54,9 @@ export default async function makeFileContent(
     switch (value.type) {
       case "string": {
         if (value.textarea) {
-          return `Value.textarea(${JSON.stringify(
+          return `${rangeToTodoComment(
+            value?.range,
+          )}Value.textarea(${JSON.stringify(
             {
               name: value.name || null,
               description: value.description || null,
@@ -64,7 +68,7 @@ export default async function makeFileContent(
             2,
           )})`;
         }
-        return `Value.text(${JSON.stringify(
+        return `${rangeToTodoComment(value?.range)}Value.text(${JSON.stringify(
           {
             name: value.name || null,
             default: value.default || null,
@@ -73,9 +77,14 @@ export default async function makeFileContent(
             required: !(value.nullable || false),
             masked: value.masked || false,
             placeholder: value.placeholder || null,
-            patterns: value.pattern ?
-              [{ regex: value.pattern, description: value["pattern-description"] }] :
-              [],
+            patterns: value.pattern
+              ? [
+                  {
+                    regex: value.pattern,
+                    description: value["pattern-description"],
+                  },
+                ]
+              : [],
             minLength: null,
             maxLength: null,
           },
@@ -84,7 +93,9 @@ export default async function makeFileContent(
         )})`;
       }
       case "number": {
-        return `Value.number(${JSON.stringify(
+        return `${rangeToTodoComment(
+          value?.range,
+        )}Value.number(${JSON.stringify(
           {
             name: value.name || null,
             default: value.default || null,
@@ -176,7 +187,7 @@ export default async function makeFileContent(
   function convertList(value: any) {
     switch (value.subtype) {
       case "string": {
-        return `List.text(${JSON.stringify(
+        return `${rangeToTodoComment(value?.range)}List.text(${JSON.stringify(
           {
             name: value.name || null,
             minLength: null,
@@ -190,15 +201,20 @@ export default async function makeFileContent(
         )}, ${JSON.stringify({
           masked: value?.spec?.masked || false,
           placeholder: value?.spec?.placeholder || null,
-          patterns: value?.spec?.pattern ?
-            [{ regex: value.spec.pattern, description: value?.spec?.["pattern-description"] }] :
-            [],
+          patterns: value?.spec?.pattern
+            ? [
+                {
+                  regex: value.spec.pattern,
+                  description: value?.spec?.["pattern-description"],
+                },
+              ]
+            : [],
           minLength: null,
           maxLength: null,
         })})`;
       }
       case "number": {
-        return `List.number(${JSON.stringify(
+        return `${rangeToTodoComment(value?.range)}List.number(${JSON.stringify(
           {
             name: value.name || null,
             minLength: null,
@@ -230,7 +246,9 @@ export default async function makeFileContent(
               value?.spec?.["value-names"]?.[key] || key,
             ]),
         );
-        return `Value.multiselect(${JSON.stringify(
+        return `${rangeToTodoComment(
+          value?.range,
+        )}Value.multiselect(${JSON.stringify(
           {
             name: value.name || null,
             minLength: null,
@@ -249,7 +267,7 @@ export default async function makeFileContent(
           value.name + "_spec",
           convertInputSpec(value.spec.spec),
         );
-        return `List.obj({
+        return `${rangeToTodoComment(value?.range)}List.obj({
           name: ${JSON.stringify(value.name || null)},
           minLength: ${JSON.stringify(null)},
           maxLength: ${JSON.stringify(null)},
@@ -272,7 +290,7 @@ export default async function makeFileContent(
         );
         const unionValueName = newConst(
           value.name + "_union",
-          `
+          `${rangeToTodoComment(value?.range)}
           Value.union({
             name: ${JSON.stringify(value?.spec?.tag?.name || null)},
             description: ${JSON.stringify(
@@ -292,7 +310,7 @@ export default async function makeFileContent(
           })
         `,
         );
-        return `List.obj({
+        return `${rangeToTodoComment(value?.range)}List.obj({
           name:${JSON.stringify(value.name || null)},
           minLength:${JSON.stringify(null)},
           maxLength:${JSON.stringify(null)},
@@ -331,4 +349,9 @@ export default async function makeFileContent(
     namedConsts.add(newName);
     return newName;
   }
+}
+
+function rangeToTodoComment(range: string | undefined) {
+  if (!range) return "";
+  return `/* TODO: Convert range for this value (${range})*/`;
 }

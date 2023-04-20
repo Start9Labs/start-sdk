@@ -38,7 +38,7 @@ describe("builder tests", () => {
       "minLength": null,
       "maxLength": null,
       "patterns": [],
-      "inputmode":"text",
+      "inputMode":"text",
       "name": "Peer tor address",
       "required": true
     }}`
@@ -65,6 +65,24 @@ describe("values", () => {
     });
     const validator = value.validator();
     validator.unsafeCast("test text");
+    testOutput<typeof validator._TYPE, string>()(null);
+  });
+  test("color", () => {
+    const value = Value.color({
+      name: "Testing",
+      required: false,
+    });
+    const validator = value.validator();
+    validator.unsafeCast("#000000");
+    testOutput<typeof validator._TYPE, string>()(null);
+  });
+  test("datetime", () => {
+    const value = Value.datetime({
+      name: "Testing",
+      required: false,
+    });
+    const validator = value.validator();
+    validator.unsafeCast("2021-01-01");
     testOutput<typeof validator._TYPE, string>()(null);
   });
   test("textarea", () => {

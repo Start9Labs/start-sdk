@@ -109,7 +109,7 @@ export async function specToBuilder(
           masked: spec?.masked || false,
           placeholder: spec?.placeholder || null,
           pattern: spec?.patterns || [],
-          inputMode: spec?.inputmode || 'text',
+          inputMode: spec?.inputMode || "text",
         })})`;
       }
       case "number": {

@@ -1,10 +1,5 @@
 import { Config } from "./builder";
-import {
-  DeepPartial,
-  Dependencies,
-  Effects,
-  ExpectedExports,
-} from "../types";
+import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types";
 import { InputSpec } from "./configTypes";
 import { nullIfEmpty } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";

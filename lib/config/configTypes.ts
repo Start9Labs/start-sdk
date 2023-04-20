@@ -56,17 +56,17 @@ export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   default: number | null;
 }
 export interface ValueSpecColor extends WithStandalone {
-  type: "color"
+  type: "color";
   required: boolean;
   default: string | null;
 }
 export interface ValueSpecDatetime extends WithStandalone {
-  type: "datetime"
+  type: "datetime";
   required: boolean;
-  inputMode: 'date' | 'time' | 'datetime-local'
-  min: string | null
-  max: string | null
-  step: string | null
+  inputMode: "date" | "time" | "datetime-local";
+  min: string | null;
+  max: string | null;
+  step: string | null;
   default: string | null;
 }
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
@@ -141,16 +141,16 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
     | readonly Record<string, unknown>[];
 }
 export interface Pattern {
-  regex: string
-  description: string
+  regex: string;
+  description: string;
 }
 export interface ListValueSpecText {
   type: "text";
-  patterns: Pattern[]
-  minLength: number | null
-  maxLength: number | null
+  patterns: Pattern[];
+  minLength: number | null;
+  maxLength: number | null;
   masked: boolean;
-  inputmode: "text" | "email" | "tel" | "url";
+  inputMode: "text" | "email" | "tel" | "url";
   placeholder: string | null;
 }
 export interface ListValueSpecNumber {

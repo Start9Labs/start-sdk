@@ -1,7 +1,4 @@
-import {
-  ListValueSpecOf,
-  isValueSpecListOf,
-} from "../config/configTypes";
+import { ListValueSpecOf, isValueSpecListOf } from "../config/configTypes";
 import { Config } from "../config/builder/config";
 import { List } from "../config/builder/list";
 import { Value } from "../config/builder/value";

@@ -5,6 +5,7 @@ export function deepMerge(...args: unknown[]): unknown {
   if (!object.test(lastItem)) return lastItem;
   const objects = args.filter(object.test).filter((x) => !Array.isArray(x));
   if (objects.length === 0) return lastItem as any;
+  if (objects.length === 1) objects.unshift({});
   const allKeys = new Set(objects.flatMap((x) => Object.keys(x)));
   for (const key of allKeys) {
     const filteredValues = objects.flatMap((x) =>
