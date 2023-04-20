@@ -29,7 +29,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning?: string | null;
       /** Default = [] */
       default?: string[];
-      /** Default = 0 */
       minLength?: number | null;
       maxLength?: number | null;
     },
@@ -58,7 +57,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning: null,
       default: [],
       type: "list" as const,
-      minLength: 0,
+      minLength: null,
       maxLength: null,
       ...a,
       spec,
@@ -71,7 +70,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning?: string | null;
       /** Default = [] */
       default?: string[];
-      /** Default = 0 */
       minLength?: number | null;
       maxLength?: number | null;
     },
@@ -96,7 +94,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     return new List({
       description: null,
       warning: null,
-      minLength: 0,
+      minLength: null,
       maxLength: null,
       default: [],
       type: "list" as const,
@@ -111,7 +109,6 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning?: string | null;
       /** Default [] */
       default?: [];
-      /** Default = 0 */
       minLength?: number | null;
       maxLength?: number | null;
     },
@@ -138,7 +135,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     return new List({
       description: null,
       warning: null,
-      minLength: 0,
+      minLength: null,
       maxLength: null,
       type: "list" as const,
       ...value,
