@@ -65,7 +65,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     maxLength?: number | null;
     patterns?: Pattern[];
     /** Default = 'text' */
-    inputMode?: ValueSpecText["inputMode"];
+    inputmode?: ValueSpecText["inputmode"];
   }) {
     return new Value({
       type: "text" as const,
@@ -77,7 +77,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       minLength: null,
       maxLength: null,
       patterns: [],
-      inputMode: "text",
+      inputmode: "text",
       ...a,
     });
   }
@@ -148,7 +148,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     warning?: string | null;
     required: boolean;
     /** Default = 'datetime-local' */
-    inputMode?: ValueSpecDatetime["inputMode"];
+    inputmode?: ValueSpecDatetime["inputmode"];
     min?: string | null;
     max?: string | null;
     step?: string | null;
@@ -158,7 +158,7 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       type: "datetime" as const,
       description: null,
       warning: null,
-      inputMode: "datetime-local",
+      inputmode: "datetime-local",
       min: null,
       max: null,
       step: null,

@@ -40,7 +40,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       maxLength?: number | null;
       patterns: Pattern[];
       /** Default = "text" */
-      inputMode?: ListValueSpecText["inputMode"];
+      inputmode?: ListValueSpecText["inputmode"];
     },
   ) {
     const spec = {
@@ -49,7 +49,7 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       minLength: null,
       maxLength: null,
       masked: false,
-      inputMode: "text" as const,
+      inputmode: "text" as const,
       ...aSpec,
     };
     return new List({

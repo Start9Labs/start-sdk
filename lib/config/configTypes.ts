@@ -63,7 +63,7 @@ export interface ValueSpecColor extends WithStandalone {
 export interface ValueSpecDatetime extends WithStandalone {
   type: "datetime";
   required: boolean;
-  inputMode: "date" | "time" | "datetime-local";
+  inputmode: "date" | "time" | "datetime-local";
   min: string | null;
   max: string | null;
   step: string | null;
@@ -150,7 +150,7 @@ export interface ListValueSpecText {
   minLength: number | null;
   maxLength: number | null;
   masked: boolean;
-  inputMode: "text" | "email" | "tel" | "url";
+  inputmode: "text" | "email" | "tel" | "url";
   placeholder: string | null;
 }
 export interface ListValueSpecNumber {

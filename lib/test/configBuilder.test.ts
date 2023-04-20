@@ -38,7 +38,7 @@ describe("builder tests", () => {
       "minLength": null,
       "maxLength": null,
       "patterns": [],
-      "inputMode":"text",
+      "inputmode":"text",
       "name": "Peer tor address",
       "required": true
     }}`
