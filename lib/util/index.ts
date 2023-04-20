@@ -1,4 +1,4 @@
-import { Parser, string } from "ts-matches";
+import { Parser } from "ts-matches";
 import * as T from "../types";
 import FileHelper from "./fileHelper";
 import nullIfEmpty from "./nullIfEmpty";

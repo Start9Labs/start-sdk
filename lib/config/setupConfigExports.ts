@@ -2,7 +2,6 @@ import { Config } from "./builder";
 import {
   DeepPartial,
   Dependencies,
-  DependsOn,
   Effects,
   ExpectedExports,
 } from "../types";

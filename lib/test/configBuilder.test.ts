@@ -3,40 +3,41 @@ import { Config } from "../config/builder/config";
 import { List } from "../config/builder/list";
 import { Value } from "../config/builder/value";
 import { Variants } from "../config/builder/variants";
-import { Parser } from "ts-matches";
 
 describe("builder tests", () => {
-  test("String", () => {
+  test("text", () => {
     const bitcoinPropertiesBuilt: {
       "peer-tor-address": {
         name: string;
         description: string | null;
-        type: "string";
+        type: "text";
       };
     } = Config.of({
-      "peer-tor-address": Value.string({
+      "peer-tor-address": Value.text({
         name: "Peer tor address",
-        default: "",
+        default: null,
         description: "The Tor address of the peer interface",
         warning: null,
         required: true,
         masked: true,
         placeholder: null,
-        pattern: null,
-        patternDescription: null,
+        minLength: null,
+        maxLength: null,
+        patterns: [],
       }),
     }).build();
     expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
       /*json*/ `{
     "peer-tor-address": {
-      "type": "string",
-      "default": "",
+      "type": "text",
+      "default": null,
       "description": "The Tor address of the peer interface",
       "warning": null,
       "masked": true,
       "placeholder": null,
-      "pattern": null,
-      "patternDescription": null,
+      "minLength": null,
+      "maxLength": null,
+      "patterns": [],
       "inputmode":"text",
       "name": "Peer tor address",
       "required": true
@@ -49,16 +50,16 @@ describe("builder tests", () => {
 });
 
 describe("values", () => {
-  test("boolean", () => {
-    const value = Value.boolean({
+  test("toggle", () => {
+    const value = Value.toggle({
       name: "Testing",
     });
     const validator = value.validator();
     validator.unsafeCast(false);
     testOutput<typeof validator._TYPE, boolean>()(null);
   });
-  test("string", () => {
-    const value = Value.string({
+  test("text", () => {
+    const value = Value.text({
       name: "Testing",
       required: false,
     });
@@ -79,7 +80,7 @@ describe("values", () => {
     const value = Value.number({
       name: "Testing",
       required: false,
-      integral: false,
+      integer: false,
     });
     const validator = value.validator();
     validator.unsafeCast(2);
@@ -106,6 +107,7 @@ describe("values", () => {
         a: "A",
         b: "B",
       },
+      default: [],
     });
     const validator = value.validator();
     validator.unsafeCast([]);
@@ -118,7 +120,7 @@ describe("values", () => {
         name: "Testing",
       },
       Config.of({
-        a: Value.boolean({
+        a: Value.toggle({
           name: "test",
         }),
       }),
@@ -136,7 +138,7 @@ describe("values", () => {
       Variants.of({
         a: {
           name: "a",
-          spec: Config.of({ b: Value.boolean({ name: "b" }) }),
+          spec: Config.of({ b: Value.toggle({ name: "b" }) }),
         },
       }),
     );
@@ -155,7 +157,7 @@ describe("values", () => {
           name: "test",
         },
         {
-          integral: false,
+          integer: false,
         },
       ),
     );
@@ -173,7 +175,7 @@ describe("Builder List", () => {
           name: "test",
         },
         {
-          spec: Config.of({ test: Value.boolean({ name: "test" }) }),
+          spec: Config.of({ test: Value.toggle({ name: "test" }) }),
         },
       ),
     );
@@ -181,13 +183,15 @@ describe("Builder List", () => {
     validator.unsafeCast([{ test: true }]);
     testOutput<typeof validator._TYPE, { test: boolean }[]>()(null);
   });
-  test("string", () => {
+  test("text", () => {
     const value = Value.list(
-      List.string(
+      List.text(
         {
           name: "test",
         },
-        {},
+        {
+          patterns: [],
+        },
       ),
     );
     const validator = value.validator();
@@ -200,7 +204,7 @@ describe("Builder List", () => {
         {
           name: "test",
         },
-        { integral: true },
+        { integer: true },
       ),
     );
     const validator = value.validator();

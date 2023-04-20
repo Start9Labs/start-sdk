@@ -1,4 +1,3 @@
-import { Parser } from "ts-matches";
 import {
   UnionSelectKey,
   unionSelectKey,

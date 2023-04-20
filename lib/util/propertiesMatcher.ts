@@ -19,14 +19,16 @@ const {
   boolean,
 } = matches;
 
-type TypeBoolean = "boolean";
-type TypeString = "string";
+type TypeToggle = "toggle";
+type TypeText = "text";
 type TypeTextarea = "textarea";
 type TypeNumber = "number";
 type TypeObject = "object";
 type TypeList = "list";
 type TypeSelect = "select";
 type TypeMultiselect = "multiselect";
+type TypeColor = "color";
+type TypeDatetime = "datetime";
 type TypeUnion = "union";
 
 // prettier-ignore
@@ -41,19 +43,17 @@ type GuardNumber<A> =
   A extends {  type: TypeNumber } ? GuardDefaultRequired<A, number> :
   unknown
 // prettier-ignore
-type GuardString<A> =
-  A extends {  type: TypeString } ? GuardDefaultRequired<A, string> :
+type GuardText<A> =
+  A extends {  type: TypeText } ? GuardDefaultRequired<A, string> :
   unknown
 // prettier-ignore
 type GuardTextarea<A> =
   A extends {  type: TypeTextarea } ? GuardDefaultRequired<A, string> :
   unknown
-
 // prettier-ignore
-type GuardBoolean<A> =
-  A extends {  type: TypeBoolean } ? GuardDefaultRequired<A, boolean> :
+type GuardToggle<A> =
+  A extends {  type: TypeToggle } ? GuardDefaultRequired<A, boolean> :
   unknown
-
 // prettier-ignore
 type GuardObject<A> =
   A extends {  type: TypeObject,  spec: infer B } ? (
@@ -72,10 +72,17 @@ type GuardSelect<A> =
     B extends Record<string, string> ? keyof B : never
   ) :
   unknown
-
 // prettier-ignore
 type GuardMultiselect<A> =
     A extends {  type: TypeMultiselect, values: infer B} ?(keyof B)[] :
+unknown
+// prettier-ignore
+type GuardColor<A> =
+  A extends {  type: TypeColor } ? GuardDefaultRequired<A, string> :
+  unknown
+  // prettier-ignore
+type GuardDatetime<A> =
+A extends {  type: TypeDatetime } ? GuardDefaultRequired<A, string> :
 unknown
 
 // prettier-ignore
@@ -91,14 +98,16 @@ type GuardUnion<A> =
 
 type _<T> = T;
 export type GuardAll<A> = GuardNumber<A> &
-  GuardString<A> &
+  GuardText<A> &
   GuardTextarea<A> &
-  GuardBoolean<A> &
+  GuardToggle<A> &
   GuardObject<A> &
   GuardList<A> &
   GuardUnion<A> &
   GuardSelect<A> &
-  GuardMultiselect<A>;
+  GuardMultiselect<A> &
+  GuardColor<A> &
+  GuardDatetime<A>;
 // prettier-ignore
 export type TypeFromProps<A> =
   A extends Record<string, unknown> ? {  [K in keyof A & string]: _<GuardAll<A[K]>> } :
@@ -114,7 +123,7 @@ const matchDefault = object({ default: unknown });
 const matchRequired = object({ required: literals(false) });
 const rangeRegex = /(\[|\()(\*|(\d|\.)+),(\*|(\d|\.)+)(\]|\))/;
 const matchRange = object({ range: string });
-const matchIntegral = object({ integral: literals(true) });
+const matchInteger = object({ integer: literals(true) });
 const matchSpec = object({ spec: recordString });
 const matchUnion = object({
   variants: dictionary([string, matchVariant]),
@@ -199,8 +208,8 @@ export function matchNumberWithRange(range: string) {
           `lessThan${rightValue}`,
     );
 }
-function withIntegral(parser: Parser<unknown, number>, value: unknown) {
-  if (matchIntegral.test(value)) {
+function withInteger(parser: Parser<unknown, number>, value: unknown) {
+  if (matchInteger.test(value)) {
     return parser.validate(Number.isInteger, "isIntegral");
   }
   return parser;
@@ -243,18 +252,24 @@ export function guardAll<A extends ValueSpecAny>(
     return unknown as any;
   }
   switch (value.type) {
-    case "boolean":
+    case "toggle":
       return defaultRequired(boolean, value) as any;
 
-    case "string":
+    case "text":
       return defaultRequired(string, value) as any;
 
     case "textarea":
       return defaultRequired(string, value) as any;
 
+    case "color":
+      return defaultRequired(string, value) as any;
+
+    case "datetime":
+      return defaultRequired(string, value) as any;
+
     case "number":
       return defaultRequired(
-        withIntegral(withRange(value), value),
+        withInteger(withRange(value), value),
         value,
       ) as any;
 
