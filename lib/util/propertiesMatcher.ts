@@ -19,14 +19,16 @@ const {
   boolean,
 } = matches;
 
-type TypeBoolean = "boolean";
-type TypeString = "string";
+type TypeToggle = "toggle";
+type TypeText = "text";
 type TypeTextarea = "textarea";
 type TypeNumber = "number";
 type TypeObject = "object";
 type TypeList = "list";
 type TypeSelect = "select";
 type TypeMultiselect = "multiselect";
+type TypeColor = "color";
+type TypeDatetime = "datetime";
 type TypeUnion = "union";
 
 // prettier-ignore
@@ -41,19 +43,17 @@ type GuardNumber<A> =
   A extends {  type: TypeNumber } ? GuardDefaultRequired<A, number> :
   unknown
 // prettier-ignore
-type GuardString<A> =
-  A extends {  type: TypeString } ? GuardDefaultRequired<A, string> :
+type GuardText<A> =
+  A extends {  type: TypeText } ? GuardDefaultRequired<A, string> :
   unknown
 // prettier-ignore
 type GuardTextarea<A> =
   A extends {  type: TypeTextarea } ? GuardDefaultRequired<A, string> :
   unknown
-
 // prettier-ignore
-type GuardBoolean<A> =
-  A extends {  type: TypeBoolean } ? GuardDefaultRequired<A, boolean> :
+type GuardToggle<A> =
+  A extends {  type: TypeToggle } ? GuardDefaultRequired<A, boolean> :
   unknown
-
 // prettier-ignore
 type GuardObject<A> =
   A extends {  type: TypeObject,  spec: infer B } ? (
@@ -72,10 +72,17 @@ type GuardSelect<A> =
     B extends Record<string, string> ? keyof B : never
   ) :
   unknown
-
 // prettier-ignore
 type GuardMultiselect<A> =
     A extends {  type: TypeMultiselect, values: infer B} ?(keyof B)[] :
+unknown
+// prettier-ignore
+type GuardColor<A> =
+  A extends {  type: TypeColor } ? GuardDefaultRequired<A, string> :
+  unknown
+// prettier-ignore
+type GuardDatetime<A> =
+A extends {  type: TypeDatetime } ? GuardDefaultRequired<A, string> :
 unknown
 
 // prettier-ignore
@@ -91,14 +98,16 @@ type GuardUnion<A> =
 
 type _<T> = T;
 export type GuardAll<A> = GuardNumber<A> &
-  GuardString<A> &
+  GuardText<A> &
   GuardTextarea<A> &
-  GuardBoolean<A> &
+  GuardToggle<A> &
   GuardObject<A> &
   GuardList<A> &
   GuardUnion<A> &
   GuardSelect<A> &
-  GuardMultiselect<A>;
+  GuardMultiselect<A> &
+  GuardColor<A> &
+  GuardDatetime<A>;
 // prettier-ignore
 export type TypeFromProps<A> =
   A extends Record<string, unknown> ? {  [K in keyof A & string]: _<GuardAll<A[K]>> } :
@@ -112,9 +121,7 @@ const matchVariant = object({
 const recordString = dictionary([string, unknown]);
 const matchDefault = object({ default: unknown });
 const matchRequired = object({ required: literals(false) });
-const rangeRegex = /(\[|\()(\*|(\d|\.)+),(\*|(\d|\.)+)(\]|\))/;
-const matchRange = object({ range: string });
-const matchIntegral = object({ integral: literals(true) });
+const matchInteger = object({ integer: literals(true) });
 const matchSpec = object({ spec: recordString });
 const matchUnion = object({
   variants: dictionary([string, matchVariant]),
@@ -123,107 +130,13 @@ const matchValues = object({
   values: dictionary([string, string]),
 });
 
-function charRange(value = "") {
-  const split = value
-    .split("-")
-    .filter(Boolean)
-    .map((x) => x.charCodeAt(0));
-  if (split.length < 1) return null;
-  if (split.length === 1) return [split[0], split[0]];
-  return [split[0], split[1]];
-}
-
-/**
- * @param generate.charset Pattern like "a-z" or "a-z,1-5"
- * @param generate.len Length to make random variable
- * @param param1
- * @returns
- */
-export function generateDefault(
-  generate: { charset: string; len: number },
-  { random = () => Math.random() } = {},
-) {
-  const validCharSets: number[][] = generate.charset
-    .split(",")
-    .map(charRange)
-    .filter(Array.isArray);
-  if (validCharSets.length === 0) {
-    throw new Error("Expecing that we have a valid charset");
-  }
-  const max = validCharSets.reduce(
-    (acc, x) => x.reduce((x, y) => Math.max(x, y), acc),
-    0,
-  );
-  let i = 0;
-  const answer: string[] = Array(generate.len);
-  while (i < generate.len) {
-    const nextValue = Math.round(random() * max);
-    const inRange = validCharSets.reduce(
-      (acc, [lower, upper]) =>
-        acc || (nextValue >= lower && nextValue <= upper),
-      false,
-    );
-    if (!inRange) continue;
-    answer[i] = String.fromCharCode(nextValue);
-    i++;
-  }
-  return answer.join("");
-}
-
-export function matchNumberWithRange(range: string) {
-  const matched = rangeRegex.exec(range);
-  if (!matched) return number;
-  const [, left, leftValue, , rightValue, , right] = matched;
-
-  return number
-    .validate(
-      leftValue === "*"
-        ? (_) => true
-        : left === "["
-        ? (x) => x >= Number(leftValue)
-        : (x) => x > Number(leftValue),
-      leftValue === "*"
-        ? "any"
-        : left === "["
-        ? `greaterThanOrEqualTo${leftValue}`
-        : `greaterThan${leftValue}`,
-    )
-    .validate(
-      // prettier-ignore
-      rightValue === "*" ? (_) => true :
-        right === "]" ? (x) => x <= Number(rightValue) :
-          (x) => x < Number(rightValue),
-      // prettier-ignore
-      rightValue === "*" ? "any" :
-        right === "]" ? `lessThanOrEqualTo${rightValue}` :
-          `lessThan${rightValue}`,
-    );
-}
-function withIntegral(parser: Parser<unknown, number>, value: unknown) {
-  if (matchIntegral.test(value)) {
+function withInteger(parser: Parser<unknown, number>, value: unknown) {
+  if (matchInteger.test(value)) {
     return parser.validate(Number.isInteger, "isIntegral");
   }
   return parser;
 }
-function withRange(value: unknown) {
-  if (matchRange.test(value)) {
-    return matchNumberWithRange(value.range);
-  }
-  return number;
-}
-const isGenerator = object({
-  charset: string,
-  len: number,
-}).test;
-function defaultRequired<A>(parser: Parser<unknown, A>, value: unknown) {
-  if (matchDefault.test(value)) {
-    if (isGenerator(value.default)) {
-      return parser.defaultTo(
-        parser.unsafeCast(generateDefault(value.default)),
-      );
-    }
-    return parser.defaultTo(value.default);
-  }
+function requiredParser<A>(parser: Parser<unknown, A>, value: unknown) {
   if (!matchRequired.test(value)) return parser.optional();
   return parser;
 }
@@ -243,44 +156,42 @@ export function guardAll<A extends ValueSpecAny>(
     return unknown as any;
   }
   switch (value.type) {
-    case "boolean":
-      return defaultRequired(boolean, value) as any;
+    case "toggle":
+      return requiredParser(boolean, value) as any;
 
-    case "string":
-      return defaultRequired(string, value) as any;
+    case "text":
+      return requiredParser(string, value) as any;
 
     case "textarea":
-      return defaultRequired(string, value) as any;
+      return requiredParser(string, value) as any;
+
+    case "color":
+      return requiredParser(string, value) as any;
+
+    case "datetime":
+      return requiredParser(string, value) as any;
 
     case "number":
-      return defaultRequired(
-        withIntegral(withRange(value), value),
-        value,
-      ) as any;
+      return requiredParser(withInteger(number, value), value) as any;
 
     case "object":
       if (matchSpec.test(value)) {
-        return defaultRequired(typeFromProps(value.spec), value) as any;
+        return requiredParser(typeFromProps(value.spec), value) as any;
       }
       return unknown as any;
 
     case "list": {
       const spec = (matchSpec.test(value) && value.spec) || {};
-      const rangeValidate =
-        (matchRange.test(value) && matchNumberWithRange(value.range).test) ||
-        (() => true);
 
-      return defaultRequired(
-        matches
-          .arrayOf(guardAll(spec as any))
-          .validate((x) => rangeValidate(x.length), "valid length"),
+      return requiredParser(
+        matches.arrayOf(guardAll(spec as any)),
         value,
       ) as any;
     }
     case "select":
       if (matchValues.test(value)) {
         const valueKeys = Object.keys(value.values);
-        return defaultRequired(
+        return requiredParser(
           literals(valueKeys[0], ...valueKeys),
           value,
         ) as any;
@@ -289,19 +200,9 @@ export function guardAll<A extends ValueSpecAny>(
 
     case "multiselect":
       if (matchValues.test(value)) {
-        const maybeAddRangeValidate = <X extends Validator<unknown, B[]>, B>(
-          x: X,
-        ) => {
-          if (!matchRange.test(value)) return x;
-          return x.validate(
-            (x) => matchNumberWithRange(value.range).test(x.length),
-            "validLength",
-          );
-        };
-
         const valueKeys = Object.keys(value.values);
-        return defaultRequired(
-          maybeAddRangeValidate(arrayOf(literals(valueKeys[0], ...valueKeys))),
+        return requiredParser(
+          arrayOf(literals(valueKeys[0], ...valueKeys)),
           value,
         ) as any;
       }

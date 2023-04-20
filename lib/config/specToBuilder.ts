@@ -50,10 +50,12 @@ export async function specToBuilder(
   }
   function convertValueSpec(value: C.ValueSpec): string {
     switch (value.type) {
-      case "string":
+      case "text":
       case "textarea":
       case "number":
-      case "boolean":
+      case "color":
+      case "datetime":
+      case "toggle":
       case "select":
       case "multiselect": {
         const { type, ...rest } = value;
@@ -91,11 +93,12 @@ export async function specToBuilder(
   function convertList(valueSpecList: C.ValueSpecList) {
     const { spec, ...value } = valueSpecList;
     switch (spec.type) {
-      case "string": {
-        return `List.string(${JSON.stringify(
+      case "text": {
+        return `List.text(${JSON.stringify(
           {
             name: value.name || null,
-            range: value.range || null,
+            minLength: value.minLength || null,
+            maxLength: value.maxLength || null,
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
@@ -105,16 +108,16 @@ export async function specToBuilder(
         )}, ${JSON.stringify({
           masked: spec?.masked || false,
           placeholder: spec?.placeholder || null,
-          pattern: spec?.pattern || null,
-          patternDescription: spec?.patternDescription || null,
-          inputMode: spec?.inputmode || null,
+          pattern: spec?.patterns || [],
+          inputMode: spec?.inputMode || "text",
         })})`;
       }
       case "number": {
         return `List.number(${JSON.stringify(
           {
             name: value.name || null,
-            range: value.range || null,
+            minLength: value.minLength || null,
+            maxLength: value.maxLength || null,
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
@@ -122,8 +125,10 @@ export async function specToBuilder(
           null,
           2,
         )}, ${JSON.stringify({
-          range: spec?.range || null,
-          integral: spec?.integral || false,
+          integer: spec?.integer || false,
+          min: spec?.min || null,
+          max: spec?.max || null,
+          step: spec?.step || null,
           units: spec?.units || null,
           placeholder: spec?.placeholder || null,
         })})`;
@@ -135,7 +140,8 @@ export async function specToBuilder(
         );
         return `List.obj({
           name: ${JSON.stringify(value.name || null)},
-          range: ${JSON.stringify(value.range || null)},
+          minLength: ${JSON.stringify(value.minLength || null)},
+          maxLength: ${JSON.stringify(value.maxLength || null)},
           default: ${JSON.stringify(value.default || null)},
           description: ${JSON.stringify(value.description || null)},
           warning: ${JSON.stringify(value.warning || null)},

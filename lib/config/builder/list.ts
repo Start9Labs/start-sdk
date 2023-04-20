@@ -2,8 +2,8 @@ import { BuilderExtract, IBuilder } from "./builder";
 import { Config } from "./config";
 import {
   InputSpec,
-  ListValueSpecNumber,
-  ListValueSpecString,
+  ListValueSpecText,
+  Pattern,
   UniqueBy,
   ValueSpecList,
 } from "../configTypes";
@@ -22,33 +22,34 @@ export const auth = Value.list(authorizationList);
 ```
 */
 export class List<A extends ValueSpecList> extends IBuilder<A> {
-  static string(
+  static text(
     a: {
       name: string;
       description?: string | null;
       warning?: string | null;
       /** Default = [] */
       default?: string[];
-      /** Default = "(\*,\*)" */
-      range?: string;
+      minLength?: number | null;
+      maxLength?: number | null;
     },
     aSpec: {
       /** Default = false */
       masked?: boolean;
       placeholder?: string | null;
-      pattern?: string | null;
-      patternDescription?: string | null;
+      minLength?: number | null;
+      maxLength?: number | null;
+      patterns: Pattern[];
       /** Default = "text" */
-      inputmode?: ListValueSpecString["inputmode"];
+      inputMode?: ListValueSpecText["inputMode"];
     },
   ) {
     const spec = {
-      type: "string" as const,
+      type: "text" as const,
       placeholder: null,
-      pattern: null,
-      patternDescription: null,
+      minLength: null,
+      maxLength: null,
       masked: false,
-      inputmode: "text" as const,
+      inputMode: "text" as const,
       ...aSpec,
     };
     return new List({
@@ -56,7 +57,8 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning: null,
       default: [],
       type: "list" as const,
-      range: "(*,*)",
+      minLength: null,
+      maxLength: null,
       ...a,
       spec,
     });
@@ -68,13 +70,14 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning?: string | null;
       /** Default = [] */
       default?: string[];
-      /** Default = "(\*,\*)" */
-      range?: string;
+      minLength?: number | null;
+      maxLength?: number | null;
     },
     aSpec: {
-      integral: boolean;
-      /** Default = "(\*,\*)" */
-      range?: string;
+      integer: boolean;
+      min?: number | null;
+      max?: number | null;
+      step?: string | null;
       units?: string | null;
       placeholder?: string | null;
     },
@@ -82,15 +85,17 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     const spec = {
       type: "number" as const,
       placeholder: null,
-      range: "(*,*)",
+      min: null,
+      max: null,
+      step: null,
       units: null,
       ...aSpec,
     };
     return new List({
       description: null,
       warning: null,
-      units: null,
-      range: "(*,*)",
+      minLength: null,
+      maxLength: null,
       default: [],
       type: "list" as const,
       ...a,
@@ -104,8 +109,8 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       warning?: string | null;
       /** Default [] */
       default?: [];
-      /** Default = "(\*,\*)" */
-      range?: string;
+      minLength?: number | null;
+      maxLength?: number | null;
     },
     aSpec: {
       spec: Spec;
@@ -130,7 +135,8 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
     return new List({
       description: null,
       warning: null,
-      range: "(*,*)",
+      minLength: null,
+      maxLength: null,
       type: "list" as const,
       ...value,
     });

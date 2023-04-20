@@ -4,10 +4,13 @@ import { List } from "./list";
 import { Variants } from "./variants";
 import {
   InputSpec,
-  ListValueSpecString,
+  Pattern,
   ValueSpec,
+  ValueSpecColor,
+  ValueSpecDatetime,
   ValueSpecList,
   ValueSpecNumber,
+  ValueSpecText,
   ValueSpecTextarea,
 } from "../configTypes";
 import { guardAll } from "../../util";
@@ -35,7 +38,7 @@ const username = Value.string({
  ```
  */
 export class Value<A extends ValueSpec> extends IBuilder<A> {
-  static boolean(a: {
+  static toggle(a: {
     name: string;
     description?: string | null;
     warning?: string | null;
@@ -45,11 +48,11 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       description: null,
       warning: null,
       default: null,
-      type: "boolean" as const,
+      type: "toggle" as const,
       ...a,
     });
   }
-  static string(a: {
+  static text(a: {
     name: string;
     description?: string | null;
     warning?: string | null;
@@ -58,21 +61,23 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     /** Default = false */
     masked?: boolean;
     placeholder?: string | null;
-    pattern?: string | null;
-    patternDescription?: string | null;
+    minLength?: number | null;
+    maxLength?: number | null;
+    patterns?: Pattern[];
     /** Default = 'text' */
-    inputmode?: ListValueSpecString["inputmode"];
+    inputMode?: ValueSpecText["inputMode"];
   }) {
     return new Value({
-      type: "string" as const,
+      type: "text" as const,
       default: null,
       description: null,
       warning: null,
       masked: false,
       placeholder: null,
-      pattern: null,
-      patternDescription: null,
-      inputmode: "text",
+      minLength: null,
+      maxLength: null,
+      patterns: [],
+      inputMode: "text",
       ...a,
     });
   }
@@ -81,11 +86,15 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     description?: string | null;
     warning?: string | null;
     required: boolean;
+    minLength?: number | null;
+    maxLength?: number | null;
     placeholder?: string | null;
   }) {
     return new Value({
       description: null,
       warning: null,
+      minLength: null,
+      maxLength: null,
       placeholder: null,
       type: "textarea" as const,
       ...a,
@@ -97,9 +106,11 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     warning?: string | null;
     required: boolean;
     default?: number | null;
-    /** default = "(\*,\*)" */
-    range?: string;
-    integral: boolean;
+    min?: number | null;
+    max?: number | null;
+    /** Default = '1' */
+    step?: string | null;
+    integer: boolean;
     units?: string | null;
     placeholder?: string | null;
   }) {
@@ -108,11 +119,52 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       description: null,
       warning: null,
       default: null,
-      range: "(*,*)",
+      min: null,
+      max: null,
+      step: null,
       units: null,
       placeholder: null,
       ...a,
     } as ValueSpecNumber);
+  }
+  static color(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: boolean;
+    default?: number | null;
+  }) {
+    return new Value({
+      type: "color" as const,
+      description: null,
+      warning: null,
+      default: null,
+      ...a,
+    } as ValueSpecColor);
+  }
+  static datetime(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: boolean;
+    /** Default = 'datetime-local' */
+    inputMode?: ValueSpecDatetime["inputMode"];
+    min?: string | null;
+    max?: string | null;
+    step?: string | null;
+    default?: number | null;
+  }) {
+    return new Value({
+      type: "datetime" as const,
+      description: null,
+      warning: null,
+      inputMode: "datetime-local",
+      min: null,
+      max: null,
+      step: null,
+      default: null,
+      ...a,
+    } as ValueSpecDatetime);
   }
   static select<B extends Record<string, string>>(a: {
     name: string;
@@ -134,16 +186,16 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     name: string;
     description?: string | null;
     warning?: string | null;
-    default?: string[];
+    default: string[];
     values: Values;
-    /** default = "(\*,\*)" */
-    range?: string;
+    minLength?: number | null;
+    maxLength?: number | null;
   }) {
     return new Value({
       type: "multiselect" as const,
-      range: "(*,*)",
+      minLength: null,
+      maxLength: null,
       warning: null,
-      default: [],
       description: null,
       ...a,
     });

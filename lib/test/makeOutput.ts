@@ -1,6 +1,6 @@
-import { writeConvertedFile } from "../../scripts/oldSpecToBuilder";
+import { writeConvertedFileFromOld } from "../../scripts/oldSpecToBuilder";
 
-writeConvertedFile(
+writeConvertedFileFromOld(
   "./lib/test/output.ts", // Make the location
   {
     // Put the config here

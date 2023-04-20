@@ -1,10 +1,10 @@
-import { Parser } from "ts-matches";
 import {
   UnionSelectKey,
   unionSelectKey,
   UnionValueKey,
   unionValueKey,
 } from "../config/configTypes";
+import { deepMerge } from "../util";
 import { InputSpec, matchInputSpec, testListUnion } from "./output";
 
 export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
@@ -16,42 +16,10 @@ export function testOutput<A, B>(): (c: IfEquals<A, B>) => null {
   return () => null;
 }
 
-function isObject(item: unknown): item is object {
-  return !!(item && typeof item === "object" && !Array.isArray(item));
-}
-type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (
-  x: infer R,
-) => any
-  ? R
-  : never;
-export function mergeDeep<A extends unknown[]>(...sources: A) {
-  return _mergeDeep({}, ...sources);
-}
-function _mergeDeep<A extends unknown[]>(
-  target: UnionToIntersection<A[number]> | {},
-  ...sources: A
-): UnionToIntersection<A[number]> | {} {
-  if (!sources.length) return target;
-  const source = sources.shift();
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
-      if (isObject((source as any)[key])) {
-        if (!(target as any)[key]) Object.assign(target, { [key]: {} });
-        _mergeDeep((target as any)[key], (source as any)[key]);
-      } else {
-        Object.assign(target, { [key]: (source as any)[key] });
-      }
-    }
-  }
-
-  return _mergeDeep(target, ...sources);
-}
-
 /// Testing the types of the input spec
+testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
 // @ts-expect-error Because enable should be a boolean
 testOutput<InputSpec["rpc"]["enable"], string>()(null);
-testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
 testOutput<InputSpec["rpc"]["username"], string>()(null);
 
 testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
@@ -136,19 +104,22 @@ describe("Inputs", () => {
     const output = matchInputSpec.unsafeCast(validInput);
     expect(output).toEqual(validInput);
   });
-  test("test errors", () => {
+  test("test no longer care about the conversion of min/max and validating", () => {
+    matchInputSpec.unsafeCast(
+      deepMerge({}, validInput, { rpc: { advanced: { threads: 0 } } }),
+    );
+  });
+  test("test errors should throw for number in string", () => {
     expect(() =>
       matchInputSpec.unsafeCast(
-        mergeDeep(validInput, { rpc: { advanced: { threads: 0 } } }),
+        deepMerge({}, validInput, { rpc: { enable: 2 } }),
       ),
     ).toThrowError();
-    expect(() =>
-      matchInputSpec.unsafeCast(mergeDeep(validInput, { rpc: { enable: 2 } })),
-    ).toThrowError();
-
+  });
+  test("Test that we set serialversion to something not segwit or non-segwit", () => {
     expect(() =>
       matchInputSpec.unsafeCast(
-        mergeDeep(validInput, {
+        deepMerge({}, validInput, {
           rpc: { advanced: { serialversion: "testing" } },
         }),
       ),

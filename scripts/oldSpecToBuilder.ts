@@ -1,19 +1,20 @@
 import camelCase from "lodash/camelCase";
 import * as fs from "fs";
 import { string } from "ts-matches";
-import { unionSelectKey } from "../lib/config/configTypes";
 
-export async function writeConvertedFile(
+export async function writeConvertedFileFromOld(
   file: string,
   inputData: Promise<any> | any,
-  options: Parameters<typeof makeFileContent>[1],
+  options: Parameters<typeof makeFileContentFromOld>[1],
 ) {
-  await fs.writeFile(file, await makeFileContent(inputData, options), (err) =>
-    console.error(err),
+  await fs.writeFile(
+    file,
+    await makeFileContentFromOld(inputData, options),
+    (err) => console.error(err),
   );
 }
 
-export default async function makeFileContent(
+export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
   { startSdk = "start-sdk" } = {},
 ) {
@@ -53,7 +54,9 @@ export default async function makeFileContent(
     switch (value.type) {
       case "string": {
         if (value.textarea) {
-          return `Value.textarea(${JSON.stringify(
+          return `${rangeToTodoComment(
+            value?.range,
+          )}Value.textarea(${JSON.stringify(
             {
               name: value.name || null,
               description: value.description || null,
@@ -65,7 +68,7 @@ export default async function makeFileContent(
             2,
           )})`;
         }
-        return `Value.string(${JSON.stringify(
+        return `${rangeToTodoComment(value?.range)}Value.text(${JSON.stringify(
           {
             name: value.name || null,
             default: value.default || null,
@@ -74,23 +77,35 @@ export default async function makeFileContent(
             required: !(value.nullable || false),
             masked: value.masked || false,
             placeholder: value.placeholder || null,
-            pattern: value.pattern || null,
-            patternDescription: value["pattern-description"] || null,
+            patterns: value.pattern
+              ? [
+                  {
+                    regex: value.pattern,
+                    description: value["pattern-description"],
+                  },
+                ]
+              : [],
+            minLength: null,
+            maxLength: null,
           },
           null,
           2,
         )})`;
       }
       case "number": {
-        return `Value.number(${JSON.stringify(
+        return `${rangeToTodoComment(
+          value?.range,
+        )}Value.number(${JSON.stringify(
           {
             name: value.name || null,
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
             required: !(value.nullable || false),
-            range: value.range || null,
-            integral: value.integral || false,
+            min: null,
+            max: null,
+            step: null,
+            integer: value.integral || false,
             units: value.units || null,
             placeholder: value.placeholder || null,
           },
@@ -99,7 +114,7 @@ export default async function makeFileContent(
         )})`;
       }
       case "boolean": {
-        return `Value.boolean(${JSON.stringify(
+        return `Value.toggle(${JSON.stringify(
           {
             name: value.name || null,
             default: value.default || false,
@@ -172,12 +187,11 @@ export default async function makeFileContent(
   function convertList(value: any) {
     switch (value.subtype) {
       case "string": {
-        return `List.${
-          value?.spec?.textarea === true ? "textarea" : "string"
-        }(${JSON.stringify(
+        return `${rangeToTodoComment(value?.range)}List.text(${JSON.stringify(
           {
             name: value.name || null,
-            range: value.range || null,
+            minLength: null,
+            maxLength: null,
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
@@ -187,15 +201,24 @@ export default async function makeFileContent(
         )}, ${JSON.stringify({
           masked: value?.spec?.masked || false,
           placeholder: value?.spec?.placeholder || null,
-          pattern: value?.spec?.pattern || null,
-          patternDescription: value?.spec?.["pattern-description"] || null,
+          patterns: value?.spec?.pattern
+            ? [
+                {
+                  regex: value.spec.pattern,
+                  description: value?.spec?.["pattern-description"],
+                },
+              ]
+            : [],
+          minLength: null,
+          maxLength: null,
         })})`;
       }
       case "number": {
-        return `List.number(${JSON.stringify(
+        return `${rangeToTodoComment(value?.range)}List.number(${JSON.stringify(
           {
             name: value.name || null,
-            range: value.range || null,
+            minLength: null,
+            maxLength: null,
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
@@ -203,8 +226,9 @@ export default async function makeFileContent(
           null,
           2,
         )}, ${JSON.stringify({
-          range: value?.spec?.range || null,
-          integral: value?.spec?.integral || false,
+          integer: value?.spec?.integral || false,
+          min: null,
+          max: null,
           units: value?.spec?.units || null,
           placeholder: value?.spec?.placeholder || null,
         })})`;
@@ -222,10 +246,13 @@ export default async function makeFileContent(
               value?.spec?.["value-names"]?.[key] || key,
             ]),
         );
-        return `Value.multiselect(${JSON.stringify(
+        return `${rangeToTodoComment(
+          value?.range,
+        )}Value.multiselect(${JSON.stringify(
           {
             name: value.name || null,
-            range: value.range || null,
+            minLength: null,
+            maxLength: null,
             default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
@@ -240,9 +267,10 @@ export default async function makeFileContent(
           value.name + "_spec",
           convertInputSpec(value.spec.spec),
         );
-        return `List.obj({
+        return `${rangeToTodoComment(value?.range)}List.obj({
           name: ${JSON.stringify(value.name || null)},
-          range: ${JSON.stringify(value.range || null)},
+          minLength: ${JSON.stringify(null)},
+          maxLength: ${JSON.stringify(null)},
           default: ${JSON.stringify(value.default || null)},
           description: ${JSON.stringify(value.description || null)},
           warning: ${JSON.stringify(value.warning || null)},
@@ -262,7 +290,7 @@ export default async function makeFileContent(
         );
         const unionValueName = newConst(
           value.name + "_union",
-          `
+          `${rangeToTodoComment(value?.range)}
           Value.union({
             name: ${JSON.stringify(value?.spec?.tag?.name || null)},
             description: ${JSON.stringify(
@@ -282,9 +310,10 @@ export default async function makeFileContent(
           })
         `,
         );
-        return `List.obj({
+        return `${rangeToTodoComment(value?.range)}List.obj({
           name:${JSON.stringify(value.name || null)},
-          range:${JSON.stringify(value.range || null)},
+          minLength:${JSON.stringify(null)},
+          maxLength:${JSON.stringify(null)},
           default: [],
           description: ${JSON.stringify(value.description || null)},
           warning: ${JSON.stringify(value.warning || null)},
@@ -320,4 +349,9 @@ export default async function makeFileContent(
     namedConsts.add(newName);
     return newName;
   }
+}
+
+function rangeToTodoComment(range: string | undefined) {
+  if (!range) return "";
+  return `/* TODO: Convert range for this value (${range})*/`;
 }

@@ -1,9 +1,11 @@
 export type InputSpec = Record<string, ValueSpec>;
 export type ValueType =
-  | "string"
+  | "text"
   | "textarea"
   | "number"
-  | "boolean"
+  | "color"
+  | "datetime"
+  | "toggle"
   | "select"
   | "multiselect"
   | "list"
@@ -12,14 +14,18 @@ export type ValueType =
   | "union";
 export type ValueSpec = ValueSpecOf<ValueType>;
 /** core spec types. These types provide the metadata for performing validations */
-export type ValueSpecOf<T extends ValueType> = T extends "string"
-  ? ValueSpecString
-  : T extends "number"
-  ? ValueSpecTextarea
+export type ValueSpecOf<T extends ValueType> = T extends "text"
+  ? ValueSpecText
   : T extends "textarea"
+  ? ValueSpecTextarea
+  : T extends "number"
   ? ValueSpecNumber
-  : T extends "boolean"
-  ? ValueSpecBoolean
+  : T extends "color"
+  ? ValueSpecColor
+  : T extends "datetime"
+  ? ValueSpecDatetime
+  : T extends "toggle"
+  ? ValueSpecToggle
   : T extends "select"
   ? ValueSpecSelect
   : T extends "multiselect"
@@ -34,18 +40,34 @@ export type ValueSpecOf<T extends ValueType> = T extends "string"
   ? ValueSpecUnion
   : never;
 
-export interface ValueSpecString extends ListValueSpecString, WithStandalone {
+export interface ValueSpecText extends ListValueSpecText, WithStandalone {
   required: boolean;
   default: DefaultString | null;
 }
 export interface ValueSpecTextarea extends WithStandalone {
   type: "textarea";
   placeholder: string | null;
+  minLength: number | null;
+  maxLength: number | null;
   required: boolean;
 }
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   required: boolean;
   default: number | null;
+}
+export interface ValueSpecColor extends WithStandalone {
+  type: "color";
+  required: boolean;
+  default: string | null;
+}
+export interface ValueSpecDatetime extends WithStandalone {
+  type: "datetime";
+  required: boolean;
+  inputMode: "date" | "time" | "datetime-local";
+  min: string | null;
+  max: string | null;
+  step: string | null;
+  default: string | null;
 }
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select";
@@ -54,12 +76,12 @@ export interface ValueSpecSelect extends SelectBase, WithStandalone {
 }
 export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
   type: "multiselect";
-  /**'[0,1]' (inclusive) OR '[0,*)' (right unbounded), normal math rules */
-  range: string;
+  minLength: number | null;
+  maxLength: number | null;
   default: string[];
 }
-export interface ValueSpecBoolean extends WithStandalone {
-  type: "boolean";
+export interface ValueSpecToggle extends WithStandalone {
+  type: "toggle";
   default: boolean | null;
 }
 export interface ValueSpecUnion extends WithStandalone {
@@ -91,10 +113,10 @@ export interface WithStandalone {
 export interface SelectBase {
   values: Record<string, string>;
 }
-export type ListValueSpecType = "string" | "number" | "object";
+export type ListValueSpecType = "text" | "number" | "object";
 /** represents a spec for the values of a list */
-export type ListValueSpecOf<T extends ListValueSpecType> = T extends "string"
-  ? ListValueSpecString
+export type ListValueSpecOf<T extends ListValueSpecType> = T extends "text"
+  ? ListValueSpecText
   : T extends "number"
   ? ListValueSpecNumber
   : T extends "object"
@@ -106,7 +128,8 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
   extends WithStandalone {
   type: "list";
   spec: ListValueSpecOf<T>;
-  range: string;
+  minLength: number | null;
+  maxLength: number | null;
   default:
     | string[]
     | number[]
@@ -117,18 +140,25 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
     | readonly DefaultString[]
     | readonly Record<string, unknown>[];
 }
-export interface ListValueSpecString {
-  type: "string";
-  pattern: string | null;
-  patternDescription: string | null;
+export interface Pattern {
+  regex: string;
+  description: string;
+}
+export interface ListValueSpecText {
+  type: "text";
+  patterns: Pattern[];
+  minLength: number | null;
+  maxLength: number | null;
   masked: boolean;
-  inputmode: "text" | "email" | "tel" | "url";
+  inputMode: "text" | "email" | "tel" | "url";
   placeholder: string | null;
 }
 export interface ListValueSpecNumber {
   type: "number";
-  range: string;
-  integral: boolean;
+  min: number | null;
+  max: number | null;
+  integer: boolean;
+  step: string | null;
   units: string | null;
   placeholder: string | null;
 }
