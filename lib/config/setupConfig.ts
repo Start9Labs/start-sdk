@@ -1,7 +1,7 @@
 import { Config } from "./builder";
 import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types";
 import { InputSpec } from "./configTypes";
-import { Utils, nullIfEmpty, utils } from "../util";
+import { Utils, nullIfEmpty, once, utils } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
 
 declare const dependencyProof: unique symbol;
@@ -30,11 +30,11 @@ export function setupConfig<WD, A extends Config<InputSpec>>(
   write: Save<WD, TypeFromProps<A>>,
   read: Read<WD, TypeFromProps<A>>,
 ) {
-  const validator = spec.validator();
+  const validator = once(() => spec.validator());
   return {
     setConfig: (async ({ effects, input }) => {
-      if (!validator.test(input)) {
-        await effects.error(String(validator.errorMessage(input)));
+      if (!validator().test(input)) {
+        await effects.error(String(validator().errorMessage(input)));
         return { error: "Set config type error for config" };
       }
       await write({

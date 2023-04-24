@@ -1,7 +1,7 @@
 import { string } from "ts-matches";
 import { Backups } from ".";
 import { GenericManifest } from "../manifest/ManifestTypes";
-import { BackupOptions } from "../types";
+import { BackupOptions, ExpectedExports } from "../types";
 
 export type SetupBackupsParams<M extends GenericManifest> =
   | [Partial<BackupOptions>, ...Array<keyof M["volumes"] & string>]

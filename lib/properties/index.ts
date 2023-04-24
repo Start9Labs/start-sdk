@@ -1,4 +1,5 @@
 import { ExpectedExports, Properties } from "../types";
+import { Utils, utils } from "../util";
 import "../util/extensions";
 import { PropertyGroup } from "./PropertyGroup";
 import { PropertyString } from "./PropertyString";
@@ -18,13 +19,17 @@ export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
  * @param fn
  * @returns
  */
-export function setupPropertiesExport(
-  fn: (
-    ...args: Parameters<ExpectedExports.properties>
-  ) => void | Promise<void> | Promise<(PropertyGroup | PropertyString)[]>,
+export function setupProperties<WrapperData>(
+  fn: (args: {
+    wrapperData: WrapperData;
+  }) => void | Promise<void> | Promise<(PropertyGroup | PropertyString)[]>,
 ): ExpectedExports.properties {
-  return (async (...args) => {
-    const result = await fn(...args);
+  return (async (options) => {
+    const result = await fn(
+      options as {
+        wrapperData: WrapperData & typeof options.wrapperData;
+      },
+    );
     if (result) {
       const answer: Properties = result.map((x) => x.data);
       return answer;

@@ -1,17 +1,18 @@
 import { GenericManifest } from "../manifest/ManifestTypes";
 import * as T from "../types";
 
+export type BACKUP = "BACKUP";
 export const DEFAULT_OPTIONS: T.BackupOptions = {
   delete: true,
   force: true,
   ignoreExisting: false,
   exclude: [],
 };
-type BackupSet = {
+type BackupSet<Volumes extends string> = {
   srcPath: string;
-  srcVolume: string;
+  srcVolume: Volumes | BACKUP;
   dstPath: string;
-  dstVolume: string;
+  dstVolume: Volumes | BACKUP;
   options?: Partial<T.BackupOptions>;
 };
 /**
@@ -37,13 +38,13 @@ type BackupSet = {
  * ```
  */
 export class Backups<M extends GenericManifest> {
-  static BACKUP = "BACKUP" as const;
+  static BACKUP: BACKUP = "BACKUP";
 
   constructor(
     private options = DEFAULT_OPTIONS,
-    private backupSet = [] as BackupSet[],
+    private backupSet = [] as BackupSet<keyof M["volumes"] & string>[],
   ) {}
-  static volumes<M extends GenericManifest>(
+  static volumes<M extends GenericManifest = never>(
     ...volumeNames: Array<keyof M["volumes"] & string>
   ) {
     return new Backups().addSets(
@@ -55,10 +56,14 @@ export class Backups<M extends GenericManifest> {
       })),
     );
   }
-  static addSets(...options: BackupSet[]) {
+  static addSets<M extends GenericManifest = never>(
+    ...options: BackupSet<keyof M["volumes"] & string>[]
+  ) {
     return new Backups().addSets(...options);
   }
-  static with_options(options?: Partial<T.BackupOptions>) {
+  static with_options<M extends GenericManifest = never>(
+    options?: Partial<T.BackupOptions>,
+  ) {
     return new Backups({ ...DEFAULT_OPTIONS, ...options });
   }
   set_options(options?: Partial<T.BackupOptions>) {
@@ -78,7 +83,7 @@ export class Backups<M extends GenericManifest> {
       })),
     );
   }
-  addSets(...options: BackupSet[]) {
+  addSets(...options: BackupSet<keyof M["volumes"] & string>[]) {
     options.forEach((x) =>
       this.backupSet.push({ ...x, options: { ...this.options, ...x.options } }),
     );

@@ -1,7 +1,6 @@
 export * as configTypes from "./config/configTypes";
 import { InputSpec } from "./config/configTypes";
 import { DependenciesReceipt } from "./config/setupConfig";
-import { ActionReceipt } from "./init";
 
 export type ExportedAction = (options: {
   effects: Effects;
@@ -350,7 +349,7 @@ export type Effects = {
    *
    * @param options
    */
-  exportAction(options: ActionMetaData): Promise<void & ActionReceipt>;
+  exportAction(options: ActionMetaData): Promise<void>;
   /**
    * Remove an action that was exported. Used problably during main or during setConfig.
    */

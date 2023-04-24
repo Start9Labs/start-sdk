@@ -1,3 +1,5 @@
+import { ValidEmVer } from "../emverLite/mod";
+
 export interface Container {
   image: string;
   mounts: Record<string, string>;
@@ -5,10 +7,12 @@ export interface Container {
   sigtermTimeout?: string; // if more than 30s to shutdown
 }
 
+export type ManifestVersion = ValidEmVer;
+
 export interface GenericManifest {
   id: string;
   title: string;
-  version: string;
+  version: ManifestVersion;
   releaseNotes: string;
   license: string; // name of license
   replaces: string[];

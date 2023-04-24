@@ -17,6 +17,7 @@ export { FileHelper } from "./fileHelper";
 export { getWrapperData } from "./getWrapperData";
 export { deepEqual } from "./deepEqual";
 export { deepMerge } from "./deepMerge";
+export { once } from "./once";
 
 /** Used to check if the file exists before hand */
 export const exists = (

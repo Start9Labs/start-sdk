@@ -8,13 +8,13 @@ export function setupActions(...createdActions: CreatedAction<any, any>[]) {
     actions[action.metaData.id] = action.exportedAction;
   }
 
-  const manifestActions = async (effects: Effects) => {
+  const initializeActions = async (effects: Effects) => {
     for (const action of createdActions) {
       action.exportAction(effects);
     }
   };
   return {
     actions,
-    manifestActions,
+    initializeActions,
   };
 }

@@ -1,6 +1,8 @@
 import * as matches from "ts-matches";
 
 const starSub = /((\d+\.)*\d+)\.\*/;
+// prettier-ignore
+export type ValidEmVer = `${'>' | '<' | '>=' | '<=' | '=' | ''}${number | '*'}${`.${number | '*'}` | ""}${`.${number | '*'}` | ""}${`.${number | '*'}` | ""}${`-${string}` | ""}`;
 
 function incrementLastNumber(list: number[]) {
   const newList = [...list];
@@ -61,7 +63,7 @@ export class EmVer {
    * Or an already made emver
    * IsUnsafe
    */
-  static from(range: string | EmVer): EmVer {
+  static from(range: ValidEmVer | EmVer): EmVer {
     if (range instanceof EmVer) {
       return range;
     }
@@ -71,22 +73,26 @@ export class EmVer {
    * Convert the range, should be 1.2.* or * into a emver
    * IsUnsafe
    */
-  static parse(range: string): EmVer {
+  static parse(rangeExtra: string): EmVer {
+    const [range, extra] = rangeExtra.split("-");
     const values = range.split(".").map((x) => parseInt(x));
     for (const value of values) {
       if (isNaN(value)) {
         throw new Error(`Couldn't parse range: ${range}`);
       }
     }
-    return new EmVer(values);
+    return new EmVer(values, extra);
   }
-  private constructor(public readonly values: number[]) {}
+  private constructor(
+    public readonly values: number[],
+    readonly extra: string | null,
+  ) {}
 
   /**
    * Used when we need a new emver that has the last number incremented, used in the 1.* like things
    */
   public withLastIncremented() {
-    return new EmVer(incrementLastNumber(this.values));
+    return new EmVer(incrementLastNumber(this.values), null);
   }
 
   public greaterThan(other: EmVer): boolean {
@@ -152,6 +158,10 @@ export class EmVer {
       .when("greater", () => 1 as const)
       .when("less", () => -1 as const)
       .unwrap();
+  }
+
+  toString() {
+    return `${this.values.join(".")}${this.extra ? `-${this.extra}` : ""}`;
   }
 }
 
@@ -248,7 +258,7 @@ export class Checker {
      * Check is the function that will be given a emver or unparsed emver and should give if it follows
      * a pattern
      */
-    public readonly check: (value: string | EmVer) => boolean,
+    public readonly check: (value: ValidEmVer | EmVer) => boolean,
   ) {}
 
   /**

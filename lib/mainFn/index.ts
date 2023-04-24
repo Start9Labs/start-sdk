@@ -1,4 +1,5 @@
 import { Effects, ExpectedExports } from "../types";
+import { Utils, utils } from "../util";
 import { Daemons } from "./Daemons";
 export * as network from "./exportInterfaces";
 export { LocalBinding } from "./LocalBinding";
@@ -21,14 +22,18 @@ export { Daemons } from "./Daemons";
  * @param fn
  * @returns
  */
-export const runningMain: (
+export const setupMain = <WrapperData>(
   fn: (o: {
     effects: Effects;
     started(onTerm: () => void): null;
+    utils: Utils<WrapperData>;
   }) => Promise<Daemons<any>>,
-) => ExpectedExports.main = (fn) => {
+): ExpectedExports.main => {
   return async (options) => {
-    const result = await fn(options);
+    const result = await fn({
+      ...options,
+      utils: utils<WrapperData>(options.effects),
+    });
     await result.build().then((x) => x.wait());
   };
 };

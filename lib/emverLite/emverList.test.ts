@@ -9,7 +9,9 @@ describe("EmVer", () => {
         expect(checker.check("1.2.3.4")).toEqual(true);
       });
       test("rangeOf('*') invalid", () => {
+        // @ts-expect-error
         expect(() => checker.check("a")).toThrow();
+        // @ts-expect-error
         expect(() => checker.check("")).toThrow();
         expect(() => checker.check("1..3")).toThrow();
       });
@@ -18,6 +20,7 @@ describe("EmVer", () => {
     {
       const checker = rangeOf(">1.2.3.4");
       test(`rangeOf(">1.2.3.4") valid`, () => {
+        expect(checker.check("2-beta123")).toEqual(true);
         expect(checker.check("2")).toEqual(true);
         expect(checker.check("1.2.3.5")).toEqual(true);
         expect(checker.check("1.2.3.4.1")).toEqual(true);
