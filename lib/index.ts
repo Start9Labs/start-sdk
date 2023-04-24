@@ -14,3 +14,4 @@ export * as YAML from "yaml";
 export * as properties from "./properties";
 export * as autoconfig from "./autoconfig";
 export * as actions from "./actions";
+export * as manifest from "./manifest";
