@@ -22,7 +22,7 @@ export type DependenciesFn<A> = (options: {
  * @param options
  * @returns
  */
-export function setupConfigExports<A extends InputSpec>(
+export function setupConfig<A extends InputSpec>(
   spec: Config<A>,
   write: Write<A>,
   read: Read<A>,
@@ -51,4 +51,4 @@ export function setupConfigExports<A extends InputSpec>(
   };
 }
 
-export default setupConfigExports;
+export default setupConfig;
