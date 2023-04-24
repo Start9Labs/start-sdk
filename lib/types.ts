@@ -1,5 +1,6 @@
 export * as configTypes from "./config/configTypes";
 import { InputSpec } from "./config/configTypes";
+import { DependenciesReceipt } from "./config/setupConfig";
 import { ActionReceipt } from "./init";
 
 export type ExportedAction = (options: {
@@ -382,7 +383,7 @@ export type Effects = {
   }): Promise<void>;
 
   /** Set the dependencies of what the service needs, usually ran during the set config as a best practice */
-  setDependencies(dependencies: Dependencies): Promise<void>;
+  setDependencies(dependencies: Dependencies): Promise<DependenciesReceipt>;
   /** Exists could be useful during the runtime to know if some service exists, option dep */
   exists(packageId: PackageId): Promise<boolean>;
   /** Exists could be useful during the runtime to know if some service is running, option dep */

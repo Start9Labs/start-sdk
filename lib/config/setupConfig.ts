@@ -1,20 +1,23 @@
 import { Config } from "./builder";
 import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types";
 import { InputSpec } from "./configTypes";
-import { nullIfEmpty } from "../util";
+import { Utils, nullIfEmpty, utils } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
 
-export type Write<A> = (options: {
+declare const dependencyProof: unique symbol;
+export type DependenciesReceipt = void & {
+  [dependencyProof]: never;
+};
+
+export type Save<WD, A> = (options: {
   effects: Effects;
-  input: TypeFromProps<A>;
-}) => Promise<void>;
-export type Read<A> = (options: {
+  input: A;
+  utils: Utils<WD>;
+}) => Promise<DependenciesReceipt>;
+export type Read<WD, A> = (options: {
   effects: Effects;
-}) => Promise<null | DeepPartial<TypeFromProps<A>>>;
-export type DependenciesFn<A> = (options: {
-  effects: Effects;
-  input: TypeFromProps<A>;
-}) => Promise<Dependencies | void>;
+  utils: Utils<WD>;
+}) => Promise<null | DeepPartial<A>>;
 /**
  * We want to setup a config export with a get and set, this
  * is going to be the default helper to setup config, because it will help
@@ -22,11 +25,10 @@ export type DependenciesFn<A> = (options: {
  * @param options
  * @returns
  */
-export function setupConfig<A extends InputSpec>(
-  spec: Config<A>,
-  write: Write<A>,
-  read: Read<A>,
-  dependencies: DependenciesFn<A>,
+export function setupConfig<WD, A extends Config<InputSpec>>(
+  spec: A,
+  write: Save<WD, TypeFromProps<A>>,
+  read: Read<WD, TypeFromProps<A>>,
 ) {
   const validator = spec.validator();
   return {
@@ -38,14 +40,13 @@ export function setupConfig<A extends InputSpec>(
       await write({
         input: JSON.parse(JSON.stringify(input)),
         effects,
+        utils: utils<WD>(effects),
       });
-      const dependenciesToSet = (await dependencies({ effects, input })) || [];
-      await effects.setDependencies(dependenciesToSet);
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects, config }) => {
       return {
         spec: spec.build(),
-        config: nullIfEmpty(await read({ effects })),
+        config: nullIfEmpty(await read({ effects, utils: utils<WD>(effects) })),
       };
     }) as ExpectedExports.getConfig,
   };

@@ -6,6 +6,7 @@ import {
   ValueSpec as ValueSpecAny,
   InputSpec,
 } from "../config/configTypes";
+import { Config } from "../config/builder/config";
 
 const {
   string,
@@ -110,6 +111,7 @@ export type GuardAll<A> = GuardNumber<A> &
   GuardDatetime<A>;
 // prettier-ignore
 export type TypeFromProps<A> =
+  A extends Config<infer B> ? TypeFromProps<B> :
   A extends Record<string, unknown> ? {  [K in keyof A & string]: _<GuardAll<A[K]>> } :
   unknown;
 
