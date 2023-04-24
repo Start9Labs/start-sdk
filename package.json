@@ -6,7 +6,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "test": "jest -c ./jest.config.js",
-    "buildOutput": "ts-node --esm ./lib/test/makeOutput.ts",
+    "buildOutput": "ts-node --esm ./lib/test/makeOutput.ts && npx prettier --write '**/*.ts'",
     "check": "tsc --noEmit"
   },
   "repository": {

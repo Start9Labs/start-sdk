@@ -5,7 +5,7 @@ import {
   unionValueKey,
 } from "../config/configTypes";
 import { deepMerge } from "../util";
-import { InputSpec, matchInputSpec, testListUnion } from "./output";
+import { InputSpec, matchInputSpec } from "./output";
 
 export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
   ? 1
@@ -97,9 +97,6 @@ describe("Inputs", () => {
     },
   };
 
-  test("Test just the input unions", () => {
-    testListUnion.validator().unsafeCast(validInput.testListUnion);
-  });
   test("test valid input", () => {
     const output = matchInputSpec.unsafeCast(validInput);
     expect(output).toEqual(validInput);

@@ -16,11 +16,11 @@ export async function writeConvertedFileFromOld(
 
 export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
-  { startSdk = "start-sdk" } = {},
+  { startSdk = "start-sdk", nested = true } = {},
 ) {
   const outputLines: string[] = [];
   outputLines.push(`
-  import {Config, Value, List, Variants} from '${startSdk}/config/builder';
+  import {Config, Value, List, Variants} from '${startSdk}/config/builder'
 `);
   const data = await inputData;
 
@@ -41,14 +41,18 @@ export default async function makeFileContentFromOld(
     outputLines.push(`export const ${variableName} = ${data};`);
     return variableName;
   }
+  function maybeNewConst(key: string, data: string) {
+    if (nested) return data;
+    return newConst(key, data);
+  }
   function convertInputSpec(data: any) {
     let answer = "Config.of({";
     for (const [key, value] of Object.entries(data)) {
-      const variableName = newConst(key, convertValueSpec(value));
+      const variableName = maybeNewConst(key, convertValueSpec(value));
 
       answer += `${JSON.stringify(key)}: ${variableName},`;
     }
-    return `${answer}});`;
+    return `${answer}})`;
   }
   function convertValueSpec(value: any): string {
     switch (value.type) {
@@ -149,7 +153,7 @@ export default async function makeFileContentFromOld(
         )} as const)`;
       }
       case "object": {
-        const specName = newConst(
+        const specName = maybeNewConst(
           value.name + "_spec",
           convertInputSpec(value.spec),
         );
@@ -160,7 +164,7 @@ export default async function makeFileContentFromOld(
       }, ${specName})`;
       }
       case "union": {
-        const variants = newConst(
+        const variants = maybeNewConst(
           value.name + "_variants",
           convertVariants(value.variants, value.tag["variant-names"] || {}),
         );
@@ -174,7 +178,7 @@ export default async function makeFileContentFromOld(
       }, ${variants})`;
       }
       case "list": {
-        const list = newConst(value.name + "_list", convertList(value));
+        const list = maybeNewConst(value.name + "_list", convertList(value));
         return `Value.list(${list})`;
       }
       case "pointer": {
@@ -263,7 +267,7 @@ export default async function makeFileContentFromOld(
         )})`;
       }
       case "object": {
-        const specName = newConst(
+        const specName = maybeNewConst(
           value.name + "_spec",
           convertInputSpec(value.spec.spec),
         );
@@ -281,14 +285,14 @@ export default async function makeFileContentFromOld(
         })`;
       }
       case "union": {
-        const variants = newConst(
+        const variants = maybeNewConst(
           value.name + "_variants",
           convertVariants(
             value.spec.variants,
             value.spec["variant-names"] || {},
           ),
         );
-        const unionValueName = newConst(
+        const unionValueName = maybeNewConst(
           value.name + "_union",
           `${rangeToTodoComment(value?.range)}
           Value.union({
@@ -302,7 +306,7 @@ export default async function makeFileContentFromOld(
           }, ${variants})
         `,
         );
-        const listConfig = newConst(
+        const listConfig = maybeNewConst(
           value.name + "_list_config",
           `
           Config.of({
@@ -333,7 +337,7 @@ export default async function makeFileContentFromOld(
   ): string {
     let answer = "Variants.of({";
     for (const [key, value] of Object.entries(variants)) {
-      const variantSpec = newConst(key, convertInputSpec(value));
+      const variantSpec = maybeNewConst(key, convertInputSpec(value));
       answer += `"${key}": {name: "${
         variantNames[key] || key
       }", spec: ${variantSpec}},`;
