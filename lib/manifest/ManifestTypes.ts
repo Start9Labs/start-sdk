@@ -1,4 +1,5 @@
 import { ValidEmVer } from "../emverLite/mod";
+import { ActionResult } from "../types";
 
 export interface Container {
   image: string;
@@ -32,8 +33,10 @@ export interface GenericManifest {
   };
   containers: Record<string, Container>;
   volumes: Record<string, string>;
+  actions: ActionResult[];
   alerts: {
     install: string | null;
+    update: string | null;
     uninstall: string | null;
     restore: string | null;
     start: string | null;
