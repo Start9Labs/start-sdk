@@ -17,7 +17,7 @@ export type Save<WD, A> = (options: {
 export type Read<WD, A> = (options: {
   effects: Effects;
   utils: Utils<WD>;
-}) => Promise<null | DeepPartial<A>>;
+}) => Promise<void | DeepPartial<A>>;
 /**
  * We want to setup a config export with a get and set, this
  * is going to be the default helper to setup config, because it will help
@@ -46,7 +46,9 @@ export function setupConfig<WD, A extends Config<InputSpec>>(
     getConfig: (async ({ effects, config }) => {
       return {
         spec: spec.build(),
-        config: nullIfEmpty(await read({ effects, utils: utils<WD>(effects) })),
+        config: nullIfEmpty(
+          (await read({ effects, utils: utils<WD>(effects) })) || null,
+        ),
       };
     }) as ExpectedExports.getConfig,
   };
