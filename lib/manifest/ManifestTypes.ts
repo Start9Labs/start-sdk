@@ -1,5 +1,5 @@
 import { ValidEmVer } from "../emverLite/mod";
-import { ActionResult } from "../types";
+import { ActionMetaData, ActionResult } from "../types";
 
 export interface Container {
   image: string;
@@ -33,7 +33,7 @@ export interface GenericManifest {
   };
   containers: Record<string, Container>;
   volumes: Record<string, string>;
-  actions: ActionResult[];
+  actions: ActionMetaData[];
   alerts: {
     install: string | null;
     update: string | null;
