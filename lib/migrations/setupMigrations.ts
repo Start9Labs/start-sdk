@@ -7,7 +7,6 @@ import { Migration } from "./Migration";
 
 export function setupMigrations<Migrations extends Array<Migration<any>>>(
   manifest: GenericManifest,
-  initializeActions: ReturnType<typeof setupActions>["initializeActions"],
   ...migrations: EnsureUniqueId<Migrations>
 ) {
   const sortedMigrations = once(() => {
@@ -19,7 +18,6 @@ export function setupMigrations<Migrations extends Array<Migration<any>>>(
   });
   const currentVersion = once(() => EmVer.parse(manifest.version));
   const init: ExpectedExports.init = async ({ effects, previousVersion }) => {
-    await initializeActions(effects);
     if (!!previousVersion) {
       const previousVersionEmVer = EmVer.parse(previousVersion);
       for (const [_, migration] of sortedMigrations()

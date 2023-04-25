@@ -1,6 +1,6 @@
 {
   "name": "start-sdk",
-  "version": "0.4.0-lib0.charlie34",
+  "version": "0.4.0-lib0.charlie36",
   "description": "For making the patterns that are wanted in making services for the startOS.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",

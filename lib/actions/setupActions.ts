@@ -8,13 +8,9 @@ export function setupActions(...createdActions: CreatedAction<any, any>[]) {
     actions[action.metaData.id] = action.exportedAction;
   }
 
-  const initializeActions = async (effects: Effects) => {
-    for (const action of createdActions) {
-      action.exportAction(effects);
-    }
-  };
+  const actionsMetadata = createdActions.map((x) => x.metaData);
   return {
     actions,
-    initializeActions,
+    actionsMetadata,
   };
 }

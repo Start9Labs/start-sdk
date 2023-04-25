@@ -82,11 +82,15 @@ export class Daemons<Ids extends string | never> {
         const { command } = daemon;
 
         const child = effects.runDaemon(command);
-        const trigger = (daemon.ready.trigger ?? defaultTrigger)();
+        let currentInput = {};
+        const getCurrentInput = () => currentInput;
+        const trigger = (daemon.ready.trigger ?? defaultTrigger)(
+          getCurrentInput,
+        );
         for (
-          let res = await trigger.next({});
+          let res = await trigger.next();
           !res.done;
-          res = await trigger.next({})
+          res = await trigger.next()
         ) {
           const response = await daemon.ready.fn();
           if (response.status === "passing") {
