@@ -33,7 +33,7 @@ writeConvertedFileFromOld(
               type: "string",
               name: "Node Name",
               description: "Name of this node in the list",
-              default: "Embassy LND",
+              default: "LND Wrapper",
               nullable: false,
             },
           },

@@ -9,23 +9,23 @@ export type ExportedAction = (options: {
 
 export namespace ExpectedExports {
   version: 1;
-  /** Set configuration is called after we have modified and saved the configuration in the embassy ui. Use this to make a file for the docker to read from for configuration.  */
+  /** Set configuration is called after we have modified and saved the configuration in the start9 ui. Use this to make a file for the docker to read from for configuration.  */
   export type setConfig = (options: {
     effects: Effects;
     input: Record<string, unknown>;
   }) => Promise<void>;
-  /** Get configuration returns a shape that describes the format that the embassy ui will generate, and later send to the set config  */
+  /** Get configuration returns a shape that describes the format that the start9 ui will generate, and later send to the set config  */
   export type getConfig = (options: {
     effects: Effects;
     config: unknown;
   }) => Promise<ConfigRes>;
   // /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
   // export type dependencies = Dependencies;
-  /** For backing up service data though the embassyOS UI */
+  /** For backing up service data though the startOS UI */
   export type createBackup = (options: {
     effects: Effects;
   }) => Promise<unknown>;
-  /** For restoring service data that was previously backed up using the embassyOS UI create backup flow. Backup restores are also triggered via the embassyOS UI, or doing a system restore flow during setup. */
+  /** For restoring service data that was previously backed up using the startOS UI create backup flow. Backup restores are also triggered via the startOS UI, or doing a system restore flow during setup. */
   export type restoreBackup = (options: {
     effects: Effects;
   }) => Promise<unknown>;

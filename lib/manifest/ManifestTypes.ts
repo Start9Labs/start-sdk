@@ -19,7 +19,7 @@ export interface GenericManifest {
   id: string;
   /** A human readable service title */
   title: string;
-  /** Service version - accepts up to four digits, where the last confirms to revisions necessary for EmbassyOS - see documentation: https://github.com/Start9Labs/emver-rs. This value will change with each release of the service */
+  /** Service version - accepts up to four digits, where the last confirms to revisions necessary for StartOs - see documentation: https://github.com/Start9Labs/emver-rs. This value will change with each release of the service */
   version: ManifestVersion;
   /** Release notes for the update - can be a string, paragraph or URL */
   releaseNotes: string;
@@ -37,7 +37,7 @@ export interface GenericManifest {
   marketingSite: string;
   /** URL where users can donate to the upstream project */
   donationUrl: string | null;
-  /**Human readable descriptions for the service. These are used throughout the EmbassyOS user interface, primarily in the marketplace. */
+  /**Human readable descriptions for the service. These are used throughout the StartOS user interface, primarily in the marketplace. */
   description: {
     /**This is the first description visible to the user in the marketplace */
     short: string;
