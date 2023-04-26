@@ -57,11 +57,11 @@ export interface GenericManifest {
   actions: Array<ActionMetaData>;
   alerts: {
     install: string | null;
+    update: string | null;
     uninstall: string | null;
     restore: string | null;
     start: string | null;
     stop: string | null;
-    update: string | null;
   };
   dependencies: Record<string, Dependency>;
 }

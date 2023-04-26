@@ -4,25 +4,28 @@ import { Trigger } from "./index";
 export function changeOnFirstSuccess(o: {
   beforeFirstSuccess: Trigger;
   afterFirstSuccess: Trigger;
-}) {
-  return async function* () {
-    const beforeFirstSuccess = o.beforeFirstSuccess();
-    let currentValue: TriggerInput = yield;
-    beforeFirstSuccess.next(currentValue);
+}): Trigger {
+  return async function* (getInput) {
+    const beforeFirstSuccess = o.beforeFirstSuccess(getInput);
+    yield;
+    let currentValue = getInput();
+    beforeFirstSuccess.next();
     for (
-      let res = await beforeFirstSuccess.next(currentValue);
+      let res = await beforeFirstSuccess.next();
       currentValue?.lastResult !== "success" && !res.done;
-      res = await beforeFirstSuccess.next(currentValue)
+      res = await beforeFirstSuccess.next()
     ) {
-      currentValue = yield;
+      yield;
+      currentValue = getInput();
     }
-    const afterFirstSuccess = o.afterFirstSuccess();
+    const afterFirstSuccess = o.afterFirstSuccess(getInput);
     for (
-      let res = await afterFirstSuccess.next(currentValue);
+      let res = await afterFirstSuccess.next();
       !res.done;
-      res = await afterFirstSuccess.next(currentValue)
+      res = await afterFirstSuccess.next()
     ) {
-      currentValue = yield;
+      yield;
+      currentValue = getInput();
     }
   };
 }

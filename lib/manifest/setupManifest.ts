@@ -1,9 +1,15 @@
 import { GenericManifest, ManifestVersion } from "./ManifestTypes";
 
 export function setupManifest<
-  M extends GenericManifest & { id: Id; version: Version },
   Id extends string,
   Version extends ManifestVersion,
->(manifest: M): M {
+  Dependencies extends Record<string, unknown>,
+>(
+  manifest: GenericManifest & {
+    dependencies: Dependencies;
+    id: Id;
+    version: Version;
+  },
+): GenericManifest & { dependencies: Dependencies; id: Id; version: Version } {
   return manifest;
 }

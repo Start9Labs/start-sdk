@@ -437,7 +437,7 @@ export type MigrationRes = {
 
 export type ActionResult = {
   message: string;
-  value?: string;
+  value: null | string;
   copyable: boolean;
   qr: boolean;
 };

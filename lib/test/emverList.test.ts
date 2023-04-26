@@ -1,9 +1,17 @@
-import { EmVer, notRange, rangeAnd, rangeOf, rangeOr } from "./mod";
+import { EmVer, notRange, rangeAnd, rangeOf, rangeOr } from "../emverLite/mod";
 describe("EmVer", () => {
   {
     {
       const checker = rangeOf("*");
       test("rangeOf('*')", () => {
+        checker.check("1");
+        checker.check("1.2");
+        checker.check("1.2.3");
+        checker.check("1.2.3.4");
+        // @ts-expect-error
+        checker.check("1.2.3.4.5");
+        // @ts-expect-error
+        checker.check("1.2.3.4.5.6");
         expect(checker.check("1")).toEqual(true);
         expect(checker.check("1.2")).toEqual(true);
         expect(checker.check("1.2.3.4")).toEqual(true);
@@ -23,6 +31,7 @@ describe("EmVer", () => {
         expect(checker.check("2-beta123")).toEqual(true);
         expect(checker.check("2")).toEqual(true);
         expect(checker.check("1.2.3.5")).toEqual(true);
+        // @ts-expect-error
         expect(checker.check("1.2.3.4.1")).toEqual(true);
       });
 
@@ -49,6 +58,7 @@ describe("EmVer", () => {
       test(`rangeOf(">=1.2.3.4") valid`, () => {
         expect(checker.check("2")).toEqual(true);
         expect(checker.check("1.2.3.5")).toEqual(true);
+        // @ts-expect-error
         expect(checker.check("1.2.3.4.1")).toEqual(true);
         expect(checker.check("1.2.3.4")).toEqual(true);
       });
@@ -63,6 +73,7 @@ describe("EmVer", () => {
       test(`rangeOf("<1.2.3.4") invalid`, () => {
         expect(checker.check("2")).toEqual(false);
         expect(checker.check("1.2.3.5")).toEqual(false);
+        // @ts-expect-error
         expect(checker.check("1.2.3.4.1")).toEqual(false);
         expect(checker.check("1.2.3.4")).toEqual(false);
       });
@@ -77,6 +88,7 @@ describe("EmVer", () => {
       test(`rangeOf("<=1.2.3.4") invalid`, () => {
         expect(checker.check("2")).toEqual(false);
         expect(checker.check("1.2.3.5")).toEqual(false);
+        // @ts-expect-error
         expect(checker.check("1.2.3.4.1")).toEqual(false);
       });
 
@@ -184,6 +196,7 @@ describe("EmVer", () => {
       test(`rangeOf("!>1.2.3.4") invalid`, () => {
         expect(checker.check("2")).toEqual(false);
         expect(checker.check("1.2.3.5")).toEqual(false);
+        // @ts-expect-error
         expect(checker.check("1.2.3.4.1")).toEqual(false);
       });
 

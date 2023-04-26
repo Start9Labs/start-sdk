@@ -1,18 +1,18 @@
-import { AutoConfigure, Effects, ExpectedExports } from "../types";
+import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types";
 import { Utils, deepEqual, deepMerge, utils } from "../util";
 
-export type AutoConfigFrom<WD, Input> = {
-  [key: string]: (options: {
+export type AutoConfigFrom<WD, Input, NestedConfigs> = {
+  [key in keyof NestedConfigs & string]: (options: {
     effects: Effects;
     localConfig: Input;
-    remoteConfig: unknown;
+    remoteConfig: NestedConfigs[key];
     utils: Utils<WD>;
-  }) => Promise<void | Record<string, unknown>>;
+  }) => Promise<void | DeepPartial<NestedConfigs[key]>>;
 };
-export class AutoConfig<WD, Input> {
+export class AutoConfig<WD, Input, NestedConfigs> {
   constructor(
-    readonly configs: AutoConfigFrom<WD, Input>,
-    readonly path: keyof AutoConfigFrom<WD, Input>,
+    readonly configs: AutoConfigFrom<WD, Input, NestedConfigs>,
+    readonly path: keyof AutoConfigFrom<WD, Input, NestedConfigs>,
   ) {}
 
   async check(
@@ -23,6 +23,7 @@ export class AutoConfig<WD, Input> {
       ...options,
       utils: utils<WD>(options.effects),
       localConfig: options.localConfig as Input,
+      remoteConfig: options.remoteConfig as any,
     };
     if (
       !deepEqual(
@@ -43,6 +44,7 @@ export class AutoConfig<WD, Input> {
       ...options,
       utils: utils<WD>(options.effects),
       localConfig: options.localConfig as Input,
+      remoteConfig: options.remoteConfig as any,
     };
     return deepMerge(
       {},
