@@ -66,16 +66,18 @@ const username = Value.string({
 export class Value<A extends ValueSpec> extends IBuilder<A> {
   static toggle(a: {
     name: string;
-    description: string | null;
-    warning: string | null;
-    default: boolean | null;
+    description?: string | null;
+    warning?: string | null;
+    default?: boolean | null;
   }) {
     return new Value({
+      description: null,
+      warning: null,
+      default: null,
       type: "toggle" as const,
       ...a,
     });
   }
-
   static text<Required extends RequiredLike<DefaultString>>(a: {
     name: string;
     description?: string | null;
@@ -106,134 +108,160 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
   }
   static textarea(a: {
     name: string;
-    description: string | null;
-    warning: string | null;
+    description?: string | null;
+    warning?: string | null;
     required: boolean;
-    minLength: number | null;
-    maxLength: number | null;
-    placeholder: string | null;
+    minLength?: number | null;
+    maxLength?: number | null;
+    placeholder?: string | null;
   }) {
     return new Value({
+      description: null,
+      warning: null,
+      minLength: null,
+      maxLength: null,
+      placeholder: null,
       type: "textarea" as const,
       ...a,
     } as ValueSpecTextarea);
   }
-  static number<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      required: boolean;
-      default: number | null;
-      min: number | null;
-      max: number | null;
-      /** Default = '1' */
-      step: string | null;
-      integer: boolean;
-      units: string | null;
-      placeholder: string | null;
-    },
-  >(a: A) {
+  static number<Required extends RequiredLike<number>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: Required;
+    min?: number | null;
+    max?: number | null;
+    /** Default = '1' */
+    step?: string | null;
+    integer: boolean;
+    units?: string | null;
+    placeholder?: string | null;
+  }) {
     return new Value({
       type: "number" as const,
+      description: null,
+      warning: null,
+      min: null,
+      max: null,
+      step: null,
+      units: null,
+      placeholder: null,
       ...a,
+      ...requiredLikeToAbove(a.required),
     });
   }
-  static color<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      required: boolean;
-      default: string | null;
-    },
-  >(a: A) {
+  static color<Required extends RequiredLike<string>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: Required;
+  }) {
     return new Value({
       type: "color" as const,
+      description: null,
+      warning: null,
       ...a,
+      ...requiredLikeToAbove(a.required),
     });
   }
-  static datetime(a: {
+  static datetime<Required extends RequiredLike<string>>(a: {
     name: string;
-    description: string | null;
-    warning: string | null;
-    required: boolean;
+    description?: string | null;
+    warning?: string | null;
+    required: Required;
     /** Default = 'datetime-local' */
-    inputmode: ValueSpecDatetime["inputmode"];
-    min: string | null;
-    max: string | null;
-    step: string | null;
-    default: string | null;
+    inputmode?: ValueSpecDatetime["inputmode"];
+    min?: string | null;
+    max?: string | null;
+    step?: string | null;
   }) {
     return new Value({
       type: "datetime" as const,
+      description: null,
+      warning: null,
+      inputmode: "datetime-local",
+      min: null,
+      max: null,
+      step: null,
       ...a,
+      ...requiredLikeToAbove(a.required),
     });
   }
   static select<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      required: boolean;
-      default: string | null;
-      values: { [key: string]: string };
-    },
-  >(a: A) {
+    Required extends RequiredLike<string>,
+    B extends Record<string, string>,
+  >(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: Required;
+    values: B;
+  }) {
     return new Value({
+      description: null,
+      warning: null,
       type: "select" as const,
       ...a,
+      ...requiredLikeToAbove(a.required),
     });
   }
-  static multiselect<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      default: string[];
-      values: Values;
-      minLength: number | null;
-      maxLength: number | null;
-    },
-    Values extends Record<string, string>,
-  >(a: A) {
+  static multiselect<Values extends Record<string, string>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    default: string[];
+    values: Values;
+    minLength?: number | null;
+    maxLength?: number | null;
+  }) {
     return new Value({
       type: "multiselect" as const,
+      minLength: null,
+      maxLength: null,
+      warning: null,
+      description: null,
       ...a,
     });
   }
   static object<Spec extends Config<InputSpec>>(
     a: {
       name: string;
-      description: string | null;
-      warning: string | null;
+      description?: string | null;
+      warning?: string | null;
     },
     previousSpec: Spec,
   ) {
     const spec = previousSpec.build() as BuilderExtract<Spec>;
     return new Value({
       type: "object" as const,
+      description: null,
+      warning: null,
       ...a,
       spec,
     });
   }
   static union<
+    Required extends RequiredLike<string>,
     V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>,
   >(
     a: {
       name: string;
-      description: string | null;
-      warning: string | null;
-      required: boolean;
-      default: string | null;
+      description?: string | null;
+      warning?: string | null;
+      required: Required;
+      default?: string | null;
     },
     aVariants: V,
   ) {
     const variants = aVariants.build() as BuilderExtract<V>;
     return new Value({
       type: "union" as const,
+      description: null,
+      warning: null,
       ...a,
       variants,
+      ...requiredLikeToAbove(a.required),
     });
   }
 

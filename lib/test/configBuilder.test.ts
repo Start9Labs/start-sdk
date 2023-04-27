@@ -16,14 +16,7 @@ describe("builder tests", () => {
       "peer-tor-address": Value.text({
         name: "Peer tor address",
         description: "The Tor address of the peer interface",
-        warning: null,
         required: true,
-        masked: true,
-        placeholder: null,
-        minLength: null,
-        maxLength: null,
-        patterns: [],
-        inputmode: "text",
       }),
     }).build();
     expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
@@ -32,7 +25,7 @@ describe("builder tests", () => {
       "type": "text",
       "description": "The Tor address of the peer interface",
       "warning": null,
-      "masked": true,
+      "masked": false,
       "placeholder": null,
       "minLength": null,
       "maxLength": null,
@@ -101,13 +94,27 @@ describe("values", () => {
       required: false,
       description: null,
       warning: null,
-      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("#000000");
     testOutput<typeof validator._TYPE, string | null | undefined>()(null);
   });
   test("datetime", () => {
+    const value = Value.datetime({
+      name: "Testing",
+      required: true,
+      description: null,
+      warning: null,
+      inputmode: "date",
+      min: null,
+      max: null,
+      step: null,
+    });
+    const validator = value.validator();
+    validator.unsafeCast("2021-01-01");
+    testOutput<typeof validator._TYPE, string>()(null);
+  });
+  test("optional datetime", () => {
     const value = Value.datetime({
       name: "Testing",
       required: false,
@@ -117,11 +124,10 @@ describe("values", () => {
       min: null,
       max: null,
       step: null,
-      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("2021-01-01");
-    testOutput<typeof validator._TYPE, string>()(null);
+    testOutput<typeof validator._TYPE, string | null | undefined>()(null);
   });
   test("textarea", () => {
     const value = Value.textarea({
@@ -140,11 +146,27 @@ describe("values", () => {
   test("number", () => {
     const value = Value.number({
       name: "Testing",
+      required: true,
+      integer: false,
+      description: null,
+      warning: null,
+      min: null,
+      max: null,
+      step: null,
+      units: null,
+      placeholder: null,
+    });
+    const validator = value.validator();
+    validator.unsafeCast(2);
+    testOutput<typeof validator._TYPE, number>()(null);
+  });
+  test("optional number", () => {
+    const value = Value.number({
+      name: "Testing",
       required: false,
       integer: false,
       description: null,
       warning: null,
-      default: null,
       min: null,
       max: null,
       step: null,
@@ -165,7 +187,6 @@ describe("values", () => {
       },
       description: null,
       warning: null,
-      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("a");
@@ -183,7 +204,6 @@ describe("values", () => {
       },
       description: null,
       warning: null,
-      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("a");
@@ -337,13 +357,6 @@ describe("Nested nullable values", () => {
         description:
           "If no name is provided, the name from config will be used",
         required: false,
-        warning: null,
-        masked: false,
-        placeholder: null,
-        minLength: null,
-        maxLength: null,
-        patterns: [],
-        inputmode: "text",
       }),
     });
     const validator = value.validator();
@@ -364,7 +377,6 @@ describe("Nested nullable values", () => {
         warning: null,
         placeholder: null,
         integer: false,
-        default: null,
         min: null,
         max: null,
         step: null,
@@ -387,7 +399,6 @@ describe("Nested nullable values", () => {
           "If no name is provided, the name from config will be used",
         required: false,
         warning: null,
-        default: null,
       }),
     });
     const validator = value.validator();
@@ -406,7 +417,6 @@ describe("Nested nullable values", () => {
           "If no name is provided, the name from config will be used",
         required: false,
         warning: null,
-        default: null,
         values: {
           a: "A",
         },
@@ -417,7 +427,6 @@ describe("Nested nullable values", () => {
       description: "If no name is provided, the name from config will be used",
       required: false,
       warning: null,
-      default: null,
       values: {
         a: "A",
       },

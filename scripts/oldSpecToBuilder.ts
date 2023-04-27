@@ -109,10 +109,14 @@ export default async function makeFileContentFromOld(
         )}Value.number(${JSON.stringify(
           {
             name: value.name || null,
-            default: value.default || null,
             description: value.description || null,
             warning: value.warning || null,
-            required: !(value.nullable || false),
+            // prettier-ignore
+            required: (
+              value.default != null && !value.nullable ? {default: value.default} :
+              value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+              !value.nullable
+            ),
             min: null,
             max: null,
             step: null,
@@ -151,8 +155,13 @@ export default async function makeFileContentFromOld(
             name: value.name || null,
             description: value.description || null,
             warning: value.warning || null,
-            default: value.default || null,
-            required: true,
+
+            // prettier-ignore
+            required: (
+              value.default != null && !value.nullable ? {default: value.default} :
+              value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+              !value.nullable
+            ),
             values,
           },
           null,
@@ -180,8 +189,14 @@ export default async function makeFileContentFromOld(
         name: ${JSON.stringify(value.name || null)},
         description: ${JSON.stringify(value.tag.description || null)},
         warning: ${JSON.stringify(value.tag.warning || null)},
-        required: true,
-        default: ${JSON.stringify(value.default || null)},
+        
+        // prettier-ignore
+        required: ${JSON.stringify(
+          // prettier-ignore
+          value.default != null && !value.nullable ? {default: value.default} :
+            value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+            !value.nullable,
+        )},
       }, ${variants})`;
       }
       case "list": {
@@ -189,7 +204,7 @@ export default async function makeFileContentFromOld(
         return `Value.list(${list})`;
       }
       case "pointer": {
-        return "null as any";
+        return `/* TODO deal with point removed ${JSON.stringify(value)} */`;
       }
     }
     throw Error(`Unknown type "${value.type}"`);
