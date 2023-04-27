@@ -18,8 +18,28 @@ import { guardAll } from "../../util";
 import { DefaultString } from "../configTypes";
 import { _ } from "../../util";
 
-function flatten<A>(a: A): _<A> {
-  return a as _<A>;
+type RequiredLike<A> =
+  | false
+  | true
+  | { default: A }
+  | { defaultWithRequired: A };
+
+function requiredLikeToAbove<Input extends RequiredLike<any>>(
+  requiredLike: Input,
+) {
+  // prettier-ignore
+  return {
+    default: 
+      (typeof requiredLike === "object" ? (
+        'default' in requiredLike ? requiredLike.default : requiredLike.defaultWithRequired
+      ) : 
+      null) as Input extends { default: infer T } | {defaultWithRequired: infer T} ? T : null,
+    required: (requiredLike === true ? true : false) as (
+      Input extends true ? true :
+      Input extends { defaultWithRequired: unknown } ? true :    
+      false
+    ),
+  };
 }
 /**
  * A value is going to be part of the form in the FE of the OS.
@@ -55,26 +75,33 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       ...a,
     });
   }
-  static text<
-    A extends {
-      name: string;
-      description: string | null;
-      warning: string | null;
-      required: boolean;
-      default: DefaultString | null;
-      /** Default = false */
-      masked: boolean;
-      placeholder: string | null;
-      minLength: number | null;
-      maxLength: number | null;
-      patterns: Pattern[];
-      /** Default = 'text' */
-      inputmode: ValueSpecText["inputmode"];
-    },
-  >(a: A) {
+
+  static text<Required extends RequiredLike<DefaultString>>(a: {
+    name: string;
+    description?: string | null;
+    warning?: string | null;
+    required: Required;
+    /** Default = false */
+    masked?: boolean;
+    placeholder?: string | null;
+    minLength?: number | null;
+    maxLength?: number | null;
+    patterns?: Pattern[];
+    /** Default = 'text' */
+    inputmode?: ValueSpecText["inputmode"];
+  }) {
     return new Value({
       type: "text" as const,
+      description: null,
+      warning: null,
+      masked: false,
+      placeholder: null,
+      minLength: null,
+      maxLength: null,
+      patterns: [],
+      inputmode: "text",
       ...a,
+      ...requiredLikeToAbove(a.required),
     });
   }
   static textarea(a: {

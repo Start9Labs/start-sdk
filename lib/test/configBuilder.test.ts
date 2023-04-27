@@ -15,7 +15,6 @@ describe("builder tests", () => {
     } = Config.of({
       "peer-tor-address": Value.text({
         name: "Peer tor address",
-        default: null,
         description: "The Tor address of the peer interface",
         warning: null,
         required: true,
@@ -31,17 +30,17 @@ describe("builder tests", () => {
       /*json*/ `{
     "peer-tor-address": {
       "type": "text",
-      "name": "Peer tor address",
-      "default": null,
       "description": "The Tor address of the peer interface",
       "warning": null,
-      "required": true,
       "masked": true,
       "placeholder": null,
       "minLength": null,
       "maxLength": null,
       "patterns": [],
-      "inputmode":"text"
+      "inputmode":"text",
+      "name": "Peer tor address",
+      "required": true,
+      "default": null
     }}`
         .replaceAll("\n", " ")
         .replaceAll(/\s{2,}/g, "")
@@ -68,7 +67,6 @@ describe("values", () => {
       required: false,
       description: null,
       warning: null,
-      default: null,
       masked: false,
       placeholder: null,
       minLength: null,
@@ -86,7 +84,6 @@ describe("values", () => {
       required: true,
       description: null,
       warning: null,
-      default: null,
       masked: false,
       placeholder: null,
       minLength: null,
@@ -340,7 +337,6 @@ describe("Nested nullable values", () => {
         description:
           "If no name is provided, the name from config will be used",
         required: false,
-        default: null,
         warning: null,
         masked: false,
         placeholder: null,

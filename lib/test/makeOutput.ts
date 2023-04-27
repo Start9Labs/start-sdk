@@ -281,7 +281,7 @@ writeConvertedFileFromOld(
                 spec: {
                   hostname: {
                     type: "string",
-                    nullable: false,
+                    nullable: true,
                     name: "Hostname",
                     description: "Domain or IP address of bitcoin peer",
                     pattern:

@@ -77,10 +77,14 @@ export default async function makeFileContentFromOld(
         return `${rangeToTodoComment(value?.range)}Value.text(${JSON.stringify(
           {
             name: value.name || null,
-            default: value.default || null,
+            // prettier-ignore
+            required: (
+              value.default != null && !value.nullable ? {default: value.default} :
+              value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+              !value.nullable
+            ),
             description: value.description || null,
             warning: value.warning || null,
-            required: !(value.nullable || false),
             masked: value.masked || false,
             placeholder: value.placeholder || null,
             inputmode: "text",

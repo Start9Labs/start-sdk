@@ -18,8 +18,7 @@ export function testOutput<A, B>(): (c: IfEquals<A, B>) => null {
 
 /// Testing the types of the input spec
 testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
-// @ts-expect-error Because enable should be a boolean
-testOutput<InputSpec["rpc"]["enable"], string>()(null);
+testOutput<InputSpec["rpc"]["username"], string>()(null);
 testOutput<InputSpec["rpc"]["username"], string>()(null);
 
 testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
@@ -28,9 +27,10 @@ testOutput<
   "segwit" | "non-segwit"
 >()(null);
 testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null);
-testOutput<InputSpec["advanced"]["peers"]["addnode"][0]["hostname"], string>()(
-  null,
-);
+testOutput<
+  InputSpec["advanced"]["peers"]["addnode"][0]["hostname"],
+  string | null | undefined
+>()(null);
 testOutput<
   InputSpec["testListUnion"][0]["union"][UnionValueKey]["name"],
   string
@@ -38,6 +38,9 @@ testOutput<
 testOutput<InputSpec["testListUnion"][0]["union"][UnionSelectKey], "lnd">()(
   null,
 );
+
+// @ts-expect-error Because enable should be a boolean
+testOutput<InputSpec["rpc"]["enable"], string>()(null);
 // prettier-ignore
 // @ts-expect-error Expect that the string is the one above
 testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "unionSelectKey">()(null);
