@@ -5,6 +5,6 @@
  * @returns
  */
 export default function nullIfEmpty(s: null | Record<string, unknown>) {
-  if (s === null) return null;
-  return Object.keys(s).length === 0 ? null : s;
+  if (s === null) return null
+  return Object.keys(s).length === 0 ? null : s
 }

@@ -1,4 +1,4 @@
-export declare const ReadyProof: unique symbol;
+export declare const ReadyProof: unique symbol
 export type ReadyReceipt = {
-  [ReadyProof]: never;
-};
+  [ReadyProof]: never
+}

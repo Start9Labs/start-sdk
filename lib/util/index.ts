@@ -1,23 +1,23 @@
-import { Parser } from "ts-matches";
-import * as T from "../types";
-import FileHelper from "./fileHelper";
-import nullIfEmpty from "./nullIfEmpty";
-import { WrapperData, getWrapperData } from "./getWrapperData";
+import { Parser } from "ts-matches"
+import * as T from "../types"
+import FileHelper from "./fileHelper"
+import nullIfEmpty from "./nullIfEmpty"
+import { WrapperData, getWrapperData } from "./getWrapperData"
 import {
   CheckResult,
   checkPortListening,
   checkWebUrl,
-} from "../health/checkFns";
-import { LocalPort, NetworkBuilder, TorHostname } from "../mainFn";
-import { ExtractWrapperData } from "../types";
+} from "../health/checkFns"
+import { LocalBinding, LocalPort, NetworkBuilder, TorHostname } from "../mainFn"
+import { ExtractWrapperData } from "../types"
 
-export { guardAll, typeFromProps } from "./propertiesMatcher";
-export { default as nullIfEmpty } from "./nullIfEmpty";
-export { FileHelper } from "./fileHelper";
-export { getWrapperData } from "./getWrapperData";
-export { deepEqual } from "./deepEqual";
-export { deepMerge } from "./deepMerge";
-export { once } from "./once";
+export { guardAll, typeFromProps } from "./propertiesMatcher"
+export { default as nullIfEmpty } from "./nullIfEmpty"
+export { FileHelper } from "./fileHelper"
+export { getWrapperData } from "./getWrapperData"
+export { deepEqual } from "./deepEqual"
+export { deepMerge } from "./deepMerge"
+export { once } from "./once"
 
 // prettier-ignore
 export type FlattenIntersection<T> = 
@@ -25,7 +25,7 @@ T extends ArrayLike<any> ? T :
 T extends object ? {} & {[P in keyof T]: T[P]} :
  T;
 
-export type _<T> = FlattenIntersection<T>;
+export type _<T> = FlattenIntersection<T>
 
 /** Used to check if the file exists before hand */
 export const exists = (
@@ -35,63 +35,63 @@ export const exists = (
   effects.metadata(props).then(
     (_) => true,
     (_) => false,
-  );
+  )
 
 export const isKnownError = (e: unknown): e is T.KnownError =>
-  e instanceof Object && ("error" in e || "error-code" in e);
+  e instanceof Object && ("error" in e || "error-code" in e)
 
-type Cdr<A> = A extends [unknown, ...infer Cdr] ? Cdr : [];
+type Cdr<A> = A extends [unknown, ...infer Cdr] ? Cdr : []
 
-declare const affine: unique symbol;
+declare const affine: unique symbol
 
 function withAffine<B>() {
-  return {} as { [affine]: B };
+  return {} as { [affine]: B }
 }
 
 export type WrapperDataOptionals<WrapperData, Path extends string> = {
-  validator?: Parser<unknown, ExtractWrapperData<WrapperData, Path>>;
+  validator?: Parser<unknown, ExtractWrapperData<WrapperData, Path>>
   /** Defaults to what ever the package currently in */
-  packageId?: string | undefined;
-};
+  packageId?: string | undefined
+}
 
 export type Utils<WD> = {
-  readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>;
+  readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
   writeFile: <A>(
     fileHelper: FileHelper<A>,
     data: A,
-  ) => ReturnType<FileHelper<A>["write"]>;
+  ) => ReturnType<FileHelper<A>["write"]>
   getWrapperData: <Path extends string>(
     packageId: string,
     path: T.EnsureWrapperDataPath<WD, Path>,
-  ) => WrapperData<WD, Path>;
+  ) => WrapperData<WD, Path>
   getOwnWrapperData: <Path extends string>(
     path: T.EnsureWrapperDataPath<WD, Path>,
-  ) => WrapperData<WD, Path>;
+  ) => WrapperData<WD, Path>
   setOwnWrapperData: <Path extends string | never>(
     path: T.EnsureWrapperDataPath<WD, Path>,
     value: ExtractWrapperData<WD, Path>,
-  ) => Promise<void>;
+  ) => Promise<void>
   checkPortListening(
     port: number,
     options?: {
-      error?: string;
-      message?: string;
+      error?: string
+      message?: string
     },
-  ): Promise<CheckResult>;
+  ): Promise<CheckResult>
   checkWebUrl(
     url: string,
     options?: {
-      timeout?: number;
-      successMessage?: string;
-      errorMessage?: string;
+      timeout?: number
+      successMessage?: string
+      errorMessage?: string
     },
-  ): Promise<CheckResult>;
-  localPort: (id: string) => LocalPort;
-  networkBuilder: () => NetworkBuilder;
-  torHostName: (id: string) => TorHostname;
-  exists: (props: { path: string; volumeId: string }) => Promise<boolean>;
-  nullIfEmpty: typeof nullIfEmpty;
-};
+  ): Promise<CheckResult>
+  bindLan: (port: number) => Promise<LocalBinding>
+  networkBuilder: () => NetworkBuilder
+  torHostName: (id: string) => TorHostname
+  exists: (props: { path: string; volumeId: string }) => Promise<boolean>
+  nullIfEmpty: typeof nullIfEmpty
+}
 export const utils = <WrapperData = never>(
   effects: T.Effects,
 ): Utils<WrapperData> => ({
@@ -113,14 +113,14 @@ export const utils = <WrapperData = never>(
   ) => effects.setWrapperData<WrapperData, Path>({ value, path: path as any }),
   checkPortListening: checkPortListening.bind(null, effects),
   checkWebUrl: checkWebUrl.bind(null, effects),
-  localPort: (id: string) => new LocalPort(effects, id),
+  bindLan: async (port: number) => LocalPort.bindLan(effects, port),
   networkBuilder: () => NetworkBuilder.of(effects),
   torHostName: (id: string) => TorHostname.of(effects, id),
-});
+})
 
-type NeverPossible = { [affine]: string };
+type NeverPossible = { [affine]: string }
 export type NoAny<A> = NeverPossible extends A
   ? keyof NeverPossible extends keyof A
     ? never
     : A
-  : A;
+  : A

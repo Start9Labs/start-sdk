@@ -1,6 +1,6 @@
-import { HealthStatus } from "../../types";
+import { HealthStatus } from "../../types"
 
 export type CheckResult = {
-  status: HealthStatus;
-  message?: string;
-};
+  status: HealthStatus
+  message?: string
+}

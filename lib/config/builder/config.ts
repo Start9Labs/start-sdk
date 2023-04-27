@@ -1,8 +1,8 @@
-import { InputSpec, ValueSpec } from "../configTypes";
-import { typeFromProps } from "../../util";
-import { BuilderExtract, IBuilder } from "./builder";
-import { Value } from "./value";
-import { _ } from "../../util";
+import { InputSpec, ValueSpec } from "../configTypes"
+import { typeFromProps } from "../../util"
+import { BuilderExtract, IBuilder } from "./builder"
+import { Value } from "./value"
+import { _ } from "../../util"
 
 /**
  * Configs are the specs that are used by the os configuration form for this service.
@@ -62,42 +62,42 @@ export const addNodesSpec = Config.of({ hostname: hostname, port: port });
  */
 export class Config<A extends InputSpec> extends IBuilder<A> {
   static empty() {
-    return new Config({});
+    return new Config({})
   }
   static withValue<K extends string, B extends ValueSpec>(
     key: K,
     value: Value<B>,
   ) {
-    return Config.empty().withValue(key, value);
+    return Config.empty().withValue(key, value)
   }
   static addValue<K extends string, B extends ValueSpec>(
     key: K,
     value: Value<B>,
   ) {
-    return Config.empty().withValue(key, value);
+    return Config.empty().withValue(key, value)
   }
 
   static of<B extends { [key: string]: Value<ValueSpec> }>(spec: B) {
-    const answer: { [K in keyof B]: BuilderExtract<B[K]> } = {} as any;
+    const answer: { [K in keyof B]: BuilderExtract<B[K]> } = {} as any
     for (const key in spec) {
-      answer[key] = spec[key].build() as any;
+      answer[key] = spec[key].build() as any
     }
-    return new Config(answer);
+    return new Config(answer)
   }
   withValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
     return new Config({
       ...this.a,
       [key]: value.build(),
-    } as A & { [key in K]: B });
+    } as A & { [key in K]: B })
   }
   addValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
     return new Config({
       ...this.a,
       [key]: value.build(),
-    } as A & { [key in K]: B });
+    } as A & { [key in K]: B })
   }
 
   public validator() {
-    return typeFromProps(this.a);
+    return typeFromProps(this.a)
   }
 }

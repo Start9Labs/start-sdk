@@ -3,44 +3,44 @@ import {
   unionSelectKey,
   UnionValueKey,
   unionValueKey,
-} from "../config/configTypes";
-import { deepMerge } from "../util";
-import { InputSpec, matchInputSpec } from "./output";
+} from "../config/configTypes"
+import { deepMerge } from "../util"
+import { InputSpec, matchInputSpec } from "./output"
 
 export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
   ? 1
   : 2) extends <G>() => G extends U ? 1 : 2
   ? Y
-  : N;
+  : N
 export function testOutput<A, B>(): (c: IfEquals<A, B>) => null {
-  return () => null;
+  return () => null
 }
 
 /// Testing the types of the input spec
-testOutput<InputSpec["rpc"]["enable"], boolean>()(null);
-testOutput<InputSpec["rpc"]["username"], string>()(null);
-testOutput<InputSpec["rpc"]["username"], string>()(null);
+testOutput<InputSpec["rpc"]["enable"], boolean>()(null)
+testOutput<InputSpec["rpc"]["username"], string>()(null)
+testOutput<InputSpec["rpc"]["username"], string>()(null)
 
-testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null);
+testOutput<InputSpec["rpc"]["advanced"]["auth"], string[]>()(null)
 testOutput<
   InputSpec["rpc"]["advanced"]["serialversion"],
   "segwit" | "non-segwit"
->()(null);
-testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null);
+>()(null)
+testOutput<InputSpec["rpc"]["advanced"]["servertimeout"], number>()(null)
 testOutput<
   InputSpec["advanced"]["peers"]["addnode"][0]["hostname"],
   string | null | undefined
->()(null);
+>()(null)
 testOutput<
   InputSpec["testListUnion"][0]["union"][UnionValueKey]["name"],
   string
->()(null);
+>()(null)
 testOutput<InputSpec["testListUnion"][0]["union"][UnionSelectKey], "lnd">()(
   null,
-);
+)
 
 // @ts-expect-error Because enable should be a boolean
-testOutput<InputSpec["rpc"]["enable"], string>()(null);
+testOutput<InputSpec["rpc"]["enable"], string>()(null)
 // prettier-ignore
 // @ts-expect-error Expect that the string is the one above
 testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "unionSelectKey">()(null);
@@ -98,24 +98,24 @@ describe("Inputs", () => {
       },
       bloomfilters: { peerbloomfilters: false },
     },
-  };
+  }
 
   test("test valid input", () => {
-    const output = matchInputSpec.unsafeCast(validInput);
-    expect(output).toEqual(validInput);
-  });
+    const output = matchInputSpec.unsafeCast(validInput)
+    expect(output).toEqual(validInput)
+  })
   test("test no longer care about the conversion of min/max and validating", () => {
     matchInputSpec.unsafeCast(
       deepMerge({}, validInput, { rpc: { advanced: { threads: 0 } } }),
-    );
-  });
+    )
+  })
   test("test errors should throw for number in string", () => {
     expect(() =>
       matchInputSpec.unsafeCast(
         deepMerge({}, validInput, { rpc: { enable: 2 } }),
       ),
-    ).toThrowError();
-  });
+    ).toThrowError()
+  })
   test("Test that we set serialversion to something not segwit or non-segwit", () => {
     expect(() =>
       matchInputSpec.unsafeCast(
@@ -123,6 +123,6 @@ describe("Inputs", () => {
           rpc: { advanced: { serialversion: "testing" } },
         }),
       ),
-    ).toThrowError();
-  });
-});
+    ).toThrowError()
+  })
+})

@@ -1,16 +1,16 @@
-import { Effects, ExpectedExports } from "../types";
-import { Utils, utils } from "../util";
-import { Daemons } from "./Daemons";
-export * as network from "./exportInterfaces";
-export { LocalBinding } from "./LocalBinding";
-export { LocalPort } from "./LocalPort";
-export { NetworkBuilder } from "./NetworkBuilder";
-export { NetworkInterfaceBuilder } from "./NetworkInterfaceBuilder";
-export { Origin } from "./Origin";
-export { TorBinding } from "./TorBinding";
-export { TorHostname } from "./TorHostname";
+import { Effects, ExpectedExports } from "../types"
+import { Utils, utils } from "../util"
+import { Daemons } from "./Daemons"
+export * as network from "./exportInterfaces"
+export { LocalBinding } from "./LocalBinding"
+export { LocalPort } from "./LocalPort"
+export { NetworkBuilder } from "./NetworkBuilder"
+export { NetworkInterfaceBuilder } from "./NetworkInterfaceBuilder"
+export { Origin } from "./Origin"
+export { TorBinding } from "./TorBinding"
+export { TorHostname } from "./TorHostname"
 
-export { Daemons } from "./Daemons";
+export { Daemons } from "./Daemons"
 
 /**
  * Used to ensure that the main function is running with the valid proofs.
@@ -24,16 +24,16 @@ export { Daemons } from "./Daemons";
  */
 export const setupMain = <WrapperData>(
   fn: (o: {
-    effects: Effects;
-    started(onTerm: () => void): null;
-    utils: Utils<WrapperData>;
+    effects: Effects
+    started(onTerm: () => void): null
+    utils: Utils<WrapperData>
   }) => Promise<Daemons<any>>,
 ): ExpectedExports.main => {
   return async (options) => {
     const result = await fn({
       ...options,
       utils: utils<WrapperData>(options.effects),
-    });
-    await result.build().then((x) => x.wait());
-  };
-};
+    })
+    await result.build().then((x) => x.wait())
+  }
+}

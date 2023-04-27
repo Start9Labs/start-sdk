@@ -1,9 +1,9 @@
 export function once<B>(fn: () => B): () => B {
-  let result: [B] | [] = [];
+  let result: [B] | [] = []
   return () => {
     if (!result.length) {
-      result = [fn()];
+      result = [fn()]
     }
-    return result[0];
-  };
+    return result[0]
+  }
 }

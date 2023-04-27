@@ -1,15 +1,15 @@
-import { ExpectedExports, Properties } from "../types";
+import { ExpectedExports, Properties } from "../types"
 
-import { PropertyGroup } from "./PropertyGroup";
-import { PropertyString } from "./PropertyString";
-export { PropertyGroup } from "./PropertyGroup";
-export { PropertyString } from "./PropertyString";
+import { PropertyGroup } from "./PropertyGroup"
+import { PropertyString } from "./PropertyString"
+export { PropertyGroup } from "./PropertyGroup"
+export { PropertyString } from "./PropertyString"
 
-export const test = "";
+export const test = ""
 
 export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
   ? R
-  : never;
+  : never
 
 /**
  * This is used during creating the type of properties fn in the service package.
@@ -20,18 +20,18 @@ export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
  */
 export function setupProperties<WrapperData>(
   fn: (args: {
-    wrapperData: WrapperData;
+    wrapperData: WrapperData
   }) => void | Promise<void> | Promise<(PropertyGroup | PropertyString)[]>,
 ): ExpectedExports.properties {
   return (async (options) => {
     const result = await fn(
       options as {
-        wrapperData: WrapperData & typeof options.wrapperData;
+        wrapperData: WrapperData & typeof options.wrapperData
       },
-    );
+    )
     if (result) {
-      const answer: Properties = result.map((x) => x.data);
-      return answer;
+      const answer: Properties = result.map((x) => x.data)
+      return answer
     }
-  }) as ExpectedExports.properties;
+  }) as ExpectedExports.properties
 }

@@ -1,4 +1,4 @@
-import { PackagePropertyString } from "../types";
+import { PackagePropertyString } from "../types"
 
 export class PropertyString {
   private constructor(readonly data: PackagePropertyString) {}
@@ -6,6 +6,6 @@ export class PropertyString {
     return new PropertyString({
       ...value,
       type: "string",
-    });
+    })
   }
 }

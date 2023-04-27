@@ -1,43 +1,43 @@
-import { InterfaceReceipt } from "../mainFn/interfaceReceipt";
-import { Daemon, Effects } from "../types";
-import { CheckResult } from "./checkFns/CheckResult";
-import { HealthReceipt } from "./HealthReceipt";
-import { Trigger } from "./trigger";
-import { TriggerInput } from "./trigger/TriggerInput";
-import { defaultTrigger } from "./trigger/defaultTrigger";
+import { InterfaceReceipt } from "../mainFn/interfaceReceipt"
+import { Daemon, Effects } from "../types"
+import { CheckResult } from "./checkFns/CheckResult"
+import { HealthReceipt } from "./HealthReceipt"
+import { Trigger } from "./trigger"
+import { TriggerInput } from "./trigger/TriggerInput"
+import { defaultTrigger } from "./trigger/defaultTrigger"
 
 export function healthCheck(o: {
-  effects: Effects;
-  name: string;
-  trigger?: Trigger;
-  fn(): Promise<CheckResult> | CheckResult;
-  onFirstSuccess?: () => () => Promise<unknown> | unknown;
+  effects: Effects
+  name: string
+  trigger?: Trigger
+  fn(): Promise<CheckResult> | CheckResult
+  onFirstSuccess?: () => () => Promise<unknown> | unknown
 }) {
   new Promise(async () => {
     let currentValue: TriggerInput = {
       lastResult: null,
       hadSuccess: false,
-    };
-    const getCurrentValue = () => currentValue;
-    const trigger = (o.trigger ?? defaultTrigger)(getCurrentValue);
+    }
+    const getCurrentValue = () => currentValue
+    const trigger = (o.trigger ?? defaultTrigger)(getCurrentValue)
     for (
       let res = await trigger.next();
       !res.done;
       res = await trigger.next()
     ) {
       try {
-        const { status, message } = await o.fn();
+        const { status, message } = await o.fn()
         await o.effects.setHealth({
           name: o.name,
           status,
           message,
-        });
-        currentValue.hadSuccess = true;
-        currentValue.lastResult = "success";
+        })
+        currentValue.hadSuccess = true
+        currentValue.lastResult = "success"
       } catch (_) {
-        currentValue.lastResult = "failure";
+        currentValue.lastResult = "failure"
       }
     }
-  });
-  return {} as HealthReceipt;
+  })
+  return {} as HealthReceipt
 }

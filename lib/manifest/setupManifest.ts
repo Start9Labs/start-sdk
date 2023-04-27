@@ -1,4 +1,4 @@
-import { GenericManifest, ManifestVersion } from "./ManifestTypes";
+import { GenericManifest, ManifestVersion } from "./ManifestTypes"
 
 export function setupManifest<
   Id extends string,
@@ -6,11 +6,11 @@ export function setupManifest<
   Dependencies extends Record<string, unknown>,
   Volumes extends Record<string, unknown>,
   Manifest extends GenericManifest & {
-    dependencies: Dependencies;
-    id: Id;
-    version: Version;
-    volumes: Volumes;
+    dependencies: Dependencies
+    id: Id
+    version: Version
+    volumes: Volumes
   },
 >(manifest: Manifest): Manifest {
-  return manifest;
+  return manifest
 }

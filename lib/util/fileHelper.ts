@@ -1,10 +1,10 @@
-import * as matches from "ts-matches";
-import * as YAML from "yaml";
-import * as TOML from "@iarna/toml";
-import * as T from "../types";
-import { exists } from ".";
+import * as matches from "ts-matches"
+import * as YAML from "yaml"
+import * as TOML from "@iarna/toml"
+import * as T from "../types"
+import { exists } from "."
 
-const previousPath = /(.+?)\/([^/]*)$/;
+const previousPath = /(.+?)\/([^/]*)$/
 
 /**
  * Used in the get config and the set config exported functions.
@@ -59,19 +59,19 @@ export class FileHelper<A> {
     readonly readData: (stringValue: string) => A,
   ) {}
   async write(data: A, effects: T.Effects) {
-    let matched;
+    let matched
     if ((matched = previousPath.exec(this.path))) {
       await effects.createDir({
         volumeId: this.volume,
         path: matched[1],
-      });
+      })
     }
 
     await effects.writeFile({
       path: this.path,
       volumeId: this.volume,
       toWrite: this.writeData(data),
-    });
+    })
   }
   async read(effects: T.Effects) {
     if (
@@ -80,14 +80,14 @@ export class FileHelper<A> {
         volumeId: this.volume,
       }))
     ) {
-      return null;
+      return null
     }
     return this.readData(
       await effects.readFile({
         path: this.path,
         volumeId: this.volume,
       }),
-    );
+    )
   }
   static raw<A>(
     path: string,
@@ -95,7 +95,7 @@ export class FileHelper<A> {
     toFile: (dataIn: A) => string,
     fromFile: (rawData: string) => A,
   ) {
-    return new FileHelper<A>(path, volume, toFile, fromFile);
+    return new FileHelper<A>(path, volume, toFile, fromFile)
   }
   static json<A>(
     path: string,
@@ -106,12 +106,12 @@ export class FileHelper<A> {
       path,
       volume,
       (inData) => {
-        return JSON.stringify(inData, null, 2);
+        return JSON.stringify(inData, null, 2)
       },
       (inString) => {
-        return shape.unsafeCast(JSON.parse(inString));
+        return shape.unsafeCast(JSON.parse(inString))
       },
-    );
+    )
   }
   static toml<A extends Record<string, unknown>>(
     path: string,
@@ -122,12 +122,12 @@ export class FileHelper<A> {
       path,
       volume,
       (inData) => {
-        return JSON.stringify(inData, null, 2);
+        return JSON.stringify(inData, null, 2)
       },
       (inString) => {
-        return shape.unsafeCast(TOML.parse(inString));
+        return shape.unsafeCast(TOML.parse(inString))
       },
-    );
+    )
   }
   static yaml<A extends Record<string, unknown>>(
     path: string,
@@ -138,13 +138,13 @@ export class FileHelper<A> {
       path,
       volume,
       (inData) => {
-        return JSON.stringify(inData, null, 2);
+        return JSON.stringify(inData, null, 2)
       },
       (inString) => {
-        return shape.unsafeCast(YAML.parse(inString));
+        return shape.unsafeCast(YAML.parse(inString))
       },
-    );
+    )
   }
 }
 
-export default FileHelper;
+export default FileHelper

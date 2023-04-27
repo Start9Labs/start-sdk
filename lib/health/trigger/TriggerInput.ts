@@ -1,4 +1,4 @@
 export type TriggerInput = {
-  lastResult?: "success" | "failure" | null;
-  hadSuccess?: boolean;
-};
+  lastResult?: "success" | "failure" | null
+  hadSuccess?: boolean
+}

@@ -1,5 +1,5 @@
-import { Effects } from "../../types";
-import { CheckResult } from "./CheckResult";
+import { Effects } from "../../types"
+import { CheckResult } from "./CheckResult"
 export function containsAddress(x: string, port: number) {
   const readPorts = x
     .split("\n")
@@ -8,8 +8,8 @@ export function containsAddress(x: string, port: number) {
     .map((x) => x.split(" ").filter(Boolean)[1]?.split(":")?.[1])
     .filter(Boolean)
     .map((x) => Number.parseInt(x, 16))
-    .filter(Number.isFinite);
-  return readPorts.indexOf(port) >= 0;
+    .filter(Number.isFinite)
+  return readPorts.indexOf(port) >= 0
 }
 
 /**
@@ -26,12 +26,12 @@ export async function checkPortListening(
 ): Promise<CheckResult> {
   const hasAddress =
     containsAddress(await effects.runCommand(`cat /proc/net/tcp`), port) ||
-    containsAddress(await effects.runCommand("cat /proc/net/udp"), port);
+    containsAddress(await effects.runCommand("cat /proc/net/udp"), port)
   if (hasAddress) {
-    return { status: "passing", message };
+    return { status: "passing", message }
   }
   return {
     status: "failing",
     message: error,
-  };
+  }
 }

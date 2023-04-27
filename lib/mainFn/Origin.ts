@@ -4,8 +4,8 @@ export class Origin {
   withAuth(
     origin?:
       | {
-          password: string;
-          username: string;
+          password: string
+          username: string
         }
       | null
       | undefined,
@@ -13,6 +13,6 @@ export class Origin {
     // prettier-ignore
     const urlAuth = !!(origin) ? `${origin.username}:${origin.password}@` :
             '';
-    return `${this.protocol}://${urlAuth}${this.host}`;
+    return `${this.protocol}://${urlAuth}${this.host}`
   }
 }

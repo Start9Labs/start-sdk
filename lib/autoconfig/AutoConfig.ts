@@ -1,14 +1,14 @@
-import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types";
-import { Utils, deepEqual, deepMerge, utils } from "../util";
+import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types"
+import { Utils, deepEqual, deepMerge, utils } from "../util"
 
 export type AutoConfigFrom<WD, Input, NestedConfigs> = {
   [key in keyof NestedConfigs & string]: (options: {
-    effects: Effects;
-    localConfig: Input;
-    remoteConfig: NestedConfigs[key];
-    utils: Utils<WD>;
-  }) => Promise<void | DeepPartial<NestedConfigs[key]>>;
-};
+    effects: Effects
+    localConfig: Input
+    remoteConfig: NestedConfigs[key]
+    utils: Utils<WD>
+  }) => Promise<void | DeepPartial<NestedConfigs[key]>>
+}
 export class AutoConfig<WD, Input, NestedConfigs> {
   constructor(
     readonly configs: AutoConfigFrom<WD, Input, NestedConfigs>,
@@ -18,13 +18,13 @@ export class AutoConfig<WD, Input, NestedConfigs> {
   async check(
     options: Parameters<AutoConfigure["check"]>[0],
   ): ReturnType<AutoConfigure["check"]> {
-    const origConfig = JSON.parse(JSON.stringify(options.localConfig));
+    const origConfig = JSON.parse(JSON.stringify(options.localConfig))
     const newOptions = {
       ...options,
       utils: utils<WD>(options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
-    };
+    }
     if (
       !deepEqual(
         origConfig,
@@ -35,7 +35,7 @@ export class AutoConfig<WD, Input, NestedConfigs> {
         ),
       )
     )
-      throw new Error(`Check failed for ${this.path}`);
+      throw new Error(`Check failed for ${this.path}`)
   }
   async autoConfigure(
     options: Parameters<AutoConfigure["autoConfigure"]>[0],
@@ -45,11 +45,11 @@ export class AutoConfig<WD, Input, NestedConfigs> {
       utils: utils<WD>(options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
-    };
+    }
     return deepMerge(
       {},
       options.localConfig,
       await this.configs[this.path](newOptions),
-    );
+    )
   }
 }

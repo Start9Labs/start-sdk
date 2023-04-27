@@ -1,4 +1,4 @@
-declare const InterfaceProof: unique symbol;
+declare const InterfaceProof: unique symbol
 export type InterfaceReceipt = {
-  [InterfaceProof]: never;
-};
+  [InterfaceProof]: never
+}

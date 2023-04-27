@@ -1,4 +1,4 @@
-declare const HealthProof: unique symbol;
+declare const HealthProof: unique symbol
 export type HealthReceipt = {
-  [HealthProof]: never;
-};
+  [HealthProof]: never
+}

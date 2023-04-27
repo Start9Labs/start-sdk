@@ -1,15 +1,16 @@
-import { Effects } from "../types";
-import { LocalBinding } from "./LocalBinding";
+import { Effects } from "../types"
+import { LocalBinding } from "./LocalBinding"
 
 export class LocalPort {
-  constructor(readonly effects: Effects, readonly id: string) {}
-  async bindLan(internalPort: number) {
-    const port = await this.effects.bindLan({
+  constructor(readonly effects: Effects) {}
+  static async bindLan(effects: Effects, internalPort: number) {
+    const port = await effects.bindLan({
       internalPort,
-      name: this.id,
-    });
-    const localAddress = `${await this.effects.getLocalHostname()}:${port}`;
-    const ipAddress = `${await this.effects.getIPHostname()}:${port}`;
-    return new LocalBinding(localAddress, ipAddress);
+    })
+    const localAddress = `${await effects.getLocalHostname()}:${port}`
+    const ipAddress = await (
+      await effects.getIPHostname()
+    ).map((x) => `${x}:${port}`)
+    return new LocalBinding(localAddress, ipAddress)
   }
 }

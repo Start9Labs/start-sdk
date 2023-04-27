@@ -1,28 +1,28 @@
-import { HealthReceipt, ReadyProof } from "../health";
-import { CheckResult } from "../health/checkFns";
-import { Trigger } from "../health/trigger";
-import { defaultTrigger } from "../health/trigger/defaultTrigger";
-import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types";
-import { InterfaceReceipt } from "./interfaceReceipt";
+import { HealthReceipt, ReadyProof } from "../health"
+import { CheckResult } from "../health/checkFns"
+import { Trigger } from "../health/trigger"
+import { defaultTrigger } from "../health/trigger/defaultTrigger"
+import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
+import { InterfaceReceipt } from "./interfaceReceipt"
 type Daemon<
   Ids extends string | never,
   Command extends string,
   Id extends string,
 > = {
-  id: Id;
-  command: ValidIfNoStupidEscape<Command> | [string, ...string[]];
+  id: Id
+  command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
 
   ready: {
     display: null | {
-      name: string;
-      message: string;
-    };
-    fn: () => Promise<CheckResult> | CheckResult;
-    trigger?: Trigger;
-  };
-  requires?: Exclude<Ids, Id>[];
-  intervalTime?: number;
-};
+      name: string
+      message: string
+    }
+    fn: () => Promise<CheckResult> | CheckResult
+    trigger?: Trigger
+  }
+  requires?: Exclude<Ids, Id>[]
+  intervalTime?: number
+}
 
 /**
  * Used during the main of a function, it allows us to describe and ensure a set of daemons are running.
@@ -56,49 +56,49 @@ export class Daemons<Ids extends string | never> {
   ) {}
 
   static of(config: {
-    effects: Effects;
-    started: (onTerm: () => void) => null;
-    interfaceReceipt: InterfaceReceipt;
-    healthReceipts: HealthReceipt[];
+    effects: Effects
+    started: (onTerm: () => void) => null
+    interfaceReceipt: InterfaceReceipt
+    healthReceipts: HealthReceipt[]
   }) {
-    return new Daemons<never>(config.effects, config.started);
+    return new Daemons<never>(config.effects, config.started)
   }
   addDaemon<Id extends string, Command extends string>(
     newDaemon: Daemon<Ids, Command, Id>,
   ) {
-    const daemons = ((this?.daemons ?? []) as any[]).concat(newDaemon);
-    return new Daemons<Ids | Id>(this.effects, this.started, daemons);
+    const daemons = ((this?.daemons ?? []) as any[]).concat(newDaemon)
+    return new Daemons<Ids | Id>(this.effects, this.started, daemons)
   }
 
   async build() {
-    const daemonsStarted = {} as Record<Ids, Promise<DaemonReturned>>;
-    const { effects } = this;
-    const daemons = this.daemons ?? [];
+    const daemonsStarted = {} as Record<Ids, Promise<DaemonReturned>>
+    const { effects } = this
+    const daemons = this.daemons ?? []
     for (const daemon of daemons) {
       const requiredPromise = Promise.all(
         daemon.requires?.map((id) => daemonsStarted[id]) ?? [],
-      );
+      )
       daemonsStarted[daemon.id] = requiredPromise.then(async () => {
-        const { command } = daemon;
+        const { command } = daemon
 
-        const child = effects.runDaemon(command);
-        let currentInput = {};
-        const getCurrentInput = () => currentInput;
+        const child = effects.runDaemon(command)
+        let currentInput = {}
+        const getCurrentInput = () => currentInput
         const trigger = (daemon.ready.trigger ?? defaultTrigger)(
           getCurrentInput,
-        );
+        )
         for (
           let res = await trigger.next();
           !res.done;
           res = await trigger.next()
         ) {
-          const response = await daemon.ready.fn();
+          const response = await daemon.ready.fn()
           if (response.status === "passing") {
-            return child;
+            return child
           }
         }
-        return child;
-      });
+        return child
+      })
     }
     return {
       async term() {
@@ -106,15 +106,15 @@ export class Daemons<Ids extends string | never> {
           Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
             x.then((x) => x.term()),
           ),
-        );
+        )
       },
       async wait() {
         await Promise.all(
           Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
             x.then((x) => x.wait()),
           ),
-        );
+        )
       },
-    };
+    }
   }
 }

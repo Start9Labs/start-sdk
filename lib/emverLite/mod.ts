@@ -1,13 +1,13 @@
-import * as matches from "ts-matches";
+import * as matches from "ts-matches"
 
-const starSub = /((\d+\.)*\d+)\.\*/;
+const starSub = /((\d+\.)*\d+)\.\*/
 // prettier-ignore
 export type ValidEmVer = `${number | '*'}${`.${number | '*'}` | ""}${`.${number | '*'}` | ""}${`-${string}` | ""}`;
 
 function incrementLastNumber(list: number[]) {
-  const newList = [...list];
-  newList[newList.length - 1]++;
-  return newList;
+  const newList = [...list]
+  newList[newList.length - 1]++
+  return newList
 }
 /**
  * Will take in a range, like `>1.2` or `<1.2.3.4` or `=1.2` or `1.*`
@@ -16,7 +16,7 @@ function incrementLastNumber(list: number[]) {
  * @returns
  */
 export function rangeOf(range: string | Checker): Checker {
-  return Checker.parse(range);
+  return Checker.parse(range)
 }
 
 /**
@@ -26,10 +26,10 @@ export function rangeOf(range: string | Checker): Checker {
  */
 export function rangeAnd(...ranges: (string | Checker)[]): Checker {
   if (ranges.length === 0) {
-    throw new Error("No ranges given");
+    throw new Error("No ranges given")
   }
-  const [firstCheck, ...rest] = ranges;
-  return Checker.parse(firstCheck).and(...rest);
+  const [firstCheck, ...rest] = ranges
+  return Checker.parse(firstCheck).and(...rest)
 }
 
 /**
@@ -39,10 +39,10 @@ export function rangeAnd(...ranges: (string | Checker)[]): Checker {
  */
 export function rangeOr(...ranges: (string | Checker)[]): Checker {
   if (ranges.length === 0) {
-    throw new Error("No ranges given");
+    throw new Error("No ranges given")
   }
-  const [firstCheck, ...rest] = ranges;
-  return Checker.parse(firstCheck).or(...rest);
+  const [firstCheck, ...rest] = ranges
+  return Checker.parse(firstCheck).or(...rest)
 }
 
 /**
@@ -51,7 +51,7 @@ export function rangeOr(...ranges: (string | Checker)[]): Checker {
  * @returns
  */
 export function notRange(range: string | Checker): Checker {
-  return rangeOf(range).not();
+  return rangeOf(range).not()
 }
 
 /**
@@ -65,23 +65,23 @@ export class EmVer {
    */
   static from(range: ValidEmVer | EmVer): EmVer {
     if (range instanceof EmVer) {
-      return range;
+      return range
     }
-    return EmVer.parse(range);
+    return EmVer.parse(range)
   }
   /**
    * Convert the range, should be 1.2.* or * into a emver
    * IsUnsafe
    */
   static parse(rangeExtra: string): EmVer {
-    const [range, extra] = rangeExtra.split("-");
-    const values = range.split(".").map((x) => parseInt(x));
+    const [range, extra] = rangeExtra.split("-")
+    const values = range.split(".").map((x) => parseInt(x))
     for (const value of values) {
       if (isNaN(value)) {
-        throw new Error(`Couldn't parse range: ${range}`);
+        throw new Error(`Couldn't parse range: ${range}`)
       }
     }
-    return new EmVer(values, extra);
+    return new EmVer(values, extra)
   }
   private constructor(
     public readonly values: number[],
@@ -92,44 +92,44 @@ export class EmVer {
    * Used when we need a new emver that has the last number incremented, used in the 1.* like things
    */
   public withLastIncremented() {
-    return new EmVer(incrementLastNumber(this.values), null);
+    return new EmVer(incrementLastNumber(this.values), null)
   }
 
   public greaterThan(other: EmVer): boolean {
     for (const i in this.values) {
       if (other.values[i] == null) {
-        return true;
+        return true
       }
       if (this.values[i] > other.values[i]) {
-        return true;
+        return true
       }
 
       if (this.values[i] < other.values[i]) {
-        return false;
+        return false
       }
     }
-    return false;
+    return false
   }
 
   public equals(other: EmVer): boolean {
     if (other.values.length !== this.values.length) {
-      return false;
+      return false
     }
     for (const i in this.values) {
       if (this.values[i] !== other.values[i]) {
-        return false;
+        return false
       }
     }
-    return true;
+    return true
   }
   public greaterThanOrEqual(other: EmVer): boolean {
-    return this.greaterThan(other) || this.equals(other);
+    return this.greaterThan(other) || this.equals(other)
   }
   public lessThanOrEqual(other: EmVer): boolean {
-    return !this.greaterThan(other);
+    return !this.greaterThan(other)
   }
   public lessThan(other: EmVer): boolean {
-    return !this.greaterThanOrEqual(other);
+    return !this.greaterThanOrEqual(other)
   }
   /**
    * Return a enum string that describes (used for switching/iffs)
@@ -139,11 +139,11 @@ export class EmVer {
    */
   public compare(other: EmVer) {
     if (this.equals(other)) {
-      return "equal" as const;
+      return "equal" as const
     } else if (this.greaterThan(other)) {
-      return "greater" as const;
+      return "greater" as const
     } else {
-      return "less" as const;
+      return "less" as const
     }
   }
   /**
@@ -157,11 +157,11 @@ export class EmVer {
       .when("equal", () => 0 as const)
       .when("greater", () => 1 as const)
       .when("less", () => -1 as const)
-      .unwrap();
+      .unwrap()
   }
 
   toString() {
-    return `${this.values.join(".")}${this.extra ? `-${this.extra}` : ""}`;
+    return `${this.values.join(".")}${this.extra ? `-${this.extra}` : ""}`
   }
 }
 
@@ -178,80 +178,80 @@ export class Checker {
    */
   static parse(range: string | Checker): Checker {
     if (range instanceof Checker) {
-      return range;
+      return range
     }
-    range = range.trim();
+    range = range.trim()
     if (range.indexOf("||") !== -1) {
-      return rangeOr(...range.split("||").map((x) => Checker.parse(x)));
+      return rangeOr(...range.split("||").map((x) => Checker.parse(x)))
     }
     if (range.indexOf("&&") !== -1) {
-      return rangeAnd(...range.split("&&").map((x) => Checker.parse(x)));
+      return rangeAnd(...range.split("&&").map((x) => Checker.parse(x)))
     }
     if (range === "*") {
       return new Checker((version) => {
-        EmVer.from(version);
-        return true;
-      });
+        EmVer.from(version)
+        return true
+      })
     }
     if (range.startsWith("!")) {
-      return Checker.parse(range.substring(1)).not();
+      return Checker.parse(range.substring(1)).not()
     }
-    const starSubMatches = starSub.exec(range);
+    const starSubMatches = starSub.exec(range)
     if (starSubMatches != null) {
-      const emVarLower = EmVer.parse(starSubMatches[1]);
-      const emVarUpper = emVarLower.withLastIncremented();
+      const emVarLower = EmVer.parse(starSubMatches[1])
+      const emVarUpper = emVarLower.withLastIncremented()
 
       return new Checker((version) => {
-        const v = EmVer.from(version);
+        const v = EmVer.from(version)
         return (
           (v.greaterThan(emVarLower) || v.equals(emVarLower)) &&
           !v.greaterThan(emVarUpper) &&
           !v.equals(emVarUpper)
-        );
-      });
+        )
+      })
     }
 
     switch (range.substring(0, 2)) {
       case ">=": {
-        const emVar = EmVer.parse(range.substring(2));
+        const emVar = EmVer.parse(range.substring(2))
         return new Checker((version) => {
-          const v = EmVer.from(version);
-          return v.greaterThanOrEqual(emVar);
-        });
+          const v = EmVer.from(version)
+          return v.greaterThanOrEqual(emVar)
+        })
       }
       case "<=": {
-        const emVar = EmVer.parse(range.substring(2));
+        const emVar = EmVer.parse(range.substring(2))
         return new Checker((version) => {
-          const v = EmVer.from(version);
-          return v.lessThanOrEqual(emVar);
-        });
+          const v = EmVer.from(version)
+          return v.lessThanOrEqual(emVar)
+        })
       }
     }
 
     switch (range.substring(0, 1)) {
       case ">": {
-        const emVar = EmVer.parse(range.substring(1));
+        const emVar = EmVer.parse(range.substring(1))
         return new Checker((version) => {
-          const v = EmVer.from(version);
-          return v.greaterThan(emVar);
-        });
+          const v = EmVer.from(version)
+          return v.greaterThan(emVar)
+        })
       }
       case "<": {
-        const emVar = EmVer.parse(range.substring(1));
+        const emVar = EmVer.parse(range.substring(1))
         return new Checker((version) => {
-          const v = EmVer.from(version);
-          return v.lessThan(emVar);
-        });
+          const v = EmVer.from(version)
+          return v.lessThan(emVar)
+        })
       }
       case "=": {
-        const emVar = EmVer.parse(range.substring(1));
+        const emVar = EmVer.parse(range.substring(1))
         return new Checker((version) => {
-          const v = EmVer.from(version);
-          return v.equals(emVar);
-        });
+          const v = EmVer.from(version)
+          return v.equals(emVar)
+        })
       }
     }
-    throw new Error("Couldn't parse range: " + range);
+    throw new Error("Couldn't parse range: " + range)
   }
   constructor(
     /**
@@ -267,15 +267,15 @@ export class Checker {
   public and(...others: (Checker | string)[]): Checker {
     return new Checker((value) => {
       if (!this.check(value)) {
-        return false;
+        return false
       }
       for (const other of others) {
         if (!Checker.parse(other).check(value)) {
-          return false;
+          return false
         }
       }
-      return true;
-    });
+      return true
+    })
   }
 
   /**
@@ -284,15 +284,15 @@ export class Checker {
   public or(...others: (Checker | string)[]): Checker {
     return new Checker((value) => {
       if (this.check(value)) {
-        return true;
+        return true
       }
       for (const other of others) {
         if (Checker.parse(other).check(value)) {
-          return true;
+          return true
         }
       }
-      return false;
-    });
+      return false
+    })
   }
 
   /**
@@ -300,6 +300,6 @@ export class Checker {
    * @returns
    */
   public not(): Checker {
-    return new Checker((value) => !this.check(value));
+    return new Checker((value) => !this.check(value))
   }
 }

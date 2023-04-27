@@ -1,6 +1,6 @@
-import { Effects } from "../../types";
-import { CheckResult } from "./CheckResult";
-import { timeoutPromise } from "./index";
+import { Effects } from "../../types"
+import { CheckResult } from "./CheckResult"
+import { timeoutPromise } from "./index"
 
 /**
  * This is a helper function to check if a web url is reachable.
@@ -23,9 +23,9 @@ export const checkWebUrl = async (
       message: successMessage,
     }))
     .catch((e) => {
-      effects.warn(`Error while fetching URL: ${url}`);
-      effects.error(JSON.stringify(e));
-      effects.error(e.toString());
-      return { status: "failing" as const, message: errorMessage };
-    });
-};
+      effects.console.warn(`Error while fetching URL: ${url}`)
+      effects.console.error(JSON.stringify(e))
+      effects.console.error(e.toString())
+      return { status: "failing" as const, message: errorMessage }
+    })
+}

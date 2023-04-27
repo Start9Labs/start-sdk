@@ -1,6 +1,6 @@
-import camelCase from "lodash/camelCase";
-import * as fs from "fs";
-import { string } from "ts-matches";
+import camelCase from "lodash/camelCase"
+import * as fs from "fs"
+import { string } from "ts-matches"
 
 export async function writeConvertedFileFromOld(
   file: string,
@@ -11,48 +11,46 @@ export async function writeConvertedFileFromOld(
     file,
     await makeFileContentFromOld(inputData, options),
     (err) => console.error(err),
-  );
+  )
 }
 
 export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
   { startSdk = "start-sdk", nested = true } = {},
 ) {
-  const outputLines: string[] = [];
+  const outputLines: string[] = []
   outputLines.push(`
   import {Config, Value, List, Variants} from '${startSdk}/config/builder'
-`);
-  const data = await inputData;
+`)
+  const data = await inputData
 
-  const namedConsts = new Set(["Config", "Value", "List"]);
-  const configName = newConst("InputSpec", convertInputSpec(data));
+  const namedConsts = new Set(["Config", "Value", "List"])
+  const configName = newConst("InputSpec", convertInputSpec(data))
   const configMatcherName = newConst(
     "matchInputSpec",
     `${configName}.validator()`,
-  );
-  outputLines.push(
-    `export type InputSpec = typeof ${configMatcherName}._TYPE;`,
-  );
+  )
+  outputLines.push(`export type InputSpec = typeof ${configMatcherName}._TYPE;`)
 
-  return outputLines.join("\n");
+  return outputLines.join("\n")
 
   function newConst(key: string, data: string) {
-    const variableName = getNextConstName(camelCase(key));
-    outputLines.push(`export const ${variableName} = ${data};`);
-    return variableName;
+    const variableName = getNextConstName(camelCase(key))
+    outputLines.push(`export const ${variableName} = ${data};`)
+    return variableName
   }
   function maybeNewConst(key: string, data: string) {
-    if (nested) return data;
-    return newConst(key, data);
+    if (nested) return data
+    return newConst(key, data)
   }
   function convertInputSpec(data: any) {
-    let answer = "Config.of({";
+    let answer = "Config.of({"
     for (const [key, value] of Object.entries(data)) {
-      const variableName = maybeNewConst(key, convertValueSpec(value));
+      const variableName = maybeNewConst(key, convertValueSpec(value))
 
-      answer += `${JSON.stringify(key)}: ${variableName},`;
+      answer += `${JSON.stringify(key)}: ${variableName},`
     }
-    return `${answer}})`;
+    return `${answer}})`
   }
   function convertValueSpec(value: any): string {
     switch (value.type) {
@@ -72,15 +70,15 @@ export default async function makeFileContentFromOld(
             },
             null,
             2,
-          )})`;
+          )})`
         }
         return `${rangeToTodoComment(value?.range)}Value.text(${JSON.stringify(
           {
             name: value.name || null,
             // prettier-ignore
             required: (
-              value.default != null && !value.nullable ? {default: value.default} :
-              value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+              value.default != null  ? {default: value.default} :
+              value.nullable === false ? {default: null} :
               !value.nullable
             ),
             description: value.description || null,
@@ -101,7 +99,7 @@ export default async function makeFileContentFromOld(
           },
           null,
           2,
-        )})`;
+        )})`
       }
       case "number": {
         return `${rangeToTodoComment(
@@ -113,8 +111,8 @@ export default async function makeFileContentFromOld(
             warning: value.warning || null,
             // prettier-ignore
             required: (
-              value.default != null && !value.nullable ? {default: value.default} :
-              value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+              value.default != null  ? {default: value.default} :
+              value.nullable === false ? {default: null} :
               !value.nullable
             ),
             min: null,
@@ -126,7 +124,7 @@ export default async function makeFileContentFromOld(
           },
           null,
           2,
-        )})`;
+        )})`
       }
       case "boolean": {
         return `Value.toggle(${JSON.stringify(
@@ -138,18 +136,18 @@ export default async function makeFileContentFromOld(
           },
           null,
           2,
-        )})`;
+        )})`
       }
       case "enum": {
         const allValueNames = new Set([
           ...(value?.["values"] || []),
           ...Object.keys(value?.["value-names"] || {}),
-        ]);
+        ])
         const values = Object.fromEntries(
           Array.from(allValueNames)
             .filter(string.test)
             .map((key) => [key, value?.spec?.["value-names"]?.[key] || key]),
-        );
+        )
         return `Value.select(${JSON.stringify(
           {
             name: value.name || null,
@@ -157,33 +155,33 @@ export default async function makeFileContentFromOld(
             warning: value.warning || null,
 
             // prettier-ignore
-            required: (
-              value.default != null && !value.nullable ? {default: value.default} :
-              value.default != null && value.nullable ? {defaultWithRequired: value.default} :
+            required:(
+              value.default != null  ? {default: value.default} :
+              value.nullable === false ? {default: null} :
               !value.nullable
             ),
             values,
           },
           null,
           2,
-        )} as const)`;
+        )} as const)`
       }
       case "object": {
         const specName = maybeNewConst(
           value.name + "_spec",
           convertInputSpec(value.spec),
-        );
+        )
         return `Value.object({
         name: ${JSON.stringify(value.name || null)},
         description: ${JSON.stringify(value.description || null)},
         warning: ${JSON.stringify(value.warning || null)},
-      }, ${specName})`;
+      }, ${specName})`
       }
       case "union": {
         const variants = maybeNewConst(
           value.name + "_variants",
           convertVariants(value.variants, value.tag["variant-names"] || {}),
-        );
+        )
 
         return `Value.union({
         name: ${JSON.stringify(value.name || null)},
@@ -193,21 +191,21 @@ export default async function makeFileContentFromOld(
         // prettier-ignore
         required: ${JSON.stringify(
           // prettier-ignore
-          value.default != null && !value.nullable ? {default: value.default} :
-            value.default != null && value.nullable ? {defaultWithRequired: value.default} :
-            !value.nullable,
+          value.default != null  ? {default: value.default} :
+          value.nullable === false ? {default: null} :
+          !value.nullable,
         )},
-      }, ${variants})`;
+      }, ${variants})`
       }
       case "list": {
-        const list = maybeNewConst(value.name + "_list", convertList(value));
-        return `Value.list(${list})`;
+        const list = maybeNewConst(value.name + "_list", convertList(value))
+        return `Value.list(${list})`
       }
       case "pointer": {
-        return `/* TODO deal with point removed ${JSON.stringify(value)} */`;
+        return `/* TODO deal with point removed ${JSON.stringify(value)} */`
       }
     }
-    throw Error(`Unknown type "${value.type}"`);
+    throw Error(`Unknown type "${value.type}"`)
   }
 
   function convertList(value: any) {
@@ -237,7 +235,7 @@ export default async function makeFileContentFromOld(
             : [],
           minLength: null,
           maxLength: null,
-        })})`;
+        })})`
       }
       case "number": {
         return `${rangeToTodoComment(value?.range)}List.number(${JSON.stringify(
@@ -257,13 +255,13 @@ export default async function makeFileContentFromOld(
           max: null,
           units: value?.spec?.units || null,
           placeholder: value?.spec?.placeholder || null,
-        })})`;
+        })})`
       }
       case "enum": {
         const allValueNames = new Set(
           ...(value?.spec?.["values"] || []),
           ...Object.keys(value?.spec?.["value-names"] || {}),
-        );
+        )
         const values = Object.fromEntries(
           Array.from(allValueNames)
             .filter(string.test)
@@ -271,7 +269,7 @@ export default async function makeFileContentFromOld(
               key,
               value?.spec?.["value-names"]?.[key] || key,
             ]),
-        );
+        )
         return `${rangeToTodoComment(
           value?.range,
         )}Value.multiselect(${JSON.stringify(
@@ -286,13 +284,13 @@ export default async function makeFileContentFromOld(
           },
           null,
           2,
-        )})`;
+        )})`
       }
       case "object": {
         const specName = maybeNewConst(
           value.name + "_spec",
           convertInputSpec(value.spec.spec),
-        );
+        )
         return `${rangeToTodoComment(value?.range)}List.obj({
           name: ${JSON.stringify(value.name || null)},
           minLength: ${JSON.stringify(null)},
@@ -304,7 +302,7 @@ export default async function makeFileContentFromOld(
           spec: ${specName},
           displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
           uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
-        })`;
+        })`
       }
       case "union": {
         const variants = maybeNewConst(
@@ -313,7 +311,7 @@ export default async function makeFileContentFromOld(
             value.spec.variants,
             value.spec["variant-names"] || {},
           ),
-        );
+        )
         const unionValueName = maybeNewConst(
           value.name + "_union",
           `${rangeToTodoComment(value?.range)}
@@ -323,11 +321,15 @@ export default async function makeFileContentFromOld(
               value?.spec?.tag?.description || null,
             )},
             warning: ${JSON.stringify(value?.spec?.tag?.warning || null)},
-            required: ${JSON.stringify(!(value?.spec?.tag?.nullable || false))},
+            required: ${JSON.stringify(
+              !(value?.spec?.tag?.nullable || false)
+                ? { default: null }
+                : false,
+            )},
             default: ${JSON.stringify(value?.spec?.default || null)},
           }, ${variants})
         `,
-        );
+        )
         const listConfig = maybeNewConst(
           value.name + "_list_config",
           `
@@ -335,7 +337,7 @@ export default async function makeFileContentFromOld(
             "union": ${unionValueName}
           })
         `,
-        );
+        )
         return `${rangeToTodoComment(value?.range)}List.obj({
           name:${JSON.stringify(value.name || null)},
           minLength:${JSON.stringify(null)},
@@ -347,37 +349,37 @@ export default async function makeFileContentFromOld(
           spec: ${listConfig},
           displayAs: ${JSON.stringify(value?.spec?.["display-as"] || null)},
           uniqueBy: ${JSON.stringify(value?.spec?.["unique-by"] || null)},
-        })`;
+        })`
       }
     }
-    throw new Error(`Unknown subtype "${value.subtype}"`);
+    throw new Error(`Unknown subtype "${value.subtype}"`)
   }
 
   function convertVariants(
     variants: Record<string, unknown>,
     variantNames: Record<string, string>,
   ): string {
-    let answer = "Variants.of({";
+    let answer = "Variants.of({"
     for (const [key, value] of Object.entries(variants)) {
-      const variantSpec = maybeNewConst(key, convertInputSpec(value));
+      const variantSpec = maybeNewConst(key, convertInputSpec(value))
       answer += `"${key}": {name: "${
         variantNames[key] || key
-      }", spec: ${variantSpec}},`;
+      }", spec: ${variantSpec}},`
     }
-    return `${answer}})`;
+    return `${answer}})`
   }
 
   function getNextConstName(name: string, i = 0): string {
-    const newName = !i ? name : name + i;
+    const newName = !i ? name : name + i
     if (namedConsts.has(newName)) {
-      return getNextConstName(name, i + 1);
+      return getNextConstName(name, i + 1)
     }
-    namedConsts.add(newName);
-    return newName;
+    namedConsts.add(newName)
+    return newName
   }
 }
 
 function rangeToTodoComment(range: string | undefined) {
-  if (!range) return "";
-  return `/* TODO: Convert range for this value (${range})*/`;
+  if (!range) return ""
+  return `/* TODO: Convert range for this value (${range})*/`
 }

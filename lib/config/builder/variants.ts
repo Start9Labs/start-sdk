@@ -1,6 +1,6 @@
-import { InputSpec } from "../configTypes";
-import { BuilderExtract, IBuilder } from "./builder";
-import { Config } from ".";
+import { InputSpec } from "../configTypes"
+import { BuilderExtract, IBuilder } from "./builder"
+import { Config } from "."
 
 /**
  * Used in the the Value.select { @link './value.ts' }
@@ -54,43 +54,43 @@ export const pruning = Value.union(
 export class Variants<
   A extends {
     [key: string]: {
-      name: string;
-      spec: InputSpec;
-    };
+      name: string
+      spec: InputSpec
+    }
   },
 > extends IBuilder<A> {
   static of<
     A extends {
-      [key: string]: { name: string; spec: Config<InputSpec> };
+      [key: string]: { name: string; spec: Config<InputSpec> }
     },
   >(a: A) {
     const variants: {
-      [K in keyof A]: { name: string; spec: BuilderExtract<A[K]["spec"]> };
-    } = {} as any;
+      [K in keyof A]: { name: string; spec: BuilderExtract<A[K]["spec"]> }
+    } = {} as any
     for (const key in a) {
-      const value = a[key];
+      const value = a[key]
       variants[key] = {
         name: value.name,
         spec: value.spec.build() as any,
-      };
+      }
     }
-    return new Variants(variants);
+    return new Variants(variants)
   }
 
   static empty() {
-    return Variants.of({});
+    return Variants.of({})
   }
   static withVariant<K extends string, B extends InputSpec>(
     key: K,
     value: Config<B>,
   ) {
-    return Variants.empty().withVariant(key, value);
+    return Variants.empty().withVariant(key, value)
   }
 
   withVariant<K extends string, B extends InputSpec>(key: K, value: Config<B>) {
     return new Variants({
       ...this.a,
       [key]: value.build(),
-    } as A & { [key in K]: B });
+    } as A & { [key in K]: B })
   }
 }

@@ -1,6 +1,6 @@
-import { CommandType, Effects } from "../../types";
-import { CheckResult } from "./CheckResult";
-import { timeoutPromise } from "./index";
+import { CommandType, Effects } from "../../types"
+import { CheckResult } from "./CheckResult"
+import { timeoutPromise } from "./index"
 
 /**
  * Running a health script, is used when we want to have a simple
@@ -23,13 +23,13 @@ export const runHealthScript = async <A extends string>(
     effects.runCommand(runCommand, { timeoutMillis: timeout }),
     timeoutPromise(timeout),
   ]).catch((e) => {
-    effects.warn(errorMessage);
-    effects.warn(JSON.stringify(e));
-    effects.warn(e.toString());
-    throw { status: "failing", message: errorMessage } as CheckResult;
-  });
+    effects.console.warn(errorMessage)
+    effects.console.warn(JSON.stringify(e))
+    effects.console.warn(e.toString())
+    throw { status: "failing", message: errorMessage } as CheckResult
+  })
   return {
     status: "passing",
     message: message(res),
-  } as CheckResult;
-};
+  } as CheckResult
+}

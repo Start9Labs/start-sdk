@@ -1,4 +1,4 @@
-declare const AddressProof: unique symbol;
+declare const AddressProof: unique symbol
 export type AddressReceipt = {
-  [AddressProof]: never;
-};
+  [AddressProof]: never
+}

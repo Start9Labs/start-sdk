@@ -1,6 +1,6 @@
-import { Parser } from "ts-matches";
-import { Effects, EnsureWrapperDataPath, ExtractWrapperData } from "../types";
-import { NoAny } from ".";
+import { Parser } from "ts-matches"
+import { Effects, EnsureWrapperDataPath, ExtractWrapperData } from "../types"
+import { NoAny } from "."
 
 export class WrapperData<WrapperData, Path extends string> {
   constructor(
@@ -8,7 +8,7 @@ export class WrapperData<WrapperData, Path extends string> {
     readonly path: Path & EnsureWrapperDataPath<WrapperData, Path>,
     readonly options: {
       /** Defaults to what ever the package currently in */
-      packageId?: string | undefined;
+      packageId?: string | undefined
     } = {},
   ) {}
 
@@ -17,27 +17,27 @@ export class WrapperData<WrapperData, Path extends string> {
       ...this.options,
       path: this.path as any,
       callback: this.effects.restart,
-    });
+    })
   }
   once() {
     return this.effects.getWrapperData<WrapperData, Path>({
       ...this.options,
       path: this.path as any,
       callback: () => {},
-    });
+    })
   }
   async *watch() {
     while (true) {
-      let callback: () => void;
+      let callback: () => void
       const waitForNext = new Promise<void>((resolve) => {
-        callback = resolve;
-      });
+        callback = resolve
+      })
       yield await this.effects.getWrapperData<WrapperData, Path>({
         ...this.options,
         path: this.path as any,
         callback: () => callback(),
-      });
-      await waitForNext;
+      })
+      await waitForNext
     }
   }
 }
@@ -46,8 +46,8 @@ export function getWrapperData<WrapperData, Path extends string>(
   path: Path & EnsureWrapperDataPath<WrapperData, Path>,
   options: {
     /** Defaults to what ever the package currently in */
-    packageId?: string | undefined;
+    packageId?: string | undefined
   } = {},
 ) {
-  return new WrapperData<WrapperData, Path>(effects, path as any, options);
+  return new WrapperData<WrapperData, Path>(effects, path as any, options)
 }

@@ -1,4 +1,4 @@
-import { writeConvertedFileFromOld } from "../../scripts/oldSpecToBuilder";
+import { writeConvertedFileFromOld } from "../../scripts/oldSpecToBuilder"
 
 writeConvertedFileFromOld(
   "./lib/test/output.ts", // Make the location
@@ -408,4 +408,4 @@ writeConvertedFileFromOld(
   {
     startSdk: "../",
   },
-);
+)
