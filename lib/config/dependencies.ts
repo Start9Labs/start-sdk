@@ -1,15 +1,25 @@
+import { GenericManifest } from "../manifest/ManifestTypes";
 import { Dependency, PackageId } from "../types";
 
-export function exists(id: PackageId) {
-  return {
-    id,
-    kind: "exists",
-  } as Dependency;
-}
+export type Dependencies<T extends GenericManifest> = {
+  exists(id: keyof T["dependencies"]): Dependency;
+  running(id: keyof T["dependencies"]): Dependency;
+};
 
-export function running(id: PackageId) {
-  return {
-    id,
-    kind: "running",
-  } as Dependency;
-}
+export const dependenciesSet = <
+  T extends GenericManifest,
+>(): Dependencies<T> => ({
+  exists(id: keyof T["dependencies"]) {
+    return {
+      id,
+      kind: "exists",
+    } as Dependency;
+  },
+
+  running(id: keyof T["dependencies"]) {
+    return {
+      id,
+      kind: "running",
+    } as Dependency;
+  },
+});

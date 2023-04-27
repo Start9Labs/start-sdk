@@ -26,7 +26,7 @@ export class WrapperData<WrapperData, Path extends string> {
       callback: () => {},
     });
   }
-  async *overTime() {
+  async *watch() {
     while (true) {
       let callback: () => void;
       const waitForNext = new Promise<void>((resolve) => {

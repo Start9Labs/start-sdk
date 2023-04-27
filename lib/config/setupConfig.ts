@@ -3,16 +3,19 @@ import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types";
 import { InputSpec } from "./configTypes";
 import { Utils, nullIfEmpty, once, utils } from "../util";
 import { TypeFromProps } from "../util/propertiesMatcher";
+import { GenericManifest } from "../manifest/ManifestTypes";
+import * as D from "./dependencies";
 
 declare const dependencyProof: unique symbol;
 export type DependenciesReceipt = void & {
   [dependencyProof]: never;
 };
 
-export type Save<WD, A> = (options: {
+export type Save<WD, A, Manifest extends GenericManifest> = (options: {
   effects: Effects;
   input: A;
   utils: Utils<WD>;
+  dependencies: D.Dependencies<Manifest>;
 }) => Promise<DependenciesReceipt>;
 export type Read<WD, A> = (options: {
   effects: Effects;
@@ -25,9 +28,13 @@ export type Read<WD, A> = (options: {
  * @param options
  * @returns
  */
-export function setupConfig<WD, A extends Config<InputSpec>>(
+export function setupConfig<
+  WD,
+  A extends Config<InputSpec>,
+  Manifest extends GenericManifest,
+>(
   spec: A,
-  write: Save<WD, TypeFromProps<A>>,
+  write: Save<WD, TypeFromProps<A>, Manifest>,
   read: Read<WD, TypeFromProps<A>>,
 ) {
   const validator = once(() => spec.validator());
@@ -41,6 +48,7 @@ export function setupConfig<WD, A extends Config<InputSpec>>(
         input: JSON.parse(JSON.stringify(input)),
         effects,
         utils: utils<WD>(effects),
+        dependencies: D.dependenciesSet<Manifest>(),
       });
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects, config }) => {
