@@ -1,6 +1,5 @@
 import { ExpectedExports, Properties } from "../types";
-import { Utils, utils } from "../util";
-import "../util/extensions";
+
 import { PropertyGroup } from "./PropertyGroup";
 import { PropertyString } from "./PropertyString";
 export { PropertyGroup } from "./PropertyGroup";

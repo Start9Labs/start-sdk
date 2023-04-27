@@ -19,6 +19,14 @@ export { deepEqual } from "./deepEqual";
 export { deepMerge } from "./deepMerge";
 export { once } from "./once";
 
+// prettier-ignore
+export type FlattenIntersection<T> = 
+T extends ArrayLike<any> ? T :
+T extends object ? {} & {[P in keyof T]: T[P]} :
+ T;
+
+export type _<T> = FlattenIntersection<T>;
+
 /** Used to check if the file exists before hand */
 export const exists = (
   effects: T.Effects,
@@ -53,10 +61,13 @@ export type Utils<WD> = {
     data: A,
   ) => ReturnType<FileHelper<A>["write"]>;
   getWrapperData: <Path extends string>(
+    packageId: string,
     path: T.EnsureWrapperDataPath<WD, Path>,
-    options?: WrapperDataOptionals<WD, Path>,
   ) => WrapperData<WD, Path>;
-  setWrapperData: <Path extends string | never>(
+  getOwnWrapperData: <Path extends string>(
+    path: T.EnsureWrapperDataPath<WD, Path>,
+  ) => WrapperData<WD, Path>;
+  setOwnWrapperData: <Path extends string | never>(
     path: T.EnsureWrapperDataPath<WD, Path>,
     value: ExtractWrapperData<WD, Path>,
   ) => Promise<void>;
@@ -89,15 +100,14 @@ export const utils = <WrapperData = never>(
     fileHelper.write(data, effects),
   exists: (props: { path: string; volumeId: string }) => exists(effects, props),
   nullIfEmpty,
-  getWrapperData: <Path extends string>(
+  getWrapperData: <WrapperData = never, Path extends string = never>(
+    packageId: string,
     path: T.EnsureWrapperDataPath<WrapperData, Path>,
-    options: {
-      validator?: Parser<unknown, ExtractWrapperData<WrapperData, Path>>;
-      /** Defaults to what ever the package currently in */
-      packageId?: string | undefined;
-    } = {},
-  ) => getWrapperData<WrapperData, Path>(effects, path as any, options),
-  setWrapperData: <Path extends string | never>(
+  ) => getWrapperData<WrapperData, Path>(effects, path as any, { packageId }),
+  getOwnWrapperData: <Path extends string>(
+    path: T.EnsureWrapperDataPath<WrapperData, Path>,
+  ) => getWrapperData<WrapperData, Path>(effects, path as any),
+  setOwnWrapperData: <Path extends string | never>(
     path: T.EnsureWrapperDataPath<WrapperData, Path>,
     value: ExtractWrapperData<WrapperData, Path>,
   ) => effects.setWrapperData<WrapperData, Path>({ value, path: path as any }),

@@ -24,23 +24,24 @@ describe("builder tests", () => {
         minLength: null,
         maxLength: null,
         patterns: [],
+        inputmode: "text",
       }),
     }).build();
     expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
       /*json*/ `{
     "peer-tor-address": {
       "type": "text",
+      "name": "Peer tor address",
       "default": null,
       "description": "The Tor address of the peer interface",
       "warning": null,
+      "required": true,
       "masked": true,
       "placeholder": null,
       "minLength": null,
       "maxLength": null,
       "patterns": [],
-      "inputmode":"text",
-      "name": "Peer tor address",
-      "required": true
+      "inputmode":"text"
     }}`
         .replaceAll("\n", " ")
         .replaceAll(/\s{2,}/g, "")
@@ -53,6 +54,9 @@ describe("values", () => {
   test("toggle", () => {
     const value = Value.toggle({
       name: "Testing",
+      description: null,
+      warning: null,
+      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast(false);
@@ -62,6 +66,33 @@ describe("values", () => {
     const value = Value.text({
       name: "Testing",
       required: false,
+      description: null,
+      warning: null,
+      default: null,
+      masked: false,
+      placeholder: null,
+      minLength: null,
+      maxLength: null,
+      patterns: [],
+      inputmode: "text",
+    });
+    const validator = value.validator();
+    validator.unsafeCast("test text");
+    testOutput<typeof validator._TYPE, string | null | undefined>()(null);
+  });
+  test("text", () => {
+    const value = Value.text({
+      name: "Testing",
+      required: true,
+      description: null,
+      warning: null,
+      default: null,
+      masked: false,
+      placeholder: null,
+      minLength: null,
+      maxLength: null,
+      patterns: [],
+      inputmode: "text",
     });
     const validator = value.validator();
     validator.unsafeCast("test text");
@@ -71,15 +102,25 @@ describe("values", () => {
     const value = Value.color({
       name: "Testing",
       required: false,
+      description: null,
+      warning: null,
+      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("#000000");
-    testOutput<typeof validator._TYPE, string>()(null);
+    testOutput<typeof validator._TYPE, string | null | undefined>()(null);
   });
   test("datetime", () => {
     const value = Value.datetime({
       name: "Testing",
       required: false,
+      description: null,
+      warning: null,
+      inputmode: "date",
+      min: null,
+      max: null,
+      step: null,
+      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("2021-01-01");
@@ -89,6 +130,11 @@ describe("values", () => {
     const value = Value.textarea({
       name: "Testing",
       required: false,
+      description: null,
+      warning: null,
+      minLength: null,
+      maxLength: null,
+      placeholder: null,
     });
     const validator = value.validator();
     validator.unsafeCast("test text");
@@ -99,12 +145,38 @@ describe("values", () => {
       name: "Testing",
       required: false,
       integer: false,
+      description: null,
+      warning: null,
+      default: null,
+      min: null,
+      max: null,
+      step: null,
+      units: null,
+      placeholder: null,
     });
     const validator = value.validator();
     validator.unsafeCast(2);
-    testOutput<typeof validator._TYPE, number>()(null);
+    testOutput<typeof validator._TYPE, number | null | undefined>()(null);
   });
   test("select", () => {
+    const value = Value.select({
+      name: "Testing",
+      required: true,
+      values: {
+        a: "A",
+        b: "B",
+      },
+      description: null,
+      warning: null,
+      default: null,
+    });
+    const validator = value.validator();
+    validator.unsafeCast("a");
+    validator.unsafeCast("b");
+    expect(() => validator.unsafeCast(null)).toThrowError();
+    testOutput<typeof validator._TYPE, "a" | "b">()(null);
+  });
+  test("nullable select", () => {
     const value = Value.select({
       name: "Testing",
       required: false,
@@ -112,11 +184,15 @@ describe("values", () => {
         a: "A",
         b: "B",
       },
+      description: null,
+      warning: null,
+      default: null,
     });
     const validator = value.validator();
     validator.unsafeCast("a");
     validator.unsafeCast("b");
-    testOutput<typeof validator._TYPE, "a" | "b">()(null);
+    validator.unsafeCast(null);
+    testOutput<typeof validator._TYPE, "a" | "b" | null | undefined>()(null);
   });
   test("multiselect", () => {
     const value = Value.multiselect({
@@ -126,6 +202,10 @@ describe("values", () => {
         b: "B",
       },
       default: [],
+      description: null,
+      warning: null,
+      minLength: null,
+      maxLength: null,
     });
     const validator = value.validator();
     validator.unsafeCast([]);
@@ -136,10 +216,15 @@ describe("values", () => {
     const value = Value.object(
       {
         name: "Testing",
+        description: null,
+        warning: null,
       },
       Config.of({
         a: Value.toggle({
           name: "test",
+          description: null,
+          warning: null,
+          default: null,
         }),
       }),
     );
@@ -152,21 +237,30 @@ describe("values", () => {
       {
         name: "Testing",
         required: true,
+        description: null,
+        warning: null,
+        default: null,
       },
       Variants.of({
         a: {
           name: "a",
-          spec: Config.of({ b: Value.toggle({ name: "b" }) }),
+          spec: Config.of({
+            b: Value.toggle({
+              name: "b",
+              description: null,
+              warning: null,
+              default: null,
+            }),
+          }),
         },
       }),
     );
     const validator = value.validator();
     validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } });
     type Test = typeof validator._TYPE;
-    testOutput<
-      Test,
-      { unionSelectKey: "a" } & { unionValueKey: { b: boolean } }
-    >()(null);
+    testOutput<Test, { unionSelectKey: "a"; unionValueKey: { b: boolean } }>()(
+      null,
+    );
   });
   test("list", () => {
     const value = Value.list(
@@ -193,7 +287,14 @@ describe("Builder List", () => {
           name: "test",
         },
         {
-          spec: Config.of({ test: Value.toggle({ name: "test" }) }),
+          spec: Config.of({
+            test: Value.toggle({
+              name: "test",
+              description: null,
+              warning: null,
+              default: null,
+            }),
+          }),
         },
       ),
     );
@@ -228,5 +329,130 @@ describe("Builder List", () => {
     const validator = value.validator();
     validator.unsafeCast([12, 45]);
     testOutput<typeof validator._TYPE, number[]>()(null);
+  });
+});
+
+describe("Nested nullable values", () => {
+  test("Testing text", () => {
+    const value = Config.of({
+      a: Value.text({
+        name: "Temp Name",
+        description:
+          "If no name is provided, the name from config will be used",
+        required: false,
+        default: null,
+        warning: null,
+        masked: false,
+        placeholder: null,
+        minLength: null,
+        maxLength: null,
+        patterns: [],
+        inputmode: "text",
+      }),
+    });
+    const validator = value.validator();
+    validator.unsafeCast({ a: null });
+    validator.unsafeCast({ a: "test" });
+    expect(() => validator.unsafeCast({ a: 4 })).toThrowError();
+    testOutput<typeof validator._TYPE, { a: string | null | undefined }>()(
+      null,
+    );
+  });
+  test("Testing number", () => {
+    const value = Config.of({
+      a: Value.number({
+        name: "Temp Name",
+        description:
+          "If no name is provided, the name from config will be used",
+        required: false,
+        warning: null,
+        placeholder: null,
+        integer: false,
+        default: null,
+        min: null,
+        max: null,
+        step: null,
+        units: null,
+      }),
+    });
+    const validator = value.validator();
+    validator.unsafeCast({ a: null });
+    validator.unsafeCast({ a: 5 });
+    expect(() => validator.unsafeCast({ a: "4" })).toThrowError();
+    testOutput<typeof validator._TYPE, { a: number | null | undefined }>()(
+      null,
+    );
+  });
+  test("Testing color", () => {
+    const value = Config.of({
+      a: Value.color({
+        name: "Temp Name",
+        description:
+          "If no name is provided, the name from config will be used",
+        required: false,
+        warning: null,
+        default: null,
+      }),
+    });
+    const validator = value.validator();
+    validator.unsafeCast({ a: null });
+    validator.unsafeCast({ a: "5" });
+    expect(() => validator.unsafeCast({ a: 4 })).toThrowError();
+    testOutput<typeof validator._TYPE, { a: string | null | undefined }>()(
+      null,
+    );
+  });
+  test("Testing select", () => {
+    const value = Config.of({
+      a: Value.select({
+        name: "Temp Name",
+        description:
+          "If no name is provided, the name from config will be used",
+        required: false,
+        warning: null,
+        default: null,
+        values: {
+          a: "A",
+        },
+      }),
+    });
+    const higher = Value.select({
+      name: "Temp Name",
+      description: "If no name is provided, the name from config will be used",
+      required: false,
+      warning: null,
+      default: null,
+      values: {
+        a: "A",
+      },
+    }).build();
+
+    const validator = value.validator();
+    validator.unsafeCast({ a: null });
+    validator.unsafeCast({ a: "a" });
+    expect(() => validator.unsafeCast({ a: "4" })).toThrowError();
+    testOutput<typeof validator._TYPE, { a: "a" | null | undefined }>()(null);
+  });
+  test("Testing multiselect", () => {
+    const value = Config.of({
+      a: Value.multiselect({
+        name: "Temp Name",
+        description:
+          "If no name is provided, the name from config will be used",
+
+        warning: null,
+        default: [],
+        values: {
+          a: "A",
+        },
+        minLength: null,
+        maxLength: null,
+      }),
+    });
+    const validator = value.validator();
+    validator.unsafeCast({ a: [] });
+    validator.unsafeCast({ a: ["a"] });
+    expect(() => validator.unsafeCast({ a: "4" })).toThrowError();
+    testOutput<typeof validator._TYPE, { a: "a"[] }>()(null);
   });
 });

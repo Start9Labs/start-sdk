@@ -19,7 +19,7 @@ export class WrapperData<WrapperData, Path extends string> {
       callback: this.effects.restart,
     });
   }
-  first() {
+  once() {
     return this.effects.getWrapperData<WrapperData, Path>({
       ...this.options,
       path: this.path as any,

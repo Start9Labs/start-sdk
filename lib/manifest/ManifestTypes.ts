@@ -6,10 +6,10 @@ export interface Container {
   image: string;
   /** These should match the manifest data volumes */
   mounts: Record<string, string>;
-  /** if greater */
-  shmSizeMb?: number;
+  /** Default is 64mb */
+  shmSizeMb?: `${number}${"mb" | "gb" | "b" | "kb"}`;
   /** if more than 30s to shutdown */
-  sigtermTimeout?: string;
+  sigtermTimeout?: `${number}${"s" | "m" | "h"}`;
 }
 
 export type ManifestVersion = ValidEmVer;

@@ -2,6 +2,7 @@ import { InputSpec, ValueSpec } from "../configTypes";
 import { typeFromProps } from "../../util";
 import { BuilderExtract, IBuilder } from "./builder";
 import { Value } from "./value";
+import { _ } from "../../util";
 
 /**
  * Configs are the specs that are used by the os configuration form for this service.

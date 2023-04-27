@@ -12,17 +12,17 @@ const todo = <A>(): A => {
 const noop = () => {};
 describe("wrapperData", () => {
   test.skip("types", async () => {
-    utils<WrapperType>(todo<T.Effects>()).setWrapperData(
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData(
       "/config/someValue",
       "someValue",
     );
-    utils<WrapperType>(todo<T.Effects>()).setWrapperData(
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData(
       "/config/someValue",
 
       // @ts-expect-error Type is wrong for the setting value
       5,
     );
-    utils<WrapperType>(todo<T.Effects>()).setWrapperData(
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData(
       // @ts-expect-error Path is wrong
       "/config/someVae3lue",
       "someValue",
@@ -45,22 +45,22 @@ describe("wrapperData", () => {
     });
 
     (await utils<WrapperType>(todo<T.Effects>())
-      .getWrapperData("/config/someValue")
+      .getOwnWrapperData("/config/someValue")
       .const()) satisfies string;
     (await utils<WrapperType>(todo<T.Effects>())
-      .getWrapperData("/config")
+      .getOwnWrapperData("/config")
       .const()) satisfies WrapperType["config"];
     await utils<WrapperType>(todo<T.Effects>())
       // @ts-expect-error Path is wrong
-      .getWrapperData("/config/somdsfeValue")
+      .getOwnWrapperData("/config/somdsfeValue")
       .const();
     (await utils<WrapperType>(todo<T.Effects>())
-      .getWrapperData("/config/someValue")
+      .getOwnWrapperData("/config/someValue")
       // @ts-expect-error satisfies type is wrong
       .const()) satisfies number;
     (await utils<WrapperType>(todo<T.Effects>())
       // @ts-expect-error Path is wrong
-      .getWrapperData("/config/")
+      .getOwnWrapperData("/config/")
       .const()) satisfies WrapperType["config"];
 
     (await todo<T.Effects>().getWrapperData<WrapperType, "/config/someValue">({

@@ -1,30 +1,24 @@
 import { string } from "ts-matches";
 import { Backups } from ".";
 import { GenericManifest } from "../manifest/ManifestTypes";
-import { BackupOptions, ExpectedExports } from "../types";
+import { BackupOptions } from "../types";
+import { _ } from "../util";
 
-export type SetupBackupsParams<M extends GenericManifest> =
-  | [Partial<BackupOptions>, ...Array<keyof M["volumes"] & string>]
-  | Array<keyof M["volumes"] & string>;
+export type SetupBackupsParams<M extends GenericManifest> = Array<
+  keyof M["volumes"] & string
+>;
 
 export function setupBackups<M extends GenericManifest>(
-  ...args: SetupBackupsParams<M>
+  ...args: _<SetupBackupsParams<M>>
 ) {
-  const [options, volumes] = splitOptions(args);
-  if (!options) {
-    return Backups.volumes(...volumes).build();
-  }
-  return Backups.with_options(options)
-    .volumes(...volumes)
-    .build();
+  return Backups.volumes(...args).build();
 }
 
-function splitOptions<M extends GenericManifest>(
-  args: SetupBackupsParams<M>,
-): [null | Partial<BackupOptions>, Array<keyof M["volumes"] & string>] {
-  if (args.length > 0 && !string.test(args[0])) {
-    const [options, ...restVolumes] = args;
-    return [options, restVolumes as Array<keyof M["volumes"] & string>];
-  }
-  return [null, args as Array<keyof M["volumes"] & string>];
+export function setupBackupsOptions<M extends GenericManifest>(
+  options: Partial<BackupOptions>,
+  ...args: _<SetupBackupsParams<M>>
+) {
+  return Backups.with_options(options)
+    .volumes(...args)
+    .build();
 }

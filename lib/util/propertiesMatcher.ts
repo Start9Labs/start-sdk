@@ -7,6 +7,7 @@ import {
   InputSpec,
 } from "../config/configTypes";
 import { Config } from "../config/builder/config";
+import { _ } from "../util";
 
 const {
   string,
@@ -18,6 +19,7 @@ const {
   number,
   literals,
   boolean,
+  nill,
 } = matches;
 
 type TypeToggle = "toggle";
@@ -34,9 +36,7 @@ type TypeUnion = "union";
 
 // prettier-ignore
 type GuardDefaultRequired<A, Type> =
-  A extends {  default: unknown } ? Type :
-  A extends {  required: false } ? Type :
-  A extends {  required: true } ? Type | null | undefined :
+  A extends {  required: false; default: null | undefined | never } ? Type | undefined | null:
   Type
 
 // prettier-ignore
@@ -55,11 +55,12 @@ type GuardTextarea<A> =
 type GuardToggle<A> =
   A extends {  type: TypeToggle } ? GuardDefaultRequired<A, boolean> :
   unknown
+
+type TrueKeyOf<T> = _<T> extends Record<string, unknown> ? keyof T : never;
 // prettier-ignore
 type GuardObject<A> =
   A extends {  type: TypeObject,  spec: infer B } ? (
-    B extends Record<string, unknown> ? {  [K in keyof B & string]: _<GuardAll<B[K]>> } :
-    { _error: "Invalid Spec" }
+     {  [K in TrueKeyOf<B> & string]: _<GuardAll<B[K]>> } 
   ) :
   unknown
 // prettier-ignore
@@ -70,7 +71,7 @@ export type GuardList<A> =
 // prettier-ignore
 type GuardSelect<A> =
   A extends {  type: TypeSelect, values: infer B } ? (
-    B extends Record<string, string> ? keyof B : never
+    GuardDefaultRequired<A, TrueKeyOf<B>>
   ) :
   unknown
 // prettier-ignore
@@ -85,11 +86,19 @@ type GuardColor<A> =
 type GuardDatetime<A> =
 A extends {  type: TypeDatetime } ? GuardDefaultRequired<A, string> :
 unknown
-
+type AsString<A> = A extends
+  | string
+  | number
+  | bigint
+  | boolean
+  | null
+  | undefined
+  ? `${A}`
+  : "UnknownValue";
 // prettier-ignore
 type VariantValue<A> =
-  A extends { name: string, spec: infer B } ?  TypeFromProps<B>  :
-  never
+  A extends { name: string, spec: infer B } ?  TypeFromProps<_<B>>  :
+  `neverVariantValue${AsString<A>}`
 // prettier-ignore
 type GuardUnion<A> =
   A extends {  type: TypeUnion, variants: infer Variants & Record<string, unknown> } ? (
@@ -97,7 +106,6 @@ type GuardUnion<A> =
   ) :
   unknown
 
-type _<T> = T;
 export type GuardAll<A> = GuardNumber<A> &
   GuardText<A> &
   GuardTextarea<A> &
@@ -114,7 +122,6 @@ export type TypeFromProps<A> =
   A extends Config<infer B> ? TypeFromProps<B> :
   A extends Record<string, unknown> ? {  [K in keyof A & string]: _<GuardAll<A[K]>> } :
   unknown;
-
 const isType = object({ type: string });
 const matchVariant = object({
   name: string,
@@ -122,7 +129,13 @@ const matchVariant = object({
 });
 const recordString = dictionary([string, unknown]);
 const matchDefault = object({ default: unknown });
-const matchRequired = object({ required: literals(false) });
+const matchRequired = object(
+  {
+    required: literals(false),
+    default: nill,
+  },
+  ["default"],
+);
 const matchInteger = object({ integer: literals(true) });
 const matchSpec = object({ spec: recordString });
 const matchUnion = object({
@@ -139,7 +152,7 @@ function withInteger(parser: Parser<unknown, number>, value: unknown) {
   return parser;
 }
 function requiredParser<A>(parser: Parser<unknown, A>, value: unknown) {
-  if (!matchRequired.test(value)) return parser.optional();
+  if (matchRequired.test(value)) return parser.optional();
   return parser;
 }
 

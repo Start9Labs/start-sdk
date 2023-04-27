@@ -437,9 +437,11 @@ export type MigrationRes = {
 
 export type ActionResult = {
   message: string;
-  value: null | string;
-  copyable: boolean;
-  qr: boolean;
+  value: null | {
+    value: string;
+    copyable: boolean;
+    qr: boolean;
+  };
 };
 export type SetResult = {
   /** These are the unix process signals */

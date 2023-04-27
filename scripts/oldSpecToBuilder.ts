@@ -67,6 +67,8 @@ export default async function makeFileContentFromOld(
               warning: value.warning || null,
               required: !(value.nullable || false),
               placeholder: value.placeholder || null,
+              maxLength: null,
+              minLength: null,
             },
             null,
             2,
@@ -81,6 +83,7 @@ export default async function makeFileContentFromOld(
             required: !(value.nullable || false),
             masked: value.masked || false,
             placeholder: value.placeholder || null,
+            inputmode: "text",
             patterns: value.pattern
               ? [
                   {

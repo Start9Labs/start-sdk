@@ -1,27 +1,39 @@
+import { Parser } from "ts-matches";
+import { Config } from "../config/builder";
 import {
   ActionMetaData,
   ActionResult,
   Effects,
   ExportedAction,
 } from "../types";
-import { Utils, utils } from "../util";
+import { Utils, once, utils } from "../util";
+import { TypeFromProps } from "../util/propertiesMatcher";
+import { InputSpec } from "../config/configTypes";
 
-export class CreatedAction<WrapperData, Input> {
+export class CreatedAction<WrapperData, Input extends Config<InputSpec>> {
   private constructor(
-    readonly metaData: ActionMetaData,
+    private myMetaData: Omit<ActionMetaData, "input"> & { input: Input },
     readonly fn: (options: {
       effects: Effects;
       utils: Utils<WrapperData>;
-      input: Input;
+      input: TypeFromProps<Input>;
     }) => Promise<ActionResult>,
   ) {}
+  private validator = this.myMetaData.input.validator() as Parser<
+    unknown,
+    TypeFromProps<Input>
+  >;
+  metaData = {
+    ...this.myMetaData,
+    input: this.myMetaData.input.build(),
+  };
 
-  static of<WrapperData, Input>(
-    metaData: ActionMetaData,
+  static of<WrapperData, Input extends Config<InputSpec>>(
+    metaData: Omit<ActionMetaData, "input"> & { input: Input },
     fn: (options: {
       effects: Effects;
       utils: Utils<WrapperData>;
-      input: Input;
+      input: TypeFromProps<Input>;
     }) => Promise<ActionResult>,
   ) {
     return new CreatedAction<WrapperData, Input>(metaData, fn);
@@ -31,7 +43,7 @@ export class CreatedAction<WrapperData, Input> {
     return this.fn({
       effects,
       utils: utils<WrapperData>(effects),
-      input: input as Input,
+      input: this.validator.unsafeCast(input),
     });
   };
 
