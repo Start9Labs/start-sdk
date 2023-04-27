@@ -26,13 +26,13 @@ export const setupMain = <WrapperData>(
   fn: (o: {
     effects: Effects
     started(onTerm: () => void): null
-    utils: Utils<WrapperData>
+    utils: Utils<WrapperData, {}>
   }) => Promise<Daemons<any>>,
 ): ExpectedExports.main => {
   return async (options) => {
     const result = await fn({
       ...options,
-      utils: utils<WrapperData>(options.effects),
+      utils: utils<WrapperData, {}>(options.effects),
     })
     await result.build().then((x) => x.wait())
   }

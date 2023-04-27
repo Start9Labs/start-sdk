@@ -43,21 +43,37 @@ describe("wrapperData", () => {
       path: "/config/some2Value",
       value: "someValueIn",
     })
+    ;(await utils<WrapperType, {}>(todo<T.Effects>())
+      .getOwnWrapperData("/config/someValue")
+      .const()) satisfies string
+    ;(await utils<WrapperType, {}>(todo<T.Effects>())
+      .getOwnWrapperData("/config")
+      .const()) satisfies WrapperType["config"]
+    await utils<WrapperType, {}>(todo<T.Effects>())
+      // @ts-expect-error Path is wrong
+      .getOwnWrapperData("/config/somdsfeValue")
+      .const()
+    ///
     ;(await utils<WrapperType>(todo<T.Effects>())
       .getOwnWrapperData("/config/someValue")
+      // @ts-expect-error Const should normally not be callable
       .const()) satisfies string
     ;(await utils<WrapperType>(todo<T.Effects>())
       .getOwnWrapperData("/config")
+      // @ts-expect-error Const should normally not be callable
       .const()) satisfies WrapperType["config"]
     await utils<WrapperType>(todo<T.Effects>())
       // @ts-expect-error Path is wrong
       .getOwnWrapperData("/config/somdsfeValue")
+      // @ts-expect-error Const should normally not be callable
       .const()
+
+    ///
     ;(await utils<WrapperType>(todo<T.Effects>())
       .getOwnWrapperData("/config/someValue")
       // @ts-expect-error satisfies type is wrong
       .const()) satisfies number
-    ;(await utils<WrapperType>(todo<T.Effects>())
+    ;(await utils<WrapperType, {}>(todo<T.Effects>())
       // @ts-expect-error Path is wrong
       .getOwnWrapperData("/config/")
       .const()) satisfies WrapperType["config"]

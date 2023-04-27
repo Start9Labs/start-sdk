@@ -2,7 +2,7 @@ import { Parser } from "ts-matches"
 import * as T from "../types"
 import FileHelper from "./fileHelper"
 import nullIfEmpty from "./nullIfEmpty"
-import { WrapperData, getWrapperData } from "./getWrapperData"
+import { GetWrapperData, getWrapperData } from "./getWrapperData"
 import {
   CheckResult,
   checkPortListening,
@@ -54,7 +54,7 @@ export type WrapperDataOptionals<WrapperData, Path extends string> = {
   packageId?: string | undefined
 }
 
-export type Utils<WD> = {
+export type Utils<WD, WrapperOverWrite = { const: never }> = {
   readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
   writeFile: <A>(
     fileHelper: FileHelper<A>,
@@ -63,10 +63,10 @@ export type Utils<WD> = {
   getWrapperData: <Path extends string>(
     packageId: string,
     path: T.EnsureWrapperDataPath<WD, Path>,
-  ) => WrapperData<WD, Path>
+  ) => GetWrapperData<WD, Path> & WrapperOverWrite
   getOwnWrapperData: <Path extends string>(
     path: T.EnsureWrapperDataPath<WD, Path>,
-  ) => WrapperData<WD, Path>
+  ) => GetWrapperData<WD, Path> & WrapperOverWrite
   setOwnWrapperData: <Path extends string | never>(
     path: T.EnsureWrapperDataPath<WD, Path>,
     value: ExtractWrapperData<WD, Path>,
@@ -94,9 +94,9 @@ export type Utils<WD> = {
   exists: (props: { path: string; volumeId: string }) => Promise<boolean>
   nullIfEmpty: typeof nullIfEmpty
 }
-export const utils = <WrapperData = never>(
+export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
   effects: T.Effects,
-): Utils<WrapperData> => ({
+): Utils<WrapperData, WrapperOverWrite> => ({
   readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
   writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
     fileHelper.write(data, effects),
@@ -105,10 +105,13 @@ export const utils = <WrapperData = never>(
   getWrapperData: <WrapperData = never, Path extends string = never>(
     packageId: string,
     path: T.EnsureWrapperDataPath<WrapperData, Path>,
-  ) => getWrapperData<WrapperData, Path>(effects, path as any, { packageId }),
+  ) =>
+    getWrapperData<WrapperData, Path>(effects, path as any, {
+      packageId,
+    }) as any,
   getOwnWrapperData: <Path extends string>(
     path: T.EnsureWrapperDataPath<WrapperData, Path>,
-  ) => getWrapperData<WrapperData, Path>(effects, path as any),
+  ) => getWrapperData<WrapperData, Path>(effects, path as any) as any,
   setOwnWrapperData: <Path extends string | never>(
     path: T.EnsureWrapperDataPath<WrapperData, Path>,
     value: ExtractWrapperData<WrapperData, Path>,
