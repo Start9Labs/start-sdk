@@ -17,15 +17,20 @@ export const ipv6 = once(
 export class LocalBinding {
   constructor(readonly localHost: string, readonly ipHosts: string[]) {}
   createOrigins(protocol: string) {
+    const ipHosts = this.ipHosts
     return {
       local: new Origin(protocol, this.localHost),
-      ip: this.ipHosts.map((x) => new Origin(protocol, x)),
-      ipv4: this.ipHosts
-        .filter(regexToTestIp4().test)
-        .map((x) => new Origin(protocol, x)),
-      ipv6: this.ipHosts
-        .filter(ipv6().test)
-        .map((x) => new Origin(protocol, x)),
+      get ip() {
+        return ipHosts.map((x) => new Origin(protocol, x))
+      },
+      get ipv4() {
+        return ipHosts
+          .filter(regexToTestIp4().test)
+          .map((x) => new Origin(protocol, x))
+      },
+      get ipv6() {
+        return ipHosts.filter(ipv6().test).map((x) => new Origin(protocol, x))
+      },
     }
   }
 }
