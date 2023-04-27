@@ -16,7 +16,7 @@ type Daemon<Ids extends string, Command extends string, Id extends string> = {
   requires: Exclude<Ids, Id>[]
 }
 
-type ErrorDuplicateId<Id extends string> = `The id "${Id}" is already used`
+type ErrorDuplicateId<Id extends string> = `The id '${Id}' is already used`
 /**
  * Used during the main of a function, it allows us to describe and ensure a set of daemons are running.
  * With the dependency, we are using this like an init system, where we can ensure that a daemon is running
