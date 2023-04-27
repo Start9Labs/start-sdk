@@ -1,4 +1,6 @@
+import { HealthStatus } from "../../types"
+
 export type TriggerInput = {
-  lastResult?: "success" | "failure" | null
+  lastResult?: HealthStatus
   hadSuccess?: boolean
 }

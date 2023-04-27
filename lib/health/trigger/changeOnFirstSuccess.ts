@@ -12,7 +12,7 @@ export function changeOnFirstSuccess(o: {
     beforeFirstSuccess.next()
     for (
       let res = await beforeFirstSuccess.next();
-      currentValue?.lastResult !== "success" && !res.done;
+      currentValue?.lastResult !== "passing" && !res.done;
       res = await beforeFirstSuccess.next()
     ) {
       yield

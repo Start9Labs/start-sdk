@@ -1,4 +1,4 @@
-import { HealthReceipt, ReadyProof } from "../health"
+import { HealthReceipt, ReadyProof, TriggerInput } from "../health"
 import { CheckResult } from "../health/checkFns"
 import { Trigger } from "../health/trigger"
 import { defaultTrigger } from "../health/trigger/defaultTrigger"
@@ -82,21 +82,26 @@ export class Daemons<Ids extends string | never> {
         const { command } = daemon
 
         const child = effects.runDaemon(command)
-        let currentInput = {}
+        let currentInput: TriggerInput = {}
         const getCurrentInput = () => currentInput
         const trigger = (daemon.ready.trigger ?? defaultTrigger)(
           getCurrentInput,
         )
-        for (
-          let res = await trigger.next();
-          !res.done;
-          res = await trigger.next()
-        ) {
-          const response = await daemon.ready.fn()
-          if (response.status === "passing") {
-            return child
+        return new Promise(async (resolve) => {
+          for (
+            let res = await trigger.next();
+            !res.done;
+            res = await trigger.next()
+          ) {
+            const response = await daemon.ready.fn()
+            currentInput.lastResult = response.status || null
+            if (!currentInput.hadSuccess && response.status === "passing") {
+              currentInput.hadSuccess = true
+              resolve(child)
+            }
           }
-        }
+          resolve(child)
+        })
         return child
       })
     }

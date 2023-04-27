@@ -6,6 +6,7 @@ import {
 } from "../config/configTypes"
 import { deepMerge } from "../util"
 import { InputSpec, matchInputSpec } from "./output"
+import * as _I from "../index"
 
 export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
   ? 1

@@ -15,7 +15,6 @@ export function healthCheck(o: {
 }) {
   new Promise(async () => {
     let currentValue: TriggerInput = {
-      lastResult: null,
       hadSuccess: false,
     }
     const getCurrentValue = () => currentValue
@@ -33,9 +32,9 @@ export function healthCheck(o: {
           message,
         })
         currentValue.hadSuccess = true
-        currentValue.lastResult = "success"
+        currentValue.lastResult = "passing"
       } catch (_) {
-        currentValue.lastResult = "failure"
+        currentValue.lastResult = "failing"
       }
     }
   })
