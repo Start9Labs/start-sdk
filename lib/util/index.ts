@@ -73,9 +73,11 @@ export type Utils<WD> = {
   ) => Promise<void>
   checkPortListening(
     port: number,
-    options?: {
-      error?: string
-      message?: string
+    options: {
+      errorMessage: string
+      successMessage: string
+      timeoutMessage?: string
+      timeout?: number
     },
   ): Promise<CheckResult>
   checkWebUrl(

@@ -13,10 +13,7 @@ type Daemon<
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
 
   ready: {
-    display: null | {
-      name: string
-      message: string
-    }
+    display: string | null
     fn: () => Promise<CheckResult> | CheckResult
     trigger?: Trigger
   }
