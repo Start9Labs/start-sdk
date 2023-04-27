@@ -4,12 +4,8 @@ import { Trigger } from "../health/trigger"
 import { defaultTrigger } from "../health/trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
 import { InterfaceReceipt } from "./interfaceReceipt"
-type Daemon<
-  Ids extends string | never,
-  Command extends string,
-  Id extends string,
-> = {
-  id: Id
+type Daemon<Ids extends string, Command extends string, Id extends string> = {
+  id: "" extends Id ? never : Id
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
 
   ready: {
@@ -18,7 +14,6 @@ type Daemon<
     trigger?: Trigger
   }
   requires?: Exclude<Ids, Id>[]
-  intervalTime?: number
 }
 
 /**
@@ -45,7 +40,7 @@ Daemons.with({
   .build()
 ```
  */
-export class Daemons<Ids extends string | never> {
+export class Daemons<Ids extends string> {
   private constructor(
     readonly effects: Effects,
     readonly started: (onTerm: () => void) => null,
@@ -61,9 +56,13 @@ export class Daemons<Ids extends string | never> {
     return new Daemons<never>(config.effects, config.started)
   }
   addDaemon<Id extends string, Command extends string>(
-    newDaemon: Daemon<Ids, Command, Id>,
+    id: "" extends Id ? never : Id extends Ids ? never : Id,
+    newDaemon: Omit<Daemon<Ids, Command, Id>, "id">,
   ) {
-    const daemons = ((this?.daemons ?? []) as any[]).concat(newDaemon)
+    const daemons = ((this?.daemons ?? []) as any[]).concat({
+      ...newDaemon,
+      id,
+    })
     return new Daemons<Ids | Id>(this.effects, this.started, daemons)
   }
 
