@@ -4,7 +4,7 @@ const starSub = /((\d+\.)*\d+)\.\*/
 // prettier-ignore
 export type ValidEmVer = `${number}${`.${number}` | ""}${`.${number}` | ""}${`-${string}` | ""}`;
 // prettier-ignore
-export type ValidEmVerRange = `${'>=' | '<='| '<' | '>' | ''}${number | '*'}${`.${number | '*'}` | ""}${`.${number | '*'}` | ""}${`-${string}` | ""}`;
+export type ValidEmVerRange = `${'>=' | '<='| '<' | '>' | ''}${'^' | '~' | ''}${number | '*'}${`.${number | '*'}` | ""}${`.${number | '*'}` | ""}${`-${string}` | ""}`;
 
 function incrementLastNumber(list: number[]) {
   const newList = [...list]

@@ -20,7 +20,7 @@ export type Save<WD, A, Manifest extends GenericManifest> = (options: {
 export type Read<WD, A> = (options: {
   effects: Effects
   utils: Utils<WD>
-}) => Promise<void | DeepPartial<A>>
+}) => Promise<void | A>
 /**
  * We want to setup a config export with a get and set, this
  * is going to be the default helper to setup config, because it will help
