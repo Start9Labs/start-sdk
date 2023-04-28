@@ -1,9 +1,25 @@
 import { oldSpecToBuilder } from "../../scripts/oldSpecToBuilder"
 
 oldSpecToBuilder(
-  "./lib/test/output.ts", // Make the location
+  // Make the location
+  "./lib/test/output.ts",
+  // Put the config here
   {
-    // Put the config here
+    mediasources: {
+      type: "list",
+      subtype: "enum",
+      name: "Media Sources",
+      description: "List of Media Sources to use with Jellyfin",
+      range: "[1,*)",
+      default: ["nextcloud"],
+      spec: {
+        values: ["nextcloud", "filebrowser"],
+        "value-names": {
+          nextcloud: "NextCloud",
+          filebrowser: "File Browser",
+        },
+      },
+    },
     testListUnion: {
       type: "list",
       subtype: "union",
@@ -406,6 +422,7 @@ oldSpecToBuilder(
     },
   },
   {
-    startSdk: "start-sdk/lib",
+    // convert this to `start-sdk/lib` for conversions
+    startSdk: "..",
   },
 )

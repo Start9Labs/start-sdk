@@ -211,6 +211,33 @@ export default async function makeFileContentFromOld(
       }, ${variants})`
       }
       case "list": {
+        if (value.subtype === "enum") {
+          const allValueNames = new Set([
+            ...(value?.spec?.["values"] || []),
+            ...Object.keys(value?.spec?.["value-names"] || {}),
+          ])
+          const values = Object.fromEntries(
+            Array.from(allValueNames)
+              .filter(isString)
+              .map((key: string) => [
+                key,
+                value?.spec?.["value-names"]?.[key] ?? key,
+              ]),
+          )
+          return `Value.multiselect(${JSON.stringify(
+            {
+              name: value.name || null,
+              minLength: null,
+              maxLength: null,
+              default: value.default ?? null,
+              description: value.description || null,
+              warning: value.warning || null,
+              values,
+            },
+            null,
+            2,
+          )})`
+        }
         const list = maybeNewConst(value.name + "_list", convertList(value))
         return `Value.list(${list})`
       }
@@ -271,33 +298,7 @@ export default async function makeFileContentFromOld(
         })})`
       }
       case "enum": {
-        const allValueNames = new Set(
-          ...(value?.spec?.["values"] || []),
-          ...Object.keys(value?.spec?.["value-names"] || {}),
-        )
-        const values = Object.fromEntries(
-          Array.from(allValueNames)
-            .filter(isString)
-            .map((key: string) => [
-              key,
-              value?.spec?.["value-names"]?.[key] || key,
-            ]),
-        )
-        return `${rangeToTodoComment(
-          value?.range,
-        )}Value.multiselect(${JSON.stringify(
-          {
-            name: value.name || null,
-            minLength: null,
-            maxLength: null,
-            default: value.default || null,
-            description: value.description || null,
-            warning: value.warning || null,
-            values,
-          },
-          null,
-          2,
-        )})`
+        return "/* error!! list.enum */"
       }
       case "object": {
         const specName = maybeNewConst(

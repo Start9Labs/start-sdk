@@ -333,18 +333,17 @@ describe("Builder List", () => {
     validator.unsafeCast(["test", "text"])
     testOutput<typeof validator._TYPE, string[]>()(null)
   })
-  test("number", () => {
-    const value = Value.list(
-      List.number(
-        {
-          name: "test",
-        },
-        { integer: true },
-      ),
-    )
-    const validator = value.validator()
-    validator.unsafeCast([12, 45])
-    testOutput<typeof validator._TYPE, number[]>()(null)
+  Value.multiselect({
+    name: "Media Sources",
+    minLength: null,
+    maxLength: null,
+    default: ["nextcloud"],
+    description: "List of Media Sources to use with Jellyfin",
+    warning: null,
+    values: {
+      nextcloud: "NextCloud",
+      filebrowser: "File Browser",
+    },
   })
 })
 

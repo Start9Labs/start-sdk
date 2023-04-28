@@ -40,6 +40,9 @@ testOutput<
 testOutput<InputSpec["testListUnion"][0]["union"][UnionSelectKey], "lnd">()(
   null,
 )
+testOutput<InputSpec["mediasources"], Array<"filebrowser" | "nextcloud">>()(
+  null,
+)
 
 // @ts-expect-error Because enable should be a boolean
 testOutput<InputSpec["rpc"]["enable"], string>()(null)
@@ -50,6 +53,7 @@ testOutput<InputSpec["testListUnion"][0][UnionSelectKey][UnionSelectKey], "union
 /// Here we test the output of the matchInputSpec function
 describe("Inputs", () => {
   const validInput: InputSpec = {
+    mediasources: ["filebrowser"],
     testListUnion: [
       {
         union: { [unionSelectKey]: "lnd", [unionValueKey]: { name: "string" } },
