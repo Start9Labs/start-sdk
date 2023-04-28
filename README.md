@@ -4,7 +4,7 @@
 
 - Copy the old config json (from the getConfig.ts)
 - Install the start-sdk with `npm i`
-- paste the config into make output (second param)
+- paste the config into makeOutput.ts::oldSpecToBuilder (second param)
 - Make the third param
 
 ```ts
