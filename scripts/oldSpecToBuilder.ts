@@ -1,5 +1,6 @@
 import * as fs from "fs"
 
+// https://stackoverflow.com/questions/2970525/converting-any-string-into-camel-case
 export function camelCase(value: string) {
   return value.replace(
     /^([A-Z])|[\s-_](\w)/g,
@@ -214,7 +215,7 @@ export default async function makeFileContentFromOld(
         return `Value.list(${list})`
       }
       case "pointer": {
-        return `/* TODO deal with point removed ${JSON.stringify(value)} */`
+        return `/* TODO deal with point removed point "${value.name}" */null as any`
       }
     }
     throw Error(`Unknown type "${value.type}"`)
