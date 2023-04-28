@@ -95,7 +95,13 @@ export class Daemons<Ids extends string> {
             !res.done;
             res = await trigger.next()
           ) {
-            const response = await daemon.ready.fn()
+            const response = await Promise.resolve(daemon.ready.fn()).catch(
+              (err) =>
+                ({
+                  status: "failing",
+                  message: "message" in err ? err.message : String(err),
+                } as CheckResult),
+            )
             currentInput.lastResult = response.status || null
             if (!currentInput.hadSuccess && response.status === "passing") {
               currentInput.hadSuccess = true

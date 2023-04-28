@@ -406,6 +406,6 @@ oldSpecToBuilder(
     },
   },
   {
-    startSdk: "../",
+    startSdk: "start-sdk/lib",
   },
 )
