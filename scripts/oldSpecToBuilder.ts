@@ -1,17 +1,29 @@
-import camelCase from "lodash/camelCase"
 import * as fs from "fs"
-import { string } from "ts-matches"
 
-export async function writeConvertedFileFromOld(
+export function camelCase(value: string) {
+  return value.replace(
+    /^([A-Z])|[\s-_](\w)/g,
+    function (match, p1, p2, offset) {
+      if (p2) return p2.toUpperCase()
+      return p1.toLowerCase()
+    },
+  )
+}
+
+export async function oldSpecToBuilder(
   file: string,
   inputData: Promise<any> | any,
-  options: Parameters<typeof makeFileContentFromOld>[1],
+  options?: Parameters<typeof makeFileContentFromOld>[1],
 ) {
   await fs.writeFile(
     file,
     await makeFileContentFromOld(inputData, options),
     (err) => console.error(err),
   )
+}
+
+function isString(x: unknown): x is string {
+  return typeof x === "string"
 }
 
 export default async function makeFileContentFromOld(
@@ -145,7 +157,7 @@ export default async function makeFileContentFromOld(
         ])
         const values = Object.fromEntries(
           Array.from(allValueNames)
-            .filter(string.test)
+            .filter(isString)
             .map((key) => [key, value?.spec?.["value-names"]?.[key] || key]),
         )
         return `Value.select(${JSON.stringify(
@@ -264,7 +276,7 @@ export default async function makeFileContentFromOld(
         )
         const values = Object.fromEntries(
           Array.from(allValueNames)
-            .filter(string.test)
+            .filter(isString)
             .map((key: string) => [
               key,
               value?.spec?.["value-names"]?.[key] || key,
@@ -383,3 +395,9 @@ function rangeToTodoComment(range: string | undefined) {
   if (!range) return ""
   return `/* TODO: Convert range for this value (${range})*/`
 }
+
+// oldSpecToBuilder(
+//   "./config.ts",
+//   // Put config here
+//   {},
+// )

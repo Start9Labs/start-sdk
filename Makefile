@@ -10,7 +10,8 @@ lib/test/output.ts: lib/test/makeOutput.ts scripts/oldSpecToBuilder.ts
 	npm run buildOutput
 
 buildOutput: lib/test/output.ts fmt
-	echo 'done'	
+	echo 'done'
+
 
 bundle: clean  $(TS_FILES) package.json .FORCE node_modules test fmt
 	npx tsc

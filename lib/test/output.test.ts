@@ -7,6 +7,7 @@ import {
 import { deepMerge } from "../util"
 import { InputSpec, matchInputSpec } from "./output"
 import * as _I from "../index"
+import { camelCase } from "../../scripts/oldSpecToBuilder"
 
 export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
   ? 1
@@ -125,5 +126,26 @@ describe("Inputs", () => {
         }),
       ),
     ).toThrowError()
+  })
+})
+
+describe("camelCase", () => {
+  test("'EquipmentClass name'", () => {
+    expect(camelCase("EquipmentClass name")).toEqual("equipmentClassName")
+  })
+  test("'Equipment className'", () => {
+    expect(camelCase("Equipment className")).toEqual("equipmentClassName")
+  })
+  test("'equipment class name'", () => {
+    expect(camelCase("equipment class name")).toEqual("equipmentClassName")
+  })
+  test("'Equipment Class Name'", () => {
+    expect(camelCase("Equipment Class Name")).toEqual("equipmentClassName")
+  })
+  test("'hyphen-name-format'", () => {
+    expect(camelCase("hyphen-name-format")).toEqual("hyphenNameFormat")
+  })
+  test("'underscore_name_format'", () => {
+    expect(camelCase("underscore_name_format")).toEqual("underscoreNameFormat")
   })
 })
