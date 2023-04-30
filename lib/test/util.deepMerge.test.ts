@@ -1,3 +1,4 @@
+import { deepEqual } from "../util"
 import { deepMerge } from "../util/deepMerge"
 
 describe("deepMerge", () => {
@@ -11,6 +12,13 @@ describe("deepMerge", () => {
     expect(deepMerge({ a: { b: 1, c: 2 } }, { a: { b: 3 } })).toEqual({
       a: { b: 3, c: 2 },
     })
+  })
+  test("deepMerge({a: {b: 1, c:2}}, {a: {b: 3}}) should equal {a: {b: 3, c: 2}} with deep equal", () => {
+    expect(
+      deepEqual(deepMerge({ a: { b: 1, c: 2 } }, { a: { b: 3 } }), {
+        a: { b: 3, c: 2 },
+      }),
+    ).toBeTruthy()
   })
   test("deepMerge([1,2,3], [2,3,4]) should equal [2,3,4]", () => {
     expect(deepMerge([1, 2, 3], [2, 3, 4])).toEqual([2, 3, 4])
