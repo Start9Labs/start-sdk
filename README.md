@@ -15,5 +15,4 @@
 
 - run the script `npm run buildOutput` to make the output.ts
 - Copy this whole file into startos/procedures/config/spec.ts
-- rename `inputSpec` -> `configSpec` and `InputSpec` -> `ConfigSpec`
 - Fix all the TODO

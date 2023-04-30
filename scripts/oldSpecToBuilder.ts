@@ -38,12 +38,14 @@ export default async function makeFileContentFromOld(
   const data = await inputData
 
   const namedConsts = new Set(["Config", "Value", "List"])
-  const configName = newConst("InputSpec", convertInputSpec(data))
+  const configName = newConst("ConfigSpec", convertInputSpec(data))
   const configMatcherName = newConst(
-    "matchInputSpec",
+    "matchConfigSpec",
     `${configName}.validator()`,
   )
-  outputLines.push(`export type InputSpec = typeof ${configMatcherName}._TYPE;`)
+  outputLines.push(
+    `export type ConfigSpec = typeof ${configMatcherName}._TYPE;`,
+  )
 
   return outputLines.join("\n")
 
