@@ -67,6 +67,54 @@ export class List<Type, WD, ConfigType> {
       }
     }, arrayOf(string))
   }
+  static dynamicText<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        /** Default = [] */
+        default?: string[]
+        minLength?: number | null
+        maxLength?: number | null
+        spec: {
+          /** Default = false */
+          masked?: boolean
+          placeholder?: string | null
+          minLength?: number | null
+          maxLength?: number | null
+          patterns: Pattern[]
+          /** Default = "text" */
+          inputmode?: ListValueSpecText["inputmode"]
+        }
+      }
+    >,
+  ) {
+    return new List<string[], WD, CT>(async (options) => {
+      const { spec: aSpec, ...a } = await getA(options)
+      const spec = {
+        type: "text" as const,
+        placeholder: null,
+        minLength: null,
+        maxLength: null,
+        masked: false,
+        inputmode: "text" as const,
+        ...aSpec,
+      }
+      return {
+        description: null,
+        warning: null,
+        default: [],
+        type: "list" as const,
+        minLength: null,
+        maxLength: null,
+        ...a,
+        spec,
+      }
+    }, arrayOf(string))
+  }
   static number<WD, CT>(
     a: {
       name: string
@@ -87,6 +135,52 @@ export class List<Type, WD, ConfigType> {
     },
   ) {
     return new List<number[], WD, CT>(() => {
+      const spec = {
+        type: "number" as const,
+        placeholder: null,
+        min: null,
+        max: null,
+        step: null,
+        units: null,
+        ...aSpec,
+      }
+      return {
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+        default: [],
+        type: "list" as const,
+        ...a,
+        spec,
+      }
+    }, arrayOf(number))
+  }
+  static dynamicNumber<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        /** Default = [] */
+        default?: string[]
+        minLength?: number | null
+        maxLength?: number | null
+        spec: {
+          integer: boolean
+          min?: number | null
+          max?: number | null
+          step?: string | null
+          units?: string | null
+          placeholder?: string | null
+        }
+      }
+    >,
+  ) {
+    return new List<number[], WD, CT>(async (options) => {
+      const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "number" as const,
         placeholder: null,

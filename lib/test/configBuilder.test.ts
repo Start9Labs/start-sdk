@@ -609,6 +609,45 @@ describe("Builder List", () => {
     validator.unsafeCast(["test", "text"])
     testOutput<typeof validator._TYPE, string[]>()(null)
   })
+  describe("dynamic", () => {
+    test("text", async () => {
+      const value = Value.list(
+        List.dynamicText(() => ({
+          name: "test",
+          spec: { patterns: [] },
+        })),
+      )
+      const validator = value.validator
+      validator.unsafeCast(["test", "text"])
+      expect(() => validator.unsafeCast([3,4])).toThrowError()
+      expect(() => validator.unsafeCast(null)).toThrowError()
+      testOutput<typeof validator._TYPE, string[]>()(null)
+      expect(await value.build({} as any)).toMatchObject({
+        name: "test",
+        spec: { patterns: [] },
+      })
+    })
+  })
+  test("number", async () => {
+    const value = Value.list(
+      List.dynamicNumber(() => ({
+        name: "test",
+        spec: { integer: true },
+      })),
+    )
+    const validator = value.validator
+    expect(() => 
+    validator.unsafeCast(["test", "text"])).toThrowError()
+    validator.unsafeCast([4,2])
+    expect(() => validator.unsafeCast(null)).toThrowError()
+    validator.unsafeCast([])
+    testOutput<typeof validator._TYPE, number[]>()(null)
+    expect(await value.build({} as any)).toMatchObject({
+      name: "test",
+      spec: { integer: true },
+    })
+  })
+})
 })
 
 describe("Nested nullable values", () => {
