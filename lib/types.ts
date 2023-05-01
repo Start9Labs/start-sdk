@@ -418,13 +418,15 @@ export type Effects = {
 export type ExtractWrapperData<WrapperData, Path extends string> = 
   Path extends `/${infer A }/${infer Rest }` ? (A extends keyof WrapperData ? ExtractWrapperData<WrapperData[A], `/${Rest}`> : never) :
   Path extends `/${infer A }` ? (A extends keyof WrapperData ? WrapperData[A] : never) :
+  Path extends '' ? WrapperData :
   never
 
 // prettier-ignore
 type _EnsureWrapperDataPath<WrapperData, Path extends string, Origin extends string> = 
-Path extends `/${infer A }/${infer Rest }` ? (A extends keyof WrapperData ? ExtractWrapperData<WrapperData[A], `/${Rest}`> : never) :
-Path extends `/${infer A }` ? (A extends keyof WrapperData ? Origin : never) :
-never
+  Path extends`/${infer A }/${infer Rest}` ? (WrapperData extends {[K in A & string]: infer NextWrapperData} ? _EnsureWrapperDataPath<NextWrapperData, `/${Rest}`, Origin> : never) :
+  Path extends `/${infer A }`  ? (WrapperData extends {[K in A]: any} ? Origin : never) :
+  Path extends '' ? Origin :
+  never
 // prettier-ignore
 export type EnsureWrapperDataPath<WrapperData, Path extends string> = _EnsureWrapperDataPath<WrapperData, Path, Path>
 

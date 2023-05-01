@@ -3,7 +3,7 @@ import { utils } from "../util"
 
 type WrapperType = {
   config: {
-    someValue: string
+    someValue: "a" | "b"
   }
 }
 const todo = <A>(): A => {
@@ -12,10 +12,16 @@ const todo = <A>(): A => {
 const noop = () => {}
 describe("wrapperData", () => {
   test.skip("types", async () => {
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData("/config", {
+      someValue: "a",
+    })
     utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData(
       "/config/someValue",
-      "someValue",
+      "b",
     )
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData("", {
+      config: { someValue: "b" },
+    })
     utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData(
       "/config/someValue",
 
@@ -30,7 +36,7 @@ describe("wrapperData", () => {
 
     todo<T.Effects>().setWrapperData<WrapperType, "/config/someValue">({
       path: "/config/someValue",
-      value: "someValueIn",
+      value: "b",
     })
     todo<T.Effects>().setWrapperData<WrapperType, "/config/some2Value">({
       //@ts-expect-error Path is wrong
@@ -41,7 +47,7 @@ describe("wrapperData", () => {
     todo<T.Effects>().setWrapperData<WrapperType, "/config/someValue">({
       //@ts-expect-error Path is wrong
       path: "/config/some2Value",
-      value: "someValueIn",
+      value: "a",
     })
     ;(await utils<WrapperType, {}>(todo<T.Effects>())
       .getOwnWrapperData("/config/someValue")
@@ -53,7 +59,17 @@ describe("wrapperData", () => {
       // @ts-expect-error Path is wrong
       .getOwnWrapperData("/config/somdsfeValue")
       .const()
-    ///
+    ///  ----------------- ERRORS -----------------
+
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData("", {
+      // @ts-expect-error Type is wrong for the setting value
+      config: { someValue: "notInAOrB" },
+    })
+    utils<WrapperType>(todo<T.Effects>()).setOwnWrapperData(
+      "/config/someValue",
+      // @ts-expect-error Type is wrong for the setting value
+      "notInAOrB",
+    )
     ;(await utils<WrapperType>(todo<T.Effects>())
       .getOwnWrapperData("/config/someValue")
       // @ts-expect-error Const should normally not be callable
