@@ -7,7 +7,7 @@ import { InterfaceReceipt } from "./interfaceReceipt"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {
   id: "" extends Id ? never : Id
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
-
+  env?: Record<string, string>
   ready: {
     display: string | null
     fn: () => Promise<CheckResult> | CheckResult
@@ -83,7 +83,7 @@ export class Daemons<Ids extends string> {
       daemonsStarted[daemon.id] = requiredPromise.then(async () => {
         const { command } = daemon
 
-        const child = effects.runDaemon(command)
+        const child = effects.runDaemon(command, { env: daemon.env })
         let currentInput: TriggerInput = {}
         const getCurrentInput = () => currentInput
         const trigger = (daemon.ready.trigger ?? defaultTrigger)(

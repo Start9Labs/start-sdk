@@ -211,16 +211,15 @@ export type Effects = {
 
   runCommand<A extends string>(
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
-    input?: {
+    options?: {
       timeoutMillis?: number
     },
   ): Promise<string>
-  runShellDaemon(command: string): {
-    wait(): Promise<string>
-    term(): Promise<void>
-  }
   runDaemon<A extends string>(
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
+    options?: {
+      env?: Record<string, string>
+    },
   ): DaemonReturned
 
   /** Uses the chown on the system */
@@ -232,17 +231,17 @@ export type Effects = {
 
   console: {
     /** Log at the trace level */
-    log(whatToPrint: string): void
+    log(whatToPrint: string): Promise<void>
     /** Log at the trace level */
-    trace(whatToPrint: string): void
+    trace(whatToPrint: string): Promise<void>
     /** Log at the warn level */
-    warn(whatToPrint: string): void
+    warn(whatToPrint: string): Promise<void>
     /** Log at the error level */
-    error(whatToPrint: string): void
+    error(whatToPrint: string): Promise<void>
     /** Log at the debug level */
-    debug(whatToPrint: string): void
+    debug(whatToPrint: string): Promise<void>
     /** Log at the info level */
-    info(whatToPrint: string): void
+    info(whatToPrint: string): Promise<void>
   }
 
   /** Sandbox mode lets us read but not write */
