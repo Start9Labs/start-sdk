@@ -189,10 +189,10 @@ export type DefaultString =
 
 // sometimes the type checker needs just a little bit of help
 export function isValueSpecListOf<S extends ListValueSpecType>(
-  t: ValueSpecListOf<ListValueSpecType>,
+  t: ValueSpec,
   s: S,
 ): t is ValueSpecListOf<S> & { spec: ListValueSpecOf<S> } {
-  return t.spec.type === s
+  return "spec" in t && t.spec.type === s
 }
 export const unionSelectKey = "unionSelectKey" as const
 export type UnionSelectKey = typeof unionSelectKey

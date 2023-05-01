@@ -1,37 +1,38 @@
-import { Parser } from "ts-matches"
 import { Config } from "../config/builder"
 import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
-import { Utils, once, utils } from "../util"
-import { TypeFromProps } from "../util/propertiesMatcher"
-import { InputSpec } from "../config/configTypes"
+import { Utils, utils } from "../util"
 
-export class CreatedAction<WrapperData, Input extends Config<InputSpec>> {
+export class CreatedAction<WrapperData, Type extends Record<string, any>> {
   private constructor(
-    private myMetaData: Omit<ActionMetaData, "input"> & { input: Input },
+    private myMetaData: Omit<ActionMetaData, "input"> & {
+      input: Config<Type, WrapperData, never>
+    },
     readonly fn: (options: {
       effects: Effects
       utils: Utils<WrapperData>
-      input: TypeFromProps<Input>
+      input: Type
     }) => Promise<ActionResult>,
   ) {}
-  private validator = this.myMetaData.input.validator() as Parser<
-    unknown,
-    TypeFromProps<Input>
-  >
-  metaData = {
-    ...this.myMetaData,
-    input: this.myMetaData.input.build(),
-  }
+  private validator = this.myMetaData.input.validator
 
-  static of<WrapperData, Input extends Config<InputSpec>>(
-    metaData: Omit<ActionMetaData, "input"> & { input: Input },
+  static of<
+    WrapperData,
+    Input extends Config<Type, WrapperData, never>,
+    Type extends Record<string, any> = (Input extends Config<any, infer B, any>
+      ? B
+      : never) &
+      Record<string, any>,
+  >(
+    metaData: Omit<ActionMetaData, "input"> & {
+      input: Config<Type, WrapperData, never>
+    },
     fn: (options: {
       effects: Effects
       utils: Utils<WrapperData>
-      input: TypeFromProps<Input>
+      input: Type
     }) => Promise<ActionResult>,
   ) {
-    return new CreatedAction<WrapperData, Input>(metaData, fn)
+    return new CreatedAction<WrapperData, Type>(metaData, fn)
   }
 
   exportedAction: ExportedAction = ({ effects, input }) => {
@@ -43,7 +44,16 @@ export class CreatedAction<WrapperData, Input extends Config<InputSpec>> {
   }
 
   async exportAction(effects: Effects) {
-    await effects.exportAction(this.metaData)
+    const myUtils = utils<WrapperData>(effects)
+    const metaData = {
+      ...this.myMetaData,
+      input: await this.myMetaData.input.build({
+        effects,
+        utils: myUtils,
+        config: null,
+      }),
+    }
+    await effects.exportAction(metaData)
   }
 }
 

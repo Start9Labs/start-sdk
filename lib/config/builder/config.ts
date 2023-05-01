@@ -1,9 +1,20 @@
-import { InputSpec, ValueSpec } from "../configTypes"
-import { typeFromProps } from "../../util"
-import { BuilderExtract, IBuilder } from "./builder"
+import { ValueSpec } from "../configTypes"
+import { Utils } from "../../util"
 import { Value } from "./value"
 import { _ } from "../../util"
+import { Effects } from "../../types"
+import { Parser, object } from "ts-matches"
 
+export type LazyBuildOptions<Manifest, ConfigType> = {
+  effects: Effects
+  utils: Utils<Manifest>
+  config: ConfigType | null
+}
+export type LazyBuild<Manifest, ConfigType, ExpectedOut> = (
+  options: LazyBuildOptions<Manifest, ConfigType>,
+) => Promise<ExpectedOut> | ExpectedOut
+
+export type MaybeLazyValues<A> = LazyBuild<any, any, A> | A
 /**
  * Configs are the specs that are used by the os configuration form for this service.
  * Here is an example of a simple configuration
@@ -60,44 +71,33 @@ export const addNodesSpec = Config.of({ hostname: hostname, port: port });
 
   ```
  */
-export class Config<A extends InputSpec> extends IBuilder<A> {
-  static empty() {
-    return new Config({})
-  }
-  static withValue<K extends string, B extends ValueSpec>(
-    key: K,
-    value: Value<B>,
-  ) {
-    return Config.empty().withValue(key, value)
-  }
-  static addValue<K extends string, B extends ValueSpec>(
-    key: K,
-    value: Value<B>,
-  ) {
-    return Config.empty().withValue(key, value)
-  }
-
-  static of<B extends { [key: string]: Value<ValueSpec> }>(spec: B) {
-    const answer: { [K in keyof B]: BuilderExtract<B[K]> } = {} as any
-    for (const key in spec) {
-      answer[key] = spec[key].build() as any
+export class Config<Type extends Record<string, any>, WD, ConfigType> {
+  private constructor(
+    private readonly spec: {
+      [K in keyof Type]: Value<Type[K], WD, ConfigType>
+    },
+    public validator: Parser<unknown, Type>,
+  ) {}
+  async build(options: LazyBuildOptions<WD, ConfigType>) {
+    const answer = {} as {
+      [K in keyof Type]: ValueSpec
     }
-    return new Config(answer)
-  }
-  withValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
-    return new Config({
-      ...this.a,
-      [key]: value.build(),
-    } as A & { [key in K]: B })
-  }
-  addValue<K extends string, B extends ValueSpec>(key: K, value: Value<B>) {
-    return new Config({
-      ...this.a,
-      [key]: value.build(),
-    } as A & { [key in K]: B })
+    for (const k in this.spec) {
+      answer[k] = await this.spec[k].build(options)
+    }
+    return answer
   }
 
-  public validator() {
-    return typeFromProps(this.a)
+  static of<Type extends Record<string, any>, Manifest, ConfigType>(spec: {
+    [K in keyof Type]: Value<Type[K], Manifest, ConfigType>
+  }) {
+    const validatorObj = {} as {
+      [K in keyof Type]: Parser<unknown, Type[K]>
+    }
+    for (const key in spec) {
+      validatorObj[key] = spec[key].validator
+    }
+    const validator = object(validatorObj)
+    return new Config<Type, Manifest, ConfigType>(spec, validator)
   }
 }

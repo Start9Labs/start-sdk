@@ -10,7 +10,7 @@ export class NetworkInterfaceBuilder {
       id: string
       description: string
       ui: boolean
-      basic?: null | { password: string; username: string }
+      basic?: null | { password: null | string; username: string }
       path?: string
       search?: Record<string, string>
     },

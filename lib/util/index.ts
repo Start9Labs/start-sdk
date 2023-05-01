@@ -11,7 +11,6 @@ import {
 import { LocalBinding, LocalPort, NetworkBuilder, TorHostname } from "../mainFn"
 import { ExtractWrapperData } from "../types"
 
-export { guardAll, typeFromProps } from "./propertiesMatcher"
 export { default as nullIfEmpty } from "./nullIfEmpty"
 export { FileHelper } from "./fileHelper"
 export { getWrapperData } from "./getWrapperData"

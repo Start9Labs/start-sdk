@@ -15,10 +15,7 @@ export namespace ExpectedExports {
     input: Record<string, unknown>
   }) => Promise<void>
   /** Get configuration returns a shape that describes the format that the start9 ui will generate, and later send to the set config  */
-  export type getConfig = (options: {
-    effects: Effects
-    config: unknown
-  }) => Promise<ConfigRes>
+  export type getConfig = (options: { effects: Effects }) => Promise<ConfigRes>
   // /** These are how we make sure the our dependency configurations are valid and if not how to fix them. */
   // export type dependencies = Dependencies;
   /** For backing up service data though the startOS UI */
@@ -407,7 +404,7 @@ never
 // prettier-ignore
 export type EnsureWrapperDataPath<WrapperData, Path extends string> = _EnsureWrapperDataPath<WrapperData, Path, Path>
 
-/* rsync options: https://linux.die.net/man/1/rsync
+/** rsync options: https://linux.die.net/man/1/rsync
  */
 export type BackupOptions = {
   delete: boolean

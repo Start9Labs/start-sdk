@@ -1,22 +1,28 @@
-import { BuilderExtract, IBuilder } from "./builder"
-import { Config } from "./config"
+import { Config, LazyBuild } from "./config"
 import { List } from "./list"
 import { Variants } from "./variants"
 import {
-  InputSpec,
   Pattern,
   ValueSpec,
-  ValueSpecColor,
   ValueSpecDatetime,
-  ValueSpecList,
-  ValueSpecNumber,
-  ValueSpecSelect,
   ValueSpecText,
   ValueSpecTextarea,
 } from "../configTypes"
-import { guardAll } from "../../util"
+import { once } from "../../util"
 import { DefaultString } from "../configTypes"
 import { _ } from "../../util"
+import {
+  Parser,
+  anyOf,
+  arrayOf,
+  boolean,
+  literal,
+  literals,
+  number,
+  object,
+  string,
+  unknown,
+} from "ts-matches"
 
 type RequiredDefault<A> =
   | false
@@ -40,6 +46,30 @@ function requiredLikeToAbove<Input extends RequiredDefault<A>, A>(
     )
   };
 }
+type AsRequired<Type, MaybeRequiredType> = MaybeRequiredType extends
+  | { default: unknown }
+  | never
+  ? Type
+  : Type | null | undefined
+
+type InputAsRequired<A, Type> = A extends
+  | { required: { default: any } | never }
+  | never
+  ? Type
+  : Type | null | undefined
+const testForAsRequiredParser = once(
+  () => object({ required: object({ default: unknown }) }).test,
+)
+function asRequiredParser<
+  Type,
+  Input,
+  Return extends
+    | Parser<unknown, Type>
+    | Parser<unknown, Type | null | undefined>,
+>(parser: Parser<unknown, Type>, input: Input): Return {
+  if (testForAsRequiredParser()(input)) return parser as any
+  return parser.optional() as any
+}
 /**
  * A value is going to be part of the form in the FE of the OS.
  * Something like a boolean, a string, a number, etc.
@@ -62,22 +92,29 @@ const username = Value.string({
 });
  ```
  */
-export class Value<A extends ValueSpec> extends IBuilder<A> {
-  static toggle(a: {
+export class Value<Type, WD, ConfigType> {
+  private constructor(
+    public build: LazyBuild<WD, ConfigType, ValueSpec>,
+    public validator: Parser<unknown, Type>,
+  ) {}
+  static toggle<WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
     default?: boolean | null
   }) {
-    return new Value({
-      description: null,
-      warning: null,
-      default: null,
-      type: "toggle" as const,
-      ...a,
-    })
+    return new Value<boolean, WD, CT>(
+      async () => ({
+        description: null,
+        warning: null,
+        default: null,
+        type: "toggle" as const,
+        ...a,
+      }),
+      boolean,
+    )
   }
-  static text<Required extends RequiredDefault<DefaultString>>(a: {
+  static text<Required extends RequiredDefault<DefaultString>, WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -92,21 +129,24 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     /** Default = 'text' */
     inputmode?: ValueSpecText["inputmode"]
   }) {
-    return new Value({
-      type: "text" as const,
-      description: null,
-      warning: null,
-      masked: false,
-      placeholder: null,
-      minLength: null,
-      maxLength: null,
-      patterns: [],
-      inputmode: "text",
-      ...a,
-      ...requiredLikeToAbove(a.required),
-    })
+    return new Value<AsRequired<string, Required>, WD, CT>(
+      async () => ({
+        type: "text" as const,
+        description: null,
+        warning: null,
+        masked: false,
+        placeholder: null,
+        minLength: null,
+        maxLength: null,
+        patterns: [],
+        inputmode: "text",
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(string, a),
+    )
   }
-  static textarea(a: {
+  static textarea<WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -115,17 +155,21 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     maxLength?: number | null
     placeholder?: string | null
   }) {
-    return new Value({
-      description: null,
-      warning: null,
-      minLength: null,
-      maxLength: null,
-      placeholder: null,
-      type: "textarea" as const,
-      ...a,
-    } as ValueSpecTextarea)
+    return new Value<string, WD, CT>(
+      async () =>
+        ({
+          description: null,
+          warning: null,
+          minLength: null,
+          maxLength: null,
+          placeholder: null,
+          type: "textarea" as const,
+          ...a,
+        } satisfies ValueSpecTextarea),
+      string,
+    )
   }
-  static number<Required extends RequiredDefault<number>>(a: {
+  static number<Required extends RequiredDefault<number>, WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -138,34 +182,41 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     units?: string | null
     placeholder?: string | null
   }) {
-    return new Value({
-      type: "number" as const,
-      description: null,
-      warning: null,
-      min: null,
-      max: null,
-      step: null,
-      units: null,
-      placeholder: null,
-      ...a,
-      ...requiredLikeToAbove(a.required),
-    })
+    return new Value<AsRequired<number, Required>, WD, CT>(
+      () => ({
+        type: "number" as const,
+        description: null,
+        warning: null,
+        min: null,
+        max: null,
+        step: null,
+        units: null,
+        placeholder: null,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(number, a),
+    )
   }
-  static color<Required extends RequiredDefault<string>>(a: {
+  static color<Required extends RequiredDefault<string>, WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
     required: Required
   }) {
-    return new Value({
-      type: "color" as const,
-      description: null,
-      warning: null,
-      ...a,
-      ...requiredLikeToAbove(a.required),
-    })
+    return new Value<AsRequired<string, Required>, WD, CT>(
+      () => ({
+        type: "color" as const,
+        description: null,
+        warning: null,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }),
+
+      asRequiredParser(string, a),
+    )
   }
-  static datetime<Required extends RequiredDefault<string>>(a: {
+  static datetime<Required extends RequiredDefault<string>, WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -176,21 +227,26 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     max?: string | null
     step?: string | null
   }) {
-    return new Value({
-      type: "datetime" as const,
-      description: null,
-      warning: null,
-      inputmode: "datetime-local",
-      min: null,
-      max: null,
-      step: null,
-      ...a,
-      ...requiredLikeToAbove(a.required),
-    })
+    return new Value<AsRequired<string, Required>, WD, CT>(
+      () => ({
+        type: "datetime" as const,
+        description: null,
+        warning: null,
+        inputmode: "datetime-local",
+        min: null,
+        max: null,
+        step: null,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(string, a),
+    )
   }
   static select<
     Required extends RequiredDefault<string>,
     B extends Record<string, string>,
+    WD,
+    CT,
   >(a: {
     name: string
     description?: string | null
@@ -198,15 +254,23 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     required: Required
     values: B
   }) {
-    return new Value({
-      description: null,
-      warning: null,
-      type: "select" as const,
-      ...a,
-      ...requiredLikeToAbove(a.required),
-    })
+    return new Value<AsRequired<keyof B, Required>, WD, CT>(
+      () => ({
+        description: null,
+        warning: null,
+        type: "select" as const,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(
+        anyOf(
+          ...Object.keys(a.values).map((x: keyof B & string) => literal(x)),
+        ),
+        a,
+      ) as any,
+    )
   }
-  static multiselect<Values extends Record<string, string>>(a: {
+  static multiselect<Values extends Record<string, string>, WD, CT>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -215,35 +279,44 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
     minLength?: number | null
     maxLength?: number | null
   }) {
-    return new Value({
-      type: "multiselect" as const,
-      minLength: null,
-      maxLength: null,
-      warning: null,
-      description: null,
-      ...a,
-    })
+    return new Value<(keyof Values)[], WD, CT>(
+      () => ({
+        type: "multiselect" as const,
+        minLength: null,
+        maxLength: null,
+        warning: null,
+        description: null,
+        ...a,
+      }),
+      arrayOf(
+        literals(...(Object.keys(a.values) as any as [keyof Values & string])),
+      ),
+    )
   }
-  static object<Spec extends Config<InputSpec>>(
+  static object<Type extends Record<string, any>, WrapperData, ConfigType>(
     a: {
       name: string
       description?: string | null
       warning?: string | null
     },
-    previousSpec: Spec,
+    previousSpec: Config<Type, WrapperData, ConfigType>,
   ) {
-    const spec = previousSpec.build() as BuilderExtract<Spec>
-    return new Value({
-      type: "object" as const,
-      description: null,
-      warning: null,
-      ...a,
-      spec,
-    })
+    return new Value<Type, WrapperData, ConfigType>(async (options) => {
+      const spec = await previousSpec.build(options as any)
+      return {
+        type: "object" as const,
+        description: null,
+        warning: null,
+        ...a,
+        spec,
+      }
+    }, previousSpec.validator)
   }
   static union<
     Required extends RequiredDefault<string>,
-    V extends Variants<{ [key: string]: { name: string; spec: InputSpec } }>,
+    Type,
+    WrapperData,
+    ConfigType,
   >(
     a: {
       name: string
@@ -252,23 +325,28 @@ export class Value<A extends ValueSpec> extends IBuilder<A> {
       required: Required
       default?: string | null
     },
-    aVariants: V,
+    aVariants: Variants<Type, WrapperData, ConfigType>,
   ) {
-    const variants = aVariants.build() as BuilderExtract<V>
-    return new Value({
-      type: "union" as const,
-      description: null,
-      warning: null,
-      ...a,
-      variants,
-      ...requiredLikeToAbove(a.required),
-    })
+    return new Value<AsRequired<Type, Required>, WrapperData, ConfigType>(
+      async (options) => ({
+        type: "union" as const,
+        description: null,
+        warning: null,
+        ...a,
+        variants: await aVariants.build(options as any),
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(aVariants.validator, a),
+    )
   }
 
-  static list<A extends ValueSpecList>(a: List<A>) {
-    return new Value(a.build())
-  }
-  public validator() {
-    return guardAll(this.a)
+  static list<Type, WrapperData, ConfigType>(
+    a: List<Type, WrapperData, ConfigType>,
+  ) {
+    /// TODO
+    return new Value<Type, WrapperData, ConfigType>(
+      (options) => a.build(options),
+      a.validator,
+    )
   }
 }

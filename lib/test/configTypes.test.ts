@@ -4,11 +4,14 @@ import { List } from "../config/builder/list"
 import { Value } from "../config/builder/value"
 
 describe("Config Types", () => {
-  test("isValueSpecListOf", () => {
+  test("isValueSpecListOf", async () => {
     const options = [List.obj, List.text, List.number]
     for (const option of options) {
-      const test = option({} as any, { spec: Config.of({}) } as any) as any
-      const someList = Value.list(test).build()
+      const test = (option as any)(
+        {} as any,
+        { spec: Config.of({}) } as any,
+      ) as any
+      const someList = await Value.list(test).build({} as any)
       if (isValueSpecListOf(someList, "text")) {
         someList.spec satisfies ListValueSpecOf<"text">
       } else if (isValueSpecListOf(someList, "number")) {

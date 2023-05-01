@@ -1,13 +1,11 @@
-import { BuilderExtract, IBuilder } from "./builder"
-import { Config } from "./config"
+import { Config, LazyBuild } from "./config"
 import {
-  InputSpec,
   ListValueSpecText,
   Pattern,
   UniqueBy,
   ValueSpecList,
 } from "../configTypes"
-import { guardAll } from "../../util"
+import { Parser, arrayOf, number, string } from "ts-matches"
 /**
  * Used as a subtype of Value.list
 ```ts
@@ -21,8 +19,12 @@ export const authorizationList = List.string({
 export const auth = Value.list(authorizationList);
 ```
 */
-export class List<A extends ValueSpecList> extends IBuilder<A> {
-  static text(
+export class List<Type, WD, ConfigType> {
+  private constructor(
+    public build: LazyBuild<WD, ConfigType, ValueSpecList>,
+    public validator: Parser<unknown, Type>,
+  ) {}
+  static text<WD, CT>(
     a: {
       name: string
       description?: string | null
@@ -43,27 +45,29 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       inputmode?: ListValueSpecText["inputmode"]
     },
   ) {
-    const spec = {
-      type: "text" as const,
-      placeholder: null,
-      minLength: null,
-      maxLength: null,
-      masked: false,
-      inputmode: "text" as const,
-      ...aSpec,
-    }
-    return new List({
-      description: null,
-      warning: null,
-      default: [],
-      type: "list" as const,
-      minLength: null,
-      maxLength: null,
-      ...a,
-      spec,
-    })
+    return new List<string[], WD, CT>(() => {
+      const spec = {
+        type: "text" as const,
+        placeholder: null,
+        minLength: null,
+        maxLength: null,
+        masked: false,
+        inputmode: "text" as const,
+        ...aSpec,
+      }
+      return {
+        description: null,
+        warning: null,
+        default: [],
+        type: "list" as const,
+        minLength: null,
+        maxLength: null,
+        ...a,
+        spec,
+      }
+    }, arrayOf(string))
   }
-  static number(
+  static number<WD, CT>(
     a: {
       name: string
       description?: string | null
@@ -82,27 +86,29 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       placeholder?: string | null
     },
   ) {
-    const spec = {
-      type: "number" as const,
-      placeholder: null,
-      min: null,
-      max: null,
-      step: null,
-      units: null,
-      ...aSpec,
-    }
-    return new List({
-      description: null,
-      warning: null,
-      minLength: null,
-      maxLength: null,
-      default: [],
-      type: "list" as const,
-      ...a,
-      spec,
-    })
+    return new List<number[], WD, CT>(() => {
+      const spec = {
+        type: "number" as const,
+        placeholder: null,
+        min: null,
+        max: null,
+        step: null,
+        units: null,
+        ...aSpec,
+      }
+      return {
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+        default: [],
+        type: "list" as const,
+        ...a,
+        spec,
+      }
+    }, arrayOf(number))
   }
-  static obj<Spec extends Config<InputSpec>>(
+  static obj<Type extends Record<string, any>, WrapperData, ConfigType>(
     a: {
       name: string
       description?: string | null
@@ -113,36 +119,34 @@ export class List<A extends ValueSpecList> extends IBuilder<A> {
       maxLength?: number | null
     },
     aSpec: {
-      spec: Spec
+      spec: Config<Type, WrapperData, ConfigType>
       displayAs?: null | string
       uniqueBy?: null | UniqueBy
     },
   ) {
-    const { spec: previousSpecSpec, ...restSpec } = aSpec
-    const specSpec = previousSpecSpec.build() as BuilderExtract<Spec>
-    const spec = {
-      type: "object" as const,
-      displayAs: null,
-      uniqueBy: null,
-      ...restSpec,
-      spec: specSpec,
-    }
-    const value = {
-      spec,
-      default: [],
-      ...a,
-    }
-    return new List({
-      description: null,
-      warning: null,
-      minLength: null,
-      maxLength: null,
-      type: "list" as const,
-      ...value,
-    })
-  }
-
-  public validator() {
-    return guardAll(this.a)
+    return new List<Type[], WrapperData, ConfigType>(async (options) => {
+      const { spec: previousSpecSpec, ...restSpec } = aSpec
+      const specSpec = await previousSpecSpec.build(options)
+      const spec = {
+        type: "object" as const,
+        displayAs: null,
+        uniqueBy: null,
+        ...restSpec,
+        spec: specSpec,
+      }
+      const value = {
+        spec,
+        default: [],
+        ...a,
+      }
+      return {
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+        type: "list" as const,
+        ...value,
+      }
+    }, arrayOf(aSpec.spec.validator))
   }
 }

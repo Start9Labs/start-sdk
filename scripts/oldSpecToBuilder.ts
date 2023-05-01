@@ -29,29 +29,40 @@ function isString(x: unknown): x is string {
 
 export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
-  { startSdk = "start-sdk", nested = true } = {},
+  {
+    startSdk = "start-sdk",
+    nested = true,
+    wrapperData = "../../wrapperData",
+  } = {},
 ) {
   const outputLines: string[] = []
   outputLines.push(`
-  import {Config, Value, List, Variants} from '${startSdk}/config/builder'
+  import {Config, Value, List, Variants} from '${startSdk}/lib/config/builder'
+  import {WrapperData} from '${wrapperData}'
 `)
   const data = await inputData
 
   const namedConsts = new Set(["Config", "Value", "List"])
-  const configName = newConst("ConfigSpec", convertInputSpec(data))
+  const configNameRaw = newConst("configSpecRaw", convertInputSpec(data))
   const configMatcherName = newConst(
     "matchConfigSpec",
-    `${configName}.validator()`,
+    `${configNameRaw}.validator`,
   )
   outputLines.push(
     `export type ConfigSpec = typeof ${configMatcherName}._TYPE;`,
   )
+  const configName = newConst(
+    "ConfigSpec",
+    `${configNameRaw} as Config<ConfigSpec, WrapperData, ConfigSpec>`,
+  )
 
   return outputLines.join("\n")
 
-  function newConst(key: string, data: string) {
+  function newConst(key: string, data: string, type?: string) {
     const variableName = getNextConstName(camelCase(key))
-    outputLines.push(`export const ${variableName} = ${data};`)
+    outputLines.push(
+      `export const ${variableName}${!type ? "" : `: ${type}`} = ${data};`,
+    )
     return variableName
   }
   function maybeNewConst(key: string, data: string) {

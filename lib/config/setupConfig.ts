@@ -2,7 +2,6 @@ import { Config } from "./builder"
 import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types"
 import { InputSpec } from "./configTypes"
 import { Utils, nullIfEmpty, once, utils } from "../util"
-import { TypeFromProps } from "../util/propertiesMatcher"
 import { GenericManifest } from "../manifest/ManifestTypes"
 import * as D from "./dependencies"
 
@@ -30,18 +29,18 @@ export type Read<WD, A> = (options: {
  */
 export function setupConfig<
   WD,
-  A extends Config<InputSpec>,
+  Type extends Record<string, any>,
   Manifest extends GenericManifest,
 >(
-  spec: A,
-  write: Save<WD, TypeFromProps<A>, Manifest>,
-  read: Read<WD, TypeFromProps<A>>,
+  spec: Config<Type, WD, Type>,
+  write: Save<WD, Type, Manifest>,
+  read: Read<WD, Type>,
 ) {
-  const validator = once(() => spec.validator())
+  const validator = spec.validator
   return {
     setConfig: (async ({ effects, input }) => {
-      if (!validator().test(input)) {
-        await effects.console.error(String(validator().errorMessage(input)))
+      if (!validator.test(input)) {
+        await effects.console.error(String(validator.errorMessage(input)))
         return { error: "Set config type error for config" }
       }
       await write({
@@ -51,12 +50,18 @@ export function setupConfig<
         dependencies: D.dependenciesSet<Manifest>(),
       })
     }) as ExpectedExports.setConfig,
-    getConfig: (async ({ effects, config }) => {
+    getConfig: (async ({ effects }) => {
+      const myUtils = utils<WD>(effects)
+      const configValue = nullIfEmpty(
+        (await read({ effects, utils: myUtils })) || null,
+      )
       return {
-        spec: spec.build(),
-        config: nullIfEmpty(
-          (await read({ effects, utils: utils<WD>(effects) })) || null,
-        ),
+        spec: await spec.build({
+          effects,
+          utils: myUtils,
+          config: configValue,
+        }),
+        config: configValue,
       }
     }) as ExpectedExports.getConfig,
   }

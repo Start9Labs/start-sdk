@@ -1,6 +1,7 @@
-import { InputSpec } from "../configTypes"
-import { BuilderExtract, IBuilder } from "./builder"
+import { InputSpec, ValueSpecUnion } from "../configTypes"
 import { Config } from "."
+import { LazyBuild } from "./config"
+import { Parser, anyOf, literals, object } from "ts-matches"
 
 /**
  * Used in the the Value.select { @link './value.ts' }
@@ -51,46 +52,55 @@ export const pruning = Value.union(
 );
 ```
  */
-export class Variants<
-  A extends {
-    [key: string]: {
-      name: string
-      spec: InputSpec
-    }
-  },
-> extends IBuilder<A> {
+export class Variants<Type, WD, ConfigType> {
+  private constructor(
+    public build: LazyBuild<WD, ConfigType, ValueSpecUnion["variants"]>,
+    public validator: Parser<unknown, Type>,
+  ) {}
+  // A extends {
+  //   [key: string]: {
+  //     name: string
+  //     spec: InputSpec
+  //   }
+  // },
   static of<
-    A extends {
-      [key: string]: { name: string; spec: Config<InputSpec> }
-    },
-  >(a: A) {
-    const variants: {
-      [K in keyof A]: { name: string; spec: BuilderExtract<A[K]["spec"]> }
-    } = {} as any
-    for (const key in a) {
-      const value = a[key]
-      variants[key] = {
-        name: value.name,
-        spec: value.spec.build() as any,
-      }
+    TypeMap extends Record<string, Record<string, any>>,
+    WrapperData,
+    ConfigType,
+  >(a: {
+    [K in keyof TypeMap]: {
+      name: string
+      spec: Config<TypeMap[K], WrapperData, ConfigType>
     }
-    return new Variants(variants)
-  }
+  }) {
+    type TypeOut = {
+      [K in keyof TypeMap & string]: {
+        unionSelectKey: K
+        unionValueKey: TypeMap[K]
+      }
+    }[keyof TypeMap & string]
 
-  static empty() {
-    return Variants.of({})
-  }
-  static withVariant<K extends string, B extends InputSpec>(
-    key: K,
-    value: Config<B>,
-  ) {
-    return Variants.empty().withVariant(key, value)
-  }
+    const validator = anyOf(
+      ...Object.entries(a).map(([name, { spec }]) =>
+        object({
+          unionSelectKey: literals(name),
+          unionValueKey: spec.validator,
+        }),
+      ),
+    ) as Parser<unknown, TypeOut>
 
-  withVariant<K extends string, B extends InputSpec>(key: K, value: Config<B>) {
-    return new Variants({
-      ...this.a,
-      [key]: value.build(),
-    } as A & { [key in K]: B })
+    return new Variants<TypeOut, WrapperData, ConfigType>(async (options) => {
+      const variants = {} as {
+        [K in keyof TypeMap]: { name: string; spec: InputSpec }
+      }
+      for (const key in a) {
+        const value = a[key]
+        variants[key] = {
+          name: value.name,
+          spec: await value.spec.build(options),
+        }
+      }
+      return variants
+    }, validator)
   }
 }
