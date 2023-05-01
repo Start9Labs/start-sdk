@@ -1,4 +1,4 @@
-import { Config, LazyBuild } from "./config"
+import { Config, LazyBuild, LazyBuildOptions } from "./config"
 import { List } from "./list"
 import { Variants } from "./variants"
 import {
@@ -70,6 +70,7 @@ function asRequiredParser<
   if (testForAsRequiredParser()(input)) return parser as any
   return parser.optional() as any
 }
+
 /**
  * A value is going to be part of the form in the FE of the OS.
  * Something like a boolean, a string, a number, etc.
@@ -114,6 +115,29 @@ export class Value<Type, WD, ConfigType> {
       boolean,
     )
   }
+  static dynamicToggle<WD, CT>(
+    a: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        default?: boolean | null
+      }
+    >,
+  ) {
+    return new Value<boolean, WD, CT>(
+      async (options) => ({
+        description: null,
+        warning: null,
+        default: null,
+        type: "toggle" as const,
+        ...(await a(options)),
+      }),
+      boolean,
+    )
+  }
   static text<Required extends RequiredDefault<DefaultString>, WD, CT>(a: {
     name: string
     description?: string | null
@@ -146,6 +170,44 @@ export class Value<Type, WD, ConfigType> {
       asRequiredParser(string, a),
     )
   }
+  static dynamicText<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: RequiredDefault<DefaultString>
+
+        /** Default = false */
+        masked?: boolean
+        placeholder?: string | null
+        minLength?: number | null
+        maxLength?: number | null
+        patterns?: Pattern[]
+        /** Default = 'text' */
+        inputmode?: ValueSpecText["inputmode"]
+      }
+    >,
+  ) {
+    return new Value<string | null | undefined, WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        type: "text" as const,
+        description: null,
+        warning: null,
+        masked: false,
+        placeholder: null,
+        minLength: null,
+        maxLength: null,
+        patterns: [],
+        inputmode: "text",
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }
+    }, string.optional())
+  }
   static textarea<WD, CT>(a: {
     name: string
     description?: string | null
@@ -168,6 +230,34 @@ export class Value<Type, WD, ConfigType> {
         } satisfies ValueSpecTextarea),
       string,
     )
+  }
+  static dynamicTextarea<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: boolean
+        minLength?: number | null
+        maxLength?: number | null
+        placeholder?: string | null
+      }
+    >,
+  ) {
+    return new Value<string, WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+        placeholder: null,
+        type: "textarea" as const,
+        ...a,
+      }
+    }, string)
   }
   static number<Required extends RequiredDefault<number>, WD, CT>(a: {
     name: string
@@ -198,6 +288,41 @@ export class Value<Type, WD, ConfigType> {
       asRequiredParser(number, a),
     )
   }
+  static dynamicNumber<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: RequiredDefault<number>
+        min?: number | null
+        max?: number | null
+        /** Default = '1' */
+        step?: string | null
+        integer: boolean
+        units?: string | null
+        placeholder?: string | null
+      }
+    >,
+  ) {
+    return new Value<number | null | undefined, WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        type: "number" as const,
+        description: null,
+        warning: null,
+        min: null,
+        max: null,
+        step: null,
+        units: null,
+        placeholder: null,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }
+    }, number.optional())
+  }
   static color<Required extends RequiredDefault<string>, WD, CT>(a: {
     name: string
     description?: string | null
@@ -215,6 +340,30 @@ export class Value<Type, WD, ConfigType> {
 
       asRequiredParser(string, a),
     )
+  }
+
+  static dynamicColor<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: RequiredDefault<string>
+      }
+    >,
+  ) {
+    return new Value<string | null | undefined, WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        type: "color" as const,
+        description: null,
+        warning: null,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }
+    }, string.optional())
   }
   static datetime<Required extends RequiredDefault<string>, WD, CT>(a: {
     name: string
@@ -241,6 +390,38 @@ export class Value<Type, WD, ConfigType> {
       }),
       asRequiredParser(string, a),
     )
+  }
+  static dynamicDatetime<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: RequiredDefault<string>
+        /** Default = 'datetime-local' */
+        inputmode?: ValueSpecDatetime["inputmode"]
+        min?: string | null
+        max?: string | null
+        step?: string | null
+      }
+    >,
+  ) {
+    return new Value<string | null | undefined, WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        type: "datetime" as const,
+        description: null,
+        warning: null,
+        inputmode: "datetime-local",
+        min: null,
+        max: null,
+        step: null,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }
+    }, string.optional())
   }
   static select<
     Required extends RequiredDefault<string>,
@@ -270,6 +451,30 @@ export class Value<Type, WD, ConfigType> {
       ) as any,
     )
   }
+  static dynamicSelect<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: RequiredDefault<string>
+        values: Record<string, string>
+      }
+    >,
+  ) {
+    return new Value<string | null | undefined, WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        description: null,
+        warning: null,
+        type: "select" as const,
+        ...a,
+        ...requiredLikeToAbove(a.required),
+      }
+    }, string.optional())
+  }
   static multiselect<Values extends Record<string, string>, WD, CT>(a: {
     name: string
     description?: string | null
@@ -293,6 +498,33 @@ export class Value<Type, WD, ConfigType> {
       ),
     )
   }
+  static dynamicMultiselect<WD, CT>(
+    getA: LazyBuild<
+      WD,
+      CT,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        default: string[]
+        values: Record<string, string>
+        minLength?: number | null
+        maxLength?: number | null
+      }
+    >,
+  ) {
+    return new Value<string[], WD, CT>(async (options) => {
+      const a = await getA(options)
+      return {
+        type: "multiselect" as const,
+        minLength: null,
+        maxLength: null,
+        warning: null,
+        description: null,
+        ...a,
+      }
+    }, arrayOf(string))
+  }
   static object<Type extends Record<string, any>, WrapperData, ConfigType>(
     a: {
       name: string
@@ -313,6 +545,33 @@ export class Value<Type, WD, ConfigType> {
     }, previousSpec.validator)
   }
   static union<
+    Required extends RequiredDefault<string>,
+    Type,
+    WrapperData,
+    ConfigType,
+  >(
+    a: {
+      name: string
+      description?: string | null
+      warning?: string | null
+      required: Required
+      default?: string | null
+    },
+    aVariants: Variants<Type, WrapperData, ConfigType>,
+  ) {
+    return new Value<AsRequired<Type, Required>, WrapperData, ConfigType>(
+      async (options) => ({
+        type: "union" as const,
+        description: null,
+        warning: null,
+        ...a,
+        variants: await aVariants.build(options as any),
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(aVariants.validator, a),
+    )
+  }
+  static filteredUnion<
     Required extends RequiredDefault<string>,
     Type,
     WrapperData,

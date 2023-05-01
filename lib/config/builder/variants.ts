@@ -103,4 +103,23 @@ export class Variants<Type, WD, ConfigType> {
       return variants
     }, validator)
   }
+
+  /** Danger, don't filter everything!! */
+  disableVariants(
+    fn: LazyBuild<
+      WD,
+      ConfigType,
+      Array<Type extends { unionSelectKey: infer B } ? B : never>
+    >,
+  ) {
+    const previousMe = this
+    return new Variants<Type, WD, ConfigType>(async (options) => {
+      const answer = { ...(await previousMe.build(options)) }
+      const filterValues = await fn(options)
+      for (const key of filterValues) {
+        delete answer[key as any]
+      }
+      return answer
+    }, this.validator)
+  }
 }

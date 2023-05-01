@@ -189,7 +189,7 @@ describe("values", () => {
     const validator = value.validator
     validator.unsafeCast("a")
     validator.unsafeCast("b")
-    expect(() => validator.unsafeCast(null)).toThrowError()
+    expect(() => validator.unsafeCast("c")).toThrowError()
     testOutput<typeof validator._TYPE, "a" | "b">()(null)
   })
   test("nullable select", async () => {
@@ -294,6 +294,280 @@ describe("values", () => {
     const validator = value.validator
     validator.unsafeCast([1, 2, 3])
     testOutput<typeof validator._TYPE, number[]>()(null)
+  })
+
+  describe("dynamic", () => {
+    const fakeOptions = {
+      config: "config",
+      effects: "effects",
+      utils: "utils",
+    } as any
+    test("toggle", async () => {
+      const value = Value.dynamicToggle<{}, {}>(async () => ({
+        name: "Testing",
+        description: null,
+        warning: null,
+        default: null,
+      }))
+      const validator = value.validator
+      validator.unsafeCast(false)
+      expect(() => validator.unsafeCast(null)).toThrowError()
+      testOutput<typeof validator._TYPE, boolean>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        description: null,
+        warning: null,
+        default: null,
+      })
+    })
+    test("text", async () => {
+      const value = Value.dynamicText(async () => ({
+        name: "Testing",
+        required: { default: null },
+      }))
+      const validator = value.validator
+      const rawIs = await value.build({} as any)
+      validator.unsafeCast("test text")
+      validator.unsafeCast(null)
+      testOutput<typeof validator._TYPE, string | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: true,
+        default: null,
+      })
+    })
+    test("text", async () => {
+      const value = Value.dynamicText(async () => ({
+        name: "Testing",
+        required: { default: "null" },
+      }))
+      const validator = value.validator
+      validator.unsafeCast("test text")
+      validator.unsafeCast(null)
+      testOutput<typeof validator._TYPE, string | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: true,
+        default: "null",
+      })
+    })
+    test("optional text", async () => {
+      const value = Value.dynamicText(async () => ({
+        name: "Testing",
+        required: false,
+      }))
+      const validator = value.validator
+      const rawIs = await value.build({} as any)
+      validator.unsafeCast("test text")
+      validator.unsafeCast(null)
+      testOutput<typeof validator._TYPE, string | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: false,
+        default: null,
+      })
+    })
+    test("color", async () => {
+      const value = Value.dynamicColor<null, null>(async () => ({
+        name: "Testing",
+        required: false,
+        description: null,
+        warning: null,
+      }))
+      const validator = value.validator
+      validator.unsafeCast("#000000")
+      validator.unsafeCast(null)
+      testOutput<typeof validator._TYPE, string | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: false,
+        default: null,
+        description: null,
+        warning: null,
+      })
+    })
+    test("datetime", async () => {
+      const value = Value.dynamicDatetime<{ test: "a" }, { test2: 6 }>(
+        async ({ effects, utils, config }) => {
+          ;async () => {
+            ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
+            config satisfies { test2: 6 } | null
+          }
+
+          return {
+            name: "Testing",
+            required: { default: null },
+            inputmode: "date",
+          }
+        },
+      )
+      const validator = value.validator
+      validator.unsafeCast("2021-01-01")
+      validator.unsafeCast(null)
+      testOutput<typeof validator._TYPE, string | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: true,
+        default: null,
+        description: null,
+        warning: null,
+        inputmode: "date",
+      })
+    })
+    test("textarea", async () => {
+      const value = Value.dynamicTextarea(async () => ({
+        name: "Testing",
+        required: false,
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+        placeholder: null,
+      }))
+      const validator = value.validator
+      validator.unsafeCast("test text")
+      expect(() => validator.unsafeCast(null)).toThrowError()
+      testOutput<typeof validator._TYPE, string>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: false,
+      })
+    })
+    test("number", async () => {
+      const value = Value.dynamicNumber(() => ({
+        name: "Testing",
+        required: { default: null },
+        integer: false,
+        description: null,
+        warning: null,
+        min: null,
+        max: null,
+        step: null,
+        units: null,
+        placeholder: null,
+      }))
+      const validator = value.validator
+      validator.unsafeCast(2)
+      validator.unsafeCast(null)
+      expect(() => validator.unsafeCast("null")).toThrowError()
+      testOutput<typeof validator._TYPE, number | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: true,
+      })
+    })
+    test("select", async () => {
+      const value = Value.dynamicSelect(() => ({
+        name: "Testing",
+        required: { default: null },
+        values: {
+          a: "A",
+          b: "B",
+        },
+        description: null,
+        warning: null,
+      }))
+      const validator = value.validator
+      validator.unsafeCast("a")
+      validator.unsafeCast("b")
+      validator.unsafeCast("c")
+      validator.unsafeCast(null)
+      testOutput<typeof validator._TYPE, string | null | undefined>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        required: true,
+      })
+    })
+    test("multiselect", async () => {
+      const value = Value.dynamicMultiselect(() => ({
+        name: "Testing",
+        values: {
+          a: "A",
+          b: "B",
+        },
+        default: [],
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+      }))
+      const validator = value.validator
+      validator.unsafeCast([])
+      validator.unsafeCast(["a", "b"])
+      validator.unsafeCast(["c"])
+
+      expect(() => validator.unsafeCast([4])).toThrowError()
+      expect(() => validator.unsafeCast(null)).toThrowError()
+      testOutput<typeof validator._TYPE, Array<string>>()(null)
+      expect(await value.build(fakeOptions)).toMatchObject({
+        name: "Testing",
+        default: [],
+      })
+    })
+  })
+  describe("filtering", () => {
+    test("union", async () => {
+      const value = Value.union(
+        {
+          name: "Testing",
+          required: { default: null },
+          description: null,
+          warning: null,
+          default: null,
+        },
+        Variants.of({
+          a: {
+            name: "a",
+            spec: Config.of({
+              b: Value.toggle({
+                name: "b",
+                description: null,
+                warning: null,
+                default: null,
+              }),
+            }),
+          },
+          b: {
+            name: "b",
+            spec: Config.of({
+              b: Value.toggle({
+                name: "b",
+                description: null,
+                warning: null,
+                default: null,
+              }),
+            }),
+          },
+        }).disableVariants(() => [
+          "a",
+          // @ts-expect-error
+          "c",
+        ]),
+      )
+      const validator = value.validator
+      validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } })
+      type Test = typeof validator._TYPE
+      testOutput<
+        Test,
+        | { unionSelectKey: "a"; unionValueKey: { b: boolean } }
+        | { unionSelectKey: "b"; unionValueKey: { b: boolean } }
+      >()(null)
+
+      const built = await value.build({} as any)
+      expect(built).toMatchObject({
+        name: "Testing",
+        variants: {
+          b: {},
+        },
+      })
+      expect(built).not.toMatchObject({
+        name: "Testing",
+        variants: {
+          a: {},
+          b: {},
+        },
+      })
+    })
   })
 })
 

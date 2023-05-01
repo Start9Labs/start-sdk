@@ -43,17 +43,16 @@ export default async function makeFileContentFromOld(
   const data = await inputData
 
   const namedConsts = new Set(["Config", "Value", "List"])
-  const configNameRaw = newConst("configSpecRaw", convertInputSpec(data))
+  const configName = newConst(
+    "configSpec",
+    `Config.withWrapperData<WrapperData>().of(${convertInputSpecInner(data)})`,
+  )
   const configMatcherName = newConst(
     "matchConfigSpec",
-    `${configNameRaw}.validator`,
+    `${configName}.validator`,
   )
   outputLines.push(
     `export type ConfigSpec = typeof ${configMatcherName}._TYPE;`,
-  )
-  const configName = newConst(
-    "ConfigSpec",
-    `${configNameRaw} as Config<ConfigSpec, WrapperData, ConfigSpec>`,
   )
 
   return outputLines.join("\n")
@@ -69,14 +68,18 @@ export default async function makeFileContentFromOld(
     if (nested) return data
     return newConst(key, data)
   }
-  function convertInputSpec(data: any) {
-    let answer = "Config.of({"
+  function convertInputSpecInner(data: any) {
+    let answer = "{"
     for (const [key, value] of Object.entries(data)) {
       const variableName = maybeNewConst(key, convertValueSpec(value))
 
       answer += `${JSON.stringify(key)}: ${variableName},`
     }
-    return `${answer}})`
+    return `${answer}}`
+  }
+
+  function convertInputSpec(data: any) {
+    return `Config.of(${convertInputSpecInner(data)})`
   }
   function convertValueSpec(value: any): string {
     switch (value.type) {

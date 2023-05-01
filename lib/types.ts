@@ -163,6 +163,30 @@ export type Effects = {
     toWrite: string
   }): Promise<void>
   readFile(input: { volumeId: string; path: string }): Promise<string>
+  /** Usable when not sandboxed */
+  appendFile(input: {
+    path: string
+    volumeId: string
+    toWrite: string
+  }): Promise<void>
+  /**
+   * Move file from src to dst
+   * Usable when not sandboxed */
+  moveFile(input: {
+    srcVolume: string
+    dstVolume: string
+    srcPath: string
+    dstPath: string
+  }): Promise<void>
+  /**
+   * copy from src to dst
+   * Usable when not sandboxed */
+  copyFile(input: {
+    srcVolume: string
+    dstVolume: string
+    srcPath: string
+    dstPath: string
+  }): Promise<void>
   metadata(input: { volumeId: string; path: string }): Promise<Metadata>
   /** Create a directory. Usable when not sandboxed */
   createDir(input: { volumeId: string; path: string }): Promise<string>

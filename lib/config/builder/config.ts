@@ -5,13 +5,13 @@ import { _ } from "../../util"
 import { Effects } from "../../types"
 import { Parser, object } from "ts-matches"
 
-export type LazyBuildOptions<Manifest, ConfigType> = {
+export type LazyBuildOptions<WD, ConfigType> = {
   effects: Effects
-  utils: Utils<Manifest>
+  utils: Utils<WD>
   config: ConfigType | null
 }
-export type LazyBuild<Manifest, ConfigType, ExpectedOut> = (
-  options: LazyBuildOptions<Manifest, ConfigType>,
+export type LazyBuild<WD, ConfigType, ExpectedOut> = (
+  options: LazyBuildOptions<WD, ConfigType>,
 ) => Promise<ExpectedOut> | ExpectedOut
 
 export type MaybeLazyValues<A> = LazyBuild<any, any, A> | A
@@ -88,8 +88,8 @@ export class Config<Type extends Record<string, any>, WD, ConfigType> {
     return answer
   }
 
-  static of<Type extends Record<string, any>, Manifest, ConfigType>(spec: {
-    [K in keyof Type]: Value<Type[K], Manifest, ConfigType>
+  static of<Type extends Record<string, any>, WrapperData, ConfigType>(spec: {
+    [K in keyof Type]: Value<Type[K], WrapperData, ConfigType>
   }) {
     const validatorObj = {} as {
       [K in keyof Type]: Parser<unknown, Type[K]>
@@ -98,6 +98,16 @@ export class Config<Type extends Record<string, any>, WD, ConfigType> {
       validatorObj[key] = spec[key].validator
     }
     const validator = object(validatorObj)
-    return new Config<Type, Manifest, ConfigType>(spec, validator)
+    return new Config<Type, WrapperData, ConfigType>(spec, validator)
+  }
+
+  static withWrapperData<WrapperData>() {
+    return {
+      of<Type extends Record<string, any>>(spec: {
+        [K in keyof Type]: Value<Type[K], WrapperData, Type>
+      }) {
+        return Config.of<Type, WrapperData, Type>(spec)
+      },
+    }
   }
 }
