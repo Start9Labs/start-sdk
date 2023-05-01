@@ -93,6 +93,7 @@ export interface ValueSpecUnion extends WithStandalone {
       spec: InputSpec
     }
   >
+  disabled?: string[]
   required: boolean
   default: string | null
 }

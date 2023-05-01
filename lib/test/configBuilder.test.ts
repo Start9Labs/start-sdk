@@ -507,7 +507,7 @@ describe("values", () => {
   })
   describe("filtering", () => {
     test("union", async () => {
-      const value = Value.union(
+      const value = Value.filteredUnion(
         {
           name: "Testing",
           required: { default: null },
@@ -538,11 +538,12 @@ describe("values", () => {
               }),
             }),
           },
-        }).disableVariants(() => [
+        }),
+        () => [
           "a",
           // @ts-expect-error
           "c",
-        ]),
+        ],
       )
       const validator = value.validator
       validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } })
@@ -551,6 +552,8 @@ describe("values", () => {
         Test,
         | { unionSelectKey: "a"; unionValueKey: { b: boolean } }
         | { unionSelectKey: "b"; unionValueKey: { b: boolean } }
+        | null
+        | undefined
       >()(null)
 
       const built = await value.build({} as any)
@@ -560,12 +563,20 @@ describe("values", () => {
           b: {},
         },
       })
-      expect(built).not.toMatchObject({
+      expect(built).toMatchObject({
         name: "Testing",
         variants: {
           a: {},
           b: {},
         },
+      })
+      expect(built).toMatchObject({
+        name: "Testing",
+        variants: {
+          a: {},
+          b: {},
+        },
+        disabled: ["a", "c"],
       })
     })
   })

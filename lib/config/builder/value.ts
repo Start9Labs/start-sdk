@@ -585,8 +585,13 @@ export class Value<Type, WD, ConfigType> {
       default?: string | null
     },
     aVariants: Variants<Type, WrapperData, ConfigType>,
+    getDisabledFn: LazyBuild<
+      WrapperData,
+      ConfigType,
+      Array<Type extends { unionSelectKey: infer B } ? B & string : never>
+    >,
   ) {
-    return new Value<AsRequired<Type, Required>, WrapperData, ConfigType>(
+    return new Value<Type | null | undefined, WrapperData, ConfigType>(
       async (options) => ({
         type: "union" as const,
         description: null,
@@ -594,8 +599,9 @@ export class Value<Type, WD, ConfigType> {
         ...a,
         variants: await aVariants.build(options as any),
         ...requiredLikeToAbove(a.required),
+        disabled: (await getDisabledFn(options)) || [],
       }),
-      asRequiredParser(aVariants.validator, a),
+      aVariants.validator.optional(),
     )
   }
 
