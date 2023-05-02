@@ -1,11 +1,16 @@
 import { Config } from "../config/builder"
+import { ExtractConfigType } from "../config/builder/config"
 import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
 import { Utils, utils } from "../util"
 
-export class CreatedAction<WrapperData, Type extends Record<string, any>> {
+export class CreatedAction<
+  WrapperData,
+  ConfigType extends Record<string, any> | Config<any, any, any>,
+  Type extends Record<string, any> = ExtractConfigType<ConfigType>,
+> {
   private constructor(
     public readonly myMetaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData, never>
+      input: Config<Type, WrapperData, Type>
     },
     readonly fn: (options: {
       effects: Effects
@@ -17,14 +22,11 @@ export class CreatedAction<WrapperData, Type extends Record<string, any>> {
 
   static of<
     WrapperData,
-    Input extends Config<Type, WrapperData, never>,
-    Type extends Record<string, any> = (Input extends Config<any, infer B, any>
-      ? B
-      : never) &
-      Record<string, any>,
+    ConfigType extends Record<string, any> | Config<any, any, any>,
+    Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
     metaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData, never>
+      input: Config<Type, WrapperData, Type>
     },
     fn: (options: {
       effects: Effects
@@ -32,7 +34,7 @@ export class CreatedAction<WrapperData, Type extends Record<string, any>> {
       input: Type
     }) => Promise<ActionResult>,
   ) {
-    return new CreatedAction<WrapperData, Type>(metaData, fn)
+    return new CreatedAction<WrapperData, ConfigType, Type>(metaData, fn)
   }
 
   exportedAction: ExportedAction = ({ effects, input }) => {

@@ -14,6 +14,11 @@ export type LazyBuild<WD, ConfigType, ExpectedOut> = (
   options: LazyBuildOptions<WD, ConfigType>,
 ) => Promise<ExpectedOut> | ExpectedOut
 
+// prettier-ignore
+export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any, any>> = 
+  A extends Config<infer B, any, any> ? B :
+  A
+
 export type MaybeLazyValues<A> = LazyBuild<any, any, A> | A
 /**
  * Configs are the specs that are used by the os configuration form for this service.
