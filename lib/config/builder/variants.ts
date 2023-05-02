@@ -103,4 +103,8 @@ export class Variants<Type, WD> {
       return variants
     }, validator)
   }
+
+  withWrapperData<NewWrapperData extends WD>() {
+    return this as any as Variants<Type, NewWrapperData>
+  }
 }

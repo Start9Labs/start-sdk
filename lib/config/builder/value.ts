@@ -626,4 +626,8 @@ export class Value<Type, WD> {
       a.validator,
     )
   }
+
+  withWrapperData<NewWrapperData extends WD>() {
+    return this as any as Value<Type, NewWrapperData>
+  }
 }

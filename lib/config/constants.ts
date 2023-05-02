@@ -1,4 +1,5 @@
-import { Config, Value, Variants } from "./builder"
+import { SmtpValue } from "../types"
+import { Config, Value, Variants, topConfig } from "./builder"
 
 export const smtpConfig = Value.union(
   {
@@ -11,7 +12,7 @@ export const smtpConfig = Value.union(
     system: { name: "System Credentials", spec: Config.of({}) },
     custom: {
       name: "Custom Credentials",
-      spec: Config.of({
+      spec: Config.of<SmtpValue, unknown>({
         server: Value.text({
           name: "SMTP Server",
           required: {

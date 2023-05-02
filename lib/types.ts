@@ -133,6 +133,15 @@ export type Daemon = {
 
 export type HealthStatus = "passing" | "warning" | "failing" | "disabled"
 
+export type SmtpValue = {
+  server: string
+  port: number
+  from: string
+  login: string
+  password: string | null | undefined
+  tls: boolean
+}
+
 export type CommandType<A extends string> =
   | ValidIfNoStupidEscape<A>
   | [string, ...string[]]
@@ -307,6 +316,10 @@ export type Effects = {
     path: Path & EnsureWrapperDataPath<WrapperData, Path>
     callback: (config: unknown, previousConfig: unknown) => void
   }): Promise<ExtractWrapperData<WrapperData, Path>>
+
+  getSystemSmtp(input: {
+    callback: (config: unknown, previousConfig: unknown) => void
+  }): Promise<SmtpValue>
 
   /** Used to store values that can be accessed and subscribed to */
   setWrapperData<WrapperData = never, Path extends string = never>(options: {

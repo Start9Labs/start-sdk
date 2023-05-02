@@ -114,6 +114,9 @@ export class Config<Type extends Record<string, any>, WD> {
       },
     }
   }
+  withWrapperData<NewWrapperData extends WD>() {
+    return this as any as Config<Type, NewWrapperData>
+  }
 }
 
 export function topConfig<WrapperData>() {
