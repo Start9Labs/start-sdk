@@ -20,7 +20,10 @@ export type Save<
   input: ExtractConfigType<A> & Record<string, any>
   utils: Utils<WD>
   dependencies: D.Dependencies<Manifest>
-}) => Promise<DependenciesReceipt>
+}) => Promise<{
+  dependenciesReceipt: DependenciesReceipt
+  restart: boolean
+}>
 export type Read<
   WD,
   A extends Record<string, any> | Config<Record<string, any>, any>,
@@ -52,12 +55,15 @@ export function setupConfig<
         await effects.console.error(String(validator.errorMessage(input)))
         return { error: "Set config type error for config" }
       }
-      await write({
+      const { restart } = await write({
         input: JSON.parse(JSON.stringify(input)),
         effects,
         utils: utils<WD>(effects),
         dependencies: D.dependenciesSet<Manifest>(),
       })
+      if (restart) {
+        await effects.restart()
+      }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
       const myUtils = utils<WD>(effects)
