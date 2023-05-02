@@ -2,13 +2,12 @@ import * as fs from "fs"
 
 // https://stackoverflow.com/questions/2970525/converting-any-string-into-camel-case
 export function camelCase(value: string) {
-  return value.replace(
-    /^([A-Z])|[\s-_](\w)/g,
-    function (match, p1, p2, offset) {
+  return value
+    .replace(/([\(\)\[\]])/g, "")
+    .replace(/^([A-Z])|[\s-_](\w)/g, function (match, p1, p2, offset) {
       if (p2) return p2.toUpperCase()
       return p1.toLowerCase()
-    },
-  )
+    })
 }
 
 export async function oldSpecToBuilder(
@@ -41,6 +40,7 @@ export default async function makeFileContentFromOld(
   import {WrapperData} from '${wrapperData}'
 `)
   const data = await inputData
+  const hammerWrapperData = !nested ? ".withWrapperData()" : ""
 
   const namedConsts = new Set(["Config", "Value", "List"])
   const configName = newConst(
@@ -73,7 +73,7 @@ export default async function makeFileContentFromOld(
     for (const [key, value] of Object.entries(data)) {
       const variableName = maybeNewConst(key, convertValueSpec(value))
 
-      answer += `${JSON.stringify(key)}: ${variableName},`
+      answer += `${JSON.stringify(key)}: ${variableName}${hammerWrapperData},`
     }
     return `${answer}}`
   }
@@ -364,7 +364,7 @@ export default async function makeFileContentFromOld(
           value.name + "_list_config",
           `
           Config.of({
-            "union": ${unionValueName}
+            "union": ${unionValueName}${hammerWrapperData}
           })
         `,
         )

@@ -384,19 +384,17 @@ describe("values", () => {
       })
     })
     test("datetime", async () => {
-      const value = Value.dynamicDatetime<{ test: "a" }>(
-        async ({ effects, utils }) => {
-          ;async () => {
-            ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
-          }
+      const value = Value.dynamicDatetime<{ test: "a" }>(async ({ utils }) => {
+        ;async () => {
+          ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
+        }
 
-          return {
-            name: "Testing",
-            required: { default: null },
-            inputmode: "date",
-          }
-        },
-      )
+        return {
+          name: "Testing",
+          required: { default: null },
+          inputmode: "date",
+        }
+      })
       const validator = value.validator
       validator.unsafeCast("2021-01-01")
       validator.unsafeCast(null)
