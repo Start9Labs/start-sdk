@@ -599,12 +599,7 @@ export class Value<Type, WD> {
       }
     }, previousSpec.validator)
   }
-  static union<
-    Required extends RequiredDefault<string>,
-    Type,
-    WrapperData,
-    ConfigType,
-  >(
+  static union<Required extends RequiredDefault<string>, Type, WrapperData>(
     a: {
       name: string
       description?: string | null
@@ -634,7 +629,6 @@ export class Value<Type, WD> {
     Required extends RequiredDefault<string>,
     Type,
     WrapperData,
-    ConfigType,
   >(
     a: {
       name: string
