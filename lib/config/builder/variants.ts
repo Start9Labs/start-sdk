@@ -103,7 +103,20 @@ export class Variants<Type, WD> {
       return variants
     }, validator)
   }
+  /**
+   * Use this during the times that the input needs a more specific type.
+   * Used in types that the value/ variant/ list/ config is constructed somewhere else.
+  ```ts
+  const a = Config.text({
+    name: "a",
+    required: false,
+  })
 
+  return topConfig<WrapperData>()({
+    myValue: a.withWrapperData(),
+  })
+  ```
+   */
   withWrapperData<NewWrapperData extends WD>() {
     return this as any as Variants<Type, NewWrapperData>
   }
