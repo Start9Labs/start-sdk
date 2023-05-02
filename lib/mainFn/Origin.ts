@@ -1,5 +1,5 @@
 export class Origin {
-  constructor(readonly protocol: string, readonly host: string) {}
+  constructor(readonly protocol: string | null, readonly host: string) {}
 
   withAuth(
     origin?:
@@ -13,6 +13,7 @@ export class Origin {
     // prettier-ignore
     const urlAuth = !!(origin) ? `${origin.username}${origin.password != null ?`:${origin.password}`:''}@` :
             '';
-    return `${this.protocol}://${urlAuth}${this.host}`
+    const protocolSection = this.protocol != null ? `${this.protocol}://` : ""
+    return `${protocolSection}${urlAuth}${this.host}`
   }
 }

@@ -20,7 +20,7 @@ export const ipv6 = once(
 export const local = once(() => /\.local/)
 export class LocalBinding {
   constructor(readonly localHost: string, readonly ipHosts: string[]) {}
-  createOrigins(protocol: string) {
+  createOrigins(protocol: string | null) {
     const ipHosts = this.ipHosts
     return {
       local: new Origin(protocol, this.localHost),
