@@ -64,10 +64,10 @@ describe("values", () => {
     expect(() => validator.unsafeCast(null)).toThrowError()
     testOutput<typeof validator._TYPE, string>()(null)
   })
-  test("text", async () => {
+  test("text with default", async () => {
     const value = Value.text({
       name: "Testing",
-      required: { default: "null" },
+      required: { default: "this is a default value" },
     })
     const validator = value.validator
     const rawIs = await value.build({} as any)
@@ -336,10 +336,10 @@ describe("values", () => {
         default: null,
       })
     })
-    test("text", async () => {
+    test("text with default", async () => {
       const value = Value.dynamicText(async () => ({
         name: "Testing",
-        required: { default: "null" },
+        required: { default: "this is a default value" },
       }))
       const validator = value.validator
       validator.unsafeCast("test text")
@@ -348,7 +348,7 @@ describe("values", () => {
       expect(await value.build(fakeOptions)).toMatchObject({
         name: "Testing",
         required: true,
-        default: "null",
+        default: "this is a default value",
       })
     })
     test("optional text", async () => {
