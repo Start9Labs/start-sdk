@@ -4,6 +4,8 @@ import {
   Pattern,
   UniqueBy,
   ValueSpecList,
+  ValueSpecListOf,
+  ValueSpecText,
 } from "../configTypes"
 import { Parser, arrayOf, number, string } from "ts-matches"
 /**
@@ -62,9 +64,10 @@ export class List<Type, WD> {
         type: "list" as const,
         minLength: null,
         maxLength: null,
+        disabled: false,
         ...a,
         spec,
-      }
+      } satisfies ValueSpecListOf<"text">
     }, arrayOf(string))
   }
   static dynamicText<WD>(
@@ -78,6 +81,7 @@ export class List<Type, WD> {
         default?: string[]
         minLength?: number | null
         maxLength?: number | null
+        disabled?: false | string
         spec: {
           /** Default = false */
           masked?: boolean
@@ -109,9 +113,10 @@ export class List<Type, WD> {
         type: "list" as const,
         minLength: null,
         maxLength: null,
+        disabled: false,
         ...a,
         spec,
-      }
+      } satisfies ValueSpecListOf<"text">
     }, arrayOf(string))
   }
   static number<WD>(
@@ -150,9 +155,10 @@ export class List<Type, WD> {
         maxLength: null,
         default: [],
         type: "list" as const,
+        disabled: false,
         ...a,
         spec,
-      }
+      } satisfies ValueSpecListOf<"number">
     }, arrayOf(number))
   }
   static dynamicNumber<WD>(
@@ -166,6 +172,7 @@ export class List<Type, WD> {
         default?: string[]
         minLength?: number | null
         maxLength?: number | null
+        disabled?: false | string
         spec: {
           integer: boolean
           min?: number | null
@@ -195,6 +202,7 @@ export class List<Type, WD> {
         maxLength: null,
         default: [],
         type: "list" as const,
+        disabled: false,
         ...a,
         spec,
       }
@@ -237,6 +245,7 @@ export class List<Type, WD> {
         minLength: null,
         maxLength: null,
         type: "list" as const,
+        disabled: false,
         ...value,
       }
     }, arrayOf(aSpec.spec.validator))

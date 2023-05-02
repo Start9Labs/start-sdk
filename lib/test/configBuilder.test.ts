@@ -18,26 +18,23 @@ describe("builder tests", () => {
         required: { default: null },
       }),
     }).build({} as any)
-    expect(JSON.stringify(bitcoinPropertiesBuilt)).toEqual(
-      /*json*/ `{
-    "peer-tor-address": {
-      "type": "text",
-      "description": "The Tor address of the peer interface",
-      "warning": null,
-      "masked": false,
-      "placeholder": null,
-      "minLength": null,
-      "maxLength": null,
-      "patterns": [],
-      "inputmode":"text",
-      "name": "Peer tor address",
-      "required": true,
-      "default": null
-    }}`
-        .replaceAll("\n", " ")
-        .replaceAll(/\s{2,}/g, "")
-        .replaceAll(": ", ":"),
-    )
+    expect(bitcoinPropertiesBuilt).toMatchObject({
+      "peer-tor-address": {
+        type: "text",
+        description: "The Tor address of the peer interface",
+        warning: null,
+        masked: false,
+        placeholder: null,
+        minLength: null,
+        maxLength: null,
+        patterns: [],
+        disabled: false,
+        inputmode: "text",
+        name: "Peer tor address",
+        required: true,
+        default: null,
+      },
+    })
   })
 })
 

@@ -110,6 +110,7 @@ export class Value<Type, WD> {
         warning: null,
         default: null,
         type: "toggle" as const,
+        disabled: false,
         ...a,
       }),
       boolean,
@@ -123,6 +124,7 @@ export class Value<Type, WD> {
         description?: string | null
         warning?: string | null
         default?: boolean | null
+        disabled?: false | string
       }
     >,
   ) {
@@ -132,6 +134,7 @@ export class Value<Type, WD> {
         warning: null,
         default: null,
         type: "toggle" as const,
+        disabled: false,
         ...(await a(options)),
       }),
       boolean,
@@ -163,6 +166,7 @@ export class Value<Type, WD> {
         maxLength: null,
         patterns: [],
         inputmode: "text",
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -201,6 +205,7 @@ export class Value<Type, WD> {
         maxLength: null,
         patterns: [],
         inputmode: "text",
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -224,6 +229,7 @@ export class Value<Type, WD> {
           maxLength: null,
           placeholder: null,
           type: "textarea" as const,
+          disabled: false,
           ...a,
         } satisfies ValueSpecTextarea),
       string,
@@ -240,6 +246,7 @@ export class Value<Type, WD> {
         minLength?: number | null
         maxLength?: number | null
         placeholder?: string | null
+        disabled?: false | string
       }
     >,
   ) {
@@ -252,6 +259,7 @@ export class Value<Type, WD> {
         maxLength: null,
         placeholder: null,
         type: "textarea" as const,
+        disabled: false,
         ...a,
       }
     }, string)
@@ -279,6 +287,7 @@ export class Value<Type, WD> {
         step: null,
         units: null,
         placeholder: null,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -300,6 +309,7 @@ export class Value<Type, WD> {
         integer: boolean
         units?: string | null
         placeholder?: string | null
+        disabled?: false | string
       }
     >,
   ) {
@@ -314,6 +324,7 @@ export class Value<Type, WD> {
         step: null,
         units: null,
         placeholder: null,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -330,6 +341,7 @@ export class Value<Type, WD> {
         type: "color" as const,
         description: null,
         warning: null,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -346,6 +358,8 @@ export class Value<Type, WD> {
         description?: string | null
         warning?: string | null
         required: RequiredDefault<string>
+
+        disabled?: false | string
       }
     >,
   ) {
@@ -355,6 +369,7 @@ export class Value<Type, WD> {
         type: "color" as const,
         description: null,
         warning: null,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -380,6 +395,7 @@ export class Value<Type, WD> {
         min: null,
         max: null,
         step: null,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -399,6 +415,7 @@ export class Value<Type, WD> {
         min?: string | null
         max?: string | null
         step?: string | null
+        disabled?: false | string
       }
     >,
   ) {
@@ -412,6 +429,7 @@ export class Value<Type, WD> {
         min: null,
         max: null,
         step: null,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -421,7 +439,6 @@ export class Value<Type, WD> {
     Required extends RequiredDefault<string>,
     B extends Record<string, string>,
     WD,
-    CT,
   >(a: {
     name: string
     description?: string | null
@@ -434,6 +451,7 @@ export class Value<Type, WD> {
         description: null,
         warning: null,
         type: "select" as const,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -454,6 +472,7 @@ export class Value<Type, WD> {
         warning?: string | null
         required: RequiredDefault<string>
         values: Record<string, string>
+        disabled?: false | string
       }
     >,
   ) {
@@ -463,6 +482,7 @@ export class Value<Type, WD> {
         description: null,
         warning: null,
         type: "select" as const,
+        disabled: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -484,6 +504,7 @@ export class Value<Type, WD> {
         maxLength: null,
         warning: null,
         description: null,
+        disabled: false,
         ...a,
       }),
       arrayOf(
@@ -502,6 +523,7 @@ export class Value<Type, WD> {
         values: Record<string, string>
         minLength?: number | null
         maxLength?: number | null
+        disabled?: false | string
       }
     >,
   ) {
@@ -513,6 +535,7 @@ export class Value<Type, WD> {
         maxLength: null,
         warning: null,
         description: null,
+        disabled: false,
         ...a,
       }
     }, arrayOf(string))

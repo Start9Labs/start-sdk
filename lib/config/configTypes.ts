@@ -43,6 +43,7 @@ export type ValueSpecOf<T extends ValueType> = T extends "text"
 export interface ValueSpecText extends ListValueSpecText, WithStandalone {
   required: boolean
   default: DefaultString | null
+  disabled: false | string
 }
 export interface ValueSpecTextarea extends WithStandalone {
   type: "textarea"
@@ -50,15 +51,18 @@ export interface ValueSpecTextarea extends WithStandalone {
   minLength: number | null
   maxLength: number | null
   required: boolean
+  disabled: false | string
 }
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   required: boolean
   default: number | null
+  disabled: false | string
 }
 export interface ValueSpecColor extends WithStandalone {
   type: "color"
   required: boolean
   default: string | null
+  disabled: false | string
 }
 export interface ValueSpecDatetime extends WithStandalone {
   type: "datetime"
@@ -68,21 +72,25 @@ export interface ValueSpecDatetime extends WithStandalone {
   max: string | null
   step: string | null
   default: string | null
+  disabled: false | string
 }
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select"
   required: boolean
   default: string | null
+  disabled: false | string
 }
 export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
   type: "multiselect"
   minLength: number | null
   maxLength: number | null
+  disabled: false | string
   default: string[]
 }
 export interface ValueSpecToggle extends WithStandalone {
   type: "toggle"
   default: boolean | null
+  disabled: false | string
 }
 export interface ValueSpecUnion extends WithStandalone {
   type: "union"
@@ -131,6 +139,7 @@ export interface ValueSpecListOf<T extends ListValueSpecType>
   spec: ListValueSpecOf<T>
   minLength: number | null
   maxLength: number | null
+  disabled: false | string
   default:
     | string[]
     | number[]
