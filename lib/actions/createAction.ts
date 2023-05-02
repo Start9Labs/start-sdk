@@ -4,7 +4,7 @@ import { Utils, utils } from "../util"
 
 export class CreatedAction<WrapperData, Type extends Record<string, any>> {
   private constructor(
-    private myMetaData: Omit<ActionMetaData, "input"> & {
+    public readonly myMetaData: Omit<ActionMetaData, "input"> & {
       input: Config<Type, WrapperData, never>
     },
     readonly fn: (options: {

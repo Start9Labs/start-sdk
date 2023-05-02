@@ -7,12 +7,12 @@ export function setupActions(...createdActions: CreatedAction<any, any>[]) {
     get actions() {
       const actions: Record<string, ExportedAction> = {}
       for (const action of createdActions) {
-        actions[action.metaData.id] = action.exportedAction
+        actions[action.myMetaData.id] = action.exportedAction
       }
       return actions
     },
     get actionsMetadata() {
-      return createdActions.map((x) => x.metaData)
+      return createdActions.map((x) => x.myMetaData)
     },
   }
 }
