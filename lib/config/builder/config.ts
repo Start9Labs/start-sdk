@@ -105,15 +105,6 @@ export class Config<Type extends Record<string, any>, WD> {
     return new Config<Type, WrapperData>(spec, validator)
   }
 
-  static withWrapperData<WrapperData>() {
-    return {
-      of<Type extends Record<string, any>>(spec: {
-        [K in keyof Type]: Value<Type[K], WrapperData>
-      }) {
-        return Config.of<Type, WrapperData>(spec)
-      },
-    }
-  }
   /**
    * Use this during the times that the input needs a more specific type.
    * Used in types that the value/ variant/ list/ config is constructed somewhere else.
