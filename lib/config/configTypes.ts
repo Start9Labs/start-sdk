@@ -44,6 +44,8 @@ export interface ValueSpecText extends ListValueSpecText, WithStandalone {
   required: boolean
   default: DefaultString | null
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecTextarea extends WithStandalone {
   type: "textarea"
@@ -52,17 +54,23 @@ export interface ValueSpecTextarea extends WithStandalone {
   maxLength: number | null
   required: boolean
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   required: boolean
   default: number | null
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecColor extends WithStandalone {
   type: "color"
   required: boolean
   default: string | null
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecDatetime extends WithStandalone {
   type: "datetime"
@@ -73,12 +81,16 @@ export interface ValueSpecDatetime extends WithStandalone {
   step: string | null
   default: string | null
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select"
   required: boolean
   default: string | null
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
   type: "multiselect"
@@ -86,11 +98,15 @@ export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
   maxLength: number | null
   disabled: false | string
   default: string[]
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecToggle extends WithStandalone {
   type: "toggle"
   default: boolean | null
   disabled: false | string
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecUnion extends WithStandalone {
   type: "union"
@@ -104,6 +120,8 @@ export interface ValueSpecUnion extends WithStandalone {
   disabled?: string[]
   required: boolean
   default: string | null
+  /** Immutable means it can only be configed at the first config then never again */
+  immutable: boolean
 }
 export interface ValueSpecFile extends WithStandalone {
   type: "file"

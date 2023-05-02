@@ -103,6 +103,9 @@ export class Value<Type, WD> {
     description?: string | null
     warning?: string | null
     default?: boolean | null
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<boolean, WD>(
       async () => ({
@@ -111,6 +114,7 @@ export class Value<Type, WD> {
         default: null,
         type: "toggle" as const,
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
       }),
       boolean,
@@ -135,6 +139,7 @@ export class Value<Type, WD> {
         default: null,
         type: "toggle" as const,
         disabled: false,
+        immutable: false,
         ...(await a(options)),
       }),
       boolean,
@@ -154,6 +159,9 @@ export class Value<Type, WD> {
     patterns?: Pattern[]
     /** Default = 'text' */
     inputmode?: ValueSpecText["inputmode"]
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<AsRequired<string, Required>, WD>(
       async () => ({
@@ -167,6 +175,7 @@ export class Value<Type, WD> {
         patterns: [],
         inputmode: "text",
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -206,6 +215,7 @@ export class Value<Type, WD> {
         patterns: [],
         inputmode: "text",
         disabled: false,
+        immutable: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -219,6 +229,9 @@ export class Value<Type, WD> {
     minLength?: number | null
     maxLength?: number | null
     placeholder?: string | null
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<string, WD>(
       async () =>
@@ -230,6 +243,7 @@ export class Value<Type, WD> {
           placeholder: null,
           type: "textarea" as const,
           disabled: false,
+          immutable: a.immutable ?? false,
           ...a,
         } satisfies ValueSpecTextarea),
       string,
@@ -260,6 +274,7 @@ export class Value<Type, WD> {
         placeholder: null,
         type: "textarea" as const,
         disabled: false,
+        immutable: false,
         ...a,
       }
     }, string)
@@ -276,6 +291,9 @@ export class Value<Type, WD> {
     integer: boolean
     units?: string | null
     placeholder?: string | null
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<AsRequired<number, Required>, WD>(
       () => ({
@@ -288,6 +306,7 @@ export class Value<Type, WD> {
         units: null,
         placeholder: null,
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -325,6 +344,7 @@ export class Value<Type, WD> {
         units: null,
         placeholder: null,
         disabled: false,
+        immutable: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -335,6 +355,9 @@ export class Value<Type, WD> {
     description?: string | null
     warning?: string | null
     required: Required
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<AsRequired<string, Required>, WD>(
       () => ({
@@ -342,6 +365,7 @@ export class Value<Type, WD> {
         description: null,
         warning: null,
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -370,6 +394,7 @@ export class Value<Type, WD> {
         description: null,
         warning: null,
         disabled: false,
+        immutable: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -385,6 +410,9 @@ export class Value<Type, WD> {
     min?: string | null
     max?: string | null
     step?: string | null
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<AsRequired<string, Required>, WD>(
       () => ({
@@ -396,6 +424,7 @@ export class Value<Type, WD> {
         max: null,
         step: null,
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -430,6 +459,7 @@ export class Value<Type, WD> {
         max: null,
         step: null,
         disabled: false,
+        immutable: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -445,6 +475,9 @@ export class Value<Type, WD> {
     warning?: string | null
     required: Required
     values: B
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<AsRequired<keyof B, Required>, WD>(
       () => ({
@@ -452,6 +485,7 @@ export class Value<Type, WD> {
         warning: null,
         type: "select" as const,
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -483,6 +517,7 @@ export class Value<Type, WD> {
         warning: null,
         type: "select" as const,
         disabled: false,
+        immutable: false,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -496,6 +531,9 @@ export class Value<Type, WD> {
     values: Values
     minLength?: number | null
     maxLength?: number | null
+    /**  Immutable means it can only be configed at the first config then never again 
+    Default is false */
+    immutable?: boolean
   }) {
     return new Value<(keyof Values)[], WD>(
       () => ({
@@ -505,6 +543,7 @@ export class Value<Type, WD> {
         warning: null,
         description: null,
         disabled: false,
+        immutable: a.immutable ?? false,
         ...a,
       }),
       arrayOf(
@@ -536,6 +575,7 @@ export class Value<Type, WD> {
         warning: null,
         description: null,
         disabled: false,
+        immutable: false,
         ...a,
       }
     }, arrayOf(string))
@@ -571,6 +611,9 @@ export class Value<Type, WD> {
       warning?: string | null
       required: Required
       default?: string | null
+      /**  Immutable means it can only be configed at the first config then never again 
+      Default is false */
+      immutable?: boolean
     },
     aVariants: Variants<Type, WrapperData>,
   ) {
@@ -582,6 +625,7 @@ export class Value<Type, WD> {
         ...a,
         variants: await aVariants.build(options as any),
         ...requiredLikeToAbove(a.required),
+        immutable: a.immutable ?? false,
       }),
       asRequiredParser(aVariants.validator, a),
     )
@@ -614,6 +658,7 @@ export class Value<Type, WD> {
         variants: await aVariants.build(options as any),
         ...requiredLikeToAbove(a.required),
         disabled: (await getDisabledFn(options)) || [],
+        immutable: false,
       }),
       aVariants.validator.optional(),
     )
