@@ -36,7 +36,10 @@ export default async function makeFileContentFromOld(
 ) {
   const outputLines: string[] = []
   outputLines.push(`
-  import {Config, Value, List, Variants, topConfig} from '${startSdk}/lib/config/builder'
+  import { Config, topConfig } from "${startSdk}/lib/config/builder/config"
+import { List } from "${startSdk}/lib/config/builder/list"
+import { Value } from "${startSdk}/lib/config/builder/value"
+import { Variants } from "${startSdk}/lib/config/builder/variants"
   import {WrapperData} from '${wrapperData}'
 `)
   const data = await inputData
