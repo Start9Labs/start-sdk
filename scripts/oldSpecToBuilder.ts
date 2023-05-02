@@ -37,7 +37,7 @@ export default async function makeFileContentFromOld(
 ) {
   const outputLines: string[] = []
   outputLines.push(`
-  import {Config, Value, List, Variants} from '${startSdk}/lib/config/builder'
+  import {Config, Value, List, Variants, topConfig} from '${startSdk}/lib/config/builder'
   import {WrapperData} from '${wrapperData}'
 `)
   const data = await inputData
@@ -45,7 +45,7 @@ export default async function makeFileContentFromOld(
   const namedConsts = new Set(["Config", "Value", "List"])
   const configName = newConst(
     "configSpec",
-    `Config.withWrapperData<WrapperData>().of(${convertInputSpecInner(data)})`,
+    `topConfig<WrapperData>()(${convertInputSpecInner(data)})`,
   )
   const configMatcherName = newConst(
     "matchConfigSpec",

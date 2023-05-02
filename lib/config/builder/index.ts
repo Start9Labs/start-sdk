@@ -1,4 +1,4 @@
-import { Config } from "./config"
+import { Config, topConfig } from "./config"
 import { List } from "./list"
 import { Value } from "./value"
 import { Variants } from "./variants"
@@ -10,4 +10,5 @@ export {
   List,
   Value,
   Variants,
+  topConfig,
 }
