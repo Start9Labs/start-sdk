@@ -1,4 +1,4 @@
-import { GenericManifest } from "../manifest/ManifestTypes"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import * as T from "../types"
 
 export type BACKUP = "BACKUP"
@@ -37,14 +37,14 @@ type BackupSet<Volumes extends string> = {
  * ).build()q
  * ```
  */
-export class Backups<M extends GenericManifest> {
+export class Backups<M extends SDKManifest> {
   static BACKUP: BACKUP = "BACKUP"
 
   constructor(
     private options = DEFAULT_OPTIONS,
     private backupSet = [] as BackupSet<keyof M["volumes"] & string>[],
   ) {}
-  static volumes<M extends GenericManifest = never>(
+  static volumes<M extends SDKManifest = never>(
     ...volumeNames: Array<keyof M["volumes"] & string>
   ) {
     return new Backups().addSets(
@@ -56,12 +56,12 @@ export class Backups<M extends GenericManifest> {
       })),
     )
   }
-  static addSets<M extends GenericManifest = never>(
+  static addSets<M extends SDKManifest = never>(
     ...options: BackupSet<keyof M["volumes"] & string>[]
   ) {
     return new Backups().addSets(...options)
   }
-  static with_options<M extends GenericManifest = never>(
+  static with_options<M extends SDKManifest = never>(
     options?: Partial<T.BackupOptions>,
   ) {
     return new Backups({ ...DEFAULT_OPTIONS, ...options })

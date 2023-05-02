@@ -1,14 +1,12 @@
-import { GenericManifest } from "../manifest/ManifestTypes"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { Dependency, PackageId } from "../types"
 
-export type Dependencies<T extends GenericManifest> = {
+export type Dependencies<T extends SDKManifest> = {
   exists(id: keyof T["dependencies"]): Dependency
   running(id: keyof T["dependencies"]): Dependency
 }
 
-export const dependenciesSet = <
-  T extends GenericManifest,
->(): Dependencies<T> => ({
+export const dependenciesSet = <T extends SDKManifest>(): Dependencies<T> => ({
   exists(id: keyof T["dependencies"]) {
     return {
       id,

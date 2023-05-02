@@ -1,10 +1,10 @@
-import { GenericManifest } from "../manifest/ManifestTypes"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { AutoConfig, AutoConfigFrom } from "./AutoConfig"
 
 export function setupAutoConfig<
   WD,
   Input,
-  Manifest extends GenericManifest,
+  Manifest extends SDKManifest,
   NestedConfigs extends {
     [key in keyof Manifest["dependencies"]]: unknown
   },

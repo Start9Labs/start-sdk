@@ -5,21 +5,20 @@ import { _ } from "../../util"
 import { Effects } from "../../types"
 import { Parser, object } from "ts-matches"
 
-export type LazyBuildOptions<WD, ConfigType> = {
+export type LazyBuildOptions<WD> = {
   effects: Effects
   utils: Utils<WD>
-  config: ConfigType | null
 }
-export type LazyBuild<WD, ConfigType, ExpectedOut> = (
-  options: LazyBuildOptions<WD, ConfigType>,
+export type LazyBuild<WD, ExpectedOut> = (
+  options: LazyBuildOptions<WD>,
 ) => Promise<ExpectedOut> | ExpectedOut
 
 // prettier-ignore
-export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any, any>> = 
-  A extends Config<infer B, any, any> ? B :
+export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any>> = 
+  A extends Config<infer B, any> ? B :
   A
 
-export type MaybeLazyValues<A> = LazyBuild<any, any, A> | A
+export type MaybeLazyValues<A> = LazyBuild<any, A> | A
 /**
  * Configs are the specs that are used by the os configuration form for this service.
  * Here is an example of a simple configuration
@@ -76,14 +75,14 @@ export const addNodesSpec = Config.of({ hostname: hostname, port: port });
 
   ```
  */
-export class Config<Type extends Record<string, any>, WD, ConfigType> {
+export class Config<Type extends Record<string, any>, WD> {
   private constructor(
     private readonly spec: {
-      [K in keyof Type]: Value<Type[K], WD, ConfigType>
+      [K in keyof Type]: Value<Type[K], WD>
     },
     public validator: Parser<unknown, Type>,
   ) {}
-  async build(options: LazyBuildOptions<WD, ConfigType>) {
+  async build(options: LazyBuildOptions<WD>) {
     const answer = {} as {
       [K in keyof Type]: ValueSpec
     }
@@ -93,8 +92,8 @@ export class Config<Type extends Record<string, any>, WD, ConfigType> {
     return answer
   }
 
-  static of<Type extends Record<string, any>, WrapperData, ConfigType>(spec: {
-    [K in keyof Type]: Value<Type[K], WrapperData, ConfigType>
+  static of<Type extends Record<string, any>, WrapperData>(spec: {
+    [K in keyof Type]: Value<Type[K], WrapperData>
   }) {
     const validatorObj = {} as {
       [K in keyof Type]: Parser<unknown, Type[K]>
@@ -103,21 +102,22 @@ export class Config<Type extends Record<string, any>, WD, ConfigType> {
       validatorObj[key] = spec[key].validator
     }
     const validator = object(validatorObj)
-    return new Config<Type, WrapperData, ConfigType>(spec, validator)
+    return new Config<Type, WrapperData>(spec, validator)
   }
 
   static withWrapperData<WrapperData>() {
     return {
       of<Type extends Record<string, any>>(spec: {
-        [K in keyof Type]: Value<Type[K], WrapperData, Type>
+        [K in keyof Type]: Value<Type[K], WrapperData>
       }) {
-        return Config.of<Type, WrapperData, Type>(spec)
+        return Config.of<Type, WrapperData>(spec)
       },
     }
   }
 }
+
 export function topConfig<WrapperData>() {
   return <Type extends Record<string, any>>(spec: {
-    [K in keyof Type]: Value<Type[K], WrapperData, Type>
-  }) => Config.of<Type, WrapperData, Type>(spec)
+    [K in keyof Type]: Value<Type[K], WrapperData>
+  }) => Config.of<Type, WrapperData>(spec)
 }

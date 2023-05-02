@@ -303,7 +303,7 @@ describe("values", () => {
       utils: "utils",
     } as any
     test("toggle", async () => {
-      const value = Value.dynamicToggle<{}, {}>(async () => ({
+      const value = Value.dynamicToggle<{}>(async () => ({
         name: "Testing",
         description: null,
         warning: null,
@@ -368,7 +368,7 @@ describe("values", () => {
       })
     })
     test("color", async () => {
-      const value = Value.dynamicColor<null, null>(async () => ({
+      const value = Value.dynamicColor<null>(async () => ({
         name: "Testing",
         required: false,
         description: null,
@@ -387,11 +387,10 @@ describe("values", () => {
       })
     })
     test("datetime", async () => {
-      const value = Value.dynamicDatetime<{ test: "a" }, { test2: 6 }>(
-        async ({ effects, utils, config }) => {
+      const value = Value.dynamicDatetime<{ test: "a" }>(
+        async ({ effects, utils }) => {
           ;async () => {
             ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
-            config satisfies { test2: 6 } | null
           }
 
           return {

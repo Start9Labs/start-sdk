@@ -2,7 +2,7 @@ import { Config } from "./builder"
 import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types"
 import { InputSpec } from "./configTypes"
 import { Utils, nullIfEmpty, once, utils } from "../util"
-import { GenericManifest } from "../manifest/ManifestTypes"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import * as D from "./dependencies"
 import { ExtractConfigType } from "./builder/config"
 
@@ -13,8 +13,8 @@ export type DependenciesReceipt = void & {
 
 export type Save<
   WD,
-  A extends Record<string, any> | Config<Record<string, any>, any, any>,
-  Manifest extends GenericManifest,
+  A extends Record<string, any> | Config<Record<string, any>, any>,
+  Manifest extends SDKManifest,
 > = (options: {
   effects: Effects
   input: ExtractConfigType<A> & Record<string, any>
@@ -23,7 +23,7 @@ export type Save<
 }) => Promise<DependenciesReceipt>
 export type Read<
   WD,
-  A extends Record<string, any> | Config<Record<string, any>, any, any>,
+  A extends Record<string, any> | Config<Record<string, any>, any>,
 > = (options: {
   effects: Effects
   utils: Utils<WD>
@@ -37,11 +37,11 @@ export type Read<
  */
 export function setupConfig<
   WD,
-  ConfigType extends Record<string, any> | Config<any, any, any>,
-  Manifest extends GenericManifest,
+  ConfigType extends Record<string, any> | Config<any, any>,
+  Manifest extends SDKManifest,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 >(
-  spec: Config<Type, WD, Type>,
+  spec: Config<Type, WD>,
   write: Save<WD, Type, Manifest>,
   read: Read<WD, Type>,
 ) {
@@ -68,7 +68,6 @@ export function setupConfig<
         spec: await spec.build({
           effects,
           utils: myUtils,
-          config: configValue as Type,
         }),
         config: configValue,
       }

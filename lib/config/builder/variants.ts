@@ -52,9 +52,9 @@ export const pruning = Value.union(
 );
 ```
  */
-export class Variants<Type, WD, ConfigType> {
+export class Variants<Type, WD> {
   private constructor(
-    public build: LazyBuild<WD, ConfigType, ValueSpecUnion["variants"]>,
+    public build: LazyBuild<WD, ValueSpecUnion["variants"]>,
     public validator: Parser<unknown, Type>,
   ) {}
   // A extends {
@@ -70,7 +70,7 @@ export class Variants<Type, WD, ConfigType> {
   >(a: {
     [K in keyof TypeMap]: {
       name: string
-      spec: Config<TypeMap[K], WrapperData, ConfigType>
+      spec: Config<TypeMap[K], WrapperData>
     }
   }) {
     type TypeOut = {
@@ -89,7 +89,7 @@ export class Variants<Type, WD, ConfigType> {
       ),
     ) as Parser<unknown, TypeOut>
 
-    return new Variants<TypeOut, WrapperData, ConfigType>(async (options) => {
+    return new Variants<TypeOut, WrapperData>(async (options) => {
       const variants = {} as {
         [K in keyof TypeMap]: { name: string; spec: InputSpec }
       }

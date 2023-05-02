@@ -14,7 +14,7 @@ export interface Container {
 
 export type ManifestVersion = ValidEmVer
 
-export interface GenericManifest {
+export interface SDKManifest {
   /**  The package identifier used by the OS. This must be unique amongst all other known packages */
   id: string
   /** A human readable service title */

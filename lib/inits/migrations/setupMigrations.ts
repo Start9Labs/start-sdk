@@ -1,13 +1,13 @@
 import { setupActions } from "../../actions/setupActions"
 import { EmVer } from "../../emverLite/mod"
-import { GenericManifest } from "../../manifest/ManifestTypes"
+import { SDKManifest } from "../../manifest/ManifestTypes"
 import { ExpectedExports } from "../../types"
 import { once } from "../../util/once"
 import { Migration } from "./Migration"
 
 export class Migrations {
   private constructor(
-    readonly manifest: GenericManifest,
+    readonly manifest: SDKManifest,
     readonly migrations: Array<Migration<any>>,
   ) {}
   private sortedMigrations = once(() => {
@@ -19,7 +19,7 @@ export class Migrations {
   })
   private currentVersion = once(() => EmVer.parse(this.manifest.version))
   static of<Migrations extends Array<Migration<any>>>(
-    manifest: GenericManifest,
+    manifest: SDKManifest,
     ...migrations: EnsureUniqueId<Migrations>
   ) {
     return new Migrations(manifest, migrations as Array<Migration<any>>)
@@ -54,7 +54,7 @@ export class Migrations {
 }
 
 export function setupMigrations<Migrations extends Array<Migration<any>>>(
-  manifest: GenericManifest,
+  manifest: SDKManifest,
   ...migrations: EnsureUniqueId<Migrations>
 ) {
   return Migrations.of(manifest, ...migrations)

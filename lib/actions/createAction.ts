@@ -5,12 +5,12 @@ import { Utils, utils } from "../util"
 
 export class CreatedAction<
   WrapperData,
-  ConfigType extends Record<string, any> | Config<any, any, any>,
+  ConfigType extends Record<string, any> | Config<any, any>,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
     public readonly myMetaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData, Type>
+      input: Config<Type, WrapperData>
     },
     readonly fn: (options: {
       effects: Effects
@@ -22,11 +22,11 @@ export class CreatedAction<
 
   static of<
     WrapperData,
-    ConfigType extends Record<string, any> | Config<any, any, any>,
+    ConfigType extends Record<string, any> | Config<any, any>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
     metaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData, Type>
+      input: Config<Type, WrapperData>
     },
     fn: (options: {
       effects: Effects
@@ -52,7 +52,6 @@ export class CreatedAction<
       input: await this.myMetaData.input.build({
         effects,
         utils: myUtils,
-        config: null,
       }),
     }
     await effects.exportAction(metaData)

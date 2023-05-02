@@ -19,12 +19,12 @@ export const authorizationList = List.string({
 export const auth = Value.list(authorizationList);
 ```
 */
-export class List<Type, WD, ConfigType> {
+export class List<Type, WD> {
   private constructor(
-    public build: LazyBuild<WD, ConfigType, ValueSpecList>,
+    public build: LazyBuild<WD, ValueSpecList>,
     public validator: Parser<unknown, Type>,
   ) {}
-  static text<WD, CT>(
+  static text<WD>(
     a: {
       name: string
       description?: string | null
@@ -45,7 +45,7 @@ export class List<Type, WD, ConfigType> {
       inputmode?: ListValueSpecText["inputmode"]
     },
   ) {
-    return new List<string[], WD, CT>(() => {
+    return new List<string[], WD>(() => {
       const spec = {
         type: "text" as const,
         placeholder: null,
@@ -67,10 +67,9 @@ export class List<Type, WD, ConfigType> {
       }
     }, arrayOf(string))
   }
-  static dynamicText<WD, CT>(
+  static dynamicText<WD>(
     getA: LazyBuild<
       WD,
-      CT,
       {
         name: string
         description?: string | null
@@ -92,7 +91,7 @@ export class List<Type, WD, ConfigType> {
       }
     >,
   ) {
-    return new List<string[], WD, CT>(async (options) => {
+    return new List<string[], WD>(async (options) => {
       const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "text" as const,
@@ -115,7 +114,7 @@ export class List<Type, WD, ConfigType> {
       }
     }, arrayOf(string))
   }
-  static number<WD, CT>(
+  static number<WD>(
     a: {
       name: string
       description?: string | null
@@ -134,7 +133,7 @@ export class List<Type, WD, ConfigType> {
       placeholder?: string | null
     },
   ) {
-    return new List<number[], WD, CT>(() => {
+    return new List<number[], WD>(() => {
       const spec = {
         type: "number" as const,
         placeholder: null,
@@ -156,10 +155,9 @@ export class List<Type, WD, ConfigType> {
       }
     }, arrayOf(number))
   }
-  static dynamicNumber<WD, CT>(
+  static dynamicNumber<WD>(
     getA: LazyBuild<
       WD,
-      CT,
       {
         name: string
         description?: string | null
@@ -179,7 +177,7 @@ export class List<Type, WD, ConfigType> {
       }
     >,
   ) {
-    return new List<number[], WD, CT>(async (options) => {
+    return new List<number[], WD>(async (options) => {
       const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "number" as const,
@@ -202,7 +200,7 @@ export class List<Type, WD, ConfigType> {
       }
     }, arrayOf(number))
   }
-  static obj<Type extends Record<string, any>, WrapperData, ConfigType>(
+  static obj<Type extends Record<string, any>, WrapperData>(
     a: {
       name: string
       description?: string | null
@@ -213,12 +211,12 @@ export class List<Type, WD, ConfigType> {
       maxLength?: number | null
     },
     aSpec: {
-      spec: Config<Type, WrapperData, ConfigType>
+      spec: Config<Type, WrapperData>
       displayAs?: null | string
       uniqueBy?: null | UniqueBy
     },
   ) {
-    return new List<Type[], WrapperData, ConfigType>(async (options) => {
+    return new List<Type[], WrapperData>(async (options) => {
       const { spec: previousSpecSpec, ...restSpec } = aSpec
       const specSpec = await previousSpecSpec.build(options)
       const spec = {

@@ -1,14 +1,14 @@
 import { string } from "ts-matches"
 import { Backups } from "."
-import { GenericManifest } from "../manifest/ManifestTypes"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { BackupOptions, ExpectedExports } from "../types"
 import { _ } from "../util"
 
-export type SetupBackupsParams<M extends GenericManifest> = Array<
+export type SetupBackupsParams<M extends SDKManifest> = Array<
   (keyof M["volumes"] & string) | Backups<M>
 >
 
-export function setupBackups<M extends GenericManifest>(
+export function setupBackups<M extends SDKManifest>(
   ...args: _<SetupBackupsParams<M>>
 ) {
   const backups = Array<Backups<M>>()
