@@ -8,7 +8,6 @@ import {
   ValueSpecText,
   ValueSpecTextarea,
 } from "../configTypes"
-import { once } from "../../util"
 import { DefaultString } from "../configTypes"
 import { _ } from "../../util"
 import {
@@ -23,6 +22,7 @@ import {
   string,
   unknown,
 } from "ts-matches"
+import { once } from "../../util/once"
 
 type RequiredDefault<A> =
   | false

@@ -1,3 +1,3 @@
-export { setupInit } from "./setupInit"
-export { setupUninstall } from "./setupUninstall"
-export { setupInstall } from "./setupInstall"
+import "./setupInit"
+import "./setupUninstall"
+import "./setupInstall"

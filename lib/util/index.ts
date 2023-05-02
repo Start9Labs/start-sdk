@@ -8,16 +8,19 @@ import {
   checkPortListening,
   checkWebUrl,
 } from "../health/checkFns"
-import { LocalBinding, LocalPort, NetworkBuilder, TorHostname } from "../mainFn"
 import { ExtractWrapperData } from "../types"
 import { GetSystemSmtp } from "./GetSystemSmtp"
 
-export { default as nullIfEmpty } from "./nullIfEmpty"
-export { FileHelper } from "./fileHelper"
-export { getWrapperData } from "./getWrapperData"
-export { deepEqual } from "./deepEqual"
-export { deepMerge } from "./deepMerge"
-export { once } from "./once"
+import "./nullIfEmpty"
+import "./fileHelper"
+import "./getWrapperData"
+import "./deepEqual"
+import "./deepMerge"
+import "./once"
+import { LocalBinding } from "../mainFn/LocalBinding"
+import { LocalPort } from "../mainFn/LocalPort"
+import { NetworkBuilder } from "../mainFn/NetworkBuilder"
+import { TorHostname } from "../mainFn/TorHostname"
 
 // prettier-ignore
 export type FlattenIntersection<T> = 

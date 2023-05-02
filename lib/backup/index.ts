@@ -1,3 +1,3 @@
-export { Backups } from "./Backups"
+import "./Backups"
 
-export { setupBackups } from "./setupBackups"
+import "./setupBackups"

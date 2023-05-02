@@ -1,16 +1,16 @@
 import { Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util"
 import { Daemons } from "./Daemons"
-export * as network from "./exportInterfaces"
-export { LocalBinding } from "./LocalBinding"
-export { LocalPort } from "./LocalPort"
-export { NetworkBuilder } from "./NetworkBuilder"
-export { NetworkInterfaceBuilder } from "./NetworkInterfaceBuilder"
-export { Origin } from "./Origin"
-export { TorBinding } from "./TorBinding"
-export { TorHostname } from "./TorHostname"
+import "./exportInterfaces"
+import "./LocalBinding"
+import "./LocalPort"
+import "./NetworkBuilder"
+import "./NetworkInterfaceBuilder"
+import "./Origin"
+import "./TorBinding"
+import "./TorHostname"
 
-export { Daemons } from "./Daemons"
+import "./Daemons"
 
 /**
  * Used to ensure that the main function is running with the valid proofs.

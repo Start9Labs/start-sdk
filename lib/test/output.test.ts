@@ -4,10 +4,10 @@ import {
   UnionValueKey,
   unionValueKey,
 } from "../config/configTypes"
-import { deepMerge } from "../util"
 import { ConfigSpec, matchConfigSpec } from "./output"
 import * as _I from "../index"
 import { camelCase } from "../../scripts/oldSpecToBuilder"
+import { deepMerge } from "../util/deepMerge"
 
 export type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
   ? 1

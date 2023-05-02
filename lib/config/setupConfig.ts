@@ -1,10 +1,10 @@
-import { Config } from "./builder"
 import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types"
 import { InputSpec } from "./configTypes"
-import { Utils, nullIfEmpty, once, utils } from "../util"
 import { SDKManifest } from "../manifest/ManifestTypes"
 import * as D from "./dependencies"
-import { ExtractConfigType } from "./builder/config"
+import { Config, ExtractConfigType } from "./builder/config"
+import { Utils, utils } from "../util"
+import nullIfEmpty from "../util/nullIfEmpty"
 
 declare const dependencyProof: unique symbol
 export type DependenciesReceipt = void & {

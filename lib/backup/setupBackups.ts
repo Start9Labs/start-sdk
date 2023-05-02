@@ -1,5 +1,5 @@
 import { string } from "ts-matches"
-import { Backups } from "."
+import { Backups } from "./Backups"
 import { SDKManifest } from "../manifest/ManifestTypes"
 import { BackupOptions, ExpectedExports } from "../types"
 import { _ } from "../util"

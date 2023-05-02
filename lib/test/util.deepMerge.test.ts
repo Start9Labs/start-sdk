@@ -1,4 +1,4 @@
-import { deepEqual } from "../util"
+import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
 
 describe("deepMerge", () => {

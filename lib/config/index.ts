@@ -1,5 +1,5 @@
-export * as configBuilder from "./builder"
+import "./builder"
 
-export { setupConfig } from "./setupConfig"
-export * as dependencies from "./dependencies"
-export * as constants from "./constants"
+import "./setupConfig"
+import "./dependencies"
+import "./constants"

@@ -2,10 +2,8 @@ import { ExpectedExports, Properties } from "../types"
 
 import { PropertyGroup } from "./PropertyGroup"
 import { PropertyString } from "./PropertyString"
-export { PropertyGroup } from "./PropertyGroup"
-export { PropertyString } from "./PropertyString"
-
-export const test = ""
+import "./PropertyGroup"
+import "./PropertyString"
 
 export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
   ? R

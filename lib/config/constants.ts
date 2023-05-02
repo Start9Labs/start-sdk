@@ -1,5 +1,7 @@
 import { SmtpValue } from "../types"
-import { Config, Value, Variants, topConfig } from "./builder"
+import { Config } from "./builder/config"
+import { Value } from "./builder/value"
+import { Variants } from "./builder/variants"
 
 export const smtpConfig = Value.union(
   {

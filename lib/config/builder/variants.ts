@@ -1,6 +1,5 @@
 import { InputSpec, ValueSpecUnion } from "../configTypes"
-import { Config } from "."
-import { LazyBuild } from "./config"
+import { LazyBuild, Config } from "./config"
 import { Parser, anyOf, literals, object } from "ts-matches"
 
 /**
