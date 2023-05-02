@@ -10,6 +10,7 @@ import {
 } from "../health/checkFns"
 import { LocalBinding, LocalPort, NetworkBuilder, TorHostname } from "../mainFn"
 import { ExtractWrapperData } from "../types"
+import { GetSystemSmtp } from "./GetSystemSmtp"
 
 export { default as nullIfEmpty } from "./nullIfEmpty"
 export { FileHelper } from "./fileHelper"
@@ -59,6 +60,7 @@ export type Utils<WD, WrapperOverWrite = { const: never }> = {
     fileHelper: FileHelper<A>,
     data: A,
   ) => ReturnType<FileHelper<A>["write"]>
+  getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
   getWrapperData: <Path extends string>(
     packageId: string,
     path: T.EnsureWrapperDataPath<WD, Path>,
@@ -96,6 +98,8 @@ export type Utils<WD, WrapperOverWrite = { const: never }> = {
 export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
   effects: T.Effects,
 ): Utils<WrapperData, WrapperOverWrite> => ({
+  getSystemSmtp: () =>
+    new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
   readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
   writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
     fileHelper.write(data, effects),
