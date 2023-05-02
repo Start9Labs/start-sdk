@@ -54,3 +54,11 @@ export const smtpConfig = Value.union(
     },
   }),
 )
+
+export function getConst<WrapperData>() {
+  return {
+    get smtp() {
+      return smtpConfig.withWrapperData<WrapperData>()
+    },
+  }
+}
