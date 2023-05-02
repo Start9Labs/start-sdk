@@ -10,11 +10,11 @@ export const smtpConfig = Value.union(
     required: { default: "disabled" },
   },
   Variants.of({
-    disabled: { name: "Disabled", spec: Config.of({}) },
-    system: { name: "System Credentials", spec: Config.of({}) },
+    disabled: { name: "Disabled", spec: Config.of()({}) },
+    system: { name: "System Credentials", spec: Config.of()({}) },
     custom: {
       name: "Custom Credentials",
-      spec: Config.of<SmtpValue, unknown>({
+      spec: Config.of()<SmtpValue>({
         server: Value.text({
           name: "SMTP Server",
           required: {

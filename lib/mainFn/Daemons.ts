@@ -1,6 +1,7 @@
-import { HealthReceipt, ReadyProof, TriggerInput } from "../health"
+import { HealthReceipt } from "../health/HealthReceipt"
 import { CheckResult } from "../health/checkFns"
 import { Trigger } from "../health/trigger"
+import { TriggerInput } from "../health/trigger/TriggerInput"
 import { defaultTrigger } from "../health/trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
 import { InterfaceReceipt } from "./interfaceReceipt"
