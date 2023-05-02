@@ -116,3 +116,8 @@ export class Config<Type extends Record<string, any>, WD, ConfigType> {
     }
   }
 }
+export function topConfig<WrapperData>() {
+  return <Type extends Record<string, any>>(spec: {
+    [K in keyof Type]: Value<Type[K], WrapperData, Type>
+  }) => Config.of<Type, WrapperData, Type>(spec)
+}
