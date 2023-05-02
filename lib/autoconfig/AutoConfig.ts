@@ -1,5 +1,7 @@
 import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types"
-import { Utils, deepEqual, deepMerge, utils } from "../util"
+import { Utils, utils } from "../util"
+import { deepEqual } from "../util/deepEqual"
+import { deepMerge } from "../util/deepMerge"
 
 export type AutoConfigFrom<WD, Input, NestedConfigs> = {
   [key in keyof NestedConfigs & string]: (options: {

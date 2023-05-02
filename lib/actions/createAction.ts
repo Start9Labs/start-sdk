@@ -1,5 +1,4 @@
-import { Config } from "../config/builder"
-import { ExtractConfigType } from "../config/builder/config"
+import { Config, ExtractConfigType } from "../config/builder/config"
 import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
 import { Utils, utils } from "../util"
 

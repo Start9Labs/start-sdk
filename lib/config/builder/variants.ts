@@ -65,20 +65,18 @@ export class Variants<Type, WD> {
   static of<
     TypeMap extends Record<string, Record<string, any>>,
     WrapperData,
-    ConfigType,
+    TypeOut = {
+      [K in keyof TypeMap & string]: {
+        unionSelectKey: K
+        unionValueKey: TypeMap[K]
+      }
+    }[keyof TypeMap & string],
   >(a: {
     [K in keyof TypeMap]: {
       name: string
       spec: Config<TypeMap[K], WrapperData>
     }
   }) {
-    type TypeOut = {
-      [K in keyof TypeMap & string]: {
-        unionSelectKey: K
-        unionValueKey: TypeMap[K]
-      }
-    }[keyof TypeMap & string]
-
     const validator = anyOf(
       ...Object.entries(a).map(([name, { spec }]) =>
         object({
@@ -111,7 +109,7 @@ export class Variants<Type, WD> {
     required: false,
   })
 
-  return topConfig<WrapperData>()({
+  return Config.of<WrapperData>()({
     myValue: a.withWrapperData(),
   })
   ```

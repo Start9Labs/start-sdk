@@ -260,7 +260,7 @@ export class List<Type, WD> {
     required: false,
   })
 
-  return topConfig<WrapperData>()({
+  return Config.of<WrapperData>()({
     myValue: a.withWrapperData(),
   })
   ```

@@ -36,7 +36,7 @@ export default async function makeFileContentFromOld(
 ) {
   const outputLines: string[] = []
   outputLines.push(`
-  import { Config, topConfig } from "${startSdk}/lib/config/builder/config"
+  import { Config } from "${startSdk}/lib/config/builder/config"
 import { List } from "${startSdk}/lib/config/builder/list"
 import { Value } from "${startSdk}/lib/config/builder/value"
 import { Variants } from "${startSdk}/lib/config/builder/variants"
@@ -46,10 +46,7 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
   const hammerWrapperData = !nested ? ".withWrapperData()" : ""
 
   const namedConsts = new Set(["Config", "Value", "List"])
-  const configName = newConst(
-    "configSpec",
-    `topConfig<WrapperData>()(${convertInputSpecInner(data)})`,
-  )
+  const configName = newConst("configSpec", convertInputSpec(data))
   const configMatcherName = newConst(
     "matchConfigSpec",
     `${configName}.validator`,
@@ -82,7 +79,7 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
   }
 
   function convertInputSpec(data: any) {
-    return `Config.of(${convertInputSpecInner(data)})`
+    return `Config.of<WrapperData>()(${convertInputSpecInner(data)})`
   }
   function convertValueSpec(value: any): string {
     switch (value.type) {
@@ -366,7 +363,7 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
         const listConfig = maybeNewConst(
           value.name + "_list_config",
           `
-          Config.of({
+          Config.of<WrapperData>()({
             "union": ${unionValueName}${hammerWrapperData}
           })
         `,

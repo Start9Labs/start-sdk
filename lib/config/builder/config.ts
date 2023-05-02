@@ -92,17 +92,19 @@ export class Config<Type extends Record<string, any>, WD> {
     return answer
   }
 
-  static of<Type extends Record<string, any>, WrapperData>(spec: {
-    [K in keyof Type]: Value<Type[K], WrapperData>
-  }) {
-    const validatorObj = {} as {
-      [K in keyof Type]: Parser<unknown, Type[K]>
+  static of<WrapperData>() {
+    return <Type extends Record<string, any>>(spec: {
+      [K in keyof Type]: Value<Type[K], WrapperData>
+    }) => {
+      const validatorObj = {} as {
+        [K in keyof Type]: Parser<unknown, Type[K]>
+      }
+      for (const key in spec) {
+        validatorObj[key] = spec[key].validator
+      }
+      const validator = object(validatorObj)
+      return new Config<Type, WrapperData>(spec, validator)
     }
-    for (const key in spec) {
-      validatorObj[key] = spec[key].validator
-    }
-    const validator = object(validatorObj)
-    return new Config<Type, WrapperData>(spec, validator)
   }
 
   /**
@@ -114,7 +116,7 @@ export class Config<Type extends Record<string, any>, WD> {
     required: false,
   })
 
-  return topConfig<WrapperData>()({
+  return Config.of<WrapperData>()({
     myValue: a.withWrapperData(),
   })
   ```
@@ -122,10 +124,4 @@ export class Config<Type extends Record<string, any>, WD> {
   withWrapperData<NewWrapperData extends WD>() {
     return this as any as Config<Type, NewWrapperData>
   }
-}
-
-export function topConfig<WrapperData>() {
-  return <Type extends Record<string, any>>(spec: {
-    [K in keyof Type]: Value<Type[K], WrapperData>
-  }) => Config.of<Type, WrapperData>(spec)
 }

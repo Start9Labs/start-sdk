@@ -11,7 +11,7 @@ describe("builder tests", () => {
   test("text", async () => {
     const bitcoinPropertiesBuilt: {
       "peer-tor-address": ValueSpec
-    } = await Config.of({
+    } = await Config.of<unknown>()({
       "peer-tor-address": Value.text({
         name: "Peer tor address",
         description: "The Tor address of the peer interface",
@@ -234,7 +234,7 @@ describe("values", () => {
         description: null,
         warning: null,
       },
-      Config.of({
+      Config.of<null>()({
         a: Value.toggle({
           name: "test",
           description: null,
@@ -259,7 +259,7 @@ describe("values", () => {
       Variants.of({
         a: {
           name: "a",
-          spec: Config.of({
+          spec: Config.of<unknown>()({
             b: Value.toggle({
               name: "b",
               description: null,
@@ -512,7 +512,7 @@ describe("values", () => {
         Variants.of({
           a: {
             name: "a",
-            spec: Config.of({
+            spec: Config.of<unknown>()({
               b: Value.toggle({
                 name: "b",
                 description: null,
@@ -523,7 +523,7 @@ describe("values", () => {
           },
           b: {
             name: "b",
-            spec: Config.of({
+            spec: Config.of<unknown>()({
               b: Value.toggle({
                 name: "b",
                 description: null,
@@ -584,7 +584,7 @@ describe("Builder List", () => {
           name: "test",
         },
         {
-          spec: Config.of({
+          spec: Config.of<unknown>()({
             test: Value.toggle({
               name: "test",
               description: null,
@@ -655,7 +655,7 @@ describe("Builder List", () => {
 
 describe("Nested nullable values", () => {
   test("Testing text", async () => {
-    const value = Config.of({
+    const value = Config.of<unknown>()({
       a: Value.text({
         name: "Temp Name",
         description:
@@ -670,7 +670,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: string | null | undefined }>()(null)
   })
   test("Testing number", async () => {
-    const value = Config.of({
+    const value = Config.of<unknown>()({
       a: Value.number({
         name: "Temp Name",
         description:
@@ -692,7 +692,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: number | null | undefined }>()(null)
   })
   test("Testing color", async () => {
-    const value = Config.of({
+    const value = Config.of<unknown>()({
       a: Value.color({
         name: "Temp Name",
         description:
@@ -708,7 +708,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: string | null | undefined }>()(null)
   })
   test("Testing select", async () => {
-    const value = Config.of({
+    const value = Config.of<unknown>()({
       a: Value.select({
         name: "Temp Name",
         description:
@@ -737,7 +737,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: "a" | null | undefined }>()(null)
   })
   test("Testing multiselect", async () => {
-    const value = Config.of({
+    const value = Config.of<unknown>()({
       a: Value.multiselect({
         name: "Temp Name",
         description:

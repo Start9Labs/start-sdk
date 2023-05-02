@@ -9,7 +9,7 @@ describe("Config Types", () => {
     for (const option of options) {
       const test = (option as any)(
         {} as any,
-        { spec: Config.of({}) } as any,
+        { spec: Config.of()({}) } as any,
       ) as any
       const someList = await Value.list(test).build({} as any)
       if (isValueSpecListOf(someList, "text")) {
