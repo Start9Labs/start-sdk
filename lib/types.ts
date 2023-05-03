@@ -441,7 +441,7 @@ export type Effects = {
       port: number
       ssl: boolean
     }
-    http: {
+    http?: {
       // optional, will do TCP layer proxy only if not present
       headers: (headers: Record<string, string>) => Record<string, string>
     }
