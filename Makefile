@@ -29,7 +29,7 @@ node_modules: package.json
 	npm install
 
 publish: clean bundle	 package.json README.md LICENSE
-	cd dist && npm publish
+	cd dist && npm publish --access=public
 link: bundle	
 	cp package.json dist/package.json
 	cp README.md dist/README.md
