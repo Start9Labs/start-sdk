@@ -1,6 +1,4 @@
-import { Parser } from "ts-matches"
-import { Effects, EnsureWrapperDataPath, ExtractWrapperData } from "../types"
-import { NoAny } from "."
+import { Effects } from "../types"
 
 export class GetSystemSmtp {
   constructor(readonly effects: Effects) {}

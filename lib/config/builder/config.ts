@@ -18,7 +18,7 @@ export type ExtractConfigType<A extends Record<string, any> | Config<Record<stri
   A extends Config<infer B, any> | Config<infer B, never> ? B :
   A
 
-export type TypeAsConfigOf<A extends Record<string, any>, WD = never> = {
+export type ConfigSpecOf<A extends Record<string, any>, WD = never> = {
   [K in keyof A]: Value<A[K], WD>
 }
 

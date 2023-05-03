@@ -335,6 +335,8 @@ export type Effects = {
     interfaceId: string,
     packageId?: string,
   ): Promise<string>
+  /** Get the IP address of the container */
+  getContainerIp(): Promise<string>
   /**
    * Get the port address for another service
    */
