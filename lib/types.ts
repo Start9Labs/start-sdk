@@ -165,6 +165,32 @@ export type ActionMetaData = {
   group?: string
 }
 
+export type AddressType = {
+  /** The title of this field to be dsimplayed */
+  name: string
+  /** Human readable description, used as tooltip usually */
+  description: string
+  /** URI location */
+  address: string
+  id: string
+  /** Defaults to false, but describes if this address can be opened in a browser as an
+   * ui interface
+   */
+  ui?: boolean
+  /**
+   * The id is that a path will create a link in the ui that can go to specific pages, like
+   * admin, or settings, or something like that.
+   * Default = ''
+   */
+  path?: string
+  /**
+   * This is the query params in the url, and is a map of key value pairs
+   * Default = {}
+   * if empty then will not be added to the url
+   */
+  search?: Record<string, string>
+}
+
 /** Used to reach out from the pure js runtime */
 export type Effects = {
   /** Usable when not sandboxed */
@@ -350,33 +376,18 @@ export type Effects = {
   /** When we want to create a link in the front end interfaces, and example is
    * exposing a url to view a web service
    */
-  exportAddress(options: {
-    /** The title of this field to be dsimplayed */
-    name: string
-    /** Human readable description, used as tooltip usually */
-    description: string
-    /** URI location */
-    address: string
-    id: string
-    /** Defaults to false, but describes if this address can be opened in a browser as an
-     * ui interface
-     */
-    ui?: boolean
+  exportAddress(options: AddressType): Promise<string>
 
-    /**
-     * The id is that a path will create a link in the ui that can go to specific pages, like
-     * admin, or settings, or something like that.
-     * Default = ''
-     */
-    path?: string
-
-    /**
-     * This is the query params in the url, and is a map of key value pairs
-     * Default = {}
-     * if empty then will not be added to the url
-     */
-    search?: Record<string, string>
-  }): Promise<string>
+  /**
+   * There are times that we want to see the addresses that where exported
+   * @param options.addressId If we want to filter the address id
+   *
+   * Note: any auth should be filtered out already
+   */
+  getAddresses(options: {
+    id?: PackageId
+    addressId?: string
+  }): Promise<AddressType>
 
   /**
    *Remove an address that was exported. Used problably during main or during setConfig.
@@ -441,9 +452,9 @@ export type Effects = {
       port: number
       ssl: boolean
     }
-    http: {
+    http?: {
       // optional, will do TCP layer proxy only if not present
-      headers: (headers: Record<string, string>) => Record<string, string>
+      headers?: (headers: Record<string, string>) => Record<string, string>
     }
   }): Promise<{ stop(): Promise<void> }>
   restart(): void
