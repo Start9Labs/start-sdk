@@ -23,11 +23,14 @@ export class CreatedAction<
 
   static of<
     WrapperData,
-    ConfigType extends Record<string, any> | Config<any, any>,
+    ConfigType extends
+      | Record<string, any>
+      | Config<any, any>
+      | Config<any, never>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
     metaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData>
+      input: Config<Type, WrapperData> | Config<Type, never>
     },
     fn: (options: {
       effects: Effects
