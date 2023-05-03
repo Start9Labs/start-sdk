@@ -19,7 +19,7 @@ export type UnionToIntersection<T> = ((x: T) => any) extends (x: infer R) => any
 export function setupProperties<WrapperData>(
   fn: (args: {
     wrapperData: WrapperData
-  }) => void | Promise<void> | Promise<(PropertyGroup | PropertyString)[]>,
+  }) => void | Promise<void> | Promise<PropertyGroup[]>,
 ): ExpectedExports.properties {
   return (async (options) => {
     const result = await fn(

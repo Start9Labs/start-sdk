@@ -568,7 +568,17 @@ export type KnownError =
       "error-code": [number, string] | readonly [number, string]
     }
 
-export type PackageProperties = PackagePropertyGroup | PackagePropertyString
+export type PackagePropertyGroup = {
+  header: string | null
+  value: PackageProperties[]
+}
+export type PackageProperties = PackagePropertyPage | PackagePropertyString
+export type PackagePropertyPage = {
+  type: "page"
+  name: string
+  description: string | null
+  value: Properties
+}
 export type PackagePropertyString = {
   type: "string"
   name: string
@@ -581,14 +591,8 @@ export type PackagePropertyString = {
   /** Hiding the value unless toggled off for field */
   masked: boolean
 }
-export type PackagePropertyGroup = {
-  value: PackageProperties[]
-  type: "object"
-  name: string
-  description: string
-}
 
-export type Properties = PackageProperties[]
+export type Properties = PackagePropertyGroup[]
 
 export type Dependency = {
   id: PackageId
