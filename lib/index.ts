@@ -16,3 +16,7 @@ import "./autoconfig"
 import "./actions"
 import "./manifest"
 import "./inits"
+
+export * as matches from "ts-matches"
+export * as YAML from "yaml"
+export * as TOML from "@iarna/toml"
