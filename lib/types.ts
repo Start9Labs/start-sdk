@@ -165,30 +165,18 @@ export type ActionMetaData = {
   group?: string
 }
 
-export type AddressType = {
+export type NetworkInterface = {
+  id: string
   /** The title of this field to be dsimplayed */
   name: string
   /** Human readable description, used as tooltip usually */
   description: string
-  /** URI location */
-  address: string
-  id: string
+  /** All URIs */
+  addresses: string[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
   ui?: boolean
-  /**
-   * The id is that a path will create a link in the ui that can go to specific pages, like
-   * admin, or settings, or something like that.
-   * Default = ''
-   */
-  path?: string
-  /**
-   * This is the query params in the url, and is a map of key value pairs
-   * Default = {}
-   * if empty then will not be added to the url
-   */
-  search?: Record<string, string>
 }
 
 /** Used to reach out from the pure js runtime */
@@ -376,7 +364,7 @@ export type Effects = {
   /** When we want to create a link in the front end interfaces, and example is
    * exposing a url to view a web service
    */
-  exportAddress(options: AddressType): Promise<string>
+  exportNetworkInterface(options: NetworkInterface): Promise<string>
 
   /**
    * There are times that we want to see the addresses that where exported
@@ -384,10 +372,10 @@ export type Effects = {
    *
    * Note: any auth should be filtered out already
    */
-  getAddresses(options: {
-    id?: PackageId
-    addressId?: string
-  }): Promise<AddressType>
+  getInterface(options: {
+    serviceId?: PackageId
+    interfaceId?: string
+  }): Promise<NetworkInterface>
 
   /**
    *Remove an address that was exported. Used problably during main or during setConfig.

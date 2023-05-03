@@ -541,8 +541,6 @@ describe("values", () => {
         Test,
         | { unionSelectKey: "a"; unionValueKey: { b: boolean } }
         | { unionSelectKey: "b"; unionValueKey: { b: boolean } }
-        | null
-        | undefined
       >()(null)
 
       const built = await value.build({} as any)

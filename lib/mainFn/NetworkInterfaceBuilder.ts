@@ -21,9 +21,9 @@ export class NetworkInterfaceBuilder {
       id: string
       description: string
       ui: boolean
-      basic?: null | { password: null | string; username: string }
-      path?: string
-      search?: Record<string, string>
+      basic: null | { password: null | string; username: string }
+      path: string
+      search: Record<string, string>
     },
   ) {}
 
@@ -35,20 +35,21 @@ export class NetworkInterfaceBuilder {
    * @param addresses
    * @returns
    */
-  async exportAddresses(addresses: Iterable<Origin>) {
-    const { name, description, id, ui, path, search } = this.options
-    for (const origin of addresses) {
-      const address = origin.withAuth(this.options.basic)
-      await this.options.effects.exportAddress({
-        name,
-        description,
-        address,
-        id,
-        ui,
-        path,
-        search,
-      })
-    }
+  async export(origins: Iterable<Origin>) {
+    const { name, description, id, ui, basic, path, search } = this.options
+
+    const addresses = Array.from(origins).map((o) =>
+      o.build({ basic, path, search }),
+    )
+
+    await this.options.effects.exportNetworkInterface({
+      id,
+      name,
+      description,
+      addresses,
+      ui,
+    })
+
     return {} as AddressReceipt
   }
 }
