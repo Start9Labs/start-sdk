@@ -1,6 +1,5 @@
 import { ManifestVersion } from "../../manifest/ManifestTypes"
 import { Effects } from "../../types"
-import { Utils } from "../../util"
 
 export class Migration<Version extends ManifestVersion> {
   constructor(

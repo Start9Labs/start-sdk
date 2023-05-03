@@ -1,5 +1,4 @@
 import { Effects } from "../types"
-import { LocalPort } from "./LocalPort"
 import { TorHostname } from "./TorHostname"
 
 export class NetworkBuilder {

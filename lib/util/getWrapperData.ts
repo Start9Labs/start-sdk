@@ -12,8 +12,8 @@ export class GetWrapperData<WrapperData, Path extends string> {
     } = {},
   ) {}
 
-  /** This should be used as the primary method in main since it allows the main to
-   * restart if the wrapper data changes
+  /**
+   * Returns the value of WrapperData at the provided path. Restart the service if the value changes
    */
   const() {
     return this.effects.getWrapperData<WrapperData, Path>({
@@ -23,8 +23,7 @@ export class GetWrapperData<WrapperData, Path extends string> {
     })
   }
   /**
-   * Returns the wrapper data once and then never again
-   * Doesn't restart the server when the wrapper data changes
+   * Returns the value of WrapperData at the provided path. Does nothing if the value changes
    */
   once() {
     return this.effects.getWrapperData<WrapperData, Path>({
@@ -33,8 +32,9 @@ export class GetWrapperData<WrapperData, Path extends string> {
       callback: () => {},
     })
   }
+
   /**
-   * Keeps giving the latest wrapper data as it changes
+   * Watches the value of WrapperData at the provided path. Takes a custom callback function to run whenever the value changes
    */
   async *watch() {
     while (true) {

@@ -19,7 +19,10 @@ export interface SDKManifest {
   id: string
   /** A human readable service title */
   title: string
-  /** Service version - accepts up to four digits, where the last confirms to revisions necessary for StartOs - see documentation: https://github.com/Start9Labs/emver-rs. This value will change with each release of the service */
+  /** Service version - accepts up to four digits, where the last confirms to revisions necessary for StartOs
+   * - see documentation: https://github.com/Start9Labs/emver-rs. This value will change with each release of
+   * the service
+   */
   version: ManifestVersion
   /** Release notes for the update - can be a string, paragraph or URL */
   releaseNotes: string
@@ -27,7 +30,10 @@ export interface SDKManifest {
   license: string // name of license
   /** A list of normie (hosted, SaaS, custodial, etc) services this services intends to replace */
   replaces: string[]
-  /** The Start9 wrapper repository URL for the package. This repo contains the manifest file (this), any scripts necessary for configuration, backups, actions, or health checks (more below). This key must exist. But could be embedded into the source repository */
+  /** The Start9 wrapper repository URL for the package. This repo contains the manifest file (this),
+   * any scripts necessary for configuration, backups, actions, or health checks (more below). This key
+   * must exist. But could be embedded into the source repository
+   */
   wrapperRepo: string
   /** The original project repository URL. There is no upstream repo in this example */
   upstreamRepo: string
@@ -44,15 +50,18 @@ export interface SDKManifest {
     /** This description will display with additional details in the service's individual marketplace page */
     long: string
   }
-  /** These assets are static files necessary for packaging the service for Start9 (into an s9pk). Each value is a path to the specified asset. If an asset is missing from this list, or otherwise denoted, it will be defaulted to the values denoted below. */
+  /** These assets are static files necessary for packaging the service for Start9 (into an s9pk).
+   * Each value is a path to the specified asset. If an asset is missing from this list, or otherwise
+   * denoted, it will be defaulted to the values denoted below.
+   */
   assets: {
     icon: string // file path
     instructions: string // file path
     license: string // file path
   }
-  /**Defines the containers needed to run the main and mounted volumes */
+  /** Defines the containers needed to run the main and mounted volumes */
   containers: Record<string, Container>
-  /**This denotes any data, asset, or pointer volumes that should be connected when the "docker run" command is invoked */
+  /** This denotes any data, asset, or pointer volumes that should be connected when the "docker run" command is invoked */
   volumes: Record<string, string>
   actions: Array<ActionMetaData>
   alerts: {
@@ -68,7 +77,8 @@ export interface SDKManifest {
 
 export interface Dependency {
   /** The range of versions that would satisfy the dependency
-   * ie: >=3.4.5 && <4.0.0
+   *
+   * ie: >=3.4.5 <4.0.0
    */
   version: string
   /**

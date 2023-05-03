@@ -1,5 +1,4 @@
-import { DeepPartial, Dependencies, Effects, ExpectedExports } from "../types"
-import { InputSpec } from "./configTypes"
+import { Effects, ExpectedExports } from "../types"
 import { SDKManifest } from "../manifest/ManifestTypes"
 import * as D from "./dependencies"
 import { Config, ExtractConfigType } from "./builder/config"

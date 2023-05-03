@@ -3,8 +3,8 @@ import { Effects } from "../types"
 export class GetSystemSmtp {
   constructor(readonly effects: Effects) {}
 
-  /** This should be used as the primary method in main since it allows the main to
-   * restart if the wrapper data changes
+  /**
+   * Returns the system SMTP credentials. Restarts the service if the credentials change
    */
   const() {
     return this.effects.getSystemSmtp({
@@ -12,8 +12,7 @@ export class GetSystemSmtp {
     })
   }
   /**
-   * Returns the wrapper data once and then never again
-   * Doesn't restart the server when the wrapper data changes
+   * Returns the system SMTP credentials. Does nothing if the credentials change
    */
   once() {
     return this.effects.getSystemSmtp({
@@ -21,7 +20,7 @@ export class GetSystemSmtp {
     })
   }
   /**
-   * Keeps giving the latest wrapper data as it changes
+   * Watches the system SMTP credentials. Takes a custom callback function to run whenever the credentials change
    */
   async *watch() {
     while (true) {

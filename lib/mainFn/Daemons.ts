@@ -19,27 +19,26 @@ type Daemon<Ids extends string, Command extends string, Id extends string> = {
 
 type ErrorDuplicateId<Id extends string> = `The id '${Id}' is already used`
 /**
- * Used during the main of a function, it allows us to describe and ensure a set of daemons are running.
- * With the dependency, we are using this like an init system, where we can ensure that a daemon is running
- * The return type of this is used in the runningMain
+ * A class for defining and controlling the service daemons
 ```ts
-Daemons.with({
-    effects,
-    started,
-    interfacesReceipt,
-  })
-  .addDaemon({
-    id: "nostr",
-    command: "./nostr-rs-relay --db /data",
-    ready: {
-      display: {
-        name: "Websocket Live",
-        message: "The websocket is live",
-      },
-      fn: () => checkPortListening(effects, 8080),
-    },
-  })
-  .build()
+Daemons.of({
+  effects,
+  started,
+  interfaceReceipt, // Provide the interfaceReceipt to prove it was completed
+  healthReceipts, // Provide the healthReceipts or [] to prove they were at least considered
+}).addDaemon('webui', {
+  command: 'hello-world', // The command to start the daemon
+  ready: {
+    display: 'Web Interface',
+    // The function to run to determine the health status of the daemon
+    fn: () =>
+      checkPortListening(effects, 80, {
+        successMessage: 'The web interface is ready',
+        errorMessage: 'The web interface is not ready',
+      }),
+  },
+  requires: [],
+})
 ```
  */
 export class Daemons<Ids extends string> {
@@ -48,7 +47,16 @@ export class Daemons<Ids extends string> {
     readonly started: (onTerm: () => void) => null,
     readonly daemons?: Daemon<Ids, "command", Ids>[],
   ) {}
-
+  /**
+   * Returns an empty new Daemons class with the provided config.
+   *
+   * Call .addDaemon() on the returned class to add a daemon.
+   *
+   * Daemons run in the order they are defined, with latter daemons being capable of
+   * depending on prior daemons
+   * @param config
+   * @returns
+   */
   static of(config: {
     effects: Effects
     started: (onTerm: () => void) => null
@@ -57,6 +65,12 @@ export class Daemons<Ids extends string> {
   }) {
     return new Daemons<never>(config.effects, config.started)
   }
+  /**
+   * Returns the complete list of daemons, including the one defined here
+   * @param id
+   * @param newDaemon
+   * @returns
+   */
   addDaemon<Id extends string, Command extends string>(
     // prettier-ignore
     id: 

@@ -89,6 +89,11 @@ export class FileHelper<A> {
       }),
     )
   }
+  /**
+   * Create a File Helper for an arbitrary file type.
+   *
+   * Provide custom functions for translating data to the file format and visa versa.
+   */
   static raw<A>(
     path: string,
     volume: string,
@@ -97,6 +102,9 @@ export class FileHelper<A> {
   ) {
     return new FileHelper<A>(path, volume, toFile, fromFile)
   }
+  /**
+   * Create a File Helper for a .json file
+   */
   static json<A>(
     path: string,
     volume: string,
@@ -113,6 +121,9 @@ export class FileHelper<A> {
       },
     )
   }
+  /**
+   * Create a File Helper for a .toml file
+   */
   static toml<A extends Record<string, unknown>>(
     path: string,
     volume: string,
@@ -129,6 +140,9 @@ export class FileHelper<A> {
       },
     )
   }
+  /**
+   * Create a File Helper for a .yaml file
+   */
   static yaml<A extends Record<string, unknown>>(
     path: string,
     volume: string,
