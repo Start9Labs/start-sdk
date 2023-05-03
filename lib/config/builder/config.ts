@@ -18,7 +18,7 @@ export type ExtractConfigType<A extends Record<string, any> | Config<Record<stri
   A extends Config<infer B, any> | Config<infer B, never> ? B :
   A
 
-export type TypeAsConfigOf<A extends Record<string, any>, WD> = {
+export type TypeAsConfigOf<A extends Record<string, any>, WD = never> = {
   [K in keyof A]: Value<A[K], WD>
 }
 
@@ -82,7 +82,7 @@ export const addNodesSpec = Config.of({ hostname: hostname, port: port });
 export class Config<Type extends Record<string, any>, WD> {
   private constructor(
     private readonly spec: {
-      [K in keyof Type]: Value<Type[K], WD>
+      [K in keyof Type]: Value<Type[K], WD> | Value<Type[K], never>
     },
     public validator: Parser<unknown, Type>,
   ) {}
@@ -91,7 +91,7 @@ export class Config<Type extends Record<string, any>, WD> {
       [K in keyof Type]: ValueSpec
     }
     for (const k in this.spec) {
-      answer[k] = await this.spec[k].build(options)
+      answer[k] = await this.spec[k].build(options as any)
     }
     return answer
   }
@@ -117,7 +117,7 @@ export class Config<Type extends Record<string, any>, WD> {
       {
         [K in keyof Spec]: Spec[K] extends Value<any, infer WD> ? WD : never
       }[keyof Spec]
-    >(spec as any, validator as any)
+    >(spec, validator as any)
   }
 
   /**

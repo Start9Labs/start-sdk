@@ -1,4 +1,4 @@
-import { ValidEmVer, ValidEmVerRange } from "../emverLite/mod"
+import { ValidEmVer } from "../emverLite/mod"
 import { ActionMetaData } from "../types"
 
 export interface Container {
@@ -70,7 +70,7 @@ export interface Dependency {
   /** The range of versions that would satisfy the dependency
    * ie: >=3.4.5 && <4.0.0
    */
-  version: ValidEmVerRange
+  version: string
   /**
    * A human readable explanation on what the dependency is used for
    */

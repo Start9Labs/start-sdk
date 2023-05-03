@@ -65,7 +65,7 @@ export class EmVer {
    * Or an already made emver
    * IsUnsafe
    */
-  static from(range: ValidEmVer | EmVer): EmVer {
+  static from(range: string | EmVer): EmVer {
     if (range instanceof EmVer) {
       return range
     }
