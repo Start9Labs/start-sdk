@@ -436,7 +436,7 @@ export type ExtractWrapperData<WrapperData, Path extends string> =
 // prettier-ignore
 type _EnsureWrapperDataPath<WrapperData, Path extends string, Origin extends string> = 
   Path extends`/${infer A }/${infer Rest}` ? (WrapperData extends {[K in A & string]: infer NextWrapperData} ? _EnsureWrapperDataPath<NextWrapperData, `/${Rest}`, Origin> : never) :
-  Path extends `/${infer A }`  ? (WrapperData extends {[K in A]: any} ? Origin : never) :
+  Path extends `/${infer A }`  ? (WrapperData extends {[K in A]: infer B} ? Origin : never) :
   Path extends '' ? Origin :
   never
 // prettier-ignore

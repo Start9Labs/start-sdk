@@ -11,7 +11,7 @@ describe("builder tests", () => {
   test("text", async () => {
     const bitcoinPropertiesBuilt: {
       "peer-tor-address": ValueSpec
-    } = await Config.of<unknown>()({
+    } = await Config.of({
       "peer-tor-address": Value.text({
         name: "Peer tor address",
         description: "The Tor address of the peer interface",
@@ -234,7 +234,7 @@ describe("values", () => {
         description: null,
         warning: null,
       },
-      Config.of<null>()({
+      Config.of({
         a: Value.toggle({
           name: "test",
           description: null,
@@ -259,7 +259,7 @@ describe("values", () => {
       Variants.of({
         a: {
           name: "a",
-          spec: Config.of<unknown>()({
+          spec: Config.of({
             b: Value.toggle({
               name: "b",
               description: null,
@@ -501,7 +501,7 @@ describe("values", () => {
   })
   describe("filtering", () => {
     test("union", async () => {
-      const value = Value.filteredUnion(
+      const value = Value.filteredUnion(() => ["a", "c"])(
         {
           name: "Testing",
           required: { default: null },
@@ -512,7 +512,7 @@ describe("values", () => {
         Variants.of({
           a: {
             name: "a",
-            spec: Config.of<unknown>()({
+            spec: Config.of({
               b: Value.toggle({
                 name: "b",
                 description: null,
@@ -523,7 +523,7 @@ describe("values", () => {
           },
           b: {
             name: "b",
-            spec: Config.of<unknown>()({
+            spec: Config.of({
               b: Value.toggle({
                 name: "b",
                 description: null,
@@ -533,11 +533,6 @@ describe("values", () => {
             }),
           },
         }),
-        () => [
-          "a",
-          // @ts-expect-error
-          "c",
-        ],
       )
       const validator = value.validator
       validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } })
@@ -584,7 +579,7 @@ describe("Builder List", () => {
           name: "test",
         },
         {
-          spec: Config.of<unknown>()({
+          spec: Config.of({
             test: Value.toggle({
               name: "test",
               description: null,
@@ -655,7 +650,7 @@ describe("Builder List", () => {
 
 describe("Nested nullable values", () => {
   test("Testing text", async () => {
-    const value = Config.of<unknown>()({
+    const value = Config.of({
       a: Value.text({
         name: "Temp Name",
         description:
@@ -670,7 +665,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: string | null | undefined }>()(null)
   })
   test("Testing number", async () => {
-    const value = Config.of<unknown>()({
+    const value = Config.of({
       a: Value.number({
         name: "Temp Name",
         description:
@@ -692,7 +687,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: number | null | undefined }>()(null)
   })
   test("Testing color", async () => {
-    const value = Config.of<unknown>()({
+    const value = Config.of({
       a: Value.color({
         name: "Temp Name",
         description:
@@ -708,7 +703,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: string | null | undefined }>()(null)
   })
   test("Testing select", async () => {
-    const value = Config.of<unknown>()({
+    const value = Config.of({
       a: Value.select({
         name: "Temp Name",
         description:
@@ -737,7 +732,7 @@ describe("Nested nullable values", () => {
     testOutput<typeof validator._TYPE, { a: "a" | null | undefined }>()(null)
   })
   test("Testing multiselect", async () => {
-    const value = Config.of<unknown>()({
+    const value = Config.of({
       a: Value.multiselect({
         name: "Temp Name",
         description:

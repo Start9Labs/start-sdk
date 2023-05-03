@@ -14,9 +14,13 @@ export type LazyBuild<WD, ExpectedOut> = (
 ) => Promise<ExpectedOut> | ExpectedOut
 
 // prettier-ignore
-export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any>> = 
-  A extends Config<infer B, any> ? B :
+export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any> | Config<Record<string, any>, never>> = 
+  A extends Config<infer B, any> | Config<infer B, never> ? B :
   A
+
+export type TypeAsConfigOf<A extends Record<string, any>, WD> = {
+  [K in keyof A]: Value<A[K], WD>
+}
 
 export type MaybeLazyValues<A> = LazyBuild<any, A> | A
 /**
@@ -92,19 +96,28 @@ export class Config<Type extends Record<string, any>, WD> {
     return answer
   }
 
-  static of<WrapperData>() {
-    return <Type extends Record<string, any>>(spec: {
-      [K in keyof Type]: Value<Type[K], WrapperData>
-    }) => {
-      const validatorObj = {} as {
-        [K in keyof Type]: Parser<unknown, Type[K]>
-      }
-      for (const key in spec) {
-        validatorObj[key] = spec[key].validator
-      }
-      const validator = object(validatorObj)
-      return new Config<Type, WrapperData>(spec, validator)
+  static of<Spec extends Record<string, Value<any, any> | Value<any, never>>>(
+    spec: Spec,
+  ) {
+    const validatorObj = {} as {
+      [K in keyof Spec]: Parser<unknown, any>
     }
+    for (const key in spec) {
+      validatorObj[key] = spec[key].validator
+    }
+    const validator = object(validatorObj)
+    return new Config<
+      {
+        [K in keyof Spec]: Spec[K] extends
+          | Value<infer T, any>
+          | Value<infer T, never>
+          ? T
+          : never
+      },
+      {
+        [K in keyof Spec]: Spec[K] extends Value<any, infer WD> ? WD : never
+      }[keyof Spec]
+    >(spec as any, validator as any)
   }
 
   /**
@@ -121,7 +134,7 @@ export class Config<Type extends Record<string, any>, WD> {
   })
   ```
    */
-  withWrapperData<NewWrapperData extends WD>() {
+  withWrapperData<NewWrapperData extends WD extends never ? any : WD>() {
     return this as any as Config<Type, NewWrapperData>
   }
 }

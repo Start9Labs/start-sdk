@@ -43,7 +43,6 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
   import {WrapperData} from '${wrapperData}'
 `)
   const data = await inputData
-  const hammerWrapperData = !nested ? ".withWrapperData()" : ""
 
   const namedConsts = new Set(["Config", "Value", "List"])
   const configName = newConst("configSpec", convertInputSpec(data))
@@ -73,13 +72,13 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
     for (const [key, value] of Object.entries(data)) {
       const variableName = maybeNewConst(key, convertValueSpec(value))
 
-      answer += `${JSON.stringify(key)}: ${variableName}${hammerWrapperData},`
+      answer += `${JSON.stringify(key)}: ${variableName},`
     }
     return `${answer}}`
   }
 
   function convertInputSpec(data: any) {
-    return `Config.of<WrapperData>()(${convertInputSpecInner(data)})`
+    return `Config.of(${convertInputSpecInner(data)})`
   }
   function convertValueSpec(value: any): string {
     switch (value.type) {
@@ -363,8 +362,8 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
         const listConfig = maybeNewConst(
           value.name + "_list_config",
           `
-          Config.of<WrapperData>()({
-            "union": ${unionValueName}${hammerWrapperData}
+          Config.of({
+            "union": ${unionValueName}
           })
         `,
         )

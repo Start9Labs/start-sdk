@@ -26,7 +26,7 @@ export class List<Type, WD> {
     public build: LazyBuild<WD, ValueSpecList>,
     public validator: Parser<unknown, Type>,
   ) {}
-  static text<WD>(
+  static text(
     a: {
       name: string
       description?: string | null
@@ -47,7 +47,7 @@ export class List<Type, WD> {
       inputmode?: ListValueSpecText["inputmode"]
     },
   ) {
-    return new List<string[], WD>(() => {
+    return new List<string[], never>(() => {
       const spec = {
         type: "text" as const,
         placeholder: null,
@@ -70,7 +70,7 @@ export class List<Type, WD> {
       } satisfies ValueSpecListOf<"text">
     }, arrayOf(string))
   }
-  static dynamicText<WD>(
+  static dynamicText<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -119,7 +119,7 @@ export class List<Type, WD> {
       } satisfies ValueSpecListOf<"text">
     }, arrayOf(string))
   }
-  static number<WD>(
+  static number(
     a: {
       name: string
       description?: string | null
@@ -138,7 +138,7 @@ export class List<Type, WD> {
       placeholder?: string | null
     },
   ) {
-    return new List<number[], WD>(() => {
+    return new List<number[], never>(() => {
       const spec = {
         type: "number" as const,
         placeholder: null,
@@ -161,7 +161,7 @@ export class List<Type, WD> {
       } satisfies ValueSpecListOf<"number">
     }, arrayOf(number))
   }
-  static dynamicNumber<WD>(
+  static dynamicNumber<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -265,7 +265,7 @@ export class List<Type, WD> {
   })
   ```
    */
-  withWrapperData<NewWrapperData extends WD>() {
+  withWrapperData<NewWrapperData extends WD extends never ? any : WD>() {
     return this as any as List<Type, NewWrapperData>
   }
 }

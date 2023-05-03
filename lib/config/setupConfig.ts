@@ -13,7 +13,10 @@ export type DependenciesReceipt = void & {
 
 export type Save<
   WD,
-  A extends Record<string, any> | Config<Record<string, any>, any>,
+  A extends
+    | Record<string, any>
+    | Config<Record<string, any>, any>
+    | Config<Record<string, never>, never>,
   Manifest extends SDKManifest,
 > = (options: {
   effects: Effects
@@ -26,7 +29,10 @@ export type Save<
 }>
 export type Read<
   WD,
-  A extends Record<string, any> | Config<Record<string, any>, any>,
+  A extends
+    | Record<string, any>
+    | Config<Record<string, any>, any>
+    | Config<Record<string, any>, never>,
 > = (options: {
   effects: Effects
   utils: Utils<WD>
@@ -40,11 +46,14 @@ export type Read<
  */
 export function setupConfig<
   WD,
-  ConfigType extends Record<string, any> | Config<any, any>,
+  ConfigType extends
+    | Record<string, any>
+    | Config<any, any>
+    | Config<any, never>,
   Manifest extends SDKManifest,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 >(
-  spec: Config<Type, WD>,
+  spec: Config<Type, WD> | Config<Type, never>,
   write: Save<WD, Type, Manifest>,
   read: Read<WD, Type>,
 ) {
@@ -73,7 +82,7 @@ export function setupConfig<
       return {
         spec: await spec.build({
           effects,
-          utils: myUtils,
+          utils: myUtils as any,
         }),
         config: configValue,
       }

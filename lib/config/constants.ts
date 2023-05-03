@@ -1,5 +1,5 @@
 import { SmtpValue } from "../types"
-import { Config } from "./builder/config"
+import { Config, TypeAsConfigOf } from "./builder/config"
 import { Value } from "./builder/value"
 import { Variants } from "./builder/variants"
 
@@ -10,11 +10,11 @@ export const smtpConfig = Value.union(
     required: { default: "disabled" },
   },
   Variants.of({
-    disabled: { name: "Disabled", spec: Config.of()({}) },
-    system: { name: "System Credentials", spec: Config.of()({}) },
+    disabled: { name: "Disabled", spec: Config.of({}) },
+    system: { name: "System Credentials", spec: Config.of({}) },
     custom: {
       name: "Custom Credentials",
-      spec: Config.of()<SmtpValue>({
+      spec: Config.of<TypeAsConfigOf<SmtpValue, never>>({
         server: Value.text({
           name: "SMTP Server",
           required: {
@@ -56,11 +56,3 @@ export const smtpConfig = Value.union(
     },
   }),
 )
-
-export function getConst<WrapperData>() {
-  return {
-    get smtp() {
-      return smtpConfig.withWrapperData<WrapperData>()
-    },
-  }
-}

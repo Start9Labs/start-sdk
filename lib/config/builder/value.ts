@@ -98,7 +98,7 @@ export class Value<Type, WD> {
     public build: LazyBuild<WD, ValueSpec>,
     public validator: Parser<unknown, Type>,
   ) {}
-  static toggle<WD>(a: {
+  static toggle(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -107,7 +107,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<boolean, WD>(
+    return new Value<boolean, never>(
       async () => ({
         description: null,
         warning: null,
@@ -120,7 +120,7 @@ export class Value<Type, WD> {
       boolean,
     )
   }
-  static dynamicToggle<WD>(
+  static dynamicToggle<WD = never>(
     a: LazyBuild<
       WD,
       {
@@ -145,7 +145,7 @@ export class Value<Type, WD> {
       boolean,
     )
   }
-  static text<Required extends RequiredDefault<DefaultString>, WD>(a: {
+  static text<Required extends RequiredDefault<DefaultString>>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -163,7 +163,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<string, Required>, WD>(
+    return new Value<AsRequired<string, Required>, never>(
       async () => ({
         type: "text" as const,
         description: null,
@@ -182,7 +182,7 @@ export class Value<Type, WD> {
       asRequiredParser(string, a),
     )
   }
-  static dynamicText<WD>(
+  static dynamicText<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -221,7 +221,7 @@ export class Value<Type, WD> {
       }
     }, string.optional())
   }
-  static textarea<WD>(a: {
+  static textarea(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -233,7 +233,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<string, WD>(
+    return new Value<string, never>(
       async () =>
         ({
           description: null,
@@ -249,7 +249,7 @@ export class Value<Type, WD> {
       string,
     )
   }
-  static dynamicTextarea<WD>(
+  static dynamicTextarea<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -279,7 +279,7 @@ export class Value<Type, WD> {
       }
     }, string)
   }
-  static number<Required extends RequiredDefault<number>, WD>(a: {
+  static number<Required extends RequiredDefault<number>>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -295,7 +295,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<number, Required>, WD>(
+    return new Value<AsRequired<number, Required>, never>(
       () => ({
         type: "number" as const,
         description: null,
@@ -313,7 +313,7 @@ export class Value<Type, WD> {
       asRequiredParser(number, a),
     )
   }
-  static dynamicNumber<WD>(
+  static dynamicNumber<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -350,7 +350,7 @@ export class Value<Type, WD> {
       }
     }, number.optional())
   }
-  static color<Required extends RequiredDefault<string>, WD>(a: {
+  static color<Required extends RequiredDefault<string>>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -359,7 +359,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<string, Required>, WD>(
+    return new Value<AsRequired<string, Required>, never>(
       () => ({
         type: "color" as const,
         description: null,
@@ -374,7 +374,7 @@ export class Value<Type, WD> {
     )
   }
 
-  static dynamicColor<WD>(
+  static dynamicColor<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -400,7 +400,7 @@ export class Value<Type, WD> {
       }
     }, string.optional())
   }
-  static datetime<Required extends RequiredDefault<string>, WD>(a: {
+  static datetime<Required extends RequiredDefault<string>>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -414,7 +414,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<string, Required>, WD>(
+    return new Value<AsRequired<string, Required>, never>(
       () => ({
         type: "datetime" as const,
         description: null,
@@ -431,7 +431,7 @@ export class Value<Type, WD> {
       asRequiredParser(string, a),
     )
   }
-  static dynamicDatetime<WD>(
+  static dynamicDatetime<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -468,7 +468,6 @@ export class Value<Type, WD> {
   static select<
     Required extends RequiredDefault<string>,
     B extends Record<string, string>,
-    WD,
   >(a: {
     name: string
     description?: string | null
@@ -479,7 +478,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<keyof B, Required>, WD>(
+    return new Value<AsRequired<keyof B, Required>, never>(
       () => ({
         description: null,
         warning: null,
@@ -497,7 +496,7 @@ export class Value<Type, WD> {
       ) as any,
     )
   }
-  static dynamicSelect<WD>(
+  static dynamicSelect<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -523,7 +522,7 @@ export class Value<Type, WD> {
       }
     }, string.optional())
   }
-  static multiselect<Values extends Record<string, string>, WD>(a: {
+  static multiselect<Values extends Record<string, string>>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -535,7 +534,7 @@ export class Value<Type, WD> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<(keyof Values)[], WD>(
+    return new Value<(keyof Values)[], never>(
       () => ({
         type: "multiselect" as const,
         minLength: null,
@@ -551,7 +550,7 @@ export class Value<Type, WD> {
       ),
     )
   }
-  static dynamicMultiselect<WD>(
+  static dynamicMultiselect<WD = never>(
     getA: LazyBuild<
       WD,
       {
@@ -625,41 +624,36 @@ export class Value<Type, WD> {
       asRequiredParser(aVariants.validator, a),
     )
   }
-  static filteredUnion<
-    Required extends RequiredDefault<string>,
-    Type,
-    WrapperData,
-  >(
-    a: {
-      name: string
-      description?: string | null
-      warning?: string | null
-      required: Required
-      default?: string | null
-    },
-    aVariants: Variants<Type, WrapperData>,
-    getDisabledFn: LazyBuild<
-      WrapperData,
-      Array<Type extends { unionSelectKey: infer B } ? B & string : never>
-    >,
+  static filteredUnion<WrapperData = never>(
+    getDisabledFn: LazyBuild<WrapperData, string[]>,
   ) {
-    return new Value<Type | null | undefined, WrapperData>(
-      async (options) => ({
-        type: "union" as const,
-        description: null,
-        warning: null,
-        ...a,
-        variants: await aVariants.build(options as any),
-        ...requiredLikeToAbove(a.required),
-        disabled: (await getDisabledFn(options)) || [],
-        immutable: false,
-      }),
-      aVariants.validator.optional(),
-    )
+    return <Type extends Record<string, any>>(
+      a: {
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: RequiredDefault<string>
+        default?: string | null
+      },
+      aVariants: Variants<Type, WrapperData> | Variants<Type, never>,
+    ) => {
+      return new Value<Type | null | undefined, WrapperData>(
+        async (options) => ({
+          type: "union" as const,
+          description: null,
+          warning: null,
+          ...a,
+          variants: await aVariants.build(options as any),
+          ...requiredLikeToAbove(a.required),
+          disabled: (await getDisabledFn(options)) || [],
+          immutable: false,
+        }),
+        aVariants.validator.optional(),
+      )
+    }
   }
 
   static list<Type, WrapperData>(a: List<Type, WrapperData>) {
-    /// TODO
     return new Value<Type, WrapperData>(
       (options) => a.build(options),
       a.validator,
@@ -680,7 +674,37 @@ export class Value<Type, WD> {
   })
   ```
    */
-  withWrapperData<NewWrapperData extends WD>() {
+  withWrapperData<NewWrapperData extends WD extends never ? any : WD>() {
     return this as any as Value<Type, NewWrapperData>
   }
 }
+
+type Wrapper = { test: 1 | "5" }
+const valueA = Value.dynamicText<Wrapper>(() => ({
+  name: "a",
+  required: false,
+}))
+const variantForC = Variants.of({
+  lnd: {
+    name: "lnd Name",
+    spec: Config.of({
+      name: Value.text({
+        name: "Node Name",
+        required: false,
+      }),
+    }),
+  },
+})
+const valueC = Value.filteredUnion<Wrapper>(() => [])(
+  { name: "a", required: false },
+  variantForC,
+)
+const valueB = Value.text({
+  name: "a",
+  required: false,
+})
+const test = Config.of({
+  a: valueA,
+  b: valueB,
+  c: valueC,
+})

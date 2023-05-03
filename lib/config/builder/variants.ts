@@ -63,20 +63,13 @@ export class Variants<Type, WD> {
   //   }
   // },
   static of<
-    TypeMap extends Record<string, Record<string, any>>,
-    WrapperData,
-    TypeOut = {
-      [K in keyof TypeMap & string]: {
-        unionSelectKey: K
-        unionValueKey: TypeMap[K]
+    VariantValues extends {
+      [K in string]: {
+        name: string
+        spec: Config<any, any> | Config<any, never>
       }
-    }[keyof TypeMap & string],
-  >(a: {
-    [K in keyof TypeMap]: {
-      name: string
-      spec: Config<TypeMap[K], WrapperData>
-    }
-  }) {
+    },
+  >(a: VariantValues) {
     const validator = anyOf(
       ...Object.entries(a).map(([name, { spec }]) =>
         object({
@@ -84,17 +77,36 @@ export class Variants<Type, WD> {
           unionValueKey: spec.validator,
         }),
       ),
-    ) as Parser<unknown, TypeOut>
+    ) as Parser<unknown, any>
 
-    return new Variants<TypeOut, WrapperData>(async (options) => {
+    return new Variants<
+      {
+        [K in keyof VariantValues]: {
+          unionSelectKey: K
+          unionValueKey: VariantValues[K]["spec"] extends
+            | Config<infer B, any>
+            | Config<infer B, never>
+            ? B
+            : never
+        }
+      }[keyof VariantValues],
+      {
+        [K in keyof VariantValues]: VariantValues[K] extends Config<
+          any,
+          infer C
+        >
+          ? C
+          : never
+      }[keyof VariantValues]
+    >(async (options) => {
       const variants = {} as {
-        [K in keyof TypeMap]: { name: string; spec: InputSpec }
+        [K in keyof VariantValues]: { name: string; spec: InputSpec }
       }
       for (const key in a) {
         const value = a[key]
         variants[key] = {
           name: value.name,
-          spec: await value.spec.build(options),
+          spec: await value.spec.build(options as any),
         }
       }
       return variants
@@ -114,7 +126,7 @@ export class Variants<Type, WD> {
   })
   ```
    */
-  withWrapperData<NewWrapperData extends WD>() {
+  withWrapperData<NewWrapperData extends WD extends never ? any : WD>() {
     return this as any as Variants<Type, NewWrapperData>
   }
 }

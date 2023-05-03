@@ -4,7 +4,10 @@ import { Utils, utils } from "../util"
 
 export class CreatedAction<
   WrapperData,
-  ConfigType extends Record<string, any> | Config<any, any>,
+  ConfigType extends
+    | Record<string, any>
+    | Config<any, WrapperData>
+    | Config<any, never>,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
