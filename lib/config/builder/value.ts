@@ -640,7 +640,7 @@ export class Value<Type, WD> {
       },
       aVariants: Variants<Type, WrapperData> | Variants<Type, never>,
     ) => {
-      return new Value<Type | null | undefined, WrapperData>(
+      return new Value<AsRequired<Type, Required>, WrapperData>(
         async (options) => ({
           type: "union" as const,
           description: null,
@@ -651,7 +651,7 @@ export class Value<Type, WD> {
           disabled: (await getDisabledFn(options)) || [],
           immutable: false,
         }),
-        aVariants.validator.optional(),
+        asRequiredParser(aVariants.validator, a),
       )
     }
   }
