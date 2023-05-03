@@ -59,4 +59,3 @@ export const smtpConfig = Value.filteredUnion(async ({ effects, utils }) => {
     },
   }),
 )
-type test = typeof smtpConfig.validator._TYPE
