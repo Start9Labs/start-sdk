@@ -43,7 +43,10 @@ export namespace ExpectedExports {
    * service starting, and that file would indicate that it would rescan all the data.
    */
   export type actions = {
-    [id: string]: ExportedAction
+    [id: string]: {
+      run: ExportedAction
+      getConfig: (options: { effects: Effects }) => Promise<InputSpec>
+    }
   }
 
   /**
@@ -155,7 +158,6 @@ export type ActionMetaData = {
   name: string
   description: string
   id: string
-  input: null | InputSpec
   runningOnly: boolean
   /**
    * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions
@@ -424,6 +426,26 @@ export type Effects = {
   exists(packageId: PackageId): Promise<boolean>
   /** Exists could be useful during the runtime to know if some service is running, option dep */
   running(packageId: PackageId): Promise<boolean>
+
+  /** Instead of creating proxies with nginx, we have a utility to create and maintain a proxy in the lifetime of this running. */
+  reverseProxy(options: {
+    bind: {
+      /** Optional, default is 0.0.0.0 */
+      ip?: string
+      port: number
+      ssl: boolean
+    }
+    dst: {
+      /** Optional: default is 127.0.0.1 */
+      ip?: string // optional, default 127.0.0.1
+      port: number
+      ssl: boolean
+    }
+    http: {
+      // optional, will do TCP layer proxy only if not present
+      headers: (headers: Record<string, string>) => Record<string, string>
+    }
+  }): Promise<{ stop(): Promise<void> }>
   restart(): void
   shutdown(): void
 }

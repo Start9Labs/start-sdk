@@ -11,16 +11,15 @@ export class CreatedAction<
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    public readonly myMetaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData>
-    },
+    public readonly myMetaData: ActionMetaData,
     readonly fn: (options: {
       effects: Effects
       utils: Utils<WrapperData>
       input: Type
     }) => Promise<ActionResult>,
+    readonly input: Config<Type, WrapperData> | Config<Type, never>,
   ) {}
-  private validator = this.myMetaData.input.validator
+  public validator = this.input.validator
 
   static of<
     WrapperData,
@@ -36,7 +35,8 @@ export class CreatedAction<
       input: Type
     }) => Promise<ActionResult>,
   ) {
-    return new CreatedAction<WrapperData, ConfigType, Type>(metaData, fn)
+    const { input, ...rest } = metaData
+    return new CreatedAction<WrapperData, ConfigType, Type>(rest, fn, input)
   }
 
   exportedAction: ExportedAction = ({ effects, input }) => {
@@ -47,16 +47,19 @@ export class CreatedAction<
     })
   }
 
-  async exportAction(effects: Effects) {
-    const myUtils = utils<WrapperData>(effects)
-    const metaData = {
-      ...this.myMetaData,
-      input: await this.myMetaData.input.build({
-        effects,
-        utils: myUtils,
-      }),
-    }
-    await effects.exportAction(metaData)
+  run = async ({ effects, input }: { effects: Effects; input?: Type }) => {
+    return this.fn({
+      effects,
+      utils: utils<WrapperData>(effects),
+      input: this.validator.unsafeCast(input),
+    })
+  }
+
+  async getConfig({ effects }: { effects: Effects }) {
+    return this.input.build({
+      effects,
+      utils: utils<WrapperData>(effects) as any,
+    })
   }
 }
 

@@ -627,12 +627,15 @@ export class Value<Type, WD> {
   static filteredUnion<WrapperData = never>(
     getDisabledFn: LazyBuild<WrapperData, string[]>,
   ) {
-    return <Type extends Record<string, any>>(
+    return <
+      Required extends RequiredDefault<string>,
+      Type extends Record<string, any>,
+    >(
       a: {
         name: string
         description?: string | null
         warning?: string | null
-        required: RequiredDefault<string>
+        required: Required
         default?: string | null
       },
       aVariants: Variants<Type, WrapperData> | Variants<Type, never>,
