@@ -48,7 +48,7 @@ export type Utils<WD, WrapperOverWrite = { const: never }> = {
     key: string
     value: string | null | undefined
     generator: DefaultString
-  }) => Promise<void>
+  }) => Promise<null | string>
   readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
   writeFile: <A>(
     fileHelper: FileHelper<A>,
@@ -102,12 +102,14 @@ export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
   }) => {
     if (value) {
       await effects.vaultSet({ key, value })
-      return
+      return value
     }
     if (await effects.vaultList().then((x) => x.includes(key))) {
-      return
+      return null
     }
-    await effects.vaultSet({ key, value: getDefaultString(generator) })
+    const newValue = getDefaultString(generator)
+    await effects.vaultSet({ key, value: newValue })
+    return newValue
   },
   getSystemSmtp: () =>
     new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
