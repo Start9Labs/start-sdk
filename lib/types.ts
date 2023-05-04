@@ -390,10 +390,12 @@ export type Effects = {
 
   stopped(packageId?: string): Promise<boolean>
 
-  vaultList(): Promise<string[]>
-  vaultSet(opt: { key: string; value: string }): Promise<void>
-  vaultMove(opt: { fromKey: string; toKey: string }): Promise<void>
-  vaultDelete(opt: { key: string }): Promise<void>
+  vault: {
+    list(): Promise<string[]>
+    set(opt: { key: string; value: string }): Promise<void>
+    move(opt: { fromKey: string; toKey: string }): Promise<void>
+    delete(opt: { key: string }): Promise<void>
+  }
 }
 
 // prettier-ignore
