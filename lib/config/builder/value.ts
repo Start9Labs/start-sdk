@@ -3,6 +3,7 @@ import { List } from "./list"
 import { Variants } from "./variants"
 import {
   Pattern,
+  RandomString,
   ValueSpec,
   ValueSpecDatetime,
   ValueSpecText,
@@ -162,6 +163,7 @@ export class Value<Type, WD> {
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
+    generate?: null | RandomString
   }) {
     return new Value<AsRequired<string, Required>, never>(
       async () => ({
@@ -176,6 +178,7 @@ export class Value<Type, WD> {
         inputmode: "text",
         disabled: false,
         immutable: a.immutable ?? false,
+        generate: a.generate ?? null,
         ...a,
         ...requiredLikeToAbove(a.required),
       }),
@@ -199,6 +202,7 @@ export class Value<Type, WD> {
         patterns?: Pattern[]
         /** Default = 'text' */
         inputmode?: ValueSpecText["inputmode"]
+        generate?: null | RandomString
       }
     >,
   ) {
@@ -216,6 +220,7 @@ export class Value<Type, WD> {
         inputmode: "text",
         disabled: false,
         immutable: false,
+        generate: a.generate ?? null,
         ...a,
         ...requiredLikeToAbove(a.required),
       }
@@ -232,6 +237,7 @@ export class Value<Type, WD> {
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
+    generate?: null | RandomString
   }) {
     return new Value<string, never>(
       async () =>
@@ -244,6 +250,7 @@ export class Value<Type, WD> {
           type: "textarea" as const,
           disabled: false,
           immutable: a.immutable ?? false,
+          generate: a.generate ?? null,
           ...a,
         } satisfies ValueSpecTextarea),
       string,
@@ -261,6 +268,7 @@ export class Value<Type, WD> {
         maxLength?: number | null
         placeholder?: string | null
         disabled?: false | string
+        generate?: null | RandomString
       }
     >,
   ) {
@@ -275,6 +283,7 @@ export class Value<Type, WD> {
         type: "textarea" as const,
         disabled: false,
         immutable: false,
+        generate: a.generate ?? null,
         ...a,
       }
     }, string)

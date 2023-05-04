@@ -44,6 +44,7 @@ export interface ValueSpecText extends ListValueSpecText, WithStandalone {
   required: boolean
   default: DefaultString | null
   disabled: false | string
+  generate: null | RandomString
   /** Immutable means it can only be configed at the first config then never again */
   immutable: boolean
 }
@@ -54,6 +55,7 @@ export interface ValueSpecTextarea extends WithStandalone {
   maxLength: number | null
   required: boolean
   disabled: false | string
+  generate: null | RandomString
   /** Immutable means it can only be configed at the first config then never again */
   immutable: boolean
 }
@@ -178,6 +180,8 @@ export interface ListValueSpecText {
   minLength: number | null
   maxLength: number | null
   masked: boolean
+
+  generate: null | RandomString
   inputmode: "text" | "email" | "tel" | "url"
   placeholder: string | null
 }

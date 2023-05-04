@@ -2,6 +2,7 @@ import { Config, LazyBuild } from "./config"
 import {
   ListValueSpecText,
   Pattern,
+  RandomString,
   UniqueBy,
   ValueSpecList,
   ValueSpecListOf,
@@ -45,6 +46,7 @@ export class List<Type, WD> {
       patterns: Pattern[]
       /** Default = "text" */
       inputmode?: ListValueSpecText["inputmode"]
+      generate?: null | RandomString
     },
   ) {
     return new List<string[], never>(() => {
@@ -55,6 +57,7 @@ export class List<Type, WD> {
         maxLength: null,
         masked: false,
         inputmode: "text" as const,
+        generate: null,
         ...aSpec,
       }
       return {
@@ -82,6 +85,7 @@ export class List<Type, WD> {
         minLength?: number | null
         maxLength?: number | null
         disabled?: false | string
+        generate?: null | RandomString
         spec: {
           /** Default = false */
           masked?: boolean
@@ -104,6 +108,7 @@ export class List<Type, WD> {
         maxLength: null,
         masked: false,
         inputmode: "text" as const,
+        generate: null,
         ...aSpec,
       }
       return {
