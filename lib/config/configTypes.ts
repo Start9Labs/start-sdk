@@ -218,7 +218,7 @@ export type RandomString = {
   len: number
 }
 // sometimes the type checker needs just a little bit of help
-function isValueSpecListOf<S extends ListValueSpecType>(
+export function isValueSpecListOf<S extends ListValueSpecType>(
   t: ValueSpec,
   s: S,
 ): t is ValueSpecListOf<S> & { spec: ListValueSpecOf<S> } {

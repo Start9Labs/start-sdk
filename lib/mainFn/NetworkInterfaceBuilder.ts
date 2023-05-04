@@ -21,7 +21,7 @@ export class NetworkInterfaceBuilder {
       id: string
       description: string
       ui: boolean
-      basic: null | { username: string }
+      username: null | string
       path: string
       search: Record<string, string>
     },
@@ -36,10 +36,10 @@ export class NetworkInterfaceBuilder {
    * @returns
    */
   async export(origins: Iterable<Origin>) {
-    const { name, description, id, ui, basic, path, search } = this.options
+    const { name, description, id, ui, username, path, search } = this.options
 
     const addresses = Array.from(origins).map((o) =>
-      o.build({ basic, path, search }),
+      o.build({ username, path, search }),
     )
 
     await this.options.effects.exportNetworkInterface({

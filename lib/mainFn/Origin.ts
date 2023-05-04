@@ -1,9 +1,9 @@
 export class Origin {
   constructor(readonly protocol: string | null, readonly host: string) {}
 
-  build({ basic, path, search }: BuildOptions) {
+  build({ username, path, search }: BuildOptions) {
     // prettier-ignore
-    const urlAuth = !!(basic) ? `${basic.username}@` :
+    const urlAuth = !!(username) ? `${username}@` :
             '';
     const protocolSection = this.protocol != null ? `${this.protocol}://` : ""
 
@@ -20,7 +20,7 @@ export class Origin {
 }
 
 type BuildOptions = {
-  basic: { username: string } | null
+  username: string | null
   path: string
   search: Record<string, string>
 }
