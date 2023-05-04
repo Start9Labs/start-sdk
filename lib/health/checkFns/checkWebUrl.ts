@@ -23,9 +23,9 @@ export const checkWebUrl = async (
       message: successMessage,
     }))
     .catch((e) => {
-      effects.console.warn(`Error while fetching URL: ${url}`)
-      effects.console.error(JSON.stringify(e))
-      effects.console.error(e.toString())
+      console.warn(`Error while fetching URL: ${url}`)
+      console.error(JSON.stringify(e))
+      console.error(e.toString())
       return { status: "failing" as const, message: errorMessage }
     })
 }

@@ -2,7 +2,7 @@ import * as matches from "ts-matches"
 import * as YAML from "yaml"
 import * as TOML from "@iarna/toml"
 import * as T from "../types"
-import { exists } from "."
+import fs from "fs"
 
 const previousPath = /(.+?)\/([^/]*)$/
 
@@ -54,39 +54,32 @@ const previousPath = /(.+?)\/([^/]*)$/
 export class FileHelper<A> {
   protected constructor(
     readonly path: string,
-    readonly volume: string,
     readonly writeData: (dataIn: A) => string,
     readonly readData: (stringValue: string) => A,
   ) {}
   async write(data: A, effects: T.Effects) {
-    let matched
-    if ((matched = previousPath.exec(this.path))) {
-      await effects.createDir({
-        volumeId: this.volume,
-        path: matched[1],
-      })
+    if (previousPath.exec(this.path)) {
+      await new Promise((resolve, reject) =>
+        fs.mkdir(this.path, (err) => (!err ? resolve(null) : reject(err))),
+      )
     }
 
-    await effects.writeFile({
-      path: this.path,
-      volumeId: this.volume,
-      toWrite: this.writeData(data),
-    })
+    await new Promise((resolve, reject) =>
+      fs.writeFile(this.path, this.writeData(data), (err) =>
+        !err ? resolve(null) : reject(err),
+      ),
+    )
   }
   async read(effects: T.Effects) {
-    if (
-      !(await exists(effects, {
-        path: this.path,
-        volumeId: this.volume,
-      }))
-    ) {
+    if (!fs.existsSync(this.path)) {
       return null
     }
     return this.readData(
-      await effects.readFile({
-        path: this.path,
-        volumeId: this.volume,
-      }),
+      await new Promise((resolve, reject) =>
+        fs.readFile(this.path, (err, data) =>
+          !err ? resolve(data.toString("utf-8")) : reject(err),
+        ),
+      ),
     )
   }
   /**
@@ -96,23 +89,17 @@ export class FileHelper<A> {
    */
   static raw<A>(
     path: string,
-    volume: string,
     toFile: (dataIn: A) => string,
     fromFile: (rawData: string) => A,
   ) {
-    return new FileHelper<A>(path, volume, toFile, fromFile)
+    return new FileHelper<A>(path, toFile, fromFile)
   }
   /**
    * Create a File Helper for a .json file
    */
-  static json<A>(
-    path: string,
-    volume: string,
-    shape: matches.Validator<unknown, A>,
-  ) {
+  static json<A>(path: string, shape: matches.Validator<unknown, A>) {
     return new FileHelper<A>(
       path,
-      volume,
       (inData) => {
         return JSON.stringify(inData, null, 2)
       },
@@ -126,12 +113,10 @@ export class FileHelper<A> {
    */
   static toml<A extends Record<string, unknown>>(
     path: string,
-    volume: string,
     shape: matches.Validator<unknown, A>,
   ) {
     return new FileHelper<A>(
       path,
-      volume,
       (inData) => {
         return JSON.stringify(inData, null, 2)
       },
@@ -145,12 +130,10 @@ export class FileHelper<A> {
    */
   static yaml<A extends Record<string, unknown>>(
     path: string,
-    volume: string,
     shape: matches.Validator<unknown, A>,
   ) {
     return new FileHelper<A>(
       path,
-      volume,
       (inData) => {
         return JSON.stringify(inData, null, 2)
       },

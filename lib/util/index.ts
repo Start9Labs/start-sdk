@@ -30,26 +30,10 @@ T extends object ? {} & {[P in keyof T]: T[P]} :
 
 export type _<T> = FlattenIntersection<T>
 
-/** Used to check if the file exists before hand */
-export const exists = (
-  effects: T.Effects,
-  props: { path: string; volumeId: string },
-) =>
-  effects.metadata(props).then(
-    (_) => true,
-    (_) => false,
-  )
-
 export const isKnownError = (e: unknown): e is T.KnownError =>
   e instanceof Object && ("error" in e || "error-code" in e)
 
-type Cdr<A> = A extends [unknown, ...infer Cdr] ? Cdr : []
-
 declare const affine: unique symbol
-
-function withAffine<B>() {
-  return {} as { [affine]: B }
-}
 
 export type WrapperDataOptionals<WrapperData, Path extends string> = {
   validator?: Parser<unknown, ExtractWrapperData<WrapperData, Path>>
@@ -95,7 +79,6 @@ export type Utils<WD, WrapperOverWrite = { const: never }> = {
   bindLan: (port: number) => Promise<LocalBinding>
   networkBuilder: () => NetworkBuilder
   torHostName: (id: string) => TorHostname
-  exists: (props: { path: string; volumeId: string }) => Promise<boolean>
   nullIfEmpty: typeof nullIfEmpty
 }
 export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
@@ -106,7 +89,6 @@ export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
   readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
   writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
     fileHelper.write(data, effects),
-  exists: (props: { path: string; volumeId: string }) => exists(effects, props),
   nullIfEmpty,
   getWrapperData: <WrapperData = never, Path extends string = never>(
     packageId: string,

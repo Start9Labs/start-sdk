@@ -23,9 +23,9 @@ export const runHealthScript = async <A extends string>(
     effects.runCommand(runCommand, { timeoutMillis: timeout }),
     timeoutPromise(timeout),
   ]).catch((e) => {
-    effects.console.warn(errorMessage)
-    effects.console.warn(JSON.stringify(e))
-    effects.console.warn(e.toString())
+    console.warn(errorMessage)
+    console.warn(JSON.stringify(e))
+    console.warn(e.toString())
     throw { status: "failing", message: errorMessage } as CheckResult
   })
   return {

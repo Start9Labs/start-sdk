@@ -181,63 +181,11 @@ export type NetworkInterface = {
 
 /** Used to reach out from the pure js runtime */
 export type Effects = {
-  /** Usable when not sandboxed */
-  writeFile(input: {
-    path: string
-    volumeId: string
-    toWrite: string
-  }): Promise<void>
-  readFile(input: { volumeId: string; path: string }): Promise<string>
-  /** Usable when not sandboxed */
-  appendFile(input: {
-    path: string
-    volumeId: string
-    toWrite: string
-  }): Promise<void>
-  /**
-   * Move file from src to dst
-   * Usable when not sandboxed */
-  moveFile(input: {
-    srcVolume: string
-    dstVolume: string
-    srcPath: string
-    dstPath: string
-  }): Promise<void>
-  /**
-   * copy from src to dst
-   * Usable when not sandboxed */
-  copyFile(input: {
-    srcVolume: string
-    dstVolume: string
-    srcPath: string
-    dstPath: string
-  }): Promise<void>
-  metadata(input: { volumeId: string; path: string }): Promise<Metadata>
-  /** Create a directory. Usable when not sandboxed */
-  createDir(input: { volumeId: string; path: string }): Promise<string>
-
-  readDir(input: { volumeId: string; path: string }): Promise<string[]>
-  /** Remove a directory. Usable when not sandboxed */
-  removeDir(input: { volumeId: string; path: string }): Promise<string>
-  removeFile(input: { volumeId: string; path: string }): Promise<void>
-
-  /** Write a json file into an object. Usable when not sandboxed */
-  writeJsonFile(input: {
-    volumeId: string
-    path: string
-    toWrite: Record<string, unknown>
-  }): Promise<void>
-
-  /** Read a json file into an object */
-  readJsonFile(input: {
-    volumeId: string
-    path: string
-  }): Promise<Record<string, unknown>>
-
   runCommand<A extends string>(
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
     options?: {
       timeoutMillis?: number
+      env?: Record<string, string>
     },
   ): Promise<string>
   runDaemon<A extends string>(
@@ -251,23 +199,6 @@ export type Effects = {
   chown(input: { volumeId: string; path: string; uid: string }): Promise<null>
   /** Uses the chmod on the system */
   chmod(input: { volumeId: string; path: string; mode: string }): Promise<null>
-
-  sleep(timeMs: TimeMs): Promise<null>
-
-  console: {
-    /** Log at the trace level */
-    log(whatToPrint: string): Promise<void>
-    /** Log at the trace level */
-    trace(whatToPrint: string): Promise<void>
-    /** Log at the warn level */
-    warn(whatToPrint: string): Promise<void>
-    /** Log at the error level */
-    error(whatToPrint: string): Promise<void>
-    /** Log at the debug level */
-    debug(whatToPrint: string): Promise<void>
-    /** Log at the info level */
-    info(whatToPrint: string): Promise<void>
-  }
 
   /** Sandbox mode lets us read but not write */
   is_sandboxed(): boolean

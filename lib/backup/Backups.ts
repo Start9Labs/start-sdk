@@ -1,5 +1,6 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
 import * as T from "../types"
+import fs from "fs"
 
 export type BACKUP = "BACKUP"
 export const DEFAULT_OPTIONS: T.BackupOptions = {
@@ -93,47 +94,45 @@ export class Backups<M extends SDKManifest> {
     const createBackup: T.ExpectedExports.createBackup = async ({
       effects,
     }) => {
-      const previousItems = (
-        await effects
-          .readDir({
-            volumeId: Backups.BACKUP,
-            path: ".",
-          })
-          .catch(() => [])
-      ).map((x) => `${x}`)
-      const backupPaths = this.backupSet
-        .filter((x) => x.dstVolume === Backups.BACKUP)
-        .map((x) => x.dstPath)
-        .map((x) => x.replace(/\.\/([^]*)\//, "$1"))
-      const filteredItems = previousItems.filter(
-        (x) => backupPaths.indexOf(x) === -1,
-      )
-      for (const itemToRemove of filteredItems) {
-        effects.console.error(`Trying to remove ${itemToRemove}`)
-        await effects
-          .removeDir({
-            volumeId: Backups.BACKUP,
-            path: itemToRemove,
-          })
-          .catch(() =>
-            effects.removeFile({
-              volumeId: Backups.BACKUP,
-              path: itemToRemove,
-            }),
-          )
-          .catch(() => {
-            effects.console.warn(
-              `Failed to remove ${itemToRemove} from backup volume`,
-            )
-          })
-      }
+      // const previousItems = (
+      //   await effects
+      //     .readDir({
+      //       volumeId: Backups.BACKUP,
+      //       path: ".",
+      //     })
+      //     .catch(() => [])
+      // ).map((x) => `${x}`)
+      // const backupPaths = this.backupSet
+      //   .filter((x) => x.dstVolume === Backups.BACKUP)
+      //   .map((x) => x.dstPath)
+      //   .map((x) => x.replace(/\.\/([^]*)\//, "$1"))
+      // const filteredItems = previousItems.filter(
+      //   (x) => backupPaths.indexOf(x) === -1,
+      // )
+      // for (const itemToRemove of filteredItems) {
+      //   effects.console.error(`Trying to remove ${itemToRemove}`)
+      //   await effects
+      //     .removeDir({
+      //       volumeId: Backups.BACKUP,
+      //       path: itemToRemove,
+      //     })
+      //     .catch(() =>
+      //       effects.removeFile({
+      //         volumeId: Backups.BACKUP,
+      //         path: itemToRemove,
+      //       }),
+      //     )
+      //     .catch(() => {
+      //       console.warn(`Failed to remove ${itemToRemove} from backup volume`)
+      //     })
+      // }
       for (const item of this.backupSet) {
-        if (notEmptyPath(item.dstPath)) {
-          await effects.createDir({
-            volumeId: item.dstVolume,
-            path: item.dstPath,
-          })
-        }
+        // if (notEmptyPath(item.dstPath)) {
+        //   await effects.createDir({
+        //     volumeId: item.dstVolume,
+        //     path: item.dstPath,
+        //   })
+        // }
         await effects
           .runRsync({
             ...item,
@@ -150,12 +149,14 @@ export class Backups<M extends SDKManifest> {
       effects,
     }) => {
       for (const item of this.backupSet) {
-        if (notEmptyPath(item.srcPath)) {
-          await effects.createDir({
-            volumeId: item.srcVolume,
-            path: item.srcPath,
-          })
-        }
+        // if (notEmptyPath(item.srcPath)) {
+        //   await new Promise((resolve, reject) => fs.mkdir(items.src)).createDir(
+        //     {
+        //       volumeId: item.srcVolume,
+        //       path: item.srcPath,
+        //     },
+        //   )
+        // }
         await effects
           .runRsync({
             options: {

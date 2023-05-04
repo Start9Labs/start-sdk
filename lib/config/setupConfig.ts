@@ -60,7 +60,7 @@ export function setupConfig<
   return {
     setConfig: (async ({ effects, input }) => {
       if (!validator.test(input)) {
-        await effects.console.error(String(validator.errorMessage(input)))
+        await console.error(String(validator.errorMessage(input)))
         return { error: "Set config type error for config" }
       }
       const { restart } = await write({
