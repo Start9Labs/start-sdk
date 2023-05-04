@@ -1,4 +1,4 @@
-import { Parser } from "ts-matches"
+import { Parser, string } from "ts-matches"
 import * as T from "../types"
 import FileHelper from "./fileHelper"
 import nullIfEmpty from "./nullIfEmpty"
@@ -21,6 +21,8 @@ import { LocalBinding } from "../mainFn/LocalBinding"
 import { LocalPort } from "../mainFn/LocalPort"
 import { NetworkBuilder } from "../mainFn/NetworkBuilder"
 import { TorHostname } from "../mainFn/TorHostname"
+import { DefaultString } from "../config/configTypes"
+import { getDefaultString } from "./getDefaultString"
 
 // prettier-ignore
 export type FlattenIntersection<T> = 
@@ -42,6 +44,11 @@ export type WrapperDataOptionals<WrapperData, Path extends string> = {
 }
 
 export type Utils<WD, WrapperOverWrite = { const: never }> = {
+  createOrUpdateVault: (opts: {
+    key: string
+    value: string | null | undefined
+    generator: DefaultString
+  }) => Promise<void>
   readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
   writeFile: <A>(
     fileHelper: FileHelper<A>,
@@ -84,6 +91,24 @@ export type Utils<WD, WrapperOverWrite = { const: never }> = {
 export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
   effects: T.Effects,
 ): Utils<WrapperData, WrapperOverWrite> => ({
+  createOrUpdateVault: async ({
+    key,
+    value,
+    generator,
+  }: {
+    key: string
+    value: string | null | undefined
+    generator: DefaultString
+  }) => {
+    if (value) {
+      await effects.vaultSet({ key, value })
+      return
+    }
+    if (await effects.vaultList().then((x) => x.includes(key))) {
+      return
+    }
+    await effects.vaultSet({ key, value: getDefaultString(generator) })
+  },
   getSystemSmtp: () =>
     new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
   readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),

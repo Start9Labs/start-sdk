@@ -208,15 +208,13 @@ export type UniqueBy =
   | {
       all: readonly UniqueBy[] | UniqueBy[]
     }
-export type DefaultString =
-  | string
-  | {
-      charset: string
-      len: number
-    }
-
+export type DefaultString = string | RandomString
+export type RandomString = {
+  charset: string
+  len: number
+}
 // sometimes the type checker needs just a little bit of help
-export function isValueSpecListOf<S extends ListValueSpecType>(
+function isValueSpecListOf<S extends ListValueSpecType>(
   t: ValueSpec,
   s: S,
 ): t is ValueSpecListOf<S> & { spec: ListValueSpecOf<S> } {

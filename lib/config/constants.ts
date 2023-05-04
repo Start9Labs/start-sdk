@@ -59,3 +59,5 @@ export const smtpConfig = Value.filteredUnion(async ({ effects, utils }) => {
     },
   }),
 )
+
+export const password = 
