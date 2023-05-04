@@ -158,7 +158,7 @@ export type ActionMetaData = {
   name: string
   description: string
   id: string
-  runningOnly: boolean
+  allowedStatuses: "only-running" | "only-stopped" | "any"
   /**
    * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions
    */
@@ -450,14 +450,14 @@ export type Effects = {
 
   mount(options: {
     location: {
-      volumeId: string,
-      path: string,
+      volumeId: string
+      path: string
     }
     target: {
-      packageId: string,
-      volumeId: string,
-      path: string,
-      readonly: boolean,
+      packageId: string
+      volumeId: string
+      path: string
+      readonly: boolean
     }
   }): Promise<void>
 }
