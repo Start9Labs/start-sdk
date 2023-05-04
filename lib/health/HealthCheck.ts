@@ -44,10 +44,22 @@ export function healthCheck(o: {
         await triggerFirstSuccess().catch((err) => {
           console.error(err)
         })
-      } catch (_) {
+      } catch (e) {
+        await o.effects.setHealth({
+          name: o.name,
+          status: "failing",
+          message: asMessage(e),
+        })
         currentValue.lastResult = "failing"
       }
     }
   })
   return {} as HealthReceipt
+}
+function asMessage(e: unknown) {
+  if (typeof e === "object" && e != null && "message" in e)
+    return String(e.message)
+  const value = String(e)
+  if (value.length == null) return undefined
+  return value
 }

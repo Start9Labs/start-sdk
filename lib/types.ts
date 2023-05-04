@@ -24,10 +24,6 @@ export namespace ExpectedExports {
   export type restoreBackup = (options: {
     effects: Effects
   }) => Promise<unknown>
-  /**  Properties are used to get values from the docker, like a username + password, what ports we are hosting from */
-  export type properties = <WrapperData>(options: {
-    wrapperData: WrapperData
-  }) => Promise<Properties | null | undefined | void>
 
   // /** Health checks are used to determine if the service is working properly after starting
   //  * A good use case is if we are using a web server, seeing if we can get to the web server.
@@ -393,6 +389,11 @@ export type Effects = {
   }): Promise<void>
 
   stopped(packageId?: string): Promise<boolean>
+
+  vaultList(): Promise<string[]>
+  vaultSet(opt: { key: string; value: string }): Promise<void>
+  vaultMove(opt: { fromKey: string; toKey: string }): Promise<void>
+  vaultDelete(opt: { key: string }): Promise<void>
 }
 
 // prettier-ignore
@@ -501,32 +502,6 @@ export type KnownError =
   | {
       "error-code": [number, string] | readonly [number, string]
     }
-
-export type PackagePropertyGroup = {
-  header: string | null
-  value: PackageProperties[]
-}
-export type PackageProperties = PackagePropertyPage | PackagePropertyString
-export type PackagePropertyPage = {
-  type: "page"
-  name: string
-  description: string | null
-  value: Properties
-}
-export type PackagePropertyString = {
-  type: "string"
-  name: string
-  description: string | null
-  value: string
-  /** Let's the ui make this copyable button */
-  copyable: boolean
-  /** Let the ui create a qr for this field */
-  qr: boolean
-  /** Hiding the value unless toggled off for field */
-  masked: boolean
-}
-
-export type Properties = PackagePropertyGroup[]
 
 export type Dependency = {
   id: PackageId
