@@ -21,7 +21,7 @@ export class NetworkInterfaceBuilder {
       id: string
       description: string
       ui: boolean
-      basic: null | { password: null | string; username: string }
+      basic: null | { username: string }
       path: string
       search: Record<string, string>
     },

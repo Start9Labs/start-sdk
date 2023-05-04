@@ -3,7 +3,7 @@ export class Origin {
 
   build({ basic, path, search }: BuildOptions) {
     // prettier-ignore
-    const urlAuth = !!(basic) ? `${basic.username}${basic.password != null ?`:${basic.password}`:''}@` :
+    const urlAuth = !!(basic) ? `${basic.username}@` :
             '';
     const protocolSection = this.protocol != null ? `${this.protocol}://` : ""
 
@@ -20,7 +20,7 @@ export class Origin {
 }
 
 type BuildOptions = {
-  basic: { username: string; password: string | null } | null
+  basic: { username: string } | null
   path: string
   search: Record<string, string>
 }

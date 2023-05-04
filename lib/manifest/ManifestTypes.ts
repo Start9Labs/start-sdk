@@ -72,10 +72,10 @@ export interface SDKManifest {
     start: string | null
     stop: string | null
   }
-  dependencies: Record<string, Dependency>
+  dependencies: Record<string, ManifestDependency>
 }
 
-export interface Dependency {
+export interface ManifestDependency {
   /** The range of versions that would satisfy the dependency
    *
    * ie: >=3.4.5 <4.0.0
