@@ -373,7 +373,7 @@ export type Effects = {
    * Note: any auth should be filtered out already
    */
   getInterface(options: {
-    serviceId?: PackageId
+    packageId?: PackageId
     interfaceId?: string
   }): Promise<NetworkInterface>
 
@@ -447,6 +447,19 @@ export type Effects = {
   }): Promise<{ stop(): Promise<void> }>
   restart(): void
   shutdown(): void
+
+  mount(options: {
+    location: {
+      volumeId: string,
+      path: string,
+    }
+    target: {
+      packageId: string,
+      volumeId: string,
+      path: string,
+      readonly: boolean,
+    }
+  }): Promise<void>
 }
 
 // prettier-ignore
