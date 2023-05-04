@@ -460,6 +460,8 @@ export type Effects = {
       readonly: boolean
     }
   }): Promise<void>
+
+  stopped(packageId?: string): Promise<boolean>
 }
 
 // prettier-ignore
