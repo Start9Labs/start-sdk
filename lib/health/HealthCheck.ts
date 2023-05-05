@@ -1,5 +1,4 @@
-import { InterfaceReceipt } from "../mainFn/interfaceReceipt"
-import { Daemon, Effects } from "../types"
+import { Effects } from "../types"
 import { CheckResult } from "./checkFns/CheckResult"
 import { HealthReceipt } from "./HealthReceipt"
 import { Trigger } from "./trigger"

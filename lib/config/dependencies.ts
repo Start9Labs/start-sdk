@@ -1,5 +1,5 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
-import { Dependency, PackageId } from "../types"
+import { Dependency } from "../types"
 
 export type Dependencies<T extends SDKManifest> = {
   exists(id: keyof T["dependencies"]): Dependency

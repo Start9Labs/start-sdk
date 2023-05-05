@@ -2,7 +2,7 @@ import { ManifestVersion } from "../../manifest/ManifestTypes"
 import { Effects } from "../../types"
 import { Utils } from "../../util"
 
-export class Migration<Version extends ManifestVersion, WD> {
+export class Migration<WD, Version = ManifestVersion> {
   constructor(
     readonly options: {
       version: Version
@@ -10,10 +10,10 @@ export class Migration<Version extends ManifestVersion, WD> {
       down: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
     },
   ) {}
-  static of<Version extends ManifestVersion>(options: {
+  static of<WD, Version = ManifestVersion>(options: {
     version: Version
-    up: (opts: { effects: Effects }) => Promise<void>
-    down: (opts: { effects: Effects }) => Promise<void>
+    up: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
+    down: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
   }) {
     return new Migration(options)
   }

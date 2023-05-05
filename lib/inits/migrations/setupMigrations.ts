@@ -7,21 +7,21 @@ import { Migration } from "./Migration"
 export class Migrations<WD> {
   private constructor(
     readonly manifest: SDKManifest,
-    readonly migrations: Array<Migration<any, WD>>,
+    readonly migrations: Array<Migration<WD, any>>,
   ) {}
   private sortedMigrations = once(() => {
     const migrationsAsVersions = (
-      this.migrations as Array<Migration<any, WD>>
+      this.migrations as Array<Migration<WD, any>>
     ).map((x) => [EmVer.parse(x.options.version), x] as const)
     migrationsAsVersions.sort((a, b) => a[0].compareForSort(b[0]))
     return migrationsAsVersions
   })
   private currentVersion = once(() => EmVer.parse(this.manifest.version))
-  static of<Migrations extends Array<Migration<any, WD>>, WD>(
+  static of<Migrations extends Array<Migration<WD, any>>, WD>(
     manifest: SDKManifest,
     ...migrations: EnsureUniqueId<Migrations, WD>
   ) {
-    return new Migrations(manifest, migrations as Array<Migration<any, WD>>)
+    return new Migrations(manifest, migrations as Array<Migration<WD, any>>)
   }
   async init({
     effects,
@@ -55,7 +55,7 @@ export class Migrations<WD> {
 }
 
 export function setupMigrations<
-  Migrations extends Array<Migration<any, WD>>,
+  Migrations extends Array<Migration<WD, any>>,
   WD,
 >(manifest: SDKManifest, ...migrations: EnsureUniqueId<Migrations, WD>) {
   return Migrations.of(manifest, ...migrations)
@@ -64,7 +64,7 @@ export function setupMigrations<
 // prettier-ignore
 export type EnsureUniqueId<A, WD, B = A, ids = never> =
   B extends [] ? A : 
-  B extends [Migration<infer id, WD>, ...infer Rest] ? (
+  B extends [Migration<WD, infer id>, ...infer Rest] ? (
     id extends ids ? "One of the ids are not unique"[] :
     EnsureUniqueId<A, Rest, id | ids>
   ) : "There exists a migration that is not a Migration"[]
