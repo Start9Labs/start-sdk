@@ -103,7 +103,7 @@ export class Value<Type, WD> {
     name: string
     description?: string | null
     warning?: string | null
-    default?: boolean | null
+    default: boolean
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
@@ -112,7 +112,6 @@ export class Value<Type, WD> {
       async () => ({
         description: null,
         warning: null,
-        default: null,
         type: "toggle" as const,
         disabled: false,
         immutable: a.immutable ?? false,
@@ -128,7 +127,7 @@ export class Value<Type, WD> {
         name: string
         description?: string | null
         warning?: string | null
-        default?: boolean | null
+        default: boolean
         disabled?: false | string
       }
     >,
@@ -137,7 +136,6 @@ export class Value<Type, WD> {
       async (options) => ({
         description: null,
         warning: null,
-        default: null,
         type: "toggle" as const,
         disabled: false,
         immutable: false,
@@ -613,7 +611,6 @@ export class Value<Type, WD> {
       description?: string | null
       warning?: string | null
       required: Required
-      default?: string | null
       /**  Immutable means it can only be configed at the first config then never again 
       Default is false */
       immutable?: boolean
@@ -645,7 +642,6 @@ export class Value<Type, WD> {
         description?: string | null
         warning?: string | null
         required: Required
-        default?: string | null
       },
       aVariants: Variants<Type, WrapperData> | Variants<Type, never>,
     ) => {
