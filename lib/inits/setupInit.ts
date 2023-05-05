@@ -3,13 +3,13 @@ import { Migrations } from "./migrations/setupMigrations"
 import { Install } from "./setupInstall"
 import { Uninstall } from "./setupUninstall"
 
-export function setupInit<WrapperData>(
-  migrations: Migrations,
-  install: Install<WrapperData>,
-  uninstall: Uninstall<WrapperData>,
+export function setupInit<WD>(
+  migrations: Migrations<WD>,
+  install: Install<WD>,
+  uninstall: Uninstall<WD>,
 ): {
-  init: ExpectedExports.init
-  uninit: ExpectedExports.uninit
+  init: ExpectedExports.init<WD>
+  uninit: ExpectedExports.uninit<WD>
 } {
   return {
     init: async (opts) => {

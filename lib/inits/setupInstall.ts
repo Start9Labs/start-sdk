@@ -1,24 +1,24 @@
 import { Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util"
 
-export type InstallFn<WrapperData> = (opts: {
+export type InstallFn<WD> = (opts: {
   effects: Effects
-  utils: Utils<WrapperData>
+  utils: Utils<WD>
 }) => Promise<void>
-export class Install<WrapperData> {
-  private constructor(readonly fn: InstallFn<WrapperData>) {}
-  static of<WrapperData>(fn: InstallFn<WrapperData>) {
+export class Install<WD> {
+  private constructor(readonly fn: InstallFn<WD>) {}
+  static of<WD>(fn: InstallFn<WD>) {
     return new Install(fn)
   }
 
   async init({
     effects,
     previousVersion,
-  }: Parameters<ExpectedExports.init>[0]) {
+  }: Parameters<ExpectedExports.init<WD>>[0]) {
     if (!previousVersion) await this.fn({ effects, utils: utils(effects) })
   }
 }
 
-export function setupInstall<WrapperData>(fn: InstallFn<WrapperData>) {
+export function setupInstall<WD>(fn: InstallFn<WD>) {
   return Install.of(fn)
 }

@@ -1,6 +1,7 @@
 export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
+import { Utils } from "./util"
 
 export type ExportedAction = (options: {
   effects: Effects
@@ -66,15 +67,17 @@ export namespace ExpectedExports {
    * Every time a package completes an install, this function is called before the main.
    * Can be used to do migration like things.
    */
-  export type init = (options: {
+  export type init<WD> = (options: {
     effects: Effects
+    utils: Utils<WD>
     previousVersion: null | string
   }) => Promise<unknown>
   /** This will be ran during any time a package is uninstalled, for example during a update
    * this will be called.
    */
-  export type uninit = (options: {
+  export type uninit<WD> = (options: {
     effects: Effects
+    utils: Utils<WD>
     nextVersion: null | string
   }) => Promise<unknown>
 
