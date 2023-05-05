@@ -62,7 +62,7 @@ export interface SDKManifest {
   /** Defines the containers needed to run the main and mounted volumes */
   containers: Record<string, Container>
   /** This denotes any data, asset, or pointer volumes that should be connected when the "docker run" command is invoked */
-  volumes: Record<string, string>
+  volumes: Record<string, "data" | "assets">
   actions: Array<ActionMetaData>
   alerts: {
     install: string | null
