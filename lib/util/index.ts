@@ -101,14 +101,14 @@ export const utils = <WrapperData = never, WrapperOverWrite = { const: never }>(
     generator: DefaultString
   }) => {
     if (value) {
-      await effects.vaultSet({ key, value })
+      await effects.vault.set({ key, value })
       return value
     }
-    if (await effects.vaultList().then((x) => x.includes(key))) {
+    if (await effects.vault.get({ key })) {
       return null
     }
     const newValue = getDefaultString(generator)
-    await effects.vaultSet({ key, value: newValue })
+    await effects.vault.set({ key, value: newValue })
     return newValue
   },
   getSystemSmtp: () =>

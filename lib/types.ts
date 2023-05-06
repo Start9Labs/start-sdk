@@ -392,6 +392,7 @@ export type Effects = {
 
   vault: {
     list(): Promise<string[]>
+    get(opt: { key: string }): Promise<string>
     set(opt: { key: string; value: string }): Promise<void>
     move(opt: { fromKey: string; toKey: string }): Promise<void>
     delete(opt: { key: string }): Promise<void>
