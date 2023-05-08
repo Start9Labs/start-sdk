@@ -4,7 +4,7 @@ import { Install } from "./setupInstall"
 import { Uninstall } from "./setupUninstall"
 
 export function setupInit<WrapperData>(
-  migrations: Migrations,
+  migrations: Migrations<WrapperData>,
   install: Install<WrapperData>,
   uninstall: Uninstall<WrapperData>,
 ): {

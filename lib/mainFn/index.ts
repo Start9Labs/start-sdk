@@ -1,5 +1,5 @@
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util"
+import { createMainUtils, Utils, utils } from "../util"
 import { Daemons } from "./Daemons"
 import "./exportInterfaces"
 import "./LocalBinding"
@@ -11,6 +11,7 @@ import "./TorBinding"
 import "./TorHostname"
 
 import "./Daemons"
+import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
 
 /**
  * Used to ensure that the main function is running with the valid proofs.
@@ -22,17 +23,18 @@ import "./Daemons"
  * @param fn
  * @returns
  */
-export const setupMain = <WrapperData>(
+export const setupMain = <WD>(
+  wrapperDataContract: WrapperDataContract<WD>,
   fn: (o: {
     effects: Effects
     started(onTerm: () => void): null
-    utils: Utils<WrapperData, {}>
+    utils: Utils<WD, {}>
   }) => Promise<Daemons<any>>,
 ): ExpectedExports.main => {
   return async (options) => {
     const result = await fn({
       ...options,
-      utils: utils<WrapperData, {}>(options.effects),
+      utils: createMainUtils(wrapperDataContract, options.effects),
     })
     await result.build().then((x) => x.wait())
   }

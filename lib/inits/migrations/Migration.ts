@@ -1,27 +1,33 @@
 import { ManifestVersion } from "../../manifest/ManifestTypes"
 import { Effects } from "../../types"
+import { Utils } from "../../util"
+import { WrapperDataContract } from "../../wrapperData/wrapperDataContract"
 
-export class Migration<Version extends ManifestVersion> {
+export class Migration<WD, Version extends ManifestVersion> {
   constructor(
+    readonly wrapperDataContract: WrapperDataContract<WD>,
     readonly options: {
       version: Version
-      up: (opts: { effects: Effects }) => Promise<void>
-      down: (opts: { effects: Effects }) => Promise<void>
+      up: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
+      down: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
     },
   ) {}
-  static of<Version extends ManifestVersion>(options: {
-    version: Version
-    up: (opts: { effects: Effects }) => Promise<void>
-    down: (opts: { effects: Effects }) => Promise<void>
-  }) {
-    return new Migration(options)
+  static of<WD, Version extends ManifestVersion>(
+    wrapperDataContract: WrapperDataContract<WD>,
+    options: {
+      version: Version
+      up: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
+      down: (opts: { effects: Effects; utils: Utils<WD> }) => Promise<void>
+    },
+  ) {
+    return new Migration(wrapperDataContract, options)
   }
 
-  async up(opts: { effects: Effects }) {
+  async up(opts: { effects: Effects; utils: Utils<WD> }) {
     this.up(opts)
   }
 
-  async down(opts: { effects: Effects }) {
+  async down(opts: { effects: Effects; utils: Utils<WD> }) {
     this.down(opts)
   }
 }

@@ -5,6 +5,10 @@ import { Value } from "../config/builder/value"
 import { Variants } from "../config/builder/variants"
 import { ValueSpec } from "../config/configTypes"
 import { Parser } from "ts-matches"
+import {
+  createWrapperDataContract,
+  neverWrapperDataContract,
+} from "../wrapperData/wrapperDataContract"
 
 type test = unknown | { test: 5 }
 describe("builder tests", () => {
@@ -299,7 +303,7 @@ describe("values", () => {
       utils: "utils",
     } as any
     test("toggle", async () => {
-      const value = Value.dynamicToggle<{}>(async () => ({
+      const value = Value.dynamicToggle(neverWrapperDataContract, async () => ({
         name: "Testing",
         description: null,
         warning: null,
@@ -317,7 +321,7 @@ describe("values", () => {
       })
     })
     test("text", async () => {
-      const value = Value.dynamicText(async () => ({
+      const value = Value.dynamicText(neverWrapperDataContract, async () => ({
         name: "Testing",
         required: { default: null },
       }))
@@ -333,7 +337,7 @@ describe("values", () => {
       })
     })
     test("text with default", async () => {
-      const value = Value.dynamicText(async () => ({
+      const value = Value.dynamicText(neverWrapperDataContract, async () => ({
         name: "Testing",
         required: { default: "this is a default value" },
       }))
@@ -348,7 +352,7 @@ describe("values", () => {
       })
     })
     test("optional text", async () => {
-      const value = Value.dynamicText(async () => ({
+      const value = Value.dynamicText(neverWrapperDataContract, async () => ({
         name: "Testing",
         required: false,
       }))
@@ -364,7 +368,7 @@ describe("values", () => {
       })
     })
     test("color", async () => {
-      const value = Value.dynamicColor<null>(async () => ({
+      const value = Value.dynamicColor(neverWrapperDataContract, async () => ({
         name: "Testing",
         required: false,
         description: null,
@@ -383,17 +387,20 @@ describe("values", () => {
       })
     })
     test("datetime", async () => {
-      const value = Value.dynamicDatetime<{ test: "a" }>(async ({ utils }) => {
-        ;async () => {
-          ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
-        }
+      const value = Value.dynamicDatetime(
+        createWrapperDataContract<{ test: "a" }>(),
+        async ({ utils }) => {
+          ;async () => {
+            ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
+          }
 
-        return {
-          name: "Testing",
-          required: { default: null },
-          inputmode: "date",
-        }
-      })
+          return {
+            name: "Testing",
+            required: { default: null },
+            inputmode: "date",
+          }
+        },
+      )
       const validator = value.validator
       validator.unsafeCast("2021-01-01")
       validator.unsafeCast(null)
@@ -408,15 +415,18 @@ describe("values", () => {
       })
     })
     test("textarea", async () => {
-      const value = Value.dynamicTextarea(async () => ({
-        name: "Testing",
-        required: false,
-        description: null,
-        warning: null,
-        minLength: null,
-        maxLength: null,
-        placeholder: null,
-      }))
+      const value = Value.dynamicTextarea(
+        neverWrapperDataContract,
+        async () => ({
+          name: "Testing",
+          required: false,
+          description: null,
+          warning: null,
+          minLength: null,
+          maxLength: null,
+          placeholder: null,
+        }),
+      )
       const validator = value.validator
       validator.unsafeCast("test text")
       expect(() => validator.unsafeCast(null)).toThrowError()
@@ -427,7 +437,7 @@ describe("values", () => {
       })
     })
     test("number", async () => {
-      const value = Value.dynamicNumber(() => ({
+      const value = Value.dynamicNumber(neverWrapperDataContract, () => ({
         name: "Testing",
         required: { default: null },
         integer: false,
@@ -500,7 +510,9 @@ describe("values", () => {
   })
   describe("filtering", () => {
     test("union", async () => {
-      const value = Value.filteredUnion(() => ["a", "c"])(
+      const value = Value.filteredUnion(
+        neverWrapperDataContract,
+        () => ["a", "c"],
         {
           name: "Testing",
           required: { default: null },
@@ -608,7 +620,7 @@ describe("Builder List", () => {
   describe("dynamic", () => {
     test("text", async () => {
       const value = Value.list(
-        List.dynamicText(() => ({
+        List.dynamicText(neverWrapperDataContract, () => ({
           name: "test",
           spec: { patterns: [] },
         })),
@@ -626,7 +638,7 @@ describe("Builder List", () => {
   })
   test("number", async () => {
     const value = Value.list(
-      List.dynamicNumber(() => ({
+      List.dynamicNumber(neverWrapperDataContract, () => ({
         name: "test",
         spec: { integer: true },
       })),

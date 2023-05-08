@@ -9,6 +9,7 @@ import {
   ValueSpecText,
 } from "../configTypes"
 import { Parser, arrayOf, number, string } from "ts-matches"
+import { WrapperDataContract } from "../../wrapperData/wrapperDataContract"
 /**
  * Used as a subtype of Value.list
 ```ts
@@ -74,6 +75,7 @@ export class List<Type, WD> {
     }, arrayOf(string))
   }
   static dynamicText<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -167,6 +169,7 @@ export class List<Type, WD> {
     }, arrayOf(number))
   }
   static dynamicNumber<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {

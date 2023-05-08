@@ -1,6 +1,6 @@
 import { Parser } from "ts-matches"
 import { Effects, EnsureWrapperDataPath, ExtractWrapperData } from "../types"
-import { NoAny } from "."
+import { NoAny } from "../util"
 
 export class GetWrapperData<WrapperData, Path extends string> {
   constructor(

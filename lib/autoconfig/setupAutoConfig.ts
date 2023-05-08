@@ -1,4 +1,5 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
+import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
 import { AutoConfig, AutoConfigFrom } from "./AutoConfig"
 
 export function setupAutoConfig<
@@ -8,7 +9,10 @@ export function setupAutoConfig<
   NestedConfigs extends {
     [key in keyof Manifest["dependencies"]]: unknown
   },
->(configs: AutoConfigFrom<WD, Input, NestedConfigs>) {
+>(
+  wrapperDataContract: WrapperDataContract<WD>,
+  configs: AutoConfigFrom<WD, Input, NestedConfigs>,
+) {
   type C = typeof configs
   const answer = { ...configs } as unknown as {
     [k in keyof C]: AutoConfig<WD, Input, NestedConfigs>
@@ -18,7 +22,7 @@ export function setupAutoConfig<
       WD,
       Input,
       NestedConfigs
-    >(configs, key as keyof typeof configs)
+    >(wrapperDataContract, configs, key as keyof typeof configs)
   }
   return answer
 }

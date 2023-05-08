@@ -24,6 +24,7 @@ import {
   unknown,
 } from "ts-matches"
 import { once } from "../../util/once"
+import { WrapperDataContract } from "../../wrapperData/wrapperDataContract"
 
 type RequiredDefault<A> =
   | false
@@ -121,6 +122,7 @@ export class Value<Type, WD> {
     )
   }
   static dynamicToggle<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     a: LazyBuild<
       WD,
       {
@@ -184,6 +186,7 @@ export class Value<Type, WD> {
     )
   }
   static dynamicText<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -255,6 +258,7 @@ export class Value<Type, WD> {
     )
   }
   static dynamicTextarea<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -321,6 +325,7 @@ export class Value<Type, WD> {
     )
   }
   static dynamicNumber<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -382,6 +387,7 @@ export class Value<Type, WD> {
   }
 
   static dynamicColor<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -439,6 +445,7 @@ export class Value<Type, WD> {
     )
   }
   static dynamicDatetime<WD = never>(
+    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -630,35 +637,34 @@ export class Value<Type, WD> {
       asRequiredParser(aVariants.validator, a),
     )
   }
-  static filteredUnion<WrapperData = never>(
-    getDisabledFn: LazyBuild<WrapperData, string[]>,
+  static filteredUnion<
+    Required extends RequiredDefault<string>,
+    Type extends Record<string, any>,
+    WD = never,
+  >(
+    _wrapperDataContract: WrapperDataContract<WD>,
+    getDisabledFn: LazyBuild<WD, string[]>,
+    a: {
+      name: string
+      description?: string | null
+      warning?: string | null
+      required: Required
+    },
+    aVariants: Variants<Type, WD> | Variants<Type, never>,
   ) {
-    return <
-      Required extends RequiredDefault<string>,
-      Type extends Record<string, any>,
-    >(
-      a: {
-        name: string
-        description?: string | null
-        warning?: string | null
-        required: Required
-      },
-      aVariants: Variants<Type, WrapperData> | Variants<Type, never>,
-    ) => {
-      return new Value<AsRequired<Type, Required>, WrapperData>(
-        async (options) => ({
-          type: "union" as const,
-          description: null,
-          warning: null,
-          ...a,
-          variants: await aVariants.build(options as any),
-          ...requiredLikeToAbove(a.required),
-          disabled: (await getDisabledFn(options)) || [],
-          immutable: false,
-        }),
-        asRequiredParser(aVariants.validator, a),
-      )
-    }
+    return new Value<AsRequired<Type, Required>, WD>(
+      async (options) => ({
+        type: "union" as const,
+        description: null,
+        warning: null,
+        ...a,
+        variants: await aVariants.build(options as any),
+        ...requiredLikeToAbove(a.required),
+        disabled: (await getDisabledFn(options)) || [],
+        immutable: false,
+      }),
+      asRequiredParser(aVariants.validator, a),
+    )
   }
 
   static list<Type, WrapperData>(a: List<Type, WrapperData>) {
@@ -686,33 +692,3 @@ export class Value<Type, WD> {
     return this as any as Value<Type, NewWrapperData>
   }
 }
-
-type Wrapper = { test: 1 | "5" }
-const valueA = Value.dynamicText<Wrapper>(() => ({
-  name: "a",
-  required: false,
-}))
-const variantForC = Variants.of({
-  lnd: {
-    name: "lnd Name",
-    spec: Config.of({
-      name: Value.text({
-        name: "Node Name",
-        required: false,
-      }),
-    }),
-  },
-})
-const valueC = Value.filteredUnion<Wrapper>(() => [])(
-  { name: "a", required: false },
-  variantForC,
-)
-const valueB = Value.text({
-  name: "a",
-  required: false,
-})
-const test = Config.of({
-  a: valueA,
-  b: valueB,
-  c: valueC,
-})

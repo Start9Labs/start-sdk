@@ -2,6 +2,7 @@ import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
+import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
 
 export type AutoConfigFrom<WD, Input, NestedConfigs> = {
   [key in keyof NestedConfigs & string]: (options: {
@@ -13,6 +14,7 @@ export type AutoConfigFrom<WD, Input, NestedConfigs> = {
 }
 export class AutoConfig<WD, Input, NestedConfigs> {
   constructor(
+    readonly wrapperDataContract: WrapperDataContract<WD>,
     readonly configs: AutoConfigFrom<WD, Input, NestedConfigs>,
     readonly path: keyof AutoConfigFrom<WD, Input, NestedConfigs>,
   ) {}
@@ -23,7 +25,7 @@ export class AutoConfig<WD, Input, NestedConfigs> {
     const origConfig = JSON.parse(JSON.stringify(options.localConfig))
     const newOptions = {
       ...options,
-      utils: utils<WD>(options.effects),
+      utils: utils(this.wrapperDataContract, options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
     }
@@ -44,7 +46,7 @@ export class AutoConfig<WD, Input, NestedConfigs> {
   ): ReturnType<AutoConfigure["autoConfigure"]> {
     const newOptions = {
       ...options,
-      utils: utils<WD>(options.effects),
+      utils: utils(this.wrapperDataContract, options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
     }

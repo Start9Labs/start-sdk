@@ -4,6 +4,7 @@ import * as D from "./dependencies"
 import { Config, ExtractConfigType } from "./builder/config"
 import { Utils, utils } from "../util"
 import nullIfEmpty from "../util/nullIfEmpty"
+import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
 
 declare const dependencyProof: unique symbol
 export type DependenciesReceipt = void & {
@@ -52,6 +53,7 @@ export function setupConfig<
   Manifest extends SDKManifest,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 >(
+  wrapperDataContract: WrapperDataContract<WD>,
   spec: Config<Type, WD> | Config<Type, never>,
   write: Save<WD, Type, Manifest>,
   read: Read<WD, Type>,
@@ -66,7 +68,7 @@ export function setupConfig<
       const { restart } = await write({
         input: JSON.parse(JSON.stringify(input)),
         effects,
-        utils: utils<WD>(effects),
+        utils: utils(wrapperDataContract, effects),
         dependencies: D.dependenciesSet<Manifest>(),
       })
       if (restart) {
@@ -74,7 +76,7 @@ export function setupConfig<
       }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
-      const myUtils = utils<WD>(effects)
+      const myUtils = utils(wrapperDataContract, effects)
       const configValue = nullIfEmpty(
         (await read({ effects, utils: myUtils })) || null,
       )
