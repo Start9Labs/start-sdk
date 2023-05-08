@@ -44,7 +44,7 @@ describe("values", () => {
       name: "Testing",
       description: null,
       warning: null,
-      default: null,
+      default: false,
     })
     const validator = value.validator
     validator.unsafeCast(false)
@@ -239,7 +239,7 @@ describe("values", () => {
           name: "test",
           description: null,
           warning: null,
-          default: null,
+          default: false,
         }),
       }),
     )
@@ -254,7 +254,6 @@ describe("values", () => {
         required: { default: null },
         description: null,
         warning: null,
-        default: null,
       },
       Variants.of({
         a: {
@@ -264,7 +263,7 @@ describe("values", () => {
               name: "b",
               description: null,
               warning: null,
-              default: null,
+              default: false,
             }),
           }),
         },
@@ -304,7 +303,7 @@ describe("values", () => {
         name: "Testing",
         description: null,
         warning: null,
-        default: null,
+        default: false,
       }))
       const validator = value.validator
       validator.unsafeCast(false)
@@ -314,7 +313,7 @@ describe("values", () => {
         name: "Testing",
         description: null,
         warning: null,
-        default: null,
+        default: false,
       })
     })
     test("text", async () => {
@@ -507,7 +506,6 @@ describe("values", () => {
           required: { default: null },
           description: null,
           warning: null,
-          default: null,
         },
         Variants.of({
           a: {
@@ -517,7 +515,7 @@ describe("values", () => {
                 name: "b",
                 description: null,
                 warning: null,
-                default: null,
+                default: false,
               }),
             }),
           },
@@ -528,7 +526,7 @@ describe("values", () => {
                 name: "b",
                 description: null,
                 warning: null,
-                default: null,
+                default: false,
               }),
             }),
           },
@@ -582,7 +580,7 @@ describe("Builder List", () => {
               name: "test",
               description: null,
               warning: null,
-              default: null,
+              default: false,
             }),
           }),
         },

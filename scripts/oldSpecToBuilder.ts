@@ -351,11 +351,11 @@ import { Variants } from "${startSdk}/lib/config/builder/variants"
             )},
             warning: ${JSON.stringify(value?.spec?.tag?.warning || null)},
             required: ${JSON.stringify(
-              !(value?.spec?.tag?.nullable || false)
-                ? { default: null }
-                : false,
+              // prettier-ignore
+              'default' in value?.spec ? {default: value?.spec?.default} :
+              !!value?.spec?.tag?.nullable || false ? {default: null} :
+              false,
             )},
-            default: ${JSON.stringify(value?.spec?.default || null)},
           }, ${variants})
         `,
         )
