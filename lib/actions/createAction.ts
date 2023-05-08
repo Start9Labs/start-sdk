@@ -1,56 +1,51 @@
 import { Config, ExtractConfigType } from "../config/builder/config"
 import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
 import { Utils, createUtils, utils } from "../util"
-import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
 
 export class CreatedAction<
-  WD,
-  ConfigType extends Record<string, any> | Config<any, WD> | Config<any, never>,
+  Store,
+  ConfigType extends
+    | Record<string, any>
+    | Config<any, Store>
+    | Config<any, never>,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    readonly wrapperDataContract: WrapperDataContract<WD>,
     public readonly myMetaData: ActionMetaData,
     readonly fn: (options: {
       effects: Effects
-      utils: Utils<WD>
+      utils: Utils<Store>
       input: Type
     }) => Promise<ActionResult>,
-    readonly input: Config<Type, WD> | Config<Type, never>,
+    readonly input: Config<Type, Store> | Config<Type, never>,
   ) {}
   public validator = this.input.validator
 
   static of<
-    WD,
+    Store,
     ConfigType extends
       | Record<string, any>
       | Config<any, any>
       | Config<any, never>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
-    wrapperDataContract: WrapperDataContract<WD>,
     metaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WD> | Config<Type, never>
+      input: Config<Type, Store> | Config<Type, never>
     },
     fn: (options: {
       effects: Effects
-      utils: Utils<WD>
+      utils: Utils<Store>
       input: Type
     }) => Promise<ActionResult>,
   ) {
     const { input, ...rest } = metaData
-    return new CreatedAction<WD, ConfigType, Type>(
-      wrapperDataContract,
-      rest,
-      fn,
-      input,
-    )
+    return new CreatedAction<Store, ConfigType, Type>(rest, fn, input)
   }
 
   exportedAction: ExportedAction = ({ effects, input }) => {
     return this.fn({
       effects,
-      utils: createUtils(this.wrapperDataContract, effects),
+      utils: createUtils(effects),
       input: this.validator.unsafeCast(input),
     })
   }
@@ -58,7 +53,7 @@ export class CreatedAction<
   run = async ({ effects, input }: { effects: Effects; input?: Type }) => {
     return this.fn({
       effects,
-      utils: createUtils(this.wrapperDataContract, effects),
+      utils: createUtils(effects),
       input: this.validator.unsafeCast(input),
     })
   }
@@ -66,7 +61,7 @@ export class CreatedAction<
   async getConfig({ effects }: { effects: Effects }) {
     return this.input.build({
       effects,
-      utils: createUtils(this.wrapperDataContract, effects) as any,
+      utils: createUtils(effects) as any,
     })
   }
 }

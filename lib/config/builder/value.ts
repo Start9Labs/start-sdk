@@ -24,9 +24,8 @@ import {
   unknown,
 } from "ts-matches"
 import { once } from "../../util/once"
-import { WrapperDataContract } from "../../wrapperData/wrapperDataContract"
 
-type RequiredDefault<A> =
+export type RequiredDefault<A> =
   | false
   | {
       default: A | null
@@ -96,7 +95,7 @@ const username = Value.string({
  ```
  */
 export class Value<Type, WD> {
-  private constructor(
+  protected constructor(
     public build: LazyBuild<WD, ValueSpec>,
     public validator: Parser<unknown, Type>,
   ) {}
@@ -122,7 +121,6 @@ export class Value<Type, WD> {
     )
   }
   static dynamicToggle<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
     a: LazyBuild<
       WD,
       {
@@ -186,7 +184,6 @@ export class Value<Type, WD> {
     )
   }
   static dynamicText<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -258,7 +255,6 @@ export class Value<Type, WD> {
     )
   }
   static dynamicTextarea<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -325,7 +321,6 @@ export class Value<Type, WD> {
     )
   }
   static dynamicNumber<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -387,7 +382,6 @@ export class Value<Type, WD> {
   }
 
   static dynamicColor<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -445,7 +439,6 @@ export class Value<Type, WD> {
     )
   }
   static dynamicDatetime<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
     getA: LazyBuild<
       WD,
       {
@@ -642,7 +635,6 @@ export class Value<Type, WD> {
     Type extends Record<string, any>,
     WD = never,
   >(
-    _wrapperDataContract: WrapperDataContract<WD>,
     getDisabledFn: LazyBuild<WD, string[]>,
     a: {
       name: string

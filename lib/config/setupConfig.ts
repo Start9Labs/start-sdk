@@ -1,6 +1,6 @@
 import { Effects, ExpectedExports } from "../types"
 import { SDKManifest } from "../manifest/ManifestTypes"
-import * as D from "./dependencies"
+import * as D from "./configDependencies"
 import { Config, ExtractConfigType } from "./builder/config"
 import { Utils, utils } from "../util"
 import nullIfEmpty from "../util/nullIfEmpty"
@@ -22,7 +22,7 @@ export type Save<
   effects: Effects
   input: ExtractConfigType<A> & Record<string, any>
   utils: Utils<WD>
-  dependencies: D.Dependencies<Manifest>
+  dependencies: D.ConfigDependencies<Manifest>
 }) => Promise<{
   dependenciesReceipt: DependenciesReceipt
   restart: boolean
@@ -70,7 +70,7 @@ export function setupConfig<
         input: JSON.parse(JSON.stringify(input)),
         effects,
         utils: utils(wrapperDataContract, effects),
-        dependencies: D.dependenciesSet<Manifest>(),
+        dependencies: D.configDependenciesSet<Manifest>(),
       })
       if (restart) {
         await effects.restart()

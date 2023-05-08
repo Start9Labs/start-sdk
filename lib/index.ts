@@ -19,3 +19,5 @@ import "./inits"
 export * as matches from "ts-matches"
 export * as YAML from "yaml"
 export * as TOML from "@iarna/toml"
+
+export class<Manifest extends SDKManifest>

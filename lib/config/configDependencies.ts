@@ -1,12 +1,14 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
 import { Dependency } from "../types"
 
-export type Dependencies<T extends SDKManifest> = {
+export type ConfigDependencies<T extends SDKManifest> = {
   exists(id: keyof T["dependencies"]): Dependency
   running(id: keyof T["dependencies"]): Dependency
 }
 
-export const dependenciesSet = <T extends SDKManifest>(): Dependencies<T> => ({
+export const configDependenciesSet = <
+  T extends SDKManifest,
+>(): ConfigDependencies<T> => ({
   exists(id: keyof T["dependencies"]) {
     return {
       id,

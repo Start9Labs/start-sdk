@@ -84,7 +84,6 @@ export type Utils<WD, WrapperOverWrite = { const: never }> = {
   nullIfEmpty: typeof nullIfEmpty
 }
 export const utils = <WD = never, WrapperOverWrite = { const: never }>(
-  _wrapperDataContract: WrapperDataContract<WD>,
   effects: T.Effects,
 ): Utils<WD, WrapperOverWrite> => ({
   createOrUpdateVault: async ({
