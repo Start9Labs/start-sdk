@@ -54,6 +54,7 @@ export function setupConfig<
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 >(
   wrapperDataContract: WrapperDataContract<WD>,
+  _manifest: Manifest,
   spec: Config<Type, WD> | Config<Type, never>,
   write: Save<WD, Type, Manifest>,
   read: Read<WD, Type>,
