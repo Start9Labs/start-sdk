@@ -11,8 +11,17 @@ import {
 } from "./config/configTypes"
 import { Variants } from "./config/builder/variants"
 import { createAction } from "./actions/createAction"
-import { ActionMetaData, Effects, ActionResult, Metadata } from "./types"
+import {
+  ActionMetaData,
+  Effects,
+  ActionResult,
+  Metadata,
+  BackupOptions,
+} from "./types"
 import { Utils } from "./util"
+import { AutoConfig, AutoConfigFrom } from "./autoconfig/AutoConfig"
+import { BackupSet, Backups } from "./backup/Backups"
+import { smtpConfig } from "./config/configConstants"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -41,11 +50,27 @@ class StartSDK<Manifest extends SDKManifest, Store> {
 
   build() {
     return this.anyOf({
-      // TODO AutoConfig
-      // TODO Backup
-      // TODO Config
-      // TODO configConstants
-      // TODO configDependencies
+      AutoConfig: <Input, NestedConfigs>(
+        configs: AutoConfigFrom<Store, Input, NestedConfigs>,
+        path: keyof AutoConfigFrom<Store, Input, NestedConfigs>,
+      ) => new AutoConfig<Store, Input, NestedConfigs>(configs, path),
+      Backups: {
+        volumes: (...volumeNames: Array<keyof Manifest["volumes"] & string>) =>
+          Backups.volumes<Manifest>(...volumeNames),
+        addSets: (
+          ...options: BackupSet<keyof Manifest["volumes"] & string>[]
+        ) => Backups.addSets<Manifest>(...options),
+        withOptions: (options?: Partial<BackupOptions>) =>
+          Backups.with_options<Manifest>(options),
+      },
+      Config: {
+        of: <
+          Spec extends Record<string, Value<any, Manifest> | Value<any, never>>,
+        >(
+          spec: Spec,
+        ) => Config.of(spec),
+      },
+      configConstants: { smtpConfig },
       createAction: <
         Store,
         ConfigType extends

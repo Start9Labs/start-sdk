@@ -1,14 +1,9 @@
 import { SmtpValue } from "../types"
-import {
-  createWrapperDataContract,
-  neverWrapperDataContract,
-} from "../wrapperData/wrapperDataContract"
 import { Config, ConfigSpecOf } from "./builder/config"
 import { Value } from "./builder/value"
 import { Variants } from "./builder/variants"
 
 export const smtpConfig = Value.filteredUnion(
-  neverWrapperDataContract,
   async ({ effects, utils }) => {
     const smtp = await utils.getSystemSmtp().once()
     return smtp ? [] : ["system"]
