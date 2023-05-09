@@ -6,27 +6,29 @@ import { Config } from "../config/builder/config"
 
 export type AutoConfigFrom<
   Store,
+  Vault,
   Input,
   NestedConfigs extends Record<string, any>,
 > = {
   [key in keyof NestedConfigs & string]: {
-    serviceConfig: Config<NestedConfigs[key], any>
+    serviceConfig: Config<NestedConfigs[key], Store, Vault>
     autoConfig: (options: {
       effects: Effects
       localConfig: Input
       remoteConfig: NestedConfigs[key]
-      utils: Utils<Store>
+      utils: Utils<Store, Vault>
     }) => Promise<void | DeepPartial<NestedConfigs[key]>>
   }
 }
 export class AutoConfig<
   Store,
+  Vault,
   Input,
   NestedConfigs extends Record<string, any>,
 > {
   constructor(
-    readonly configs: AutoConfigFrom<Store, Input, NestedConfigs>,
-    readonly path: keyof AutoConfigFrom<Store, Input, NestedConfigs>,
+    readonly configs: AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
+    readonly path: keyof AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
   ) {}
 
   async check(
@@ -35,7 +37,7 @@ export class AutoConfig<
     const origConfig = JSON.parse(JSON.stringify(options.localConfig))
     const newOptions = {
       ...options,
-      utils: utils<Store>(options.effects),
+      utils: utils<Store, Vault>(options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
     }
@@ -56,7 +58,7 @@ export class AutoConfig<
   ): ReturnType<AutoConfigure["autoConfigure"]> {
     const newOptions = {
       ...options,
-      utils: utils<Store>(options.effects),
+      utils: utils<Store, Vault>(options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
     }

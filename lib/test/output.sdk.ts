@@ -4,4 +4,5 @@ export type Manifest = any
 export const sdk = StartSdk.of()
   .withManifest({} as any)
   .withStore<{ storeRoot: { storeLeaf: "value" } }>()
+  .withVault<{ vaultRoot: "value" }>()
   .build(true)

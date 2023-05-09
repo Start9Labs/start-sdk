@@ -15,8 +15,9 @@ import { TorHostname } from "../mainFn/TorHostname"
 import { DefaultString } from "../config/configTypes"
 import { getDefaultString } from "./getDefaultString"
 import { GetStore, getStore } from "../store/getStore"
+import { GetVault, getVault } from "./getVault"
 
-export type Utils<Store, WrapperOverWrite = { const: never }> = {
+export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   createOrUpdateVault: (opts: {
     key: string
     value: string | null | undefined
@@ -41,6 +42,10 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
       value: ExtractStore<Store, Path>,
     ) => Promise<void>
   }
+  vault: {
+    get: (key: keyof Vault & string) => GetVault<Vault> & WrapperOverWrite
+    set: (key: keyof Vault & string, value: string) => Promise<void>
+  }
   checkPortListening(
     port: number,
     options: {
@@ -63,9 +68,13 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
   torHostName: (id: string) => TorHostname
   nullIfEmpty: typeof nullIfEmpty
 }
-export const utils = <Store = never, WrapperOverWrite = { const: never }>(
+export const utils = <
+  Store = never,
+  Vault = never,
+  WrapperOverWrite = { const: never },
+>(
   effects: T.Effects,
-): Utils<Store, WrapperOverWrite> => ({
+): Utils<Store, Vault, WrapperOverWrite> => ({
   createOrUpdateVault: async ({
     key,
     value,
@@ -79,7 +88,7 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
       await effects.vault.set({ key, value })
       return value
     }
-    if (await effects.vault.get({ key })) {
+    if (await effects.vault.get({ key, callback: noop })) {
       return null
     }
     const newValue = getDefaultString(generator)
@@ -93,7 +102,7 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
     fileHelper.write(data, effects),
   nullIfEmpty,
   store: {
-    get: <Store = never, Path extends string = never>(
+    get: <Path extends string = never>(
       packageId: string,
       path: T.EnsureStorePath<Store, Path>,
     ) =>
@@ -112,4 +121,12 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
   bindLan: async (port: number) => LocalPort.bindLan(effects, port),
   networkBuilder: () => NetworkBuilder.of(effects),
   torHostName: (id: string) => TorHostname.of(effects, id),
+
+  vault: {
+    get: (key: keyof Vault & string) =>
+      getVault<Vault>(effects, key) as GetVault<Vault> & WrapperOverWrite,
+    set: (key: keyof Vault & string, value: string) =>
+      effects.vault.set({ key, value }),
+  },
 })
+function noop(): void {}

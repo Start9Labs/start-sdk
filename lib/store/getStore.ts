@@ -1,6 +1,4 @@
-import { Parser } from "ts-matches"
 import { Effects, EnsureStorePath } from "../types"
-import { NoAny } from "../util"
 
 export class GetStore<Store, Path extends string> {
   constructor(

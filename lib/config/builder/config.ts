@@ -5,24 +5,28 @@ import { _ } from "../../util"
 import { Effects } from "../../types"
 import { Parser, object } from "ts-matches"
 
-export type LazyBuildOptions<Store> = {
+export type LazyBuildOptions<Store, Vault> = {
   effects: Effects
-  utils: Utils<Store>
+  utils: Utils<Store, Vault>
 }
-export type LazyBuild<Store, ExpectedOut> = (
-  options: LazyBuildOptions<Store>,
+export type LazyBuild<Store, Vault, ExpectedOut> = (
+  options: LazyBuildOptions<Store, Vault>,
 ) => Promise<ExpectedOut> | ExpectedOut
 
 // prettier-ignore
-export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any> | Config<Record<string, any>, never>> = 
-  A extends Config<infer B, any> | Config<infer B, never> ? B :
+export type ExtractConfigType<A extends Record<string, any> | Config<Record<string, any>, any, any> | Config<Record<string, any>, never, never>> = 
+  A extends Config<infer B, any, any> | Config<infer B, never, never> ? B :
   A
 
-export type ConfigSpecOf<A extends Record<string, any>, Store = never> = {
-  [K in keyof A]: Value<A[K], Store>
+export type ConfigSpecOf<
+  A extends Record<string, any>,
+  Store = never,
+  Vault = never,
+> = {
+  [K in keyof A]: Value<A[K], Store, Vault>
 }
 
-export type MaybeLazyValues<A> = LazyBuild<any, A> | A
+export type MaybeLazyValues<A> = LazyBuild<any, any, A> | A
 /**
  * Configs are the specs that are used by the os configuration form for this service.
  * Here is an example of a simple configuration
@@ -79,14 +83,16 @@ export const addNodesSpec = Config.of({ hostname: hostname, port: port });
 
   ```
  */
-export class Config<Type extends Record<string, any>, Store> {
+export class Config<Type extends Record<string, any>, Store, Vault> {
   private constructor(
     private readonly spec: {
-      [K in keyof Type]: Value<Type[K], Store> | Value<Type[K], never>
+      [K in keyof Type]:
+        | Value<Type[K], Store, Vault>
+        | Value<Type[K], never, never>
     },
     public validator: Parser<unknown, Type>,
   ) {}
-  async build(options: LazyBuildOptions<Store>) {
+  async build(options: LazyBuildOptions<Store, Vault>) {
     const answer = {} as {
       [K in keyof Type]: ValueSpec
     }
@@ -97,8 +103,12 @@ export class Config<Type extends Record<string, any>, Store> {
   }
 
   static of<
-    Spec extends Record<string, Value<any, Store> | Value<any, never>>,
+    Spec extends Record<
+      string,
+      Value<any, Store, Vault> | Value<any, never, never>
+    >,
     Store,
+    Vault,
   >(spec: Spec) {
     const validatorObj = {} as {
       [K in keyof Spec]: Parser<unknown, any>
@@ -110,12 +120,13 @@ export class Config<Type extends Record<string, any>, Store> {
     return new Config<
       {
         [K in keyof Spec]: Spec[K] extends
-          | Value<infer T, Store>
-          | Value<infer T, never>
+          | Value<infer T, Store, Vault>
+          | Value<infer T, never, never>
           ? T
           : never
       },
-      Store
+      Store,
+      Vault
     >(spec, validator as any)
   }
 
@@ -134,6 +145,6 @@ export class Config<Type extends Record<string, any>, Store> {
   ```
    */
   withStore<NewStore extends Store extends never ? any : Store>() {
-    return this as any as Config<Type, NewStore>
+    return this as any as Config<Type, NewStore, Vault>
   }
 }

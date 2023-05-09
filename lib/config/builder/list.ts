@@ -22,9 +22,9 @@ export const authorizationList = List.string({
 export const auth = Value.list(authorizationList);
 ```
 */
-export class List<Type, Store> {
+export class List<Type, Store, Vault> {
   private constructor(
-    public build: LazyBuild<Store, ValueSpecList>,
+    public build: LazyBuild<Store, Vault, ValueSpecList>,
     public validator: Parser<unknown, Type>,
   ) {}
   static text(
@@ -49,7 +49,7 @@ export class List<Type, Store> {
       generate?: null | RandomString
     },
   ) {
-    return new List<string[], never>(() => {
+    return new List<string[], never, never>(() => {
       const spec = {
         type: "text" as const,
         placeholder: null,
@@ -73,9 +73,10 @@ export class List<Type, Store> {
       } satisfies ValueSpecListOf<"text">
     }, arrayOf(string))
   }
-  static dynamicText<Store = never>(
+  static dynamicText<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -99,7 +100,7 @@ export class List<Type, Store> {
       }
     >,
   ) {
-    return new List<string[], Store>(async (options) => {
+    return new List<string[], Store, Vault>(async (options) => {
       const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "text" as const,
@@ -143,7 +144,7 @@ export class List<Type, Store> {
       placeholder?: string | null
     },
   ) {
-    return new List<number[], never>(() => {
+    return new List<number[], never, never>(() => {
       const spec = {
         type: "number" as const,
         placeholder: null,
@@ -166,9 +167,10 @@ export class List<Type, Store> {
       } satisfies ValueSpecListOf<"number">
     }, arrayOf(number))
   }
-  static dynamicNumber<Store = never>(
+  static dynamicNumber<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -189,7 +191,7 @@ export class List<Type, Store> {
       }
     >,
   ) {
-    return new List<number[], Store>(async (options) => {
+    return new List<number[], Store, Vault>(async (options) => {
       const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "number" as const,
@@ -213,7 +215,7 @@ export class List<Type, Store> {
       }
     }, arrayOf(number))
   }
-  static obj<Type extends Record<string, any>, Store>(
+  static obj<Type extends Record<string, any>, Store, Vault>(
     a: {
       name: string
       description?: string | null
@@ -224,12 +226,12 @@ export class List<Type, Store> {
       maxLength?: number | null
     },
     aSpec: {
-      spec: Config<Type, Store>
+      spec: Config<Type, Store, Vault>
       displayAs?: null | string
       uniqueBy?: null | UniqueBy
     },
   ) {
-    return new List<Type[], Store>(async (options) => {
+    return new List<Type[], Store, Vault>(async (options) => {
       const { spec: previousSpecSpec, ...restSpec } = aSpec
       const specSpec = await previousSpecSpec.build(options)
       const spec = {
@@ -271,6 +273,6 @@ export class List<Type, Store> {
   ```
    */
   withStore<NewStore extends Store extends never ? any : Store>() {
-    return this as any as List<Type, NewStore>
+    return this as any as List<Type, NewStore, Vault>
   }
 }

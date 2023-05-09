@@ -22,8 +22,8 @@ export const isKnownError = (e: unknown): e is T.KnownError =>
 declare const affine: unique symbol
 
 export const createUtils = utils
-export const createMainUtils = <Store>(effects: T.Effects) =>
-  createUtils<Store, {}>(effects)
+export const createMainUtils = <Store, Vault>(effects: T.Effects) =>
+  createUtils<Store, Vault, {}>(effects)
 
 type NeverPossible = { [affine]: string }
 export type NoAny<A> = NeverPossible extends A

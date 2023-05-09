@@ -94,9 +94,9 @@ const username = Value.string({
 });
  ```
  */
-export class Value<Type, Store> {
+export class Value<Type, Store, Vault> {
   protected constructor(
-    public build: LazyBuild<Store, ValueSpec>,
+    public build: LazyBuild<Store, Vault, ValueSpec>,
     public validator: Parser<unknown, Type>,
   ) {}
   static toggle(a: {
@@ -108,7 +108,7 @@ export class Value<Type, Store> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<boolean, never>(
+    return new Value<boolean, never, never>(
       async () => ({
         description: null,
         warning: null,
@@ -120,9 +120,10 @@ export class Value<Type, Store> {
       boolean,
     )
   }
-  static dynamicToggle<Store = never>(
+  static dynamicToggle<Store = never, Vault = never>(
     a: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -132,7 +133,7 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<boolean, Store>(
+    return new Value<boolean, Store, Vault>(
       async (options) => ({
         description: null,
         warning: null,
@@ -163,7 +164,7 @@ export class Value<Type, Store> {
     immutable?: boolean
     generate?: null | RandomString
   }) {
-    return new Value<AsRequired<string, Required>, never>(
+    return new Value<AsRequired<string, Required>, never, never>(
       async () => ({
         type: "text" as const,
         description: null,
@@ -183,9 +184,10 @@ export class Value<Type, Store> {
       asRequiredParser(string, a),
     )
   }
-  static dynamicText<Store = never>(
+  static dynamicText<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -204,25 +206,28 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<string | null | undefined, Store>(async (options) => {
-      const a = await getA(options)
-      return {
-        type: "text" as const,
-        description: null,
-        warning: null,
-        masked: false,
-        placeholder: null,
-        minLength: null,
-        maxLength: null,
-        patterns: [],
-        inputmode: "text",
-        disabled: false,
-        immutable: false,
-        generate: a.generate ?? null,
-        ...a,
-        ...requiredLikeToAbove(a.required),
-      }
-    }, string.optional())
+    return new Value<string | null | undefined, Store, Vault>(
+      async (options) => {
+        const a = await getA(options)
+        return {
+          type: "text" as const,
+          description: null,
+          warning: null,
+          masked: false,
+          placeholder: null,
+          minLength: null,
+          maxLength: null,
+          patterns: [],
+          inputmode: "text",
+          disabled: false,
+          immutable: false,
+          generate: a.generate ?? null,
+          ...a,
+          ...requiredLikeToAbove(a.required),
+        }
+      },
+      string.optional(),
+    )
   }
   static textarea(a: {
     name: string
@@ -237,7 +242,7 @@ export class Value<Type, Store> {
     immutable?: boolean
     generate?: null | RandomString
   }) {
-    return new Value<string, never>(
+    return new Value<string, never, never>(
       async () =>
         ({
           description: null,
@@ -254,9 +259,10 @@ export class Value<Type, Store> {
       string,
     )
   }
-  static dynamicTextarea<Store = never>(
+  static dynamicTextarea<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -270,7 +276,7 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<string, Store>(async (options) => {
+    return new Value<string, Store, Vault>(async (options) => {
       const a = await getA(options)
       return {
         description: null,
@@ -302,7 +308,7 @@ export class Value<Type, Store> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<number, Required>, never>(
+    return new Value<AsRequired<number, Required>, never, never>(
       () => ({
         type: "number" as const,
         description: null,
@@ -320,9 +326,10 @@ export class Value<Type, Store> {
       asRequiredParser(number, a),
     )
   }
-  static dynamicNumber<Store = never>(
+  static dynamicNumber<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -339,23 +346,26 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<number | null | undefined, Store>(async (options) => {
-      const a = await getA(options)
-      return {
-        type: "number" as const,
-        description: null,
-        warning: null,
-        min: null,
-        max: null,
-        step: null,
-        units: null,
-        placeholder: null,
-        disabled: false,
-        immutable: false,
-        ...a,
-        ...requiredLikeToAbove(a.required),
-      }
-    }, number.optional())
+    return new Value<number | null | undefined, Store, Vault>(
+      async (options) => {
+        const a = await getA(options)
+        return {
+          type: "number" as const,
+          description: null,
+          warning: null,
+          min: null,
+          max: null,
+          step: null,
+          units: null,
+          placeholder: null,
+          disabled: false,
+          immutable: false,
+          ...a,
+          ...requiredLikeToAbove(a.required),
+        }
+      },
+      number.optional(),
+    )
   }
   static color<Required extends RequiredDefault<string>>(a: {
     name: string
@@ -366,7 +376,7 @@ export class Value<Type, Store> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<string, Required>, never>(
+    return new Value<AsRequired<string, Required>, never, never>(
       () => ({
         type: "color" as const,
         description: null,
@@ -381,9 +391,10 @@ export class Value<Type, Store> {
     )
   }
 
-  static dynamicColor<Store = never>(
+  static dynamicColor<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -394,18 +405,21 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<string | null | undefined, Store>(async (options) => {
-      const a = await getA(options)
-      return {
-        type: "color" as const,
-        description: null,
-        warning: null,
-        disabled: false,
-        immutable: false,
-        ...a,
-        ...requiredLikeToAbove(a.required),
-      }
-    }, string.optional())
+    return new Value<string | null | undefined, Store, Vault>(
+      async (options) => {
+        const a = await getA(options)
+        return {
+          type: "color" as const,
+          description: null,
+          warning: null,
+          disabled: false,
+          immutable: false,
+          ...a,
+          ...requiredLikeToAbove(a.required),
+        }
+      },
+      string.optional(),
+    )
   }
   static datetime<Required extends RequiredDefault<string>>(a: {
     name: string
@@ -421,7 +435,7 @@ export class Value<Type, Store> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<string, Required>, never>(
+    return new Value<AsRequired<string, Required>, never, never>(
       () => ({
         type: "datetime" as const,
         description: null,
@@ -438,9 +452,10 @@ export class Value<Type, Store> {
       asRequiredParser(string, a),
     )
   }
-  static dynamicDatetime<Store = never>(
+  static dynamicDatetime<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -455,22 +470,25 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<string | null | undefined, Store>(async (options) => {
-      const a = await getA(options)
-      return {
-        type: "datetime" as const,
-        description: null,
-        warning: null,
-        inputmode: "datetime-local",
-        min: null,
-        max: null,
-        step: null,
-        disabled: false,
-        immutable: false,
-        ...a,
-        ...requiredLikeToAbove(a.required),
-      }
-    }, string.optional())
+    return new Value<string | null | undefined, Store, Vault>(
+      async (options) => {
+        const a = await getA(options)
+        return {
+          type: "datetime" as const,
+          description: null,
+          warning: null,
+          inputmode: "datetime-local",
+          min: null,
+          max: null,
+          step: null,
+          disabled: false,
+          immutable: false,
+          ...a,
+          ...requiredLikeToAbove(a.required),
+        }
+      },
+      string.optional(),
+    )
   }
   static select<
     Required extends RequiredDefault<string>,
@@ -485,7 +503,7 @@ export class Value<Type, Store> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<AsRequired<keyof B, Required>, never>(
+    return new Value<AsRequired<keyof B, Required>, never, never>(
       () => ({
         description: null,
         warning: null,
@@ -503,9 +521,10 @@ export class Value<Type, Store> {
       ) as any,
     )
   }
-  static dynamicSelect<Store = never>(
+  static dynamicSelect<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -516,18 +535,21 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<string | null | undefined, Store>(async (options) => {
-      const a = await getA(options)
-      return {
-        description: null,
-        warning: null,
-        type: "select" as const,
-        disabled: false,
-        immutable: false,
-        ...a,
-        ...requiredLikeToAbove(a.required),
-      }
-    }, string.optional())
+    return new Value<string | null | undefined, Store, Vault>(
+      async (options) => {
+        const a = await getA(options)
+        return {
+          description: null,
+          warning: null,
+          type: "select" as const,
+          disabled: false,
+          immutable: false,
+          ...a,
+          ...requiredLikeToAbove(a.required),
+        }
+      },
+      string.optional(),
+    )
   }
   static multiselect<Values extends Record<string, string>>(a: {
     name: string
@@ -541,7 +563,7 @@ export class Value<Type, Store> {
     Default is false */
     immutable?: boolean
   }) {
-    return new Value<(keyof Values)[], never>(
+    return new Value<(keyof Values)[], never, never>(
       () => ({
         type: "multiselect" as const,
         minLength: null,
@@ -557,9 +579,10 @@ export class Value<Type, Store> {
       ),
     )
   }
-  static dynamicMultiselect<Store = never>(
+  static dynamicMultiselect<Store = never, Vault = never>(
     getA: LazyBuild<
       Store,
+      Vault,
       {
         name: string
         description?: string | null
@@ -572,7 +595,7 @@ export class Value<Type, Store> {
       }
     >,
   ) {
-    return new Value<string[], Store>(async (options) => {
+    return new Value<string[], Store, Vault>(async (options) => {
       const a = await getA(options)
       return {
         type: "multiselect" as const,
@@ -586,15 +609,15 @@ export class Value<Type, Store> {
       }
     }, arrayOf(string))
   }
-  static object<Type extends Record<string, any>, Store>(
+  static object<Type extends Record<string, any>, Store, Vault>(
     a: {
       name: string
       description?: string | null
       warning?: string | null
     },
-    previousSpec: Config<Type, Store>,
+    previousSpec: Config<Type, Store, Vault>,
   ) {
-    return new Value<Type, Store>(async (options) => {
+    return new Value<Type, Store, Vault>(async (options) => {
       const spec = await previousSpec.build(options as any)
       return {
         type: "object" as const,
@@ -605,7 +628,7 @@ export class Value<Type, Store> {
       }
     }, previousSpec.validator)
   }
-  static union<Required extends RequiredDefault<string>, Type, Store>(
+  static union<Required extends RequiredDefault<string>, Type, Store, Vault>(
     a: {
       name: string
       description?: string | null
@@ -615,9 +638,9 @@ export class Value<Type, Store> {
       Default is false */
       immutable?: boolean
     },
-    aVariants: Variants<Type, Store>,
+    aVariants: Variants<Type, Store, Vault>,
   ) {
-    return new Value<AsRequired<Type, Required>, Store>(
+    return new Value<AsRequired<Type, Required>, Store, Vault>(
       async (options) => ({
         type: "union" as const,
         description: null,
@@ -634,17 +657,18 @@ export class Value<Type, Store> {
     Required extends RequiredDefault<string>,
     Type extends Record<string, any>,
     Store = never,
+    Vault = never,
   >(
-    getDisabledFn: LazyBuild<Store, string[]>,
+    getDisabledFn: LazyBuild<Store, Vault, string[]>,
     a: {
       name: string
       description?: string | null
       warning?: string | null
       required: Required
     },
-    aVariants: Variants<Type, Store> | Variants<Type, never>,
+    aVariants: Variants<Type, Store, Vault> | Variants<Type, never, never>,
   ) {
-    return new Value<AsRequired<Type, Required>, Store>(
+    return new Value<AsRequired<Type, Required>, Store, Vault>(
       async (options) => ({
         type: "union" as const,
         description: null,
@@ -659,8 +683,11 @@ export class Value<Type, Store> {
     )
   }
 
-  static list<Type, Store>(a: List<Type, Store>) {
-    return new Value<Type, Store>((options) => a.build(options), a.validator)
+  static list<Type, Store, Vault>(a: List<Type, Store, Vault>) {
+    return new Value<Type, Store, Vault>(
+      (options) => a.build(options),
+      a.validator,
+    )
   }
 
   /**
@@ -678,6 +705,6 @@ export class Value<Type, Store> {
   ```
    */
   withStore<NewStore extends Store extends never ? any : Store>() {
-    return this as any as Value<Type, NewStore>
+    return this as any as Value<Type, NewStore, Vault>
   }
 }
