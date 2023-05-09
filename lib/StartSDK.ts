@@ -12,7 +12,7 @@ import {
   ValueSpecText,
 } from "./config/configTypes"
 import { Variants } from "./config/builder/variants"
-import { createAction } from "./actions/createAction"
+import { CreatedAction, createAction } from "./actions/createAction"
 import {
   ActionMetaData,
   Effects,
@@ -200,7 +200,8 @@ export class StartSDK<Manifest extends SDKManifest, Store> {
           }) => Promise<void>
         }) => Migration.of<Store, Version>(options),
       },
-      setupActions,
+      setupActions: (...createdActions: CreatedAction<any, any>[]) =>
+        setupActions<Store>(...createdActions),
       setupAutoConfig: <
         Input,
         NestedConfigs extends {

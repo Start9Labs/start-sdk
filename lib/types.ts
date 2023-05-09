@@ -45,6 +45,10 @@ export namespace ExpectedExports {
     }
   }
 
+  export type actionMetaData = (options: {
+    effects: Effects
+  }) => Promise<Array<ActionMetaData>>
+
   /**
    * This is the entrypoint for the main container. Used to start up something like the service that the
    * package represents, like running a bitcoind in a bitcoind-wrapper.
@@ -154,6 +158,7 @@ export type ActionMetaData = {
   name: string
   description: string
   id: string
+  input: InputSpec
   allowedStatuses: "only-running" | "only-stopped" | "any"
   /**
    * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions

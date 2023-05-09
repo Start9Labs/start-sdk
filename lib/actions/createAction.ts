@@ -12,13 +12,13 @@ export class CreatedAction<
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    public readonly myMetaData: ActionMetaData,
+    public readonly myMetaData: Omit<ActionMetaData, "input">,
     readonly fn: (options: {
       effects: Effects
       utils: Utils<Store>
       input: Type
     }) => Promise<ActionResult>,
-    readonly input: Config<Type, Store> | Config<Type, never>,
+    readonly input: Config<Type, Store>,
   ) {}
   public validator = this.input.validator
 
@@ -40,7 +40,11 @@ export class CreatedAction<
     }) => Promise<ActionResult>,
   ) {
     const { input, ...rest } = metaData
-    return new CreatedAction<Store, ConfigType, Type>(rest, fn, input)
+    return new CreatedAction<Store, ConfigType, Type>(
+      rest,
+      fn,
+      input as Config<Type, Store>,
+    )
   }
 
   exportedAction: ExportedAction = ({ effects, input }) => {
@@ -57,6 +61,16 @@ export class CreatedAction<
       utils: createUtils(effects),
       input: this.validator.unsafeCast(input),
     })
+  }
+
+  async actionMetaData(options: {
+    effects: Effects
+    utils: Utils<Store>
+  }): Promise<ActionMetaData> {
+    return {
+      ...this.myMetaData,
+      input: await this.input.build(options),
+    }
   }
 
   async getConfig({ effects }: { effects: Effects }) {
