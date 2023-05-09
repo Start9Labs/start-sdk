@@ -18,7 +18,7 @@ export const smtpConfig = Value.filteredUnion(
     system: { name: "System Credentials", spec: Config.of({}) },
     custom: {
       name: "Custom Credentials",
-      spec: Config.of<ConfigSpecOf<SmtpValue>>({
+      spec: Config.of<ConfigSpecOf<SmtpValue>, never>({
         server: Value.text({
           name: "SMTP Server",
           required: {

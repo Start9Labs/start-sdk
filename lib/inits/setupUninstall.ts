@@ -1,21 +1,14 @@
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util"
-import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
+import { Utils, utils } from "../util/utils"
 
-export type UninstallFn<WrapperData> = (opts: {
+export type UninstallFn<Store> = (opts: {
   effects: Effects
-  utils: Utils<WrapperData>
+  utils: Utils<Store>
 }) => Promise<void>
-export class Uninstall<WD> {
-  private constructor(
-    readonly wrapperDataContract: WrapperDataContract<WD>,
-    readonly fn: UninstallFn<WD>,
-  ) {}
-  static of<WD>(
-    wrapperDataContract: WrapperDataContract<WD>,
-    fn: UninstallFn<WD>,
-  ) {
-    return new Uninstall(wrapperDataContract, fn)
+export class Uninstall<Store> {
+  private constructor(readonly fn: UninstallFn<Store>) {}
+  static of<Store>(fn: UninstallFn<Store>) {
+    return new Uninstall(fn)
   }
 
   async uninit({
@@ -25,14 +18,11 @@ export class Uninstall<WD> {
     if (!nextVersion)
       await this.fn({
         effects,
-        utils: utils(this.wrapperDataContract, effects),
+        utils: utils(effects),
       })
   }
 }
 
-export function setupUninstall<WD>(
-  wrapperDataContract: WrapperDataContract<WD>,
-  fn: UninstallFn<WD>,
-) {
-  return Uninstall.of(wrapperDataContract, fn)
+export function setupUninstall<Store>(fn: UninstallFn<Store>) {
+  return Uninstall.of(fn)
 }

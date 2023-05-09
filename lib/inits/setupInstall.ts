@@ -1,21 +1,14 @@
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util"
-import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
+import { Utils, utils } from "../util/utils"
 
-export type InstallFn<WD> = (opts: {
+export type InstallFn<Store> = (opts: {
   effects: Effects
-  utils: Utils<WD>
+  utils: Utils<Store>
 }) => Promise<void>
-export class Install<WD> {
-  private constructor(
-    readonly wrapperDataContract: WrapperDataContract<WD>,
-    readonly fn: InstallFn<WD>,
-  ) {}
-  static of<WD>(
-    wrapperDataContract: WrapperDataContract<WD>,
-    fn: InstallFn<WD>,
-  ) {
-    return new Install(wrapperDataContract, fn)
+export class Install<Store> {
+  private constructor(readonly fn: InstallFn<Store>) {}
+  static of<Store>(fn: InstallFn<Store>) {
+    return new Install(fn)
   }
 
   async init({
@@ -25,14 +18,11 @@ export class Install<WD> {
     if (!previousVersion)
       await this.fn({
         effects,
-        utils: utils(this.wrapperDataContract, effects),
+        utils: utils(effects),
       })
   }
 }
 
-export function setupInstall<WD>(
-  wrapperDataContract: WrapperDataContract<WD>,
-  fn: InstallFn<WD>,
-) {
-  return Install.of(wrapperDataContract, fn)
+export function setupInstall<Store>(fn: InstallFn<Store>) {
+  return Install.of(fn)
 }

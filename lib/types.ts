@@ -251,25 +251,26 @@ export type Effects = {
     progress: () => Promise<number>
   }
 
-  /** Get a value in a json like data, can be observed and subscribed */
-  getWrapperData<WrapperData = never, Path extends string = never>(options: {
-    /** If there is no packageId it is assumed the current package */
-    packageId?: string
-    /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
-    path: Path & EnsureWrapperDataPath<WrapperData, Path>
-    callback: (config: unknown, previousConfig: unknown) => void
-  }): Promise<ExtractWrapperData<WrapperData, Path>>
+  store: {
+    /** Get a value in a json like data, can be observed and subscribed */
+    get<Store = never, Path extends string = never>(options: {
+      /** If there is no packageId it is assumed the current package */
+      packageId?: string
+      /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
+      path: Path & EnsureStorePath<Store, Path>
+      callback: (config: unknown, previousConfig: unknown) => void
+    }): Promise<ExtractStore<Store, Path>>
+    /** Used to store values that can be accessed and subscribed to */
+    set<Store = never, Path extends string = never>(options: {
+      /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+      path: Path & EnsureStorePath<Store, Path>
+      value: ExtractStore<Store, Path>
+    }): Promise<void>
+  }
 
   getSystemSmtp(input: {
     callback: (config: unknown, previousConfig: unknown) => void
   }): Promise<SmtpValue>
-
-  /** Used to store values that can be accessed and subscribed to */
-  setWrapperData<WrapperData = never, Path extends string = never>(options: {
-    /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
-    path: Path & EnsureWrapperDataPath<WrapperData, Path>
-    value: ExtractWrapperData<WrapperData, Path>
-  }): Promise<void>
 
   getLocalHostname(): Promise<string>
   getIPHostname(): Promise<string[]>
@@ -400,20 +401,20 @@ export type Effects = {
 }
 
 // prettier-ignore
-export type ExtractWrapperData<WrapperData, Path extends string> = 
-  Path extends `/${infer A }/${infer Rest }` ? (A extends keyof WrapperData ? ExtractWrapperData<WrapperData[A], `/${Rest}`> : never) :
-  Path extends `/${infer A }` ? (A extends keyof WrapperData ? WrapperData[A] : never) :
-  Path extends '' ? WrapperData :
+export type ExtractStore<Store, Path extends string> = 
+  Path extends `/${infer A }/${infer Rest }` ? (A extends keyof Store ? ExtractStore<Store[A], `/${Rest}`> : never) :
+  Path extends `/${infer A }` ? (A extends keyof Store ? Store[A] : never) :
+  Path extends '' ? Store :
   never
 
 // prettier-ignore
-type _EnsureWrapperDataPath<WrapperData, Path extends string, Origin extends string> = 
-  Path extends`/${infer A }/${infer Rest}` ? (WrapperData extends {[K in A & string]: infer NextWrapperData} ? _EnsureWrapperDataPath<NextWrapperData, `/${Rest}`, Origin> : never) :
-  Path extends `/${infer A }`  ? (WrapperData extends {[K in A]: infer B} ? Origin : never) :
+type _EnsureStorePath<Store, Path extends string, Origin extends string> = 
+  Path extends`/${infer A }/${infer Rest}` ? (Store extends {[K in A & string]: infer NextStore} ? _EnsureStorePath<NextStore, `/${Rest}`, Origin> : never) :
+  Path extends `/${infer A }`  ? (Store extends {[K in A]: infer B} ? Origin : never) :
   Path extends '' ? Origin :
   never
 // prettier-ignore
-export type EnsureWrapperDataPath<WrapperData, Path extends string> = _EnsureWrapperDataPath<WrapperData, Path, Path>
+export type EnsureStorePath<Store, Path extends string> = _EnsureStorePath<Store, Path, Path>
 
 /** rsync options: https://linux.die.net/man/1/rsync
  */

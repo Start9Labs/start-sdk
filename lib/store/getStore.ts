@@ -1,11 +1,11 @@
 import { Parser } from "ts-matches"
-import { Effects, EnsureWrapperDataPath, ExtractWrapperData } from "../types"
+import { Effects, EnsureStorePath } from "../types"
 import { NoAny } from "../util"
 
-export class GetWrapperData<WrapperData, Path extends string> {
+export class GetStore<Store, Path extends string> {
   constructor(
     readonly effects: Effects,
-    readonly path: Path & EnsureWrapperDataPath<WrapperData, Path>,
+    readonly path: Path & EnsureStorePath<Store, Path>,
     readonly options: {
       /** Defaults to what ever the package currently in */
       packageId?: string | undefined
@@ -13,20 +13,20 @@ export class GetWrapperData<WrapperData, Path extends string> {
   ) {}
 
   /**
-   * Returns the value of WrapperData at the provided path. Restart the service if the value changes
+   * Returns the value of Store at the provided path. Restart the service if the value changes
    */
   const() {
-    return this.effects.getWrapperData<WrapperData, Path>({
+    return this.effects.store.get<Store, Path>({
       ...this.options,
       path: this.path as any,
       callback: this.effects.restart,
     })
   }
   /**
-   * Returns the value of WrapperData at the provided path. Does nothing if the value changes
+   * Returns the value of Store at the provided path. Does nothing if the value changes
    */
   once() {
-    return this.effects.getWrapperData<WrapperData, Path>({
+    return this.effects.store.get<Store, Path>({
       ...this.options,
       path: this.path as any,
       callback: () => {},
@@ -34,7 +34,7 @@ export class GetWrapperData<WrapperData, Path extends string> {
   }
 
   /**
-   * Watches the value of WrapperData at the provided path. Takes a custom callback function to run whenever the value changes
+   * Watches the value of Store at the provided path. Takes a custom callback function to run whenever the value changes
    */
   async *watch() {
     while (true) {
@@ -42,7 +42,7 @@ export class GetWrapperData<WrapperData, Path extends string> {
       const waitForNext = new Promise<void>((resolve) => {
         callback = resolve
       })
-      yield await this.effects.getWrapperData<WrapperData, Path>({
+      yield await this.effects.store.get<Store, Path>({
         ...this.options,
         path: this.path as any,
         callback: () => callback(),
@@ -51,13 +51,13 @@ export class GetWrapperData<WrapperData, Path extends string> {
     }
   }
 }
-export function getWrapperData<WrapperData, Path extends string>(
+export function getStore<Store, Path extends string>(
   effects: Effects,
-  path: Path & EnsureWrapperDataPath<WrapperData, Path>,
+  path: Path & EnsureStorePath<Store, Path>,
   options: {
     /** Defaults to what ever the package currently in */
     packageId?: string | undefined
   } = {},
 ) {
-  return new GetWrapperData<WrapperData, Path>(effects, path as any, options)
+  return new GetStore<Store, Path>(effects, path as any, options)
 }

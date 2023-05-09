@@ -2,9 +2,8 @@ import { Effects, ExpectedExports } from "../types"
 import { SDKManifest } from "../manifest/ManifestTypes"
 import * as D from "./configDependencies"
 import { Config, ExtractConfigType } from "./builder/config"
-import { Utils, utils } from "../util"
+import { Utils, utils } from "../util/utils"
 import nullIfEmpty from "../util/nullIfEmpty"
-import { WrapperDataContract } from "../wrapperData/wrapperDataContract"
 
 declare const dependencyProof: unique symbol
 export type DependenciesReceipt = void & {
@@ -12,7 +11,7 @@ export type DependenciesReceipt = void & {
 }
 
 export type Save<
-  WD,
+  Store,
   A extends
     | Record<string, any>
     | Config<Record<string, any>, any>
@@ -21,21 +20,21 @@ export type Save<
 > = (options: {
   effects: Effects
   input: ExtractConfigType<A> & Record<string, any>
-  utils: Utils<WD>
+  utils: Utils<Store>
   dependencies: D.ConfigDependencies<Manifest>
 }) => Promise<{
   dependenciesReceipt: DependenciesReceipt
   restart: boolean
 }>
 export type Read<
-  WD,
+  Store,
   A extends
     | Record<string, any>
     | Config<Record<string, any>, any>
     | Config<Record<string, any>, never>,
 > = (options: {
   effects: Effects
-  utils: Utils<WD>
+  utils: Utils<Store>
 }) => Promise<void | (ExtractConfigType<A> & Record<string, any>)>
 /**
  * We want to setup a config export with a get and set, this
@@ -45,7 +44,7 @@ export type Read<
  * @returns
  */
 export function setupConfig<
-  WD,
+  Store,
   ConfigType extends
     | Record<string, any>
     | Config<any, any>
@@ -53,11 +52,9 @@ export function setupConfig<
   Manifest extends SDKManifest,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 >(
-  wrapperDataContract: WrapperDataContract<WD>,
-  _manifest: Manifest,
-  spec: Config<Type, WD> | Config<Type, never>,
-  write: Save<WD, Type, Manifest>,
-  read: Read<WD, Type>,
+  spec: Config<Type, Store> | Config<Type, never>,
+  write: Save<Store, Type, Manifest>,
+  read: Read<Store, Type>,
 ) {
   const validator = spec.validator
   return {
@@ -69,7 +66,7 @@ export function setupConfig<
       const { restart } = await write({
         input: JSON.parse(JSON.stringify(input)),
         effects,
-        utils: utils(wrapperDataContract, effects),
+        utils: utils(effects),
         dependencies: D.configDependenciesSet<Manifest>(),
       })
       if (restart) {
@@ -77,7 +74,7 @@ export function setupConfig<
       }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
-      const myUtils = utils(wrapperDataContract, effects)
+      const myUtils = utils<Store>(effects)
       const configValue = nullIfEmpty(
         (await read({ effects, utils: myUtils })) || null,
       )

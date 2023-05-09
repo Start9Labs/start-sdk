@@ -28,19 +28,12 @@ function isString(x: unknown): x is string {
 
 export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
-  {
-    startSdk = "start-sdk",
-    nested = true,
-    wrapperData = "../../wrapperData",
-  } = {},
+  { startSdk = "start-sdk", nested = true } = {},
 ) {
   const outputLines: string[] = []
   outputLines.push(`
-  import { Config } from "${startSdk}/lib/config/builder/config"
-import { List } from "${startSdk}/lib/config/builder/list"
-import { Value } from "${startSdk}/lib/config/builder/value"
-import { Variants } from "${startSdk}/lib/config/builder/variants"
-  import {WrapperData} from '${wrapperData}'
+import { sdk } from "${startSdk}"
+const {Config, List, Value, Variants} = sdk
 `)
   const data = await inputData
 

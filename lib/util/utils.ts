@@ -1,0 +1,115 @@
+import * as T from "../types"
+import FileHelper from "./fileHelper"
+import nullIfEmpty from "./nullIfEmpty"
+import {
+  CheckResult,
+  checkPortListening,
+  checkWebUrl,
+} from "../health/checkFns"
+import { ExtractStore } from "../types"
+import { GetSystemSmtp } from "./GetSystemSmtp"
+import { LocalBinding } from "../mainFn/LocalBinding"
+import { LocalPort } from "../mainFn/LocalPort"
+import { NetworkBuilder } from "../mainFn/NetworkBuilder"
+import { TorHostname } from "../mainFn/TorHostname"
+import { DefaultString } from "../config/configTypes"
+import { getDefaultString } from "./getDefaultString"
+import { GetStore, getStore } from "../store/getStore"
+
+export type Utils<Store, WrapperOverWrite = { const: never }> = {
+  createOrUpdateVault: (opts: {
+    key: string
+    value: string | null | undefined
+    generator: DefaultString
+  }) => Promise<null | string>
+  readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
+  writeFile: <A>(
+    fileHelper: FileHelper<A>,
+    data: A,
+  ) => ReturnType<FileHelper<A>["write"]>
+  getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
+  store: {
+    get: <Path extends string>(
+      packageId: string,
+      path: T.EnsureStorePath<Store, Path>,
+    ) => GetStore<Store, Path> & WrapperOverWrite
+    getOwn: <Path extends string>(
+      path: T.EnsureStorePath<Store, Path>,
+    ) => GetStore<Store, Path> & WrapperOverWrite
+    setOwn: <Path extends string | never>(
+      path: T.EnsureStorePath<Store, Path>,
+      value: ExtractStore<Store, Path>,
+    ) => Promise<void>
+  }
+  checkPortListening(
+    port: number,
+    options: {
+      errorMessage: string
+      successMessage: string
+      timeoutMessage?: string
+      timeout?: number
+    },
+  ): Promise<CheckResult>
+  checkWebUrl(
+    url: string,
+    options?: {
+      timeout?: number
+      successMessage?: string
+      errorMessage?: string
+    },
+  ): Promise<CheckResult>
+  bindLan: (port: number) => Promise<LocalBinding>
+  networkBuilder: () => NetworkBuilder
+  torHostName: (id: string) => TorHostname
+  nullIfEmpty: typeof nullIfEmpty
+}
+export const utils = <Store = never, WrapperOverWrite = { const: never }>(
+  effects: T.Effects,
+): Utils<Store, WrapperOverWrite> => ({
+  createOrUpdateVault: async ({
+    key,
+    value,
+    generator,
+  }: {
+    key: string
+    value: string | null | undefined
+    generator: DefaultString
+  }) => {
+    if (value) {
+      await effects.vault.set({ key, value })
+      return value
+    }
+    if (await effects.vault.get({ key })) {
+      return null
+    }
+    const newValue = getDefaultString(generator)
+    await effects.vault.set({ key, value: newValue })
+    return newValue
+  },
+  getSystemSmtp: () =>
+    new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
+  readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
+  writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
+    fileHelper.write(data, effects),
+  nullIfEmpty,
+  store: {
+    get: <Store = never, Path extends string = never>(
+      packageId: string,
+      path: T.EnsureStorePath<Store, Path>,
+    ) =>
+      getStore<Store, Path>(effects, path as any, {
+        packageId,
+      }) as any,
+    getOwn: <Path extends string>(path: T.EnsureStorePath<Store, Path>) =>
+      getStore<Store, Path>(effects, path as any) as any,
+    setOwn: <Path extends string | never>(
+      path: T.EnsureStorePath<Store, Path>,
+      value: ExtractStore<Store, Path>,
+    ) => effects.store.set<Store, Path>({ value, path: path as any }),
+  },
+  checkPortListening: checkPortListening.bind(null, effects),
+  checkWebUrl: checkWebUrl.bind(null, effects),
+  bindLan: async (port: number) => LocalPort.bindLan(effects, port),
+  networkBuilder: () => NetworkBuilder.of(effects),
+  torHostName: (id: string) => TorHostname.of(effects, id),
+})

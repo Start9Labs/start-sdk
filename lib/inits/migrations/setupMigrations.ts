@@ -4,39 +4,32 @@ import { SDKManifest } from "../../manifest/ManifestTypes"
 import { ExpectedExports } from "../../types"
 import { createUtils } from "../../util"
 import { once } from "../../util/once"
-import { WrapperDataContract } from "../../wrapperData/wrapperDataContract"
 import { Migration } from "./Migration"
 
-export class Migrations<WD> {
+export class Migrations<Store> {
   private constructor(
-    readonly wrapperDataContract: WrapperDataContract<WD>,
     readonly manifest: SDKManifest,
-    readonly migrations: Array<Migration<WD, any>>,
+    readonly migrations: Array<Migration<Store, any>>,
   ) {}
   private sortedMigrations = once(() => {
     const migrationsAsVersions = (
-      this.migrations as Array<Migration<WD, any>>
+      this.migrations as Array<Migration<Store, any>>
     ).map((x) => [EmVer.parse(x.options.version), x] as const)
     migrationsAsVersions.sort((a, b) => a[0].compareForSort(b[0]))
     return migrationsAsVersions
   })
   private currentVersion = once(() => EmVer.parse(this.manifest.version))
-  static of<WD, Migrations extends Array<Migration<WD, any>>>(
-    wrapperDataContract: WrapperDataContract<WD>,
+  static of<Store, Migrations extends Array<Migration<Store, any>>>(
     manifest: SDKManifest,
     ...migrations: EnsureUniqueId<Migrations>
   ) {
-    return new Migrations(
-      wrapperDataContract,
-      manifest,
-      migrations as Array<Migration<WD, any>>,
-    )
+    return new Migrations(manifest, migrations as Array<Migration<Store, any>>)
   }
   async init({
     effects,
     previousVersion,
   }: Parameters<ExpectedExports.init>[0]) {
-    const utils = createUtils(this.wrapperDataContract, effects)
+    const utils = createUtils<Store>(effects)
     if (!!previousVersion) {
       const previousVersionEmVer = EmVer.parse(previousVersion)
       for (const [_, migration] of this.sortedMigrations()
@@ -50,7 +43,7 @@ export class Migrations<WD> {
     effects,
     nextVersion,
   }: Parameters<ExpectedExports.uninit>[0]) {
-    const utils = createUtils(this.wrapperDataContract, effects)
+    const utils = createUtils<Store>(effects)
     if (!!nextVersion) {
       const nextVersionEmVer = EmVer.parse(nextVersion)
       const reversed = [...this.sortedMigrations()].reverse()
@@ -64,14 +57,10 @@ export class Migrations<WD> {
 }
 
 export function setupMigrations<
-  WD,
-  Migrations extends Array<Migration<WD, any>>,
->(
-  wrapperDataContract: WrapperDataContract<WD>,
-  manifest: SDKManifest,
-  ...migrations: EnsureUniqueId<Migrations>
-) {
-  return Migrations.of(wrapperDataContract, manifest, ...migrations)
+  Store,
+  Migrations extends Array<Migration<Store, any>>,
+>(manifest: SDKManifest, ...migrations: EnsureUniqueId<Migrations>) {
+  return Migrations.of(manifest, ...migrations)
 }
 
 // prettier-ignore

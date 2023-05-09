@@ -9,7 +9,6 @@ import {
   ValueSpecText,
 } from "../configTypes"
 import { Parser, arrayOf, number, string } from "ts-matches"
-import { WrapperDataContract } from "../../wrapperData/wrapperDataContract"
 /**
  * Used as a subtype of Value.list
 ```ts
@@ -23,9 +22,9 @@ export const authorizationList = List.string({
 export const auth = Value.list(authorizationList);
 ```
 */
-export class List<Type, WD> {
+export class List<Type, Store> {
   private constructor(
-    public build: LazyBuild<WD, ValueSpecList>,
+    public build: LazyBuild<Store, ValueSpecList>,
     public validator: Parser<unknown, Type>,
   ) {}
   static text(
@@ -74,10 +73,9 @@ export class List<Type, WD> {
       } satisfies ValueSpecListOf<"text">
     }, arrayOf(string))
   }
-  static dynamicText<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
+  static dynamicText<Store = never>(
     getA: LazyBuild<
-      WD,
+      Store,
       {
         name: string
         description?: string | null
@@ -101,7 +99,7 @@ export class List<Type, WD> {
       }
     >,
   ) {
-    return new List<string[], WD>(async (options) => {
+    return new List<string[], Store>(async (options) => {
       const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "text" as const,
@@ -168,10 +166,9 @@ export class List<Type, WD> {
       } satisfies ValueSpecListOf<"number">
     }, arrayOf(number))
   }
-  static dynamicNumber<WD = never>(
-    _wrapperDataContract: WrapperDataContract<WD>,
+  static dynamicNumber<Store = never>(
     getA: LazyBuild<
-      WD,
+      Store,
       {
         name: string
         description?: string | null
@@ -192,7 +189,7 @@ export class List<Type, WD> {
       }
     >,
   ) {
-    return new List<number[], WD>(async (options) => {
+    return new List<number[], Store>(async (options) => {
       const { spec: aSpec, ...a } = await getA(options)
       const spec = {
         type: "number" as const,
@@ -216,7 +213,7 @@ export class List<Type, WD> {
       }
     }, arrayOf(number))
   }
-  static obj<Type extends Record<string, any>, WrapperData>(
+  static obj<Type extends Record<string, any>, Store>(
     a: {
       name: string
       description?: string | null
@@ -227,12 +224,12 @@ export class List<Type, WD> {
       maxLength?: number | null
     },
     aSpec: {
-      spec: Config<Type, WrapperData>
+      spec: Config<Type, Store>
       displayAs?: null | string
       uniqueBy?: null | UniqueBy
     },
   ) {
-    return new List<Type[], WrapperData>(async (options) => {
+    return new List<Type[], Store>(async (options) => {
       const { spec: previousSpecSpec, ...restSpec } = aSpec
       const specSpec = await previousSpecSpec.build(options)
       const spec = {
@@ -268,12 +265,12 @@ export class List<Type, WD> {
     required: false,
   })
 
-  return Config.of<WrapperData>()({
-    myValue: a.withWrapperData(),
+  return Config.of<Store>()({
+    myValue: a.withStore(),
   })
   ```
    */
-  withWrapperData<NewWrapperData extends WD extends never ? any : WD>() {
-    return this as any as List<Type, NewWrapperData>
+  withStore<NewStore extends Store extends never ? any : Store>() {
+    return this as any as List<Type, NewStore>
   }
 }

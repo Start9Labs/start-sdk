@@ -1,6 +1,7 @@
 import { Config, ExtractConfigType } from "../config/builder/config"
 import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
-import { Utils, createUtils, utils } from "../util"
+import { createUtils } from "../util"
+import { Utils, utils } from "../util/utils"
 
 export class CreatedAction<
   Store,

@@ -1,11 +1,13 @@
 import { AnyParser } from "ts-matches"
-import { SDKManifest } from "./manifest/ManifestTypes"
+import { ManifestVersion, SDKManifest } from "./manifest/ManifestTypes"
 import { RequiredDefault, Value } from "./config/builder/value"
 import { Config, ExtractConfigType, LazyBuild } from "./config/builder/config"
 import {
   DefaultString,
+  ListValueSpecText,
   Pattern,
   RandomString,
+  UniqueBy,
   ValueSpecDatetime,
   ValueSpecText,
 } from "./config/configTypes"
@@ -18,10 +20,34 @@ import {
   Metadata,
   BackupOptions,
 } from "./types"
-import { Utils } from "./util"
+import { Utils } from "./util/utils"
 import { AutoConfig, AutoConfigFrom } from "./autoconfig/AutoConfig"
 import { BackupSet, Backups } from "./backup/Backups"
 import { smtpConfig } from "./config/configConstants"
+import { Daemons } from "./mainFn/Daemons"
+import { healthCheck } from "./health/HealthCheck"
+import {
+  checkPortListening,
+  containsAddress,
+} from "./health/checkFns/checkPortListening"
+import { checkWebUrl, runHealthScript } from "./health/checkFns"
+import { List } from "./config/builder/list"
+import { Migration } from "./inits/migrations/Migration"
+import { Install, InstallFn, setupInstall } from "./inits/setupInstall"
+import { setupActions } from "./actions/setupActions"
+import { setupAutoConfig } from "./autoconfig/setupAutoConfig"
+import { SetupBackupsParams, setupBackups } from "./backup/setupBackups"
+import { setupInit } from "./inits/setupInit"
+import {
+  EnsureUniqueId,
+  Migrations,
+  setupMigrations,
+} from "./inits/migrations/setupMigrations"
+import { Uninstall, UninstallFn, setupUninstall } from "./inits/setupUninstall"
+import { setupMain } from "./mainFn"
+import { defaultTrigger } from "./trigger/defaultTrigger"
+import { changeOnFirstSuccess, cooldownTrigger } from "./trigger"
+import setupConfig, { Read, Save } from "./config/setupConfig"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -30,7 +56,7 @@ type AnyNeverCond<T extends any[], Then, Else> =
     T extends [any, ...infer U] ? AnyNeverCond<U,Then, Else> :
     never
 
-class StartSDK<Manifest extends SDKManifest, Store> {
+export class StartSDK<Manifest extends SDKManifest, Store> {
   private constructor() {}
   private anyOf<A>(
     a: A,
@@ -65,10 +91,10 @@ class StartSDK<Manifest extends SDKManifest, Store> {
       },
       Config: {
         of: <
-          Spec extends Record<string, Value<any, Manifest> | Value<any, never>>,
+          Spec extends Record<string, Value<any, Store> | Value<any, never>>,
         >(
           spec: Spec,
-        ) => Config.of(spec),
+        ) => Config.of<Spec, Store>(spec),
       },
       configConstants: { smtpConfig },
       createAction: <
@@ -88,22 +114,137 @@ class StartSDK<Manifest extends SDKManifest, Store> {
           input: Type
         }) => Promise<ActionResult>,
       ) => createAction<Store, ConfigType, Type>(metaData, fn),
-      // TODO Daemons
-      // TODO HealthCheck
-      // TODO healthCheckFns
-      // TODO List
-      // TODO mainNetwork
-      // TODO Migration
-      // TODO setupActions
-      // TODO setupAutoConfig
-      // TODO setupBackup
-      // TODO setupInit
-      // TODO setupInstall
-      // TODO setupMain
-      // TODO setupManifest
-      // TODO setupMigrations
-      // TODO setupUninstall
-      // TODO trigger changeOnFirstSuccess, cooldown, default
+      Daemons: { of: Daemons.of },
+      healthCheck: {
+        checkPortListening,
+        checkWebUrl,
+        of: healthCheck,
+        runHealthScript,
+      },
+      List: {
+        text: List.text,
+        number: List.number,
+        obj: <Type extends Record<string, any>>(
+          a: {
+            name: string
+            description?: string | null
+            warning?: string | null
+            /** Default [] */
+            default?: []
+            minLength?: number | null
+            maxLength?: number | null
+          },
+          aSpec: {
+            spec: Config<Type, Store>
+            displayAs?: null | string
+            uniqueBy?: null | UniqueBy
+          },
+        ) => List.obj<Type, Store>(a, aSpec),
+        dynamicText: (
+          getA: LazyBuild<
+            Store,
+            {
+              name: string
+              description?: string | null
+              warning?: string | null
+              /** Default = [] */
+              default?: string[]
+              minLength?: number | null
+              maxLength?: number | null
+              disabled?: false | string
+              generate?: null | RandomString
+              spec: {
+                /** Default = false */
+                masked?: boolean
+                placeholder?: string | null
+                minLength?: number | null
+                maxLength?: number | null
+                patterns: Pattern[]
+                /** Default = "text" */
+                inputmode?: ListValueSpecText["inputmode"]
+              }
+            }
+          >,
+        ) => List.dynamicText<Store>(getA),
+        dynamicNumber: (
+          getA: LazyBuild<
+            Store,
+            {
+              name: string
+              description?: string | null
+              warning?: string | null
+              /** Default = [] */
+              default?: string[]
+              minLength?: number | null
+              maxLength?: number | null
+              disabled?: false | string
+              spec: {
+                integer: boolean
+                min?: number | null
+                max?: number | null
+                step?: string | null
+                units?: string | null
+                placeholder?: string | null
+              }
+            }
+          >,
+        ) => List.dynamicNumber<Store>(getA),
+      },
+      Migration: {
+        of: <Version extends ManifestVersion>(options: {
+          version: Version
+          up: (opts: { effects: Effects; utils: Utils<Store> }) => Promise<void>
+          down: (opts: {
+            effects: Effects
+            utils: Utils<Store>
+          }) => Promise<void>
+        }) => Migration.of<Store, Version>(options),
+      },
+      setupActions,
+      setupAutoConfig: <
+        Input,
+        NestedConfigs extends {
+          [key in keyof Manifest["dependencies"]]: unknown
+        },
+      >(
+        configs: AutoConfigFrom<Store, Input, NestedConfigs>,
+      ) => setupAutoConfig<Store, Input, Manifest, NestedConfigs>(configs),
+      setupBackups: (...args: SetupBackupsParams<Manifest>) =>
+        setupBackups<Manifest>(...args),
+      setupConfig: <
+        ConfigType extends
+          | Record<string, any>
+          | Config<any, any>
+          | Config<any, never>,
+        Type extends Record<string, any> = ExtractConfigType<ConfigType>,
+      >(
+        spec: Config<Type, Store> | Config<Type, never>,
+        write: Save<Store, Type, Manifest>,
+        read: Read<Store, Type>,
+      ) => setupConfig<Store, ConfigType, Manifest, Type>(spec, write, read),
+      setupInit: (
+        migrations: Migrations<Store>,
+        install: Install<Store>,
+        uninstall: Uninstall<Store>,
+      ) => setupInit<Store>(migrations, install, uninstall),
+      setupInstall: (fn: InstallFn<Store>) => Install.of(fn),
+      setupMain: (
+        fn: (o: {
+          effects: Effects
+          started(onTerm: () => void): null
+          utils: Utils<Store, {}>
+        }) => Promise<Daemons<any>>,
+      ) => setupMain<Store>(fn),
+      setupMigrations: <Migrations extends Array<Migration<Store, any>>>(
+        manifest: SDKManifest,
+        ...migrations: EnsureUniqueId<Migrations>
+      ) => setupMigrations<Store, Migrations>(manifest, ...migrations),
+      setupUninstall: (fn: UninstallFn<Store>) => setupUninstall<Store>(fn),
+      trigger: {
+        defaultTrigger,
+        cooldownTrigger,
+        changeOnFirstSuccess,
+      },
       Value: {
         toggle: Value.toggle,
         text: Value.text,
@@ -261,13 +402,18 @@ class StartSDK<Manifest extends SDKManifest, Store> {
             aVariants,
           ),
       },
-      // TODO Variants
+      Variants: {
+        of: <
+          VariantValues extends {
+            [K in string]: {
+              name: string
+              spec: Config<any, Store>
+            }
+          },
+        >(
+          a: VariantValues,
+        ) => Variants.of<VariantValues, Store>(a),
+      },
     })
   }
 }
-// TODO Test output.ts with sdk
-
-// const test = StartSDK.of()
-//   .withManifest<any>()
-//   .withStore<{}>()
-//   .Value.dynamicToggle({} as any, {} as any)

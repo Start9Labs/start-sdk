@@ -3,10 +3,10 @@ import { Migrations } from "./migrations/setupMigrations"
 import { Install } from "./setupInstall"
 import { Uninstall } from "./setupUninstall"
 
-export function setupInit<WrapperData>(
-  migrations: Migrations<WrapperData>,
-  install: Install<WrapperData>,
-  uninstall: Uninstall<WrapperData>,
+export function setupInit<Store>(
+  migrations: Migrations<Store>,
+  install: Install<Store>,
+  uninstall: Uninstall<Store>,
 ): {
   init: ExpectedExports.init
   uninit: ExpectedExports.uninit
