@@ -48,6 +48,7 @@ import { setupMain } from "./mainFn"
 import { defaultTrigger } from "./trigger/defaultTrigger"
 import { changeOnFirstSuccess, cooldownTrigger } from "./trigger"
 import setupConfig, { Read, Save } from "./config/setupConfig"
+export type SdkBuilt = StartSdk<any, any>["build"]
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
