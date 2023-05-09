@@ -45,7 +45,7 @@ export namespace ExpectedExports {
     }
   }
 
-  export type actionMetaData = (options: {
+  export type actionsMetaData = (options: {
     effects: Effects
   }) => Promise<Array<ActionMetaData>>
 

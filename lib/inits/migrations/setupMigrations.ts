@@ -60,7 +60,7 @@ export function setupMigrations<
   Store,
   Migrations extends Array<Migration<Store, any>>,
 >(manifest: SDKManifest, ...migrations: EnsureUniqueId<Migrations>) {
-  return Migrations.of(manifest, ...migrations)
+  return Migrations.of<Store, Migrations>(manifest, ...migrations)
 }
 
 // prettier-ignore

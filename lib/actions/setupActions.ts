@@ -17,7 +17,7 @@ export function setupActions<Store>(
     get actions() {
       return myActions()
     },
-    async actionMetaData({ effects }: { effects: Effects }) {
+    async actionsMetaData({ effects }: { effects: Effects }) {
       const utils = createUtils<Store>(effects)
       return Promise.all(
         createdActions.map((x) => x.actionMetaData({ effects, utils })),
@@ -25,6 +25,6 @@ export function setupActions<Store>(
     },
   } satisfies {
     actions: ExpectedExports.actions
-    actionMetaData: ExpectedExports.actionMetaData
+    actionsMetaData: ExpectedExports.actionsMetaData
   }
 }
