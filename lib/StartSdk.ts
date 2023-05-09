@@ -1,4 +1,3 @@
-import { AnyParser } from "ts-matches"
 import { ManifestVersion, SDKManifest } from "./manifest/ManifestTypes"
 import { RequiredDefault, Value } from "./config/builder/value"
 import { Config, ExtractConfigType, LazyBuild } from "./config/builder/config"
@@ -57,15 +56,15 @@ type AnyNeverCond<T extends any[], Then, Else> =
     never
 
 export class StartSdk<Manifest extends SDKManifest, Store> {
-  private constructor() {}
+  private constructor(readonly manifest: Manifest) {}
   static of() {
-    return new StartSdk<never, never>()
+    return new StartSdk<never, never>(null as never)
   }
-  withManifest<Manifest extends SDKManifest = never>() {
-    return new StartSdk<Manifest, Store>()
+  withManifest<Manifest extends SDKManifest = never>(manifest: Manifest) {
+    return new StartSdk<Manifest, Store>(manifest)
   }
   withStore<Store extends Record<string, any>>() {
-    return new StartSdk<Manifest, Store>()
+    return new StartSdk<Manifest, Store>(this.manifest)
   }
 
   build(isReady: AnyNeverCond<[Manifest, Store], "Build not ready", true>) {
@@ -231,9 +230,8 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
         }) => Promise<Daemons<any>>,
       ) => setupMain<Store>(fn),
       setupMigrations: <Migrations extends Array<Migration<Store, any>>>(
-        manifest: SDKManifest,
         ...migrations: EnsureUniqueId<Migrations>
-      ) => setupMigrations<Store, Migrations>(manifest, ...migrations),
+      ) => setupMigrations<Store, Migrations>(this.manifest, ...migrations),
       setupUninstall: (fn: UninstallFn<Store>) => setupUninstall<Store>(fn),
       trigger: {
         defaultTrigger,
