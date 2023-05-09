@@ -1,7 +1,7 @@
-import { StartSDK } from "../StartSdk"
+import { StartSdk } from "../StartSdk"
 
 export type Manifest = any
-export const sdk = StartSDK.of()
+export const sdk = StartSdk.of()
   .withManifest<Manifest>()
   .withStore<{ storeRoot: { storeLeaf: "value" } }>()
   .build()

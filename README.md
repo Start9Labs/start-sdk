@@ -9,7 +9,7 @@
 
 ```ts
   {
-    startSdk: "start-sdk/lib",
+    StartSdk: "start-sdk/lib",
   }
 ```
 

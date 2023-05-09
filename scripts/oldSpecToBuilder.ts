@@ -28,11 +28,11 @@ function isString(x: unknown): x is string {
 
 export default async function makeFileContentFromOld(
   inputData: Promise<any> | any,
-  { startSdk = "start-sdk", nested = true } = {},
+  { StartSdk = "start-sdk", nested = true } = {},
 ) {
   const outputLines: string[] = []
   outputLines.push(`
-import { sdk } from "${startSdk}"
+import { sdk } from "${StartSdk}"
 const {Config, List, Value, Variants} = sdk
 `)
   const data = await inputData

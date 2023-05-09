@@ -423,6 +423,6 @@ oldSpecToBuilder(
   },
   {
     // convert this to `start-sdk/lib` for conversions
-    startSdk: "./output.sdk",
+    StartSdk: "./output.sdk",
   },
 )

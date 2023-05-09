@@ -56,7 +56,7 @@ type AnyNeverCond<T extends any[], Then, Else> =
     T extends [any, ...infer U] ? AnyNeverCond<U,Then, Else> :
     never
 
-export class StartSDK<Manifest extends SDKManifest, Store> {
+export class StartSdk<Manifest extends SDKManifest, Store> {
   private constructor() {}
   private anyOf<A>(
     a: A,
@@ -65,13 +65,13 @@ export class StartSDK<Manifest extends SDKManifest, Store> {
   }
 
   static of() {
-    return new StartSDK<never, never>()
+    return new StartSdk<never, never>()
   }
   withManifest<Manifest extends SDKManifest = never>() {
-    return new StartSDK<Manifest, Store>()
+    return new StartSdk<Manifest, Store>()
   }
   withStore<Store extends Record<string, any>>() {
-    return new StartSDK<Manifest, Store>()
+    return new StartSdk<Manifest, Store>()
   }
 
   build() {
