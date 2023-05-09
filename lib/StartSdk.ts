@@ -48,7 +48,6 @@ import { setupMain } from "./mainFn"
 import { defaultTrigger } from "./trigger/defaultTrigger"
 import { changeOnFirstSuccess, cooldownTrigger } from "./trigger"
 import setupConfig, { Read, Save } from "./config/setupConfig"
-export type SdkBuilt = StartSdk<any, any>["build"]
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -59,12 +58,6 @@ type AnyNeverCond<T extends any[], Then, Else> =
 
 export class StartSdk<Manifest extends SDKManifest, Store> {
   private constructor() {}
-  private anyOf<A>(
-    a: A,
-  ): AnyNeverCond<[Manifest, Store], "Build not ready", A> {
-    return a as any
-  }
-
   static of() {
     return new StartSdk<never, never>()
   }
@@ -75,8 +68,8 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
     return new StartSdk<Manifest, Store>()
   }
 
-  build() {
-    return this.anyOf({
+  build(isReady: AnyNeverCond<[Manifest, Store], "Build not ready", true>) {
+    return {
       AutoConfig: <Input, NestedConfigs>(
         configs: AutoConfigFrom<Store, Input, NestedConfigs>,
         path: keyof AutoConfigFrom<Store, Input, NestedConfigs>,
@@ -416,6 +409,6 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           a: VariantValues,
         ) => Variants.of<VariantValues, Store>(a),
       },
-    })
+    }
   }
 }
