@@ -1,5 +1,5 @@
 import { Config, ExtractConfigType } from "../config/builder/config"
-import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
+import { ActionMetadata, ActionResult, Effects, ExportedAction } from "../types"
 import { createUtils } from "../util"
 import { Utils, utils } from "../util/utils"
 
@@ -13,7 +13,7 @@ export class CreatedAction<
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    public readonly myMetaData: Omit<ActionMetaData, "input">,
+    public readonly myMetaData: Omit<ActionMetadata, "input">,
     readonly fn: (options: {
       effects: Effects
       utils: Utils<Store, Vault>
@@ -32,7 +32,7 @@ export class CreatedAction<
       | Config<any, never, never>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
-    metaData: Omit<ActionMetaData, "input"> & {
+    metaData: Omit<ActionMetadata, "input"> & {
       input: Config<Type, Store, Vault> | Config<Type, never, never>
     },
     fn: (options: {
@@ -65,10 +65,10 @@ export class CreatedAction<
     })
   }
 
-  async actionMetaData(options: {
+  async ActionMetadata(options: {
     effects: Effects
     utils: Utils<Store, Vault>
-  }): Promise<ActionMetaData> {
+  }): Promise<ActionMetadata> {
     return {
       ...this.myMetaData,
       input: await this.input.build(options),

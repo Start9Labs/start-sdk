@@ -1,5 +1,5 @@
 import { ValidEmVer } from "../emverLite/mod"
-import { ActionMetaData } from "../types"
+import { ActionMetadata } from "../types"
 
 export interface Container {
   /** This should be pointing to a docker container name */

@@ -17,14 +17,14 @@ export function setupActions<Store, Vault>(
     get actions() {
       return myActions()
     },
-    async actionsMetaData({ effects }: { effects: Effects }) {
+    async actionsMetadata({ effects }: { effects: Effects }) {
       const utils = createUtils<Store, Vault>(effects)
       return Promise.all(
-        createdActions.map((x) => x.actionMetaData({ effects, utils })),
+        createdActions.map((x) => x.ActionMetadata({ effects, utils })),
       )
     },
   } satisfies {
     actions: ExpectedExports.actions
-    actionsMetaData: ExpectedExports.actionsMetaData
+    actionsMetadata: ExpectedExports.actionsMetadata
   }
 }

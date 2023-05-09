@@ -13,7 +13,7 @@ import {
 import { Variants } from "./config/builder/variants"
 import { CreatedAction, createAction } from "./actions/createAction"
 import {
-  ActionMetaData,
+  ActionMetadata,
   Effects,
   ActionResult,
   Metadata,
@@ -106,7 +106,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
           | Config<any, never, never>,
         Type extends Record<string, any> = ExtractConfigType<ConfigType>,
       >(
-        metaData: Omit<ActionMetaData, "input"> & {
+        metaData: Omit<ActionMetadata, "input"> & {
           input: Config<Type, Store, Vault> | Config<Type, never, never>
         },
         fn: (options: {

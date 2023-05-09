@@ -45,9 +45,9 @@ export namespace ExpectedExports {
     }
   }
 
-  export type actionsMetaData = (options: {
+  export type actionsMetadata = (options: {
     effects: Effects
-  }) => Promise<Array<ActionMetaData>>
+  }) => Promise<Array<ActionMetadata>>
 
   /**
    * This is the entrypoint for the main container. Used to start up something like the service that the
@@ -154,7 +154,7 @@ export type DaemonReturned = {
   term(): Promise<void>
 }
 
-export type ActionMetaData = {
+export type ActionMetadata = {
   name: string
   description: string
   id: string
@@ -320,7 +320,7 @@ export type Effects = {
    *
    * @param options
    */
-  exportAction(options: ActionMetaData): Promise<void>
+  exportAction(options: ActionMetadata): Promise<void>
   /**
    * Remove an action that was exported. Used problably during main or during setConfig.
    */
