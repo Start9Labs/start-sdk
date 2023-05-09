@@ -2,16 +2,28 @@ import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util/utils"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
+import { Config } from "../config/builder/config"
 
-export type AutoConfigFrom<Store, Input, NestedConfigs> = {
-  [key in keyof NestedConfigs & string]: (options: {
-    effects: Effects
-    localConfig: Input
-    remoteConfig: NestedConfigs[key]
-    utils: Utils<Store>
-  }) => Promise<void | DeepPartial<NestedConfigs[key]>>
+export type AutoConfigFrom<
+  Store,
+  Input,
+  NestedConfigs extends Record<string, any>,
+> = {
+  [key in keyof NestedConfigs & string]: {
+    serviceConfig: Config<NestedConfigs[key], any>
+    autoConfig: (options: {
+      effects: Effects
+      localConfig: Input
+      remoteConfig: NestedConfigs[key]
+      utils: Utils<Store>
+    }) => Promise<void | DeepPartial<NestedConfigs[key]>>
+  }
 }
-export class AutoConfig<Store, Input, NestedConfigs> {
+export class AutoConfig<
+  Store,
+  Input,
+  NestedConfigs extends Record<string, any>,
+> {
   constructor(
     readonly configs: AutoConfigFrom<Store, Input, NestedConfigs>,
     readonly path: keyof AutoConfigFrom<Store, Input, NestedConfigs>,
@@ -33,7 +45,7 @@ export class AutoConfig<Store, Input, NestedConfigs> {
         deepMerge(
           {},
           options.localConfig,
-          await this.configs[this.path](newOptions),
+          await this.configs[this.path].autoConfig(newOptions),
         ),
       )
     )
@@ -51,7 +63,7 @@ export class AutoConfig<Store, Input, NestedConfigs> {
     return deepMerge(
       {},
       options.localConfig,
-      await this.configs[this.path](newOptions),
+      await this.configs[this.path].autoConfig(newOptions),
     )
   }
 }

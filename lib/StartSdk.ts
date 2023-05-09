@@ -69,7 +69,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
 
   build(isReady: AnyNeverCond<[Manifest, Store], "Build not ready", true>) {
     return {
-      AutoConfig: <Input, NestedConfigs>(
+      AutoConfig: <Input, NestedConfigs extends Record<string, any>>(
         configs: AutoConfigFrom<Store, Input, NestedConfigs>,
         path: keyof AutoConfigFrom<Store, Input, NestedConfigs>,
       ) => new AutoConfig<Store, Input, NestedConfigs>(configs, path),
@@ -196,13 +196,18 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       setupActions: (...createdActions: CreatedAction<any, any>[]) =>
         setupActions<Store>(...createdActions),
       setupAutoConfig: <
-        Input,
+        Input extends Record<string, any>,
         NestedConfigs extends {
           [key in keyof Manifest["dependencies"]]: unknown
         },
       >(
-        configs: AutoConfigFrom<Store, Input, NestedConfigs>,
-      ) => setupAutoConfig<Store, Input, Manifest, NestedConfigs>(configs),
+        config: Config<Input, Store>,
+        autoConfigs: AutoConfigFrom<Store, Input, NestedConfigs>,
+      ) =>
+        setupAutoConfig<Store, Input, Manifest, NestedConfigs>(
+          config,
+          autoConfigs,
+        ),
       setupBackups: (...args: SetupBackupsParams<Manifest>) =>
         setupBackups<Manifest>(...args),
       setupConfig: <

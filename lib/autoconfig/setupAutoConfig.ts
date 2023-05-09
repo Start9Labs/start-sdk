@@ -1,24 +1,28 @@
+import { Config } from "../config/builder/config"
 import { SDKManifest } from "../manifest/ManifestTypes"
 import { AutoConfig, AutoConfigFrom } from "./AutoConfig"
 
 export function setupAutoConfig<
   Store,
-  Input,
+  Input extends Record<string, any>,
   Manifest extends SDKManifest,
   NestedConfigs extends {
     [key in keyof Manifest["dependencies"]]: unknown
   },
->(configs: AutoConfigFrom<Store, Input, NestedConfigs>) {
-  type C = typeof configs
-  const answer = { ...configs } as unknown as {
+>(
+  config: Config<Input, Store>,
+  autoConfigs: AutoConfigFrom<Store, Input, NestedConfigs>,
+) {
+  type C = typeof autoConfigs
+  const answer = { ...autoConfigs } as unknown as {
     [k in keyof C]: AutoConfig<Store, Input, NestedConfigs>
   }
-  for (const key in configs) {
-    answer[key as keyof typeof configs] = new AutoConfig<
+  for (const key in autoConfigs) {
+    answer[key as keyof typeof autoConfigs] = new AutoConfig<
       Store,
       Input,
       NestedConfigs
-    >(configs, key as keyof typeof configs)
+    >(autoConfigs, key as keyof typeof autoConfigs)
   }
   return answer
 }
