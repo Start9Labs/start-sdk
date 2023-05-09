@@ -1,4 +1,4 @@
-import { StartSDK } from "../StartSDK"
+import { StartSDK } from "../StartSdk"
 
 export type Manifest = any
 export const sdk = StartSDK.of()
