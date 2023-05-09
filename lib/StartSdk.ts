@@ -239,6 +239,22 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
           write,
           read,
         ),
+      setupConfigRead: <
+        ConfigSpec extends
+          | Config<Record<string, any>, any, any>
+          | Config<Record<string, never>, never, never>,
+      >(
+        _configSpec: ConfigSpec,
+        fn: Read<Store, Vault, ConfigSpec>,
+      ) => fn,
+      setupConfigSave: <
+        ConfigSpec extends
+          | Config<Record<string, any>, any, any>
+          | Config<Record<string, never>, never, never>,
+      >(
+        _configSpec: ConfigSpec,
+        fn: Save<Store, Vault, ConfigSpec, Manifest>,
+      ) => fn,
       setupInit: (
         migrations: Migrations<Store, Vault>,
         install: Install<Store, Vault>,
