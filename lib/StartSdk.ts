@@ -225,12 +225,11 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         setupBackups<Manifest>(...args),
       setupConfig: <
         ConfigType extends
-          | Record<string, any>
-          | Config<any, any, any>
+          | Config<any, Store, Vault>
           | Config<any, never, never>,
         Type extends Record<string, any> = ExtractConfigType<ConfigType>,
       >(
-        spec: Config<Type, Store, Vault> | Config<Type, never, never>,
+        spec: ConfigType,
         write: Save<Store, Vault, Type, Manifest>,
         read: Read<Store, Vault, Type>,
       ) =>
