@@ -11,7 +11,7 @@ const todo = <A>(): A => {
   throw new Error("not implemented")
 }
 const noop = () => {}
-describe("wrapperData", () => {
+describe("Store", () => {
   test("types", async () => {
     ;async () => {
       utils<WrapperType>(todo<Effects>()).store.setOwn("/config", {
