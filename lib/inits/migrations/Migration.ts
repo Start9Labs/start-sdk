@@ -15,7 +15,7 @@ export class Migration<Store, Version extends ManifestVersion> {
     up: (opts: { effects: Effects; utils: Utils<Store> }) => Promise<void>
     down: (opts: { effects: Effects; utils: Utils<Store> }) => Promise<void>
   }) {
-    return new Migration(options)
+    return new Migration<Store, Version>(options)
   }
 
   async up(opts: { effects: Effects; utils: Utils<Store> }) {
