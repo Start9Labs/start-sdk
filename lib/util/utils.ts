@@ -16,7 +16,22 @@ import { DefaultString } from "../config/configTypes"
 import { getDefaultString } from "./getDefaultString"
 import { GetStore, getStore } from "../store/getStore"
 import { GetVault, getVault } from "./getVault"
+import {
+  MountDependenciesOut,
+  mountDependencies,
+} from "../dependency/mountDependencies"
+import {
+  ManifestId,
+  VolumeName,
+  NamedPath,
+  Path,
+} from "../dependency/setupDependencyMounts"
 
+// prettier-ignore
+type skipFirstParam<A> = 
+  A extends [any, ...infer B] ? B :
+  A extends [] ? [] :
+  never
 export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   createOrUpdateVault: (opts: {
     key: string
@@ -67,6 +82,15 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   networkBuilder: () => NetworkBuilder
   torHostName: (id: string) => TorHostname
   nullIfEmpty: typeof nullIfEmpty
+  mountDependencies: <
+    In extends
+      | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>
+      | Record<VolumeName, Record<NamedPath, Path>>
+      | Record<NamedPath, Path>
+      | Path,
+  >(
+    value: In,
+  ) => Promise<MountDependenciesOut<In>>
 }
 export const utils = <
   Store = never,
@@ -128,5 +152,14 @@ export const utils = <
     set: (key: keyof Vault & string, value: string) =>
       effects.vault.set({ key, value }),
   },
+  mountDependencies: <
+    In extends
+      | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>
+      | Record<VolumeName, Record<NamedPath, Path>>
+      | Record<NamedPath, Path>
+      | Path,
+  >(
+    value: In,
+  ) => mountDependencies(effects, value),
 })
 function noop(): void {}

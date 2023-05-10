@@ -47,6 +47,7 @@ import { setupMain } from "./mainFn"
 import { defaultTrigger } from "./trigger/defaultTrigger"
 import { changeOnFirstSuccess, cooldownTrigger } from "./trigger"
 import setupConfig, { Read, Save } from "./config/setupConfig"
+import { setupDependencyMounts } from "./dependency/setupDependencyMounts"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -254,6 +255,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         _configSpec: ConfigSpec,
         fn: Save<Store, Vault, ConfigSpec, Manifest>,
       ) => fn,
+      setupDependencyMounts,
       setupInit: (
         migrations: Migrations<Store, Vault>,
         install: Install<Store, Vault>,

@@ -383,7 +383,8 @@ export type Effects = {
 
   mount(options: {
     location: {
-      volumeId: string
+      /** If there is no volumeId then we mount to runMedia a special mounting location */
+      volumeId?: string
       path: string
     }
     target: {
@@ -392,7 +393,7 @@ export type Effects = {
       path: string
       readonly: boolean
     }
-  }): Promise<void>
+  }): Promise<string>
 
   stopped(packageId?: string): Promise<boolean>
 
