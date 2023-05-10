@@ -1,11 +1,13 @@
-import { Effects, ExpectedExports, ExportedAction } from "../types"
-import { ActionMetaData } from "../types"
+import { Effects, ExpectedExports } from "../types"
+import { createUtils } from "../util"
 import { once } from "../util/once"
 import { CreatedAction } from "./createAction"
 
-export function setupActions(...createdActions: CreatedAction<any, any>[]) {
+export function setupActions<Store, Vault>(
+  ...createdActions: CreatedAction<Store, Vault, any>[]
+) {
   const myActions = once(() => {
-    const actions: Record<string, CreatedAction<any, any>> = {}
+    const actions: Record<string, CreatedAction<Store, Vault, any>> = {}
     for (const action of createdActions) {
       actions[action.myMetaData.id] = action
     }
@@ -15,8 +17,14 @@ export function setupActions(...createdActions: CreatedAction<any, any>[]) {
     get actions() {
       return myActions()
     },
-    get actionsMetadata() {
-      return createdActions.map((x) => x.myMetaData)
+    async actionsMetadata({ effects }: { effects: Effects }) {
+      const utils = createUtils<Store, Vault>(effects)
+      return Promise.all(
+        createdActions.map((x) => x.ActionMetadata({ effects, utils })),
+      )
     },
+  } satisfies {
+    actions: ExpectedExports.actions
+    actionsMetadata: ExpectedExports.actionsMetadata
   }
 }

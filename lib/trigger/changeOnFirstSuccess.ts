@@ -1,4 +1,3 @@
-import { TriggerInput } from "./TriggerInput"
 import { Trigger } from "./index"
 
 export function changeOnFirstSuccess(o: {

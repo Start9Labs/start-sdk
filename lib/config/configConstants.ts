@@ -3,10 +3,11 @@ import { Config, ConfigSpecOf } from "./builder/config"
 import { Value } from "./builder/value"
 import { Variants } from "./builder/variants"
 
-export const smtpConfig = Value.filteredUnion(async ({ effects, utils }) => {
-  const smtp = await utils.getSystemSmtp().once()
-  return smtp ? [] : ["system"]
-})(
+export const smtpConfig = Value.filteredUnion(
+  async ({ effects, utils }) => {
+    const smtp = await utils.getSystemSmtp().once()
+    return smtp ? [] : ["system"]
+  },
   {
     name: "SMTP",
     description: "Optionally provide an SMTP server for sending email",
@@ -17,7 +18,7 @@ export const smtpConfig = Value.filteredUnion(async ({ effects, utils }) => {
     system: { name: "System Credentials", spec: Config.of({}) },
     custom: {
       name: "Custom Credentials",
-      spec: Config.of<ConfigSpecOf<SmtpValue>>({
+      spec: Config.of<ConfigSpecOf<SmtpValue>, never, never>({
         server: Value.text({
           name: "SMTP Server",
           required: {

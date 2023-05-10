@@ -4,9 +4,7 @@ import { List } from "../config/builder/list"
 import { Value } from "../config/builder/value"
 import { Variants } from "../config/builder/variants"
 import { ValueSpec } from "../config/configTypes"
-import { Parser } from "ts-matches"
 
-type test = unknown | { test: 5 }
 describe("builder tests", () => {
   test("text", async () => {
     const bitcoinPropertiesBuilt: {
@@ -299,7 +297,7 @@ describe("values", () => {
       utils: "utils",
     } as any
     test("toggle", async () => {
-      const value = Value.dynamicToggle<{}>(async () => ({
+      const value = Value.dynamicToggle(async () => ({
         name: "Testing",
         description: null,
         warning: null,
@@ -364,7 +362,7 @@ describe("values", () => {
       })
     })
     test("color", async () => {
-      const value = Value.dynamicColor<null>(async () => ({
+      const value = Value.dynamicColor(async () => ({
         name: "Testing",
         required: false,
         description: null,
@@ -385,7 +383,7 @@ describe("values", () => {
     test("datetime", async () => {
       const value = Value.dynamicDatetime<{ test: "a" }>(async ({ utils }) => {
         ;async () => {
-          ;(await utils.getOwnWrapperData("/test").once()) satisfies "a"
+          ;(await utils.store.getOwn("/test").once()) satisfies "a"
         }
 
         return {
@@ -500,7 +498,8 @@ describe("values", () => {
   })
   describe("filtering", () => {
     test("union", async () => {
-      const value = Value.filteredUnion(() => ["a", "c"])(
+      const value = Value.filteredUnion(
+        () => ["a", "c"],
         {
           name: "Testing",
           required: { default: null },

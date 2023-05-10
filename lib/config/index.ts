@@ -1,5 +1,5 @@
 import "./builder"
 
 import "./setupConfig"
-import "./dependencies"
-import "./constants"
+import "./configDependencies"
+import "./configConstants"

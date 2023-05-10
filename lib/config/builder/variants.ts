@@ -51,24 +51,21 @@ export const pruning = Value.union(
 );
 ```
  */
-export class Variants<Type, WD> {
+export class Variants<Type, Store, Vault> {
+  static text: any
   private constructor(
-    public build: LazyBuild<WD, ValueSpecUnion["variants"]>,
+    public build: LazyBuild<Store, Vault, ValueSpecUnion["variants"]>,
     public validator: Parser<unknown, Type>,
   ) {}
-  // A extends {
-  //   [key: string]: {
-  //     name: string
-  //     spec: InputSpec
-  //   }
-  // },
   static of<
     VariantValues extends {
       [K in string]: {
         name: string
-        spec: Config<any, any> | Config<any, never>
+        spec: Config<any, Store, Vault> | Config<any, never, never>
       }
     },
+    Store,
+    Vault,
   >(a: VariantValues) {
     const validator = anyOf(
       ...Object.entries(a).map(([name, { spec }]) =>
@@ -83,21 +80,14 @@ export class Variants<Type, WD> {
       {
         [K in keyof VariantValues]: {
           unionSelectKey: K
-          unionValueKey: VariantValues[K]["spec"] extends
-            | Config<infer B, any>
-            | Config<infer B, never>
-            ? B
-            : never
+          // prettier-ignore
+          unionValueKey: 
+            VariantValues[K]["spec"] extends (Config<infer B, Store,Vault> | Config<infer B, never, never>) ? B :
+            never
         }
       }[keyof VariantValues],
-      {
-        [K in keyof VariantValues]: VariantValues[K] extends Config<
-          any,
-          infer C
-        >
-          ? C
-          : never
-      }[keyof VariantValues]
+      Store,
+      Vault
     >(async (options) => {
       const variants = {} as {
         [K in keyof VariantValues]: { name: string; spec: InputSpec }
@@ -121,12 +111,12 @@ export class Variants<Type, WD> {
     required: false,
   })
 
-  return Config.of<WrapperData>()({
-    myValue: a.withWrapperData(),
+  return Config.of<Store>()({
+    myValue: a.withStore(),
   })
   ```
    */
-  withWrapperData<NewWrapperData extends WD extends never ? any : WD>() {
-    return this as any as Variants<Type, NewWrapperData>
+  withStore<NewStore extends Store extends never ? any : Store>() {
+    return this as any as Variants<Type, NewStore, Vault>
   }
 }

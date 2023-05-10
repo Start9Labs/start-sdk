@@ -1,4 +1,4 @@
-import { HealthStatus } from "../../types"
+import { HealthStatus } from "../types"
 
 export type TriggerInput = {
   lastResult?: HealthStatus

@@ -1,13 +1,13 @@
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util"
+import { Utils, utils } from "../util/utils"
 
-export type UninstallFn<WrapperData> = (opts: {
+export type UninstallFn<Store, Vault> = (opts: {
   effects: Effects
-  utils: Utils<WrapperData>
+  utils: Utils<Store, Vault>
 }) => Promise<void>
-export class Uninstall<WrapperData> {
-  private constructor(readonly fn: UninstallFn<WrapperData>) {}
-  static of<WrapperData>(fn: UninstallFn<WrapperData>) {
+export class Uninstall<Store, Vault> {
+  private constructor(readonly fn: UninstallFn<Store, Vault>) {}
+  static of<Store, Vault>(fn: UninstallFn<Store, Vault>) {
     return new Uninstall(fn)
   }
 
@@ -15,10 +15,14 @@ export class Uninstall<WrapperData> {
     effects,
     nextVersion,
   }: Parameters<ExpectedExports.uninit>[0]) {
-    if (!nextVersion) await this.fn({ effects, utils: utils(effects) })
+    if (!nextVersion)
+      await this.fn({
+        effects,
+        utils: utils(effects),
+      })
   }
 }
 
-export function setupUninstall<WrapperData>(fn: UninstallFn<WrapperData>) {
+export function setupUninstall<Store, Vault>(fn: UninstallFn<Store, Vault>) {
   return Uninstall.of(fn)
 }

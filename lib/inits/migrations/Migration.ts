@@ -1,27 +1,40 @@
 import { ManifestVersion } from "../../manifest/ManifestTypes"
 import { Effects } from "../../types"
+import { Utils } from "../../util/utils"
 
-export class Migration<Version extends ManifestVersion> {
+export class Migration<Store, Vault, Version extends ManifestVersion> {
   constructor(
     readonly options: {
       version: Version
-      up: (opts: { effects: Effects }) => Promise<void>
-      down: (opts: { effects: Effects }) => Promise<void>
+      up: (opts: {
+        effects: Effects
+        utils: Utils<Store, Vault>
+      }) => Promise<void>
+      down: (opts: {
+        effects: Effects
+        utils: Utils<Store, Vault>
+      }) => Promise<void>
     },
   ) {}
-  static of<Version extends ManifestVersion>(options: {
+  static of<Store, Vault, Version extends ManifestVersion>(options: {
     version: Version
-    up: (opts: { effects: Effects }) => Promise<void>
-    down: (opts: { effects: Effects }) => Promise<void>
+    up: (opts: {
+      effects: Effects
+      utils: Utils<Store, Vault>
+    }) => Promise<void>
+    down: (opts: {
+      effects: Effects
+      utils: Utils<Store, Vault>
+    }) => Promise<void>
   }) {
-    return new Migration(options)
+    return new Migration<Store, Vault, Version>(options)
   }
 
-  async up(opts: { effects: Effects }) {
+  async up(opts: { effects: Effects; utils: Utils<Store, Vault> }) {
     this.up(opts)
   }
 
-  async down(opts: { effects: Effects }) {
+  async down(opts: { effects: Effects; utils: Utils<Store, Vault> }) {
     this.down(opts)
   }
 }

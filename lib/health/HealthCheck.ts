@@ -2,9 +2,9 @@ import { InterfaceReceipt } from "../mainFn/interfaceReceipt"
 import { Daemon, Effects } from "../types"
 import { CheckResult } from "./checkFns/CheckResult"
 import { HealthReceipt } from "./HealthReceipt"
-import { Trigger } from "./trigger"
-import { TriggerInput } from "./trigger/TriggerInput"
-import { defaultTrigger } from "./trigger/defaultTrigger"
+import { Trigger } from "../trigger"
+import { TriggerInput } from "../trigger/TriggerInput"
+import { defaultTrigger } from "../trigger/defaultTrigger"
 import { once } from "../util/once"
 
 export function healthCheck(o: {

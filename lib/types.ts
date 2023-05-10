@@ -45,6 +45,10 @@ export namespace ExpectedExports {
     }
   }
 
+  export type actionsMetadata = (options: {
+    effects: Effects
+  }) => Promise<Array<ActionMetadata>>
+
   /**
    * This is the entrypoint for the main container. Used to start up something like the service that the
    * package represents, like running a bitcoind in a bitcoind-wrapper.
@@ -81,7 +85,7 @@ export namespace ExpectedExports {
   /** Auto configure is used to make sure that other dependencies have the values t
    * that this service could use.
    */
-  export type autoConfig = Record<PackageId, AutoConfigure>
+  export type dependencyConfig = Record<PackageId, DependencyConfig>
 }
 export type TimeMs = number
 export type VersionString = string
@@ -90,7 +94,7 @@ export type VersionString = string
  * AutoConfigure is used as the value to the key of package id,
  * this is used to make sure that other dependencies have the values that this service could use.
  */
-export type AutoConfigure = {
+export type DependencyConfig = {
   /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
   check(options: {
     effects: Effects
@@ -150,10 +154,11 @@ export type DaemonReturned = {
   term(): Promise<void>
 }
 
-export type ActionMetaData = {
+export type ActionMetadata = {
   name: string
   description: string
   id: string
+  input: InputSpec
   allowedStatuses: "only-running" | "only-stopped" | "any"
   /**
    * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions
@@ -251,25 +256,26 @@ export type Effects = {
     progress: () => Promise<number>
   }
 
-  /** Get a value in a json like data, can be observed and subscribed */
-  getWrapperData<WrapperData = never, Path extends string = never>(options: {
-    /** If there is no packageId it is assumed the current package */
-    packageId?: string
-    /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
-    path: Path & EnsureWrapperDataPath<WrapperData, Path>
-    callback: (config: unknown, previousConfig: unknown) => void
-  }): Promise<ExtractWrapperData<WrapperData, Path>>
+  store: {
+    /** Get a value in a json like data, can be observed and subscribed */
+    get<Store = never, Path extends string = never>(options: {
+      /** If there is no packageId it is assumed the current package */
+      packageId?: string
+      /** The path defaults to root level, using the [JsonPath](https://jsonpath.com/) */
+      path: Path & EnsureStorePath<Store, Path>
+      callback: (config: unknown, previousConfig: unknown) => void
+    }): Promise<ExtractStore<Store, Path>>
+    /** Used to store values that can be accessed and subscribed to */
+    set<Store = never, Path extends string = never>(options: {
+      /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+      path: Path & EnsureStorePath<Store, Path>
+      value: ExtractStore<Store, Path>
+    }): Promise<void>
+  }
 
   getSystemSmtp(input: {
     callback: (config: unknown, previousConfig: unknown) => void
   }): Promise<SmtpValue>
-
-  /** Used to store values that can be accessed and subscribed to */
-  setWrapperData<WrapperData = never, Path extends string = never>(options: {
-    /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
-    path: Path & EnsureWrapperDataPath<WrapperData, Path>
-    value: ExtractWrapperData<WrapperData, Path>
-  }): Promise<void>
 
   getLocalHostname(): Promise<string>
   getIPHostname(): Promise<string[]>
@@ -314,7 +320,7 @@ export type Effects = {
    *
    * @param options
    */
-  exportAction(options: ActionMetaData): Promise<void>
+  exportAction(options: ActionMetadata): Promise<void>
   /**
    * Remove an action that was exported. Used problably during main or during setConfig.
    */
@@ -377,7 +383,8 @@ export type Effects = {
 
   mount(options: {
     location: {
-      volumeId: string
+      /** If there is no volumeId then we mount to runMedia a special mounting location */
+      volumeId?: string
       path: string
     }
     target: {
@@ -386,13 +393,13 @@ export type Effects = {
       path: string
       readonly: boolean
     }
-  }): Promise<void>
+  }): Promise<string>
 
   stopped(packageId?: string): Promise<boolean>
 
   vault: {
     list(): Promise<string[]>
-    get(opt: { key: string }): Promise<string>
+    get(opt: { key: string; callback: () => void }): Promise<string>
     set(opt: { key: string; value: string }): Promise<void>
     move(opt: { fromKey: string; toKey: string }): Promise<void>
     delete(opt: { key: string }): Promise<void>
@@ -400,20 +407,20 @@ export type Effects = {
 }
 
 // prettier-ignore
-export type ExtractWrapperData<WrapperData, Path extends string> = 
-  Path extends `/${infer A }/${infer Rest }` ? (A extends keyof WrapperData ? ExtractWrapperData<WrapperData[A], `/${Rest}`> : never) :
-  Path extends `/${infer A }` ? (A extends keyof WrapperData ? WrapperData[A] : never) :
-  Path extends '' ? WrapperData :
+export type ExtractStore<Store, Path extends string> = 
+  Path extends `/${infer A }/${infer Rest }` ? (A extends keyof Store ? ExtractStore<Store[A], `/${Rest}`> : never) :
+  Path extends `/${infer A }` ? (A extends keyof Store ? Store[A] : never) :
+  Path extends '' ? Store :
   never
 
 // prettier-ignore
-type _EnsureWrapperDataPath<WrapperData, Path extends string, Origin extends string> = 
-  Path extends`/${infer A }/${infer Rest}` ? (WrapperData extends {[K in A & string]: infer NextWrapperData} ? _EnsureWrapperDataPath<NextWrapperData, `/${Rest}`, Origin> : never) :
-  Path extends `/${infer A }`  ? (WrapperData extends {[K in A]: infer B} ? Origin : never) :
+type _EnsureStorePath<Store, Path extends string, Origin extends string> = 
+  Path extends`/${infer A }/${infer Rest}` ? (Store extends {[K in A & string]: infer NextStore} ? _EnsureStorePath<NextStore, `/${Rest}`, Origin> : never) :
+  Path extends `/${infer A }`  ? (Store extends {[K in A]: infer B} ? Origin : never) :
   Path extends '' ? Origin :
   never
 // prettier-ignore
-export type EnsureWrapperDataPath<WrapperData, Path extends string> = _EnsureWrapperDataPath<WrapperData, Path, Path>
+export type EnsureStorePath<Store, Path extends string> = _EnsureStorePath<Store, Path, Path>
 
 /** rsync options: https://linux.die.net/man/1/rsync
  */

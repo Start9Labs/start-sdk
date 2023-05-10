@@ -1,51 +1,58 @@
 import { Config, ExtractConfigType } from "../config/builder/config"
-import { ActionMetaData, ActionResult, Effects, ExportedAction } from "../types"
-import { Utils, utils } from "../util"
+import { ActionMetadata, ActionResult, Effects, ExportedAction } from "../types"
+import { createUtils } from "../util"
+import { Utils, utils } from "../util/utils"
 
 export class CreatedAction<
-  WrapperData,
+  Store,
+  Vault,
   ConfigType extends
     | Record<string, any>
-    | Config<any, WrapperData>
-    | Config<any, never>,
+    | Config<any, Store, Vault>
+    | Config<any, never, never>,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    public readonly myMetaData: ActionMetaData,
+    public readonly myMetaData: Omit<ActionMetadata, "input">,
     readonly fn: (options: {
       effects: Effects
-      utils: Utils<WrapperData>
+      utils: Utils<Store, Vault>
       input: Type
     }) => Promise<ActionResult>,
-    readonly input: Config<Type, WrapperData> | Config<Type, never>,
+    readonly input: Config<Type, Store, Vault>,
   ) {}
   public validator = this.input.validator
 
   static of<
-    WrapperData,
+    Store,
+    Vault,
     ConfigType extends
       | Record<string, any>
-      | Config<any, any>
-      | Config<any, never>,
+      | Config<any, any, any>
+      | Config<any, never, never>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
-    metaData: Omit<ActionMetaData, "input"> & {
-      input: Config<Type, WrapperData> | Config<Type, never>
+    metaData: Omit<ActionMetadata, "input"> & {
+      input: Config<Type, Store, Vault> | Config<Type, never, never>
     },
     fn: (options: {
       effects: Effects
-      utils: Utils<WrapperData>
+      utils: Utils<Store, Vault>
       input: Type
     }) => Promise<ActionResult>,
   ) {
     const { input, ...rest } = metaData
-    return new CreatedAction<WrapperData, ConfigType, Type>(rest, fn, input)
+    return new CreatedAction<Store, Vault, ConfigType, Type>(
+      rest,
+      fn,
+      input as Config<Type, Store, Vault>,
+    )
   }
 
   exportedAction: ExportedAction = ({ effects, input }) => {
     return this.fn({
       effects,
-      utils: utils<WrapperData>(effects),
+      utils: createUtils(effects),
       input: this.validator.unsafeCast(input),
     })
   }
@@ -53,15 +60,25 @@ export class CreatedAction<
   run = async ({ effects, input }: { effects: Effects; input?: Type }) => {
     return this.fn({
       effects,
-      utils: utils<WrapperData>(effects),
+      utils: createUtils(effects),
       input: this.validator.unsafeCast(input),
     })
+  }
+
+  async ActionMetadata(options: {
+    effects: Effects
+    utils: Utils<Store, Vault>
+  }): Promise<ActionMetadata> {
+    return {
+      ...this.myMetaData,
+      input: await this.input.build(options),
+    }
   }
 
   async getConfig({ effects }: { effects: Effects }) {
     return this.input.build({
       effects,
-      utils: utils<WrapperData>(effects) as any,
+      utils: createUtils(effects) as any,
     })
   }
 }

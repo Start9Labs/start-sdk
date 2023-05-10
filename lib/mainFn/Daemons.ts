@@ -1,8 +1,8 @@
 import { HealthReceipt } from "../health/HealthReceipt"
 import { CheckResult } from "../health/checkFns"
-import { Trigger } from "../health/trigger"
-import { TriggerInput } from "../health/trigger/TriggerInput"
-import { defaultTrigger } from "../health/trigger/defaultTrigger"
+import { Trigger } from "../trigger"
+import { TriggerInput } from "../trigger/TriggerInput"
+import { defaultTrigger } from "../trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
 import { InterfaceReceipt } from "./interfaceReceipt"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {

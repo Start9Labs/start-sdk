@@ -1,6 +1,5 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
 import * as T from "../types"
-import fs from "fs"
 
 export type BACKUP = "BACKUP"
 export const DEFAULT_OPTIONS: T.BackupOptions = {
@@ -9,7 +8,7 @@ export const DEFAULT_OPTIONS: T.BackupOptions = {
   ignoreExisting: false,
   exclude: [],
 }
-type BackupSet<Volumes extends string> = {
+export type BackupSet<Volumes extends string> = {
   srcPath: string
   srcVolume: Volumes | BACKUP
   dstPath: string
@@ -41,7 +40,7 @@ type BackupSet<Volumes extends string> = {
 export class Backups<M extends SDKManifest> {
   static BACKUP: BACKUP = "BACKUP"
 
-  constructor(
+  private constructor(
     private options = DEFAULT_OPTIONS,
     private backupSet = [] as BackupSet<keyof M["volumes"] & string>[],
   ) {}
@@ -67,7 +66,9 @@ export class Backups<M extends SDKManifest> {
   ) {
     return new Backups({ ...DEFAULT_OPTIONS, ...options })
   }
-  set_options(options?: Partial<T.BackupOptions>) {
+
+  static withOptions = Backups.with_options
+  setOptions(options?: Partial<T.BackupOptions>) {
     this.options = {
       ...this.options,
       ...options,

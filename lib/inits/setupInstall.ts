@@ -1,13 +1,13 @@
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util"
+import { Utils, utils } from "../util/utils"
 
-export type InstallFn<WrapperData> = (opts: {
+export type InstallFn<Store, Vault> = (opts: {
   effects: Effects
-  utils: Utils<WrapperData>
+  utils: Utils<Store, Vault>
 }) => Promise<void>
-export class Install<WrapperData> {
-  private constructor(readonly fn: InstallFn<WrapperData>) {}
-  static of<WrapperData>(fn: InstallFn<WrapperData>) {
+export class Install<Store, Vault> {
+  private constructor(readonly fn: InstallFn<Store, Vault>) {}
+  static of<Store, Vault>(fn: InstallFn<Store, Vault>) {
     return new Install(fn)
   }
 
@@ -15,10 +15,14 @@ export class Install<WrapperData> {
     effects,
     previousVersion,
   }: Parameters<ExpectedExports.init>[0]) {
-    if (!previousVersion) await this.fn({ effects, utils: utils(effects) })
+    if (!previousVersion)
+      await this.fn({
+        effects,
+        utils: utils(effects),
+      })
   }
 }
 
-export function setupInstall<WrapperData>(fn: InstallFn<WrapperData>) {
+export function setupInstall<Store, Vault>(fn: InstallFn<Store, Vault>) {
   return Install.of(fn)
 }

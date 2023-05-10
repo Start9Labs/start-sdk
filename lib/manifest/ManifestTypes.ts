@@ -1,5 +1,5 @@
 import { ValidEmVer } from "../emverLite/mod"
-import { ActionMetaData } from "../types"
+import { ActionMetadata } from "../types"
 
 export interface Container {
   /** This should be pointing to a docker container name */
@@ -14,65 +14,68 @@ export interface Container {
 
 export type ManifestVersion = ValidEmVer
 
-export interface SDKManifest {
+export type SDKManifest = {
   /**  The package identifier used by the OS. This must be unique amongst all other known packages */
-  id: string
+  readonly id: string
   /** A human readable service title */
-  title: string
+  readonly title: string
   /** Service version - accepts up to four digits, where the last confirms to revisions necessary for StartOs
    * - see documentation: https://github.com/Start9Labs/emver-rs. This value will change with each release of
    * the service
    */
-  version: ManifestVersion
+  readonly version: ManifestVersion
   /** Release notes for the update - can be a string, paragraph or URL */
-  releaseNotes: string
+  readonly releaseNotes: string
   /** The type of license for the project. Include the LICENSE in the root of the project directory. A license is required for a Start9 package.*/
-  license: string // name of license
+  readonly license: string // name of license
   /** A list of normie (hosted, SaaS, custodial, etc) services this services intends to replace */
-  replaces: string[]
+  readonly replaces: Readonly<string[]>
   /** The Start9 wrapper repository URL for the package. This repo contains the manifest file (this),
    * any scripts necessary for configuration, backups, actions, or health checks (more below). This key
    * must exist. But could be embedded into the source repository
    */
-  wrapperRepo: string
+  readonly wrapperRepo: string
   /** The original project repository URL. There is no upstream repo in this example */
-  upstreamRepo: string
+  readonly upstreamRepo: string
   /**  URL to the support site / channel for the project. This key can be omitted if none exists, or it can link to the original project repository issues */
-  supportSite: string
+  readonly supportSite: string
   /** URL to the marketing site for the project. If there is no marketing site, it can link to the original project repository */
-  marketingSite: string
+  readonly marketingSite: string
   /** URL where users can donate to the upstream project */
-  donationUrl: string | null
+  readonly donationUrl: string | null
   /**Human readable descriptions for the service. These are used throughout the StartOS user interface, primarily in the marketplace. */
-  description: {
+  readonly description: {
     /**This is the first description visible to the user in the marketplace */
-    short: string
+    readonly short: string
     /** This description will display with additional details in the service's individual marketplace page */
-    long: string
+    readonly long: string
   }
   /** These assets are static files necessary for packaging the service for Start9 (into an s9pk).
    * Each value is a path to the specified asset. If an asset is missing from this list, or otherwise
    * denoted, it will be defaulted to the values denoted below.
    */
-  assets: {
-    icon: string // file path
-    instructions: string // file path
-    license: string // file path
+  readonly assets: {
+    /** This is the file path for the icon that will be this packages icon on the ui */
+    readonly icon: string
+    /** Instructions path to be seen in the ui section of the package */
+    readonly instructions: string
+    /** license path */
+    readonly license: string
   }
   /** Defines the containers needed to run the main and mounted volumes */
-  containers: Record<string, Container>
+  readonly containers: Record<string, Container>
   /** This denotes any data, asset, or pointer volumes that should be connected when the "docker run" command is invoked */
-  volumes: Record<string, "data" | "assets">
-  actions: Array<ActionMetaData>
-  alerts: {
-    install: string | null
-    update: string | null
-    uninstall: string | null
-    restore: string | null
-    start: string | null
-    stop: string | null
+  readonly volumes: Record<string, "data" | "assets">
+
+  readonly alerts: {
+    readonly install: string | null
+    readonly update: string | null
+    readonly uninstall: string | null
+    readonly restore: string | null
+    readonly start: string | null
+    readonly stop: string | null
   }
-  dependencies: Record<string, ManifestDependency>
+  readonly dependencies: Readonly<Record<string, ManifestDependency>>
 }
 
 export interface ManifestDependency {
