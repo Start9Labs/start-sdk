@@ -18,9 +18,10 @@ import {
   ActionResult,
   Metadata,
   BackupOptions,
+  DeepPartial,
 } from "./types"
 import { Utils } from "./util/utils"
-import { AutoConfig, AutoConfigFrom } from "./autoconfig/AutoConfig"
+import { AutoConfig } from "./autoconfig/AutoConfig"
 import { BackupSet, Backups } from "./backup/Backups"
 import { smtpConfig } from "./config/configConstants"
 import { Daemons } from "./mainFn/Daemons"
@@ -75,10 +76,29 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
     isReady: AnyNeverCond<[Manifest, Store, Vault], "Build not ready", true>,
   ) {
     return {
-      AutoConfig: <Input, NestedConfigs extends Record<string, any>>(
-        configs: AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
-        path: keyof AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
-      ) => new AutoConfig<Store, Vault, Input, NestedConfigs>(configs, path),
+      AutoConfig: {
+        of<
+          LocalConfig extends Record<string, any>,
+          RemoteConfig extends Record<string, any>,
+        >({
+          localConfig,
+          remoteConfig,
+          autoconfig,
+        }: {
+          localConfig: Config<LocalConfig, Store, Vault>
+          remoteConfig: Config<RemoteConfig, any, any>
+          autoconfig: (options: {
+            effects: Effects
+            localConfig: LocalConfig
+            remoteConfig: RemoteConfig
+            utils: Utils<Store, Vault>
+          }) => Promise<void | DeepPartial<RemoteConfig>>
+        }) {
+          return new AutoConfig<Store, Vault, LocalConfig, RemoteConfig>(
+            autoconfig,
+          )
+        },
+      },
       Backups: {
         volumes: (...volumeNames: Array<keyof Manifest["volumes"] & string>) =>
           Backups.volumes<Manifest>(...volumeNames),
@@ -209,19 +229,17 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
       },
       setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
         setupActions<Store, Vault>(...createdActions),
-      setupAutoConfig: <
-        Input extends Record<string, any>,
-        NestedConfigs extends {
-          [key in keyof Manifest["dependencies"]]: unknown
-        },
-      >(
+      setupAutoConfig: <Input extends Record<string, any>>(
         config: Config<Input, Store, Vault>,
-        autoConfigs: AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
-      ) =>
-        setupAutoConfig<Store, Vault, Input, Manifest, NestedConfigs>(
-          config,
-          autoConfigs,
-        ),
+        autoConfigs: {
+          [K in keyof Manifest["dependencies"]]: AutoConfig<
+            Store,
+            Vault,
+            Input,
+            any
+          >
+        },
+      ) => setupAutoConfig<Store, Vault, Input, Manifest>(config, autoConfigs),
       setupBackups: (...args: SetupBackupsParams<Manifest>) =>
         setupBackups<Manifest>(...args),
       setupConfig: <

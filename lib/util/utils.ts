@@ -27,11 +27,6 @@ import {
   Path,
 } from "../dependency/setupDependencyMounts"
 
-// prettier-ignore
-type skipFirstParam<A> = 
-  A extends [any, ...infer B] ? B :
-  A extends [] ? [] :
-  never
 export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   createOrUpdateVault: (opts: {
     key: string

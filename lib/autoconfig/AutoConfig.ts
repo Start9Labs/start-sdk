@@ -4,31 +4,19 @@ import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
 import { Config } from "../config/builder/config"
 
-export type AutoConfigFrom<
-  Store,
-  Vault,
-  Input,
-  NestedConfigs extends Record<string, any>,
-> = {
-  [key in keyof NestedConfigs & string]: {
-    serviceConfig: Config<NestedConfigs[key], Store, Vault>
-    autoConfig: (options: {
-      effects: Effects
-      localConfig: Input
-      remoteConfig: NestedConfigs[key]
-      utils: Utils<Store, Vault>
-    }) => Promise<void | DeepPartial<NestedConfigs[key]>>
-  }
-}
 export class AutoConfig<
   Store,
   Vault,
-  Input,
-  NestedConfigs extends Record<string, any>,
+  Input extends Record<string, any>,
+  RemoteConfig extends Record<string, any>,
 > {
   constructor(
-    readonly configs: AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
-    readonly path: keyof AutoConfigFrom<Store, Vault, Input, NestedConfigs>,
+    readonly autoconfig: (options: {
+      effects: Effects
+      localConfig: Input
+      remoteConfig: RemoteConfig
+      utils: Utils<Store, Vault>
+    }) => Promise<void | DeepPartial<RemoteConfig>>,
   ) {}
 
   async check(
@@ -39,19 +27,15 @@ export class AutoConfig<
       ...options,
       utils: utils<Store, Vault>(options.effects),
       localConfig: options.localConfig as Input,
-      remoteConfig: options.remoteConfig as any,
+      remoteConfig: options.remoteConfig as RemoteConfig,
     }
     if (
       !deepEqual(
         origConfig,
-        deepMerge(
-          {},
-          options.localConfig,
-          await this.configs[this.path].autoConfig(newOptions),
-        ),
+        deepMerge({}, options.localConfig, await this.autoconfig(newOptions)),
       )
     )
-      throw new Error(`Check failed for ${this.path}`)
+      throw new Error(`Check failed`)
   }
   async autoConfigure(
     options: Parameters<AutoConfigure["autoConfigure"]>[0],
@@ -64,8 +48,8 @@ export class AutoConfig<
     }
     return deepMerge(
       {},
-      options.localConfig,
-      await this.configs[this.path].autoConfig(newOptions),
+      options.remoteConfig,
+      await this.autoconfig(newOptions),
     )
   }
 }
