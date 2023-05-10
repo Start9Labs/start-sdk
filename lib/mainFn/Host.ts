@@ -1,5 +1,5 @@
+import { object, string } from "ts-matches"
 import { Effects } from "../types"
-import { AddressReceipt } from "./AddressReceipt"
 import { NetworkInterfaceBuilder } from "./NetworkInterfaceBuilder"
 import { Origin } from "./Origin"
 
@@ -48,15 +48,8 @@ const knownProtocols = {
   },
 } as const
 
-type KnownProtocol = keyof typeof knownProtocols
-
 type Scheme = string | null
 
-type BasePortOptions<T extends KnownProtocol> = {
-  protocol: T
-  preferredExternalPort?: number
-  scheme?: Scheme
-}
 type AddSslOptions = {
   preferredExternalPort: number
   scheme: Scheme
@@ -69,37 +62,35 @@ export type PortOptions = {
   addSsl: AddSslOptions | null
 } & Security
 type KnownProtocols = typeof knownProtocols
-type SslProtocols = {
-  [K in keyof KnownProtocols]: KnownProtocols[K] extends { ssl: true }
+type ProtocolsWithSslVariants = {
+  [K in keyof KnownProtocols]: KnownProtocols[K] extends {
+    withSsl: string
+  }
     ? K
     : never
 }[keyof KnownProtocols]
-type NotSslProtocols = Exclude<keyof KnownProtocols, SslProtocols>
+type NotProtocolsWithSslVariants = Exclude<
+  keyof KnownProtocols,
+  ProtocolsWithSslVariants
+>
 
 type PortOptionsByKnownProtocol =
   | ({
-      protocol: SslProtocols
+      protocol: ProtocolsWithSslVariants
       preferredExternalPort?: number
       scheme?: Scheme
     } & ({ noAddSsl: true } | { addSsl?: Partial<AddSslOptions> }))
   | {
-      protocol: NotSslProtocols
+      protocol: NotProtocolsWithSslVariants
       preferredExternalPort?: number
       scheme?: Scheme
       addSsl?: AddSslOptions | null
     }
 type PortOptionsByProtocol = PortOptionsByKnownProtocol | PortOptions
 
-function isForKnownProtocol(
-  options: PortOptionsByProtocol,
-): options is PortOptionsByKnownProtocol {
-  return "protocol" in options && options.protocol in knownProtocols
-}
-
-const TRUE_DEFAULT = {
-  preferredExternalPort: 443,
-  scheme: "https",
-}
+const hasStringProtocal = object({
+  protocol: string,
+}).test
 
 export class Host {
   constructor(
@@ -114,7 +105,7 @@ export class Host {
     internalPort: number,
     options: PortOptionsByProtocol,
   ): Promise<Origin<this>> {
-    if (isForKnownProtocol(options)) {
+    if (hasStringProtocal(options)) {
       return await this.bindPortForKnown(options, internalPort)
     } else {
       return await this.bindPortForUnknown(internalPort, options)
@@ -155,11 +146,8 @@ export class Host {
     const preferredExternalPort =
       options.preferredExternalPort ||
       knownProtocols[options.protocol].defaultPort
-    const defaultAddSsl = this.bindPortForKnownDefaulAddSsl(options, protoInfo)
-    const addSsl =
-      "addSsl" in options
-        ? { ...defaultAddSsl, ...options.addSsl }
-        : defaultAddSsl
+    const addSsl = this.getAddSsl(options, protoInfo)
+
     const security: Security = !protoInfo.secure
       ? {
           secure: protoInfo.secure,
@@ -184,17 +172,18 @@ export class Host {
     return new Origin(this, newOptions)
   }
 
-  private bindPortForKnownDefaulAddSsl(
+  private getAddSsl(
     options: PortOptionsByKnownProtocol,
     protoInfo: KnownProtocols[keyof KnownProtocols],
-  ) {
-    if ("noAddSsl" in options && options.noAddSsl) return TRUE_DEFAULT
+  ): AddSslOptions | null {
+    if ("noAddSsl" in options && options.noAddSsl) return null
     if ("withSsl" in protoInfo && protoInfo.withSsl)
       return {
         preferredExternalPort: knownProtocols[protoInfo.withSsl].defaultPort,
         scheme: protoInfo.withSsl,
+        ...("addSsl" in options ? options.addSsl : null),
       }
-    return TRUE_DEFAULT
+    return null
   }
 }
 
