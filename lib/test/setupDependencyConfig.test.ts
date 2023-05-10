@@ -1,6 +1,6 @@
 import { sdk } from "./output.sdk"
 
-describe("setupAutoConfig", () => {
+describe("setupDependencyConfig", () => {
   test("test", () => {
     const testConfig = sdk.Config.of({
       test: sdk.Value.text({
@@ -15,12 +15,12 @@ describe("setupAutoConfig", () => {
         required: false,
       }),
     })
-    const remoteTest = sdk.AutoConfig.of({
+    const remoteTest = sdk.DependencyConfig.of({
       localConfig: testConfig,
       remoteConfig: testConfig2,
-      autoconfig: async ({}) => {},
+      dependencyConfig: async ({}) => {},
     })
-    sdk.setupAutoConfig(testConfig, {
+    sdk.setupDependencyConfig(testConfig, {
       remoteTest,
     })
   })

@@ -21,7 +21,7 @@ import {
   DeepPartial,
 } from "./types"
 import { Utils } from "./util/utils"
-import { AutoConfig } from "./autoconfig/AutoConfig"
+import { DependencyConfig } from "./dependencyConfig/DependencyConfig"
 import { BackupSet, Backups } from "./backup/Backups"
 import { smtpConfig } from "./config/configConstants"
 import { Daemons } from "./mainFn/Daemons"
@@ -35,7 +35,7 @@ import { List } from "./config/builder/list"
 import { Migration } from "./inits/migrations/Migration"
 import { Install, InstallFn, setupInstall } from "./inits/setupInstall"
 import { setupActions } from "./actions/setupActions"
-import { setupAutoConfig } from "./autoconfig/setupAutoConfig"
+import { setupDependencyConfig } from "./dependencyConfig/setupDependencyConfig"
 import { SetupBackupsParams, setupBackups } from "./backup/setupBackups"
 import { setupInit } from "./inits/setupInit"
 import {
@@ -76,29 +76,106 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
     isReady: AnyNeverCond<[Manifest, Store, Vault], "Build not ready", true>,
   ) {
     return {
-      AutoConfig: {
-        of<
-          LocalConfig extends Record<string, any>,
-          RemoteConfig extends Record<string, any>,
-        >({
-          localConfig,
-          remoteConfig,
-          autoconfig,
-        }: {
-          localConfig: Config<LocalConfig, Store, Vault>
-          remoteConfig: Config<RemoteConfig, any, any>
-          autoconfig: (options: {
-            effects: Effects
-            localConfig: LocalConfig
-            remoteConfig: RemoteConfig
-            utils: Utils<Store, Vault>
-          }) => Promise<void | DeepPartial<RemoteConfig>>
-        }) {
-          return new AutoConfig<Store, Vault, LocalConfig, RemoteConfig>(
-            autoconfig,
-          )
+      configConstants: { smtpConfig },
+      createAction: <
+        Store,
+        ConfigType extends
+          | Record<string, any>
+          | Config<any, any, any>
+          | Config<any, never, never>,
+        Type extends Record<string, any> = ExtractConfigType<ConfigType>,
+      >(
+        metaData: Omit<ActionMetadata, "input"> & {
+          input: Config<Type, Store, Vault> | Config<Type, never, never>
         },
+        fn: (options: {
+          effects: Effects
+          utils: Utils<Store, Vault>
+          input: Type
+        }) => Promise<ActionResult>,
+      ) => createAction<Store, Vault, ConfigType, Type>(metaData, fn),
+      healthCheck: {
+        checkPortListening,
+        checkWebUrl,
+        of: healthCheck,
+        runHealthScript,
       },
+      setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
+        setupActions<Store, Vault>(...createdActions),
+      setupBackups: (...args: SetupBackupsParams<Manifest>) =>
+        setupBackups<Manifest>(...args),
+      setupConfig: <
+        ConfigType extends
+          | Config<any, Store, Vault>
+          | Config<any, never, never>,
+        Type extends Record<string, any> = ExtractConfigType<ConfigType>,
+      >(
+        spec: ConfigType,
+        write: Save<Store, Vault, Type, Manifest>,
+        read: Read<Store, Vault, Type>,
+      ) =>
+        setupConfig<Store, Vault, ConfigType, Manifest, Type>(
+          spec,
+          write,
+          read,
+        ),
+      setupConfigRead: <
+        ConfigSpec extends
+          | Config<Record<string, any>, any, any>
+          | Config<Record<string, never>, never, never>,
+      >(
+        _configSpec: ConfigSpec,
+        fn: Read<Store, Vault, ConfigSpec>,
+      ) => fn,
+      setupConfigSave: <
+        ConfigSpec extends
+          | Config<Record<string, any>, any, any>
+          | Config<Record<string, never>, never, never>,
+      >(
+        _configSpec: ConfigSpec,
+        fn: Save<Store, Vault, ConfigSpec, Manifest>,
+      ) => fn,
+      setupDependencyConfig: <Input extends Record<string, any>>(
+        config: Config<Input, Store, Vault>,
+        autoConfigs: {
+          [K in keyof Manifest["dependencies"]]: DependencyConfig<
+            Store,
+            Vault,
+            Input,
+            any
+          >
+        },
+      ) =>
+        setupDependencyConfig<Store, Vault, Input, Manifest>(
+          config,
+          autoConfigs,
+        ),
+      setupDependencyMounts,
+      setupInit: (
+        migrations: Migrations<Store, Vault>,
+        install: Install<Store, Vault>,
+        uninstall: Uninstall<Store, Vault>,
+      ) => setupInit<Store, Vault>(migrations, install, uninstall),
+      setupInstall: (fn: InstallFn<Store, Vault>) => Install.of(fn),
+      setupMain: (
+        fn: (o: {
+          effects: Effects
+          started(onTerm: () => void): null
+          utils: Utils<Store, Vault, {}>
+        }) => Promise<Daemons<any>>,
+      ) => setupMain<Store, Vault>(fn),
+      setupMigrations: <Migrations extends Array<Migration<Store, Vault, any>>>(
+        ...migrations: EnsureUniqueId<Migrations>
+      ) =>
+        setupMigrations<Store, Vault, Migrations>(this.manifest, ...migrations),
+      setupUninstall: (fn: UninstallFn<Store, Vault>) =>
+        setupUninstall<Store, Vault>(fn),
+      trigger: {
+        defaultTrigger,
+        cooldownTrigger,
+        changeOnFirstSuccess,
+      },
+
       Backups: {
         volumes: (...volumeNames: Array<keyof Manifest["volumes"] & string>) =>
           Backups.volumes<Manifest>(...volumeNames),
@@ -118,30 +195,29 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
           spec: Spec,
         ) => Config.of<Spec, Store, Vault>(spec),
       },
-      configConstants: { smtpConfig },
-      createAction: <
-        Store,
-        ConfigType extends
-          | Record<string, any>
-          | Config<any, any, any>
-          | Config<any, never, never>,
-        Type extends Record<string, any> = ExtractConfigType<ConfigType>,
-      >(
-        metaData: Omit<ActionMetadata, "input"> & {
-          input: Config<Type, Store, Vault> | Config<Type, never, never>
-        },
-        fn: (options: {
-          effects: Effects
-          utils: Utils<Store, Vault>
-          input: Type
-        }) => Promise<ActionResult>,
-      ) => createAction<Store, Vault, ConfigType, Type>(metaData, fn),
       Daemons: { of: Daemons.of },
-      healthCheck: {
-        checkPortListening,
-        checkWebUrl,
-        of: healthCheck,
-        runHealthScript,
+      DependencyConfig: {
+        of<
+          LocalConfig extends Record<string, any>,
+          RemoteConfig extends Record<string, any>,
+        >({
+          localConfig,
+          remoteConfig,
+          dependencyConfig,
+        }: {
+          localConfig: Config<LocalConfig, Store, Vault>
+          remoteConfig: Config<RemoteConfig, any, any>
+          dependencyConfig: (options: {
+            effects: Effects
+            localConfig: LocalConfig
+            remoteConfig: RemoteConfig
+            utils: Utils<Store, Vault>
+          }) => Promise<void | DeepPartial<RemoteConfig>>
+        }) {
+          return new DependencyConfig<Store, Vault, LocalConfig, RemoteConfig>(
+            dependencyConfig,
+          )
+        },
       },
       List: {
         text: List.text,
@@ -226,77 +302,6 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
             utils: Utils<Store, Vault>
           }) => Promise<void>
         }) => Migration.of<Store, Vault, Version>(options),
-      },
-      setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
-        setupActions<Store, Vault>(...createdActions),
-      setupAutoConfig: <Input extends Record<string, any>>(
-        config: Config<Input, Store, Vault>,
-        autoConfigs: {
-          [K in keyof Manifest["dependencies"]]: AutoConfig<
-            Store,
-            Vault,
-            Input,
-            any
-          >
-        },
-      ) => setupAutoConfig<Store, Vault, Input, Manifest>(config, autoConfigs),
-      setupBackups: (...args: SetupBackupsParams<Manifest>) =>
-        setupBackups<Manifest>(...args),
-      setupConfig: <
-        ConfigType extends
-          | Config<any, Store, Vault>
-          | Config<any, never, never>,
-        Type extends Record<string, any> = ExtractConfigType<ConfigType>,
-      >(
-        spec: ConfigType,
-        write: Save<Store, Vault, Type, Manifest>,
-        read: Read<Store, Vault, Type>,
-      ) =>
-        setupConfig<Store, Vault, ConfigType, Manifest, Type>(
-          spec,
-          write,
-          read,
-        ),
-      setupConfigRead: <
-        ConfigSpec extends
-          | Config<Record<string, any>, any, any>
-          | Config<Record<string, never>, never, never>,
-      >(
-        _configSpec: ConfigSpec,
-        fn: Read<Store, Vault, ConfigSpec>,
-      ) => fn,
-      setupConfigSave: <
-        ConfigSpec extends
-          | Config<Record<string, any>, any, any>
-          | Config<Record<string, never>, never, never>,
-      >(
-        _configSpec: ConfigSpec,
-        fn: Save<Store, Vault, ConfigSpec, Manifest>,
-      ) => fn,
-      setupDependencyMounts,
-      setupInit: (
-        migrations: Migrations<Store, Vault>,
-        install: Install<Store, Vault>,
-        uninstall: Uninstall<Store, Vault>,
-      ) => setupInit<Store, Vault>(migrations, install, uninstall),
-      setupInstall: (fn: InstallFn<Store, Vault>) => Install.of(fn),
-      setupMain: (
-        fn: (o: {
-          effects: Effects
-          started(onTerm: () => void): null
-          utils: Utils<Store, Vault, {}>
-        }) => Promise<Daemons<any>>,
-      ) => setupMain<Store, Vault>(fn),
-      setupMigrations: <Migrations extends Array<Migration<Store, Vault, any>>>(
-        ...migrations: EnsureUniqueId<Migrations>
-      ) =>
-        setupMigrations<Store, Vault, Migrations>(this.manifest, ...migrations),
-      setupUninstall: (fn: UninstallFn<Store, Vault>) =>
-        setupUninstall<Store, Vault>(fn),
-      trigger: {
-        defaultTrigger,
-        cooldownTrigger,
-        changeOnFirstSuccess,
       },
       Value: {
         toggle: Value.toggle,

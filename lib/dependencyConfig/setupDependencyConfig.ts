@@ -1,8 +1,8 @@
 import { Config } from "../config/builder/config"
 import { SDKManifest } from "../manifest/ManifestTypes"
-import { AutoConfig } from "./AutoConfig"
+import { DependencyConfig } from "./DependencyConfig"
 
-export function setupAutoConfig<
+export function setupDependencyConfig<
   Store,
   Vault,
   Input extends Record<string, any>,
@@ -10,7 +10,7 @@ export function setupAutoConfig<
 >(
   _config: Config<Input, Store, Vault>,
   autoConfigs: {
-    [key in keyof Manifest["dependencies"] & string]: AutoConfig<
+    [key in keyof Manifest["dependencies"] & string]: DependencyConfig<
       Store,
       Vault,
       Input,

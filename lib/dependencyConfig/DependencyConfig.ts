@@ -2,16 +2,15 @@ import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util/utils"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
-import { Config } from "../config/builder/config"
 
-export class AutoConfig<
+export class DependencyConfig<
   Store,
   Vault,
   Input extends Record<string, any>,
   RemoteConfig extends Record<string, any>,
 > {
   constructor(
-    readonly autoconfig: (options: {
+    readonly dependencyConfig: (options: {
       effects: Effects
       localConfig: Input
       remoteConfig: RemoteConfig
@@ -32,7 +31,11 @@ export class AutoConfig<
     if (
       !deepEqual(
         origConfig,
-        deepMerge({}, options.localConfig, await this.autoconfig(newOptions)),
+        deepMerge(
+          {},
+          options.localConfig,
+          await this.dependencyConfig(newOptions),
+        ),
       )
     )
       throw new Error(`Check failed`)
@@ -49,7 +52,7 @@ export class AutoConfig<
     return deepMerge(
       {},
       options.remoteConfig,
-      await this.autoconfig(newOptions),
+      await this.dependencyConfig(newOptions),
     )
   }
 }

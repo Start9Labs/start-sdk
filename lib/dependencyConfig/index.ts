@@ -5,5 +5,5 @@ export type ReadonlyDeep<A> =
 export type MaybePromise<A> = Promise<A> | A
 export type Message = string
 
-import "./AutoConfig"
-import "./setupAutoConfig"
+import "./DependencyConfig"
+import "./setupDependencyConfig"
