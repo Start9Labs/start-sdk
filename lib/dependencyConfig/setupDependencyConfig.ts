@@ -1,5 +1,6 @@
 import { Config } from "../config/builder/config"
 import { SDKManifest } from "../manifest/ManifestTypes"
+import { ExpectedExports } from "../types"
 import { DependencyConfig } from "./DependencyConfig"
 
 export function setupDependencyConfig<
@@ -17,6 +18,6 @@ export function setupDependencyConfig<
       any
     >
   },
-) {
+): ExpectedExports.dependencyConfig {
   return autoConfigs
 }

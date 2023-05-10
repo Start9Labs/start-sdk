@@ -1,4 +1,8 @@
-import { AutoConfigure, DeepPartial, Effects, ExpectedExports } from "../types"
+import {
+  DependencyConfig as DependencyConfigType,
+  DeepPartial,
+  Effects,
+} from "../types"
 import { Utils, utils } from "../util/utils"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
@@ -19,8 +23,8 @@ export class DependencyConfig<
   ) {}
 
   async check(
-    options: Parameters<AutoConfigure["check"]>[0],
-  ): ReturnType<AutoConfigure["check"]> {
+    options: Parameters<DependencyConfigType["check"]>[0],
+  ): ReturnType<DependencyConfigType["check"]> {
     const origConfig = JSON.parse(JSON.stringify(options.localConfig))
     const newOptions = {
       ...options,
@@ -41,8 +45,8 @@ export class DependencyConfig<
       throw new Error(`Check failed`)
   }
   async autoConfigure(
-    options: Parameters<AutoConfigure["autoConfigure"]>[0],
-  ): ReturnType<AutoConfigure["autoConfigure"]> {
+    options: Parameters<DependencyConfigType["autoConfigure"]>[0],
+  ): ReturnType<DependencyConfigType["autoConfigure"]> {
     const newOptions = {
       ...options,
       utils: utils<Store, Vault>(options.effects),

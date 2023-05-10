@@ -85,7 +85,7 @@ export namespace ExpectedExports {
   /** Auto configure is used to make sure that other dependencies have the values t
    * that this service could use.
    */
-  export type autoConfig = Record<PackageId, AutoConfigure>
+  export type dependencyConfig = Record<PackageId, DependencyConfig>
 }
 export type TimeMs = number
 export type VersionString = string
@@ -94,7 +94,7 @@ export type VersionString = string
  * AutoConfigure is used as the value to the key of package id,
  * this is used to make sure that other dependencies have the values that this service could use.
  */
-export type AutoConfigure = {
+export type DependencyConfig = {
   /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
   check(options: {
     effects: Effects
