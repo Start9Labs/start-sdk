@@ -68,19 +68,45 @@ export type PortOptions = {
   preferredExternalPort: number
   addSsl: AddSslOptions | null
 } & Security
-type PortOptionsByKnownProtocol<T extends KnownProtocol> =
+type KnownProtocols = typeof knownProtocols
+type SslProtocols = {
+  [K in keyof KnownProtocols]: KnownProtocols[K] extends { ssl: true }
+    ? K
+    : never
+}[keyof KnownProtocols]
+type NotSslProtocols = Exclude<keyof KnownProtocols, SslProtocols>
+type OldPortOptionsByKnownProtocol<T extends KnownProtocol> =
   (typeof knownProtocols)[T] extends { withSsl: KnownProtocol }
     ? BasePortOptions<T> &
         ({ noAddSsl: true } | { addSsl?: Partial<AddSslOptions> })
     : BasePortOptions<T> & { addSsl?: AddSslOptions | null }
-type PortOptionsByProtocol<T extends string> = T extends KnownProtocol
-  ? PortOptionsByKnownProtocol<T>
+type OldPortOptionsByProtocol<T extends string> = T extends KnownProtocol
+  ? OldPortOptionsByKnownProtocol<T>
   : PortOptions
 
+type PortOptionsByKnownProtocol =
+  | ({
+      protocol: SslProtocols
+      preferredExternalPort?: number
+      scheme?: Scheme
+    } & ({ noAddSsl: true } | { addSsl?: Partial<AddSslOptions> }))
+  | {
+      protocol: NotSslProtocols
+      preferredExternalPort?: number
+      scheme?: Scheme
+      addSsl?: AddSslOptions | null
+    }
+type PortOptionsByProtocol = PortOptionsByKnownProtocol | PortOptions
+
 function isForKnownProtocol(
-  options: PortOptionsByProtocol<string> | PortOptionsByProtocol<KnownProtocol>,
-): options is PortOptionsByProtocol<KnownProtocol> {
-  return "protocol" in options && (options.protocol as string) in knownProtocols
+  options: PortOptionsByProtocol,
+): options is PortOptionsByKnownProtocol {
+  return "protocol" in options && options.protocol in knownProtocols
+}
+
+const TRUE_DEFAULT = {
+  preferredExternalPort: 443,
+  scheme: "https",
 }
 
 export class Host {
@@ -92,60 +118,121 @@ export class Host {
     },
   ) {}
 
-  async bindPort<T extends string>(
+  async bindPort(
     internalPort: number,
-    options: PortOptionsByProtocol<T>,
+    options: PortOptionsByProtocol,
   ): Promise<Origin<this>> {
     if (isForKnownProtocol(options)) {
-      const scheme =
-        options.scheme === undefined ? options.protocol : options.scheme
-      const protoInfo = knownProtocols[options.protocol]
-      const preferredExternalPort =
-        options.preferredExternalPort ||
-        knownProtocols[options.protocol].defaultPort
-      const defaultAddSsl =
-        "noAddSsl" in options && options.noAddSsl
-          ? null
-          : "withSsl" in protoInfo
-          ? {
-              preferredExternalPort:
-                knownProtocols[protoInfo.withSsl].defaultPort,
-              scheme: protoInfo.withSsl,
-            }
-          : null
-      const addSsl = options.addSsl
+      return await this.bindPortForKnown(options, internalPort)
+    } else {
+      return await this.bindPortForUnknown(internalPort, options)
+    }
+  }
+
+  private async bindPortForUnknown(
+    internalPort: number,
+    options:
+      | ({
+          scheme: Scheme
+          preferredExternalPort: number
+          addSsl: AddSslOptions | null
+        } & { secure: false; ssl: false })
+      | ({
+          scheme: Scheme
+          preferredExternalPort: number
+          addSsl: AddSslOptions | null
+        } & { secure: true; ssl: boolean }),
+  ) {
+    await this.options.effects.bind({
+      kind: this.kind,
+      id: this.options.id,
+      internalPort: internalPort,
+      ...options,
+    })
+
+    return new Origin(this, options)
+  }
+
+  private async bindPortForKnown(
+    options: PortOptionsByKnownProtocol,
+    internalPort: number,
+  ) {
+    const scheme =
+      options.scheme === undefined ? options.protocol : options.scheme
+    const protoInfo = knownProtocols[options.protocol]
+    const preferredExternalPort =
+      options.preferredExternalPort ||
+      knownProtocols[options.protocol].defaultPort
+    const defaultAddSsl = this.bindPortForKnownDefaulAddSsl(options, protoInfo)
+    const addSsl =
+      "addSsl" in options
         ? { ...defaultAddSsl, ...options.addSsl }
         : defaultAddSsl
-      const security = {
-        secure: protoInfo.secure,
-        ssl: protoInfo.ssl,
-      } as Security
+    const security: Security = !protoInfo.secure
+      ? {
+          secure: protoInfo.secure,
+          ssl: protoInfo.ssl,
+        }
+      : { secure: false, ssl: false }
 
-      const newOptions = {
-        scheme,
-        preferredExternalPort,
-        addSsl,
-        ...security,
-      }
-
-      await this.options.effects.bind({
-        kind: this.kind,
-        id: this.options.id,
-        internalPort: internalPort,
-        ...newOptions,
-      })
-
-      return new Origin(this, newOptions)
-    } else {
-      await this.options.effects.bind({
-        kind: this.kind,
-        id: this.options.id,
-        internalPort: internalPort,
-        ...options,
-      })
-
-      return new Origin(this, options)
+    const newOptions = {
+      scheme,
+      preferredExternalPort,
+      addSsl,
+      ...security,
     }
+
+    await this.options.effects.bind({
+      kind: this.kind,
+      id: this.options.id,
+      internalPort,
+      ...newOptions,
+    })
+
+    return new Origin(this, newOptions)
+  }
+
+  private bindPortForKnownDefaulAddSsl(
+    options: PortOptionsByKnownProtocol,
+    protoInfo:
+      | {
+          readonly secure: false
+          readonly ssl: false
+          readonly defaultPort: 80
+          readonly withSsl: "https"
+        }
+      | { readonly secure: true; readonly ssl: true; readonly defaultPort: 443 }
+      | {
+          readonly secure: false
+          readonly ssl: false
+          readonly defaultPort: 80
+          readonly withSsl: "wss"
+        }
+      | { readonly secure: true; readonly ssl: true; readonly defaultPort: 443 }
+      | { readonly secure: true; readonly ssl: false; readonly defaultPort: 22 }
+      | {
+          readonly secure: true
+          readonly ssl: false
+          readonly defaultPort: 8333
+        }
+      | {
+          readonly secure: true
+          readonly ssl: true
+          readonly defaultPort: 50051
+        }
+      | {
+          readonly secure: true
+          readonly ssl: false
+          readonly defaultPort: 53
+        },
+  ) {
+    if ("noAddSsl" in options && options.noAddSsl) return TRUE_DEFAULT
+    if ("withSsl" in protoInfo)
+      return {
+        preferredExternalPort: knownProtocols[protoInfo.withSsl].defaultPort,
+        scheme: protoInfo.withSsl,
+      }
+    return TRUE_DEFAULT
   }
 }
 
