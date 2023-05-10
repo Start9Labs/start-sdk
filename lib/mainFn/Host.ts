@@ -75,14 +75,6 @@ type SslProtocols = {
     : never
 }[keyof KnownProtocols]
 type NotSslProtocols = Exclude<keyof KnownProtocols, SslProtocols>
-type OldPortOptionsByKnownProtocol<T extends KnownProtocol> =
-  (typeof knownProtocols)[T] extends { withSsl: KnownProtocol }
-    ? BasePortOptions<T> &
-        ({ noAddSsl: true } | { addSsl?: Partial<AddSslOptions> })
-    : BasePortOptions<T> & { addSsl?: AddSslOptions | null }
-type OldPortOptionsByProtocol<T extends string> = T extends KnownProtocol
-  ? OldPortOptionsByKnownProtocol<T>
-  : PortOptions
 
 type PortOptionsByKnownProtocol =
   | ({
@@ -194,40 +186,10 @@ export class Host {
 
   private bindPortForKnownDefaulAddSsl(
     options: PortOptionsByKnownProtocol,
-    protoInfo:
-      | {
-          readonly secure: false
-          readonly ssl: false
-          readonly defaultPort: 80
-          readonly withSsl: "https"
-        }
-      | { readonly secure: true; readonly ssl: true; readonly defaultPort: 443 }
-      | {
-          readonly secure: false
-          readonly ssl: false
-          readonly defaultPort: 80
-          readonly withSsl: "wss"
-        }
-      | { readonly secure: true; readonly ssl: true; readonly defaultPort: 443 }
-      | { readonly secure: true; readonly ssl: false; readonly defaultPort: 22 }
-      | {
-          readonly secure: true
-          readonly ssl: false
-          readonly defaultPort: 8333
-        }
-      | {
-          readonly secure: true
-          readonly ssl: true
-          readonly defaultPort: 50051
-        }
-      | {
-          readonly secure: true
-          readonly ssl: false
-          readonly defaultPort: 53
-        },
+    protoInfo: KnownProtocols[keyof KnownProtocols],
   ) {
     if ("noAddSsl" in options && options.noAddSsl) return TRUE_DEFAULT
-    if ("withSsl" in protoInfo)
+    if ("withSsl" in protoInfo && protoInfo.withSsl)
       return {
         preferredExternalPort: knownProtocols[protoInfo.withSsl].defaultPort,
         scheme: protoInfo.withSsl,
