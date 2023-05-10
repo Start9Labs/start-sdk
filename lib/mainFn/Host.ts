@@ -1,5 +1,5 @@
+import { object, string } from "ts-matches"
 import { Effects } from "../types"
-import { AddressReceipt } from "./AddressReceipt"
 import { NetworkInterfaceBuilder } from "./NetworkInterfaceBuilder"
 import { Origin } from "./Origin"
 
@@ -48,15 +48,8 @@ const knownProtocols = {
   },
 } as const
 
-type KnownProtocol = keyof typeof knownProtocols
-
 type Scheme = string | null
 
-type BasePortOptions<T extends KnownProtocol> = {
-  protocol: T
-  preferredExternalPort?: number
-  scheme?: Scheme
-}
 type AddSslOptions = {
   preferredExternalPort: number
   scheme: Scheme
@@ -68,20 +61,36 @@ export type PortOptions = {
   preferredExternalPort: number
   addSsl: AddSslOptions | null
 } & Security
-type PortOptionsByKnownProtocol<T extends KnownProtocol> =
-  (typeof knownProtocols)[T] extends { withSsl: KnownProtocol }
-    ? BasePortOptions<T> &
-        ({ noAddSsl: true } | { addSsl?: Partial<AddSslOptions> })
-    : BasePortOptions<T> & { addSsl?: AddSslOptions | null }
-type PortOptionsByProtocol<T extends string> = T extends KnownProtocol
-  ? PortOptionsByKnownProtocol<T>
-  : PortOptions
+type KnownProtocols = typeof knownProtocols
+type ProtocolsWithSslVariants = {
+  [K in keyof KnownProtocols]: KnownProtocols[K] extends {
+    withSsl: string
+  }
+    ? K
+    : never
+}[keyof KnownProtocols]
+type NotProtocolsWithSslVariants = Exclude<
+  keyof KnownProtocols,
+  ProtocolsWithSslVariants
+>
 
-function isForKnownProtocol(
-  options: PortOptionsByProtocol<string> | PortOptionsByProtocol<KnownProtocol>,
-): options is PortOptionsByProtocol<KnownProtocol> {
-  return "protocol" in options && (options.protocol as string) in knownProtocols
-}
+type PortOptionsByKnownProtocol =
+  | ({
+      protocol: ProtocolsWithSslVariants
+      preferredExternalPort?: number
+      scheme?: Scheme
+    } & ({ noAddSsl: true } | { addSsl?: Partial<AddSslOptions> }))
+  | {
+      protocol: NotProtocolsWithSslVariants
+      preferredExternalPort?: number
+      scheme?: Scheme
+      addSsl?: AddSslOptions | null
+    }
+type PortOptionsByProtocol = PortOptionsByKnownProtocol | PortOptions
+
+const hasStringProtocal = object({
+  protocol: string,
+}).test
 
 export class Host {
   constructor(
@@ -92,60 +101,89 @@ export class Host {
     },
   ) {}
 
-  async bindPort<T extends string>(
+  async bindPort(
     internalPort: number,
-    options: PortOptionsByProtocol<T>,
+    options: PortOptionsByProtocol,
   ): Promise<Origin<this>> {
-    if (isForKnownProtocol(options)) {
-      const scheme =
-        options.scheme === undefined ? options.protocol : options.scheme
-      const protoInfo = knownProtocols[options.protocol]
-      const preferredExternalPort =
-        options.preferredExternalPort ||
-        knownProtocols[options.protocol].defaultPort
-      const defaultAddSsl =
-        "noAddSsl" in options && options.noAddSsl
-          ? null
-          : "withSsl" in protoInfo
-          ? {
-              preferredExternalPort:
-                knownProtocols[protoInfo.withSsl].defaultPort,
-              scheme: protoInfo.withSsl,
-            }
-          : null
-      const addSsl = options.addSsl
-        ? { ...defaultAddSsl, ...options.addSsl }
-        : defaultAddSsl
-      const security = {
-        secure: protoInfo.secure,
-        ssl: protoInfo.ssl,
-      } as Security
-
-      const newOptions = {
-        scheme,
-        preferredExternalPort,
-        addSsl,
-        ...security,
-      }
-
-      await this.options.effects.bind({
-        kind: this.kind,
-        id: this.options.id,
-        internalPort: internalPort,
-        ...newOptions,
-      })
-
-      return new Origin(this, newOptions)
+    if (hasStringProtocal(options)) {
+      return await this.bindPortForKnown(options, internalPort)
     } else {
-      await this.options.effects.bind({
-        kind: this.kind,
-        id: this.options.id,
-        internalPort: internalPort,
-        ...options,
-      })
-
-      return new Origin(this, options)
+      return await this.bindPortForUnknown(internalPort, options)
     }
+  }
+
+  private async bindPortForUnknown(
+    internalPort: number,
+    options:
+      | ({
+          scheme: Scheme
+          preferredExternalPort: number
+          addSsl: AddSslOptions | null
+        } & { secure: false; ssl: false })
+      | ({
+          scheme: Scheme
+          preferredExternalPort: number
+          addSsl: AddSslOptions | null
+        } & { secure: true; ssl: boolean }),
+  ) {
+    await this.options.effects.bind({
+      kind: this.kind,
+      id: this.options.id,
+      internalPort: internalPort,
+      ...options,
+    })
+
+    return new Origin(this, options)
+  }
+
+  private async bindPortForKnown(
+    options: PortOptionsByKnownProtocol,
+    internalPort: number,
+  ) {
+    const scheme =
+      options.scheme === undefined ? options.protocol : options.scheme
+    const protoInfo = knownProtocols[options.protocol]
+    const preferredExternalPort =
+      options.preferredExternalPort ||
+      knownProtocols[options.protocol].defaultPort
+    const addSsl = this.getAddSsl(options, protoInfo)
+
+    const security: Security = !protoInfo.secure
+      ? {
+          secure: protoInfo.secure,
+          ssl: protoInfo.ssl,
+        }
+      : { secure: false, ssl: false }
+
+    const newOptions = {
+      scheme,
+      preferredExternalPort,
+      addSsl,
+      ...security,
+    }
+
+    await this.options.effects.bind({
+      kind: this.kind,
+      id: this.options.id,
+      internalPort,
+      ...newOptions,
+    })
+
+    return new Origin(this, newOptions)
+  }
+
+  private getAddSsl(
+    options: PortOptionsByKnownProtocol,
+    protoInfo: KnownProtocols[keyof KnownProtocols],
+  ): AddSslOptions | null {
+    if ("noAddSsl" in options && options.noAddSsl) return null
+    if ("withSsl" in protoInfo && protoInfo.withSsl)
+      return {
+        preferredExternalPort: knownProtocols[protoInfo.withSsl].defaultPort,
+        scheme: protoInfo.withSsl,
+        ...("addSsl" in options ? options.addSsl : null),
+      }
+    return null
   }
 }
 
