@@ -5,7 +5,7 @@ import { Config, ExtractConfigType } from "./builder/config"
 import { Utils, utils } from "../util/utils"
 import nullIfEmpty from "../util/nullIfEmpty"
 import { InterfaceReceipt } from "../interfaces/interfaceReceipt"
-import { SetInterfacesReceipt } from "../interfaces/setupInterfaces"
+import { InterfacesReceipt as InterfacesReceipt } from "../interfaces/setupInterfaces"
 
 declare const dependencyProof: unique symbol
 export type DependenciesReceipt = void & {
@@ -27,8 +27,7 @@ export type Save<
   dependencies: D.ConfigDependencies<Manifest>
 }) => Promise<{
   dependenciesReceipt: DependenciesReceipt
-  interfaceReceipt: InterfaceReceipt
-  setInterfacesReceipt: SetInterfacesReceipt
+  interfacesReceipt: InterfacesReceipt
   restart: boolean
 }>
 export type Read<

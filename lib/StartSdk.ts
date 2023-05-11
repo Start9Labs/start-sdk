@@ -46,7 +46,11 @@ import { defaultTrigger } from "./trigger/defaultTrigger"
 import { changeOnFirstSuccess, cooldownTrigger } from "./trigger"
 import setupConfig, { Read, Save } from "./config/setupConfig"
 import { setupDependencyMounts } from "./dependency/setupDependencyMounts"
-import { SetInterfaces, setupInterfaces } from "./interfaces/setupInterfaces"
+import {
+  InterfacesReceipt,
+  SetInterfaces,
+  setupInterfaces,
+} from "./interfaces/setupInterfaces"
 import { AddressReceipt } from "./interfaces/AddressReceipt"
 import { Host } from "./interfaces/Host"
 
@@ -161,7 +165,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
       setupInstall: (fn: InstallFn<Store, Vault>) => Install.of(fn),
       setupInterfaces: <
         ConfigInput extends Record<string, any>,
-        Output extends Record<string, Address[] & AddressReceipt>,
+        Output extends InterfacesReceipt,
       >(
         config: Config<ConfigInput, Store, Vault>,
         fn: SetInterfaces<Store, Vault, ConfigInput, Output>,
