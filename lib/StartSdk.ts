@@ -16,9 +16,9 @@ import {
   ActionMetadata,
   Effects,
   ActionResult,
-  Metadata,
   BackupOptions,
   DeepPartial,
+  Address,
 } from "./types"
 import { Utils } from "./util/utils"
 import { DependencyConfig } from "./dependencyConfig/DependencyConfig"
@@ -26,14 +26,11 @@ import { BackupSet, Backups } from "./backup/Backups"
 import { smtpConfig } from "./config/configConstants"
 import { Daemons } from "./mainFn/Daemons"
 import { healthCheck } from "./health/HealthCheck"
-import {
-  checkPortListening,
-  containsAddress,
-} from "./health/checkFns/checkPortListening"
+import { checkPortListening } from "./health/checkFns/checkPortListening"
 import { checkWebUrl, runHealthScript } from "./health/checkFns"
 import { List } from "./config/builder/list"
 import { Migration } from "./inits/migrations/Migration"
-import { Install, InstallFn, setupInstall } from "./inits/setupInstall"
+import { Install, InstallFn } from "./inits/setupInstall"
 import { setupActions } from "./actions/setupActions"
 import { setupDependencyConfig } from "./dependencyConfig/setupDependencyConfig"
 import { SetupBackupsParams, setupBackups } from "./backup/setupBackups"
@@ -49,6 +46,9 @@ import { defaultTrigger } from "./trigger/defaultTrigger"
 import { changeOnFirstSuccess, cooldownTrigger } from "./trigger"
 import setupConfig, { Read, Save } from "./config/setupConfig"
 import { setupDependencyMounts } from "./dependency/setupDependencyMounts"
+import { SetInterfaces, setupInterfaces } from "./interfaces/setupInterfaces"
+import { AddressReceipt } from "./interfaces/AddressReceipt"
+import { Host } from "./interfaces/Host"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -155,8 +155,17 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         migrations: Migrations<Store, Vault>,
         install: Install<Store, Vault>,
         uninstall: Uninstall<Store, Vault>,
-      ) => setupInit<Store, Vault>(migrations, install, uninstall),
+        setInterfaces: SetInterfaces<Store, Vault, any, any>,
+      ) =>
+        setupInit<Store, Vault>(migrations, install, uninstall, setInterfaces),
       setupInstall: (fn: InstallFn<Store, Vault>) => Install.of(fn),
+      setupInterfaces: <
+        ConfigInput extends Record<string, any>,
+        Output extends Record<string, Address[] & AddressReceipt>,
+      >(
+        config: Config<ConfigInput, Store, Vault>,
+        fn: SetInterfaces<Store, Vault, ConfigInput, Output>,
+      ) => setupInterfaces(config, fn),
       setupMain: (
         fn: (o: {
           effects: Effects

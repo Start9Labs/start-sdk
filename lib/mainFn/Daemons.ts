@@ -4,7 +4,6 @@ import { Trigger } from "../trigger"
 import { TriggerInput } from "../trigger/TriggerInput"
 import { defaultTrigger } from "../trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
-import { InterfaceReceipt } from "./interfaceReceipt"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {
   id: "" extends Id ? never : Id
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]]

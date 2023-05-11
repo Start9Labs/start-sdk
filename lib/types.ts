@@ -1,7 +1,7 @@
 export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
-import { PortOptions } from "./mainFn/Host"
+import { PortOptions } from "./interfaces/Host"
 
 export type ExportedAction = (options: {
   effects: Effects

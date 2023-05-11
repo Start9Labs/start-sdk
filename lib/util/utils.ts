@@ -8,10 +8,6 @@ import {
 } from "../health/checkFns"
 import { ExtractStore } from "../types"
 import { GetSystemSmtp } from "./GetSystemSmtp"
-import { LocalBinding } from "../mainFn/LocalBinding"
-import { LocalPort } from "../mainFn/LocalPort"
-import { NetworkBuilder } from "../mainFn/NetworkBuilder"
-import { TorHostname } from "../mainFn/TorHostname"
 import { DefaultString } from "../config/configTypes"
 import { getDefaultString } from "./getDefaultString"
 import { GetStore, getStore } from "../store/getStore"
@@ -26,36 +22,9 @@ import {
   NamedPath,
   Path,
 } from "../dependency/setupDependencyMounts"
+import { Host, MultiHost, SingleHost, StaticHost } from "../interfaces/Host"
 
 export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
-  createOrUpdateVault: (opts: {
-    key: string
-    value: string | null | undefined
-    generator: DefaultString
-  }) => Promise<null | string>
-  readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
-  writeFile: <A>(
-    fileHelper: FileHelper<A>,
-    data: A,
-  ) => ReturnType<FileHelper<A>["write"]>
-  getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
-  store: {
-    get: <Path extends string>(
-      packageId: string,
-      path: T.EnsureStorePath<Store, Path>,
-    ) => GetStore<Store, Path> & WrapperOverWrite
-    getOwn: <Path extends string>(
-      path: T.EnsureStorePath<Store, Path>,
-    ) => GetStore<Store, Path> & WrapperOverWrite
-    setOwn: <Path extends string | never>(
-      path: T.EnsureStorePath<Store, Path>,
-      value: ExtractStore<Store, Path>,
-    ) => Promise<void>
-  }
-  vault: {
-    get: (key: keyof Vault & string) => GetVault<Vault> & WrapperOverWrite
-    set: (key: keyof Vault & string, value: string) => Promise<void>
-  }
   checkPortListening(
     port: number,
     options: {
@@ -73,10 +42,18 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
       errorMessage?: string
     },
   ): Promise<CheckResult>
-  bindLan: (port: number) => Promise<LocalBinding>
-  networkBuilder: () => NetworkBuilder
-  torHostName: (id: string) => TorHostname
-  nullIfEmpty: typeof nullIfEmpty
+  createOrUpdateVault: (opts: {
+    key: string
+    value: string | null | undefined
+    generator: DefaultString
+  }) => Promise<null | string>
+  getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
+  host: {
+    of: (options: { kind: "static" | "single" | "multi"; id: string }) => Host
+    static: (options: { id: string }) => StaticHost
+    single: (options: { id: string }) => SingleHost
+    multi: (options: { id: string }) => MultiHost
+  }
   mountDependencies: <
     In extends
       | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>
@@ -86,6 +63,29 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   >(
     value: In,
   ) => Promise<MountDependenciesOut<In>>
+  nullIfEmpty: typeof nullIfEmpty
+  readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
+  store: {
+    get: <Path extends string>(
+      packageId: string,
+      path: T.EnsureStorePath<Store, Path>,
+    ) => GetStore<Store, Path> & WrapperOverWrite
+    getOwn: <Path extends string>(
+      path: T.EnsureStorePath<Store, Path>,
+    ) => GetStore<Store, Path> & WrapperOverWrite
+    setOwn: <Path extends string | never>(
+      path: T.EnsureStorePath<Store, Path>,
+      value: ExtractStore<Store, Path>,
+    ) => Promise<void>
+  }
+  vault: {
+    get: (key: keyof Vault & string) => GetVault<Vault> & WrapperOverWrite
+    set: (key: keyof Vault & string, value: string) => Promise<void>
+  }
+  writeFile: <A>(
+    fileHelper: FileHelper<A>,
+    data: A,
+  ) => ReturnType<FileHelper<A>["write"]>
 }
 export const utils = <
   Store = never,
@@ -116,6 +116,16 @@ export const utils = <
   },
   getSystemSmtp: () =>
     new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
+
+  host: {
+    of: (options: { kind: "static" | "single" | "multi"; id: string }) =>
+      new Host({ ...options, effects }),
+    static: (options: { id: string }) =>
+      new StaticHost({ ...options, effects }),
+    single: (options: { id: string }) =>
+      new SingleHost({ ...options, effects }),
+    multi: (options: { id: string }) => new MultiHost({ ...options, effects }),
+  },
   readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
   writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
     fileHelper.write(data, effects),
@@ -137,10 +147,6 @@ export const utils = <
   },
   checkPortListening: checkPortListening.bind(null, effects),
   checkWebUrl: checkWebUrl.bind(null, effects),
-  bindLan: async (port: number) => LocalPort.bindLan(effects, port),
-  networkBuilder: () => NetworkBuilder.of(effects),
-  torHostName: (id: string) => TorHostname.of(effects, id),
-
   vault: {
     get: (key: keyof Vault & string) =>
       getVault<Vault>(effects, key) as GetVault<Vault> & WrapperOverWrite,

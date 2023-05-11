@@ -1,4 +1,4 @@
-import { Effects } from "../types"
+import { Address, Effects } from "../types"
 import { AddressReceipt } from "./AddressReceipt"
 import { Host } from "./Host"
 import { Origin } from "./Origin"
@@ -36,7 +36,9 @@ export class NetworkInterfaceBuilder {
    * @param addresses
    * @returns
    */
-  async export(origins: Iterable<Origin<Host>>) {
+  async export<Origins extends Origin<Host>[]>(
+    origins: Origins,
+  ): Promise<Address[] & AddressReceipt> {
     const { name, description, id, ui, username, path, search } = this.options
 
     const addresses = Array.from(origins).map((o) =>
@@ -51,6 +53,6 @@ export class NetworkInterfaceBuilder {
       ui,
     })
 
-    return {} as AddressReceipt
+    return addresses as Address[] & AddressReceipt
   }
 }

@@ -1,6 +1,5 @@
 import { object, string } from "ts-matches"
 import { Effects } from "../types"
-import { NetworkInterfaceBuilder } from "./NetworkInterfaceBuilder"
 import { Origin } from "./Origin"
 
 const knownProtocols = {
@@ -94,9 +93,9 @@ const hasStringProtocal = object({
 
 export class Host {
   constructor(
-    readonly kind: "static" | "single" | "multi",
     readonly options: {
       effects: Effects
+      kind: "static" | "single" | "multi"
       id: string
     },
   ) {}
@@ -127,7 +126,7 @@ export class Host {
         } & { secure: true; ssl: boolean }),
   ) {
     await this.options.effects.bind({
-      kind: this.kind,
+      kind: this.options.kind,
       id: this.options.id,
       internalPort: internalPort,
       ...options,
@@ -163,7 +162,7 @@ export class Host {
     }
 
     await this.options.effects.bind({
-      kind: this.kind,
+      kind: this.options.kind,
       id: this.options.id,
       internalPort,
       ...newOptions,
@@ -189,35 +188,18 @@ export class Host {
 
 export class StaticHost extends Host {
   constructor(options: { effects: Effects; id: string }) {
-    super("static", options)
+    super({ ...options, kind: "static" })
   }
 }
 
 export class SingleHost extends Host {
   constructor(options: { effects: Effects; id: string }) {
-    super("single", options)
+    super({ ...options, kind: "single" })
   }
 }
 
 export class MultiHost extends Host {
   constructor(options: { effects: Effects; id: string }) {
-    super("multi", options)
+    super({ ...options, kind: "multi" })
   }
-}
-
-async function test(effects: Effects) {
-  const foo = new MultiHost({ effects, id: "foo" })
-  const fooOrigin = await foo.bindPort(80, { protocol: "http" as const })
-  const fooInterface = new NetworkInterfaceBuilder({
-    effects,
-    name: "Foo",
-    id: "foo",
-    description: "A Foo",
-    ui: true,
-    username: "bar",
-    path: "/baz",
-    search: { qux: "yes" },
-  })
-
-  await fooInterface.export([fooOrigin])
 }
