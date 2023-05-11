@@ -182,7 +182,7 @@ export type NetworkInterface = {
   /** Human readable description, used as tooltip usually */
   description: string
   /** All URIs */
-  addresses: Address[]
+  addresses: string[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
@@ -325,7 +325,7 @@ export type Effects = {
    */
   getInterface(options: {
     packageId?: PackageId
-    interfaceId?: string
+    interfaceId: string
   }): Promise<NetworkInterface>
 
   /**
