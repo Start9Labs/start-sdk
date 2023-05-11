@@ -50,9 +50,9 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
   host: {
     of: (options: { kind: "static" | "single" | "multi"; id: string }) => Host
-    static: (options: { id: string }) => StaticHost
-    single: (options: { id: string }) => SingleHost
-    multi: (options: { id: string }) => MultiHost
+    static: (id: string) => StaticHost
+    single: (id: string) => SingleHost
+    multi: (id: string) => MultiHost
   }
   mountDependencies: <
     In extends
@@ -120,11 +120,9 @@ export const utils = <
   host: {
     of: (options: { kind: "static" | "single" | "multi"; id: string }) =>
       new Host({ ...options, effects }),
-    static: (options: { id: string }) =>
-      new StaticHost({ ...options, effects }),
-    single: (options: { id: string }) =>
-      new SingleHost({ ...options, effects }),
-    multi: (options: { id: string }) => new MultiHost({ ...options, effects }),
+    static: (id: string) => new StaticHost({ id, effects }),
+    single: (id: string) => new SingleHost({ id, effects }),
+    multi: (id: string) => new MultiHost({ id, effects }),
   },
   readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
   writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>

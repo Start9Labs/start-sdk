@@ -8,7 +8,7 @@ describe("host", () => {
   test("Testing that the types work", () => {
     async function test(effects: Effects) {
       const utils = createUtils<never, never>(effects)
-      const foo = utils.host.multi({ id: "foo" })
+      const foo = utils.host.multi("foo")
       const fooOrigin = await foo.bindPort(80, { protocol: "http" as const })
       const fooInterface = new NetworkInterfaceBuilder({
         effects,
