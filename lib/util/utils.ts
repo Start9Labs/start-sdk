@@ -23,6 +23,7 @@ import {
   Path,
 } from "../dependency/setupDependencyMounts"
 import { Host, MultiHost, SingleHost, StaticHost } from "../interfaces/Host"
+import { NetworkInterfaceBuilder } from "../interfaces/NetworkInterfaceBuilder"
 
 export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   checkPortListening(
@@ -42,6 +43,15 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
       errorMessage?: string
     },
   ): Promise<CheckResult>
+  createInterface: (options: {
+    name: string
+    id: string
+    description: string
+    ui: boolean
+    username: null | string
+    path: string
+    search: Record<string, string>
+  }) => NetworkInterfaceBuilder
   createOrUpdateVault: (opts: {
     key: string
     value: string | null | undefined
@@ -114,6 +124,15 @@ export const utils = <
     await effects.vault.set({ key, value: newValue })
     return newValue
   },
+  createInterface: (options: {
+    name: string
+    id: string
+    description: string
+    ui: boolean
+    username: null | string
+    path: string
+    search: Record<string, string>
+  }) => new NetworkInterfaceBuilder({ ...options, effects }),
   getSystemSmtp: () =>
     new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
 
