@@ -1,12 +1,10 @@
-export class Origin {
-  constructor(readonly protocol: string | null, readonly host: string) {}
+import { Address } from "../types"
+import { Host, PortOptions } from "./Host"
 
-  build({ username, path, search }: BuildOptions) {
-    // prettier-ignore
-    const urlAuth = !!(username) ? `${username}@` :
-            '';
-    const protocolSection = this.protocol != null ? `${this.protocol}://` : ""
+export class Origin<T extends Host> {
+  constructor(readonly host: T, readonly options: PortOptions) {}
 
+  build({ username, path, search }: BuildOptions): Address {
     const qpEntries = Object.entries(search)
       .map(
         ([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`,
@@ -15,7 +13,12 @@ export class Origin {
 
     const qp = qpEntries.length ? `?${qpEntries}` : ""
 
-    return `${protocolSection}${urlAuth}${this.host}${path}${qp}`
+    return {
+      hostId: this.host.options.id,
+      options: this.options,
+      suffix: `${path}${qp}`,
+      username,
+    }
   }
 }
 
