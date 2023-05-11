@@ -182,6 +182,19 @@ export type NetworkInterface = {
   /** Human readable description, used as tooltip usually */
   description: string
   /** All URIs */
+  addresses: Address[]
+  /** Defaults to false, but describes if this address can be opened in a browser as an
+   * ui interface
+   */
+  ui?: boolean
+}
+export type NetworkInterfaceOut = {
+  id: string
+  /** The title of this field to be displayed */
+  name: string
+  /** Human readable description, used as tooltip usually */
+  description: string
+  /** All URIs */
   addresses: string[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
@@ -326,7 +339,7 @@ export type Effects = {
   getInterface(options: {
     packageId?: PackageId
     interfaceId: string
-  }): Promise<NetworkInterface>
+  }): Promise<NetworkInterfaceOut>
 
   /**
    *Remove an address that was exported. Used problably during main or during setConfig.
