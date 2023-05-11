@@ -61,7 +61,9 @@ describe("mountDependencies", () => {
       license: "",
     },
     containers: {},
-    volumes: {},
+    volumes: {
+      main2: "data",
+    },
     alerts: {
       install: null,
       update: null,
@@ -73,21 +75,6 @@ describe("mountDependencies", () => {
     dependencies: {},
   })
   clnManifest.id
-  type test = BuildPath<{
-    name: "root"
-    manifest: typeof clnManifest
-    volume: "main"
-    path: "/"
-    readonly: true
-  }> extends BuildPath<{
-    name: "root"
-    manifest: typeof clnManifest
-    volume: "main2"
-    path: "/"
-    readonly: true
-  }>
-    ? true
-    : false
 
   test("Types work", () => {
     const dependencyMounts = setupDependencyMounts()
@@ -101,6 +88,14 @@ describe("mountDependencies", () => {
       .addPath({
         name: "root",
         manifest: lndManifest,
+        volume: "main2",
+        path: "/",
+        readonly: true,
+      })
+      .addPath({
+        name: "root",
+        manifest: lndManifest,
+        // @ts-expect-error Expect that main will throw because it is not in the thing
         volume: "main",
         path: "/",
         readonly: true,
@@ -117,7 +112,7 @@ describe("mountDependencies", () => {
           }
         }
         lnd: {
-          main: {
+          main2: {
             root: string
           }
         }

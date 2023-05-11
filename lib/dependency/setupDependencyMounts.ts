@@ -10,23 +10,22 @@ export const matchPath = object({
   name: string,
   volume: string,
   path: string,
-  manifest: object({
-    id: string,
-  }),
+  manifestId: string,
   readonly: boolean,
 })
 export type Path = typeof matchPath._TYPE
-export type BuildPath<M extends Path> = {
-  [PId in M["manifest"]["id"]]: {
-    [V in M["volume"]]: {
-      [N in M["name"]]: M
+export type BuildPath<
+  ManifestId extends string,
+  VolumeId extends string,
+  PathName extends string,
+  Value extends Path,
+> = {
+  [PId in ManifestId]: {
+    [V in VolumeId]: {
+      [N in PathName]: Value
     }
   }
 }
-type ValidIfNotInNested<
-  Building,
-  M extends Path,
-> = Building extends BuildPath<M> ? never : M
 class SetupDependencyMounts<Building> {
   private constructor(readonly building: Building) {}
 
@@ -35,29 +34,32 @@ class SetupDependencyMounts<Building> {
   }
 
   addPath<
-    NamedPath extends string,
-    VolumeName extends string,
-    PathNamed extends string,
+    Name extends string,
+    Volume extends keyof M["volumes"] & string,
+    Path extends string,
+    ManifestId extends M["id"],
     M extends SDKManifest,
-  >(
-    newPath: ValidIfNotInNested<
-      Building,
-      {
-        name: NamedPath
-        volume: VolumeName
-        path: PathNamed
-        manifest: M
-        readonly: boolean
-      }
-    >,
-  ) {
+  >(addPath: {
+    name: Name
+    volume: Volume
+    path: Path
+    manifest: M
+    readonly: boolean
+  }) {
+    const { manifest, ...restPath } = addPath
+    const newPath = {
+      ...restPath,
+      manifestId: manifest.id as ManifestId,
+    } as const
+    type NewBuilding = Building &
+      BuildPath<ManifestId, Volume, Name, typeof newPath>
     const building = deepMerge(this.building, {
-      [newPath.manifest.id]: {
+      [newPath.manifestId]: {
         [newPath.volume]: {
           [newPath.name]: newPath,
         },
       },
-    }) as Building & BuildPath<typeof newPath>
+    }) as NewBuilding
     return new SetupDependencyMounts(building)
   }
   build() {

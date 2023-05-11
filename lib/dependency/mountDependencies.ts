@@ -1,4 +1,5 @@
 import { Effects } from "../types"
+import { _ } from "../util"
 import {
   Path,
   ManifestId,
@@ -7,11 +8,12 @@ import {
   matchPath,
 } from "./setupDependencyMounts"
 
-export type MountDependenciesOut<A> =
+export type MountDependenciesOut<A> = _<
   // prettier-ignore
   A extends Path ? string : A extends Record<string, unknown> ? {
     [P in keyof A]: MountDependenciesOut<A[P]>;
   } : never
+>
 export async function mountDependencies<
   In extends
     | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>
@@ -20,14 +22,14 @@ export async function mountDependencies<
     | Path,
 >(effects: Effects, value: In): Promise<MountDependenciesOut<In>> {
   if (matchPath.test(value)) {
-    const mountPath = `${value.manifest.id}/${value.volume}/${value.name}`
+    const mountPath = `${value.manifestId}/${value.volume}/${value.name}`
 
     return (await effects.mount({
       location: {
         path: mountPath,
       },
       target: {
-        packageId: value.manifest.id,
+        packageId: value.manifestId,
         path: value.path,
         readonly: value.readonly,
         volumeId: value.volume,
