@@ -60,7 +60,6 @@ export class Daemons<Ids extends string> {
   static of(config: {
     effects: Effects
     started: (onTerm: () => void) => null
-    interfaceReceipt: InterfaceReceipt
     healthReceipts: HealthReceipt[]
   }) {
     return new Daemons<never>(config.effects, config.started)

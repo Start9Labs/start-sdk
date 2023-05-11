@@ -1,6 +1,7 @@
 export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
+import { PortOptions } from "./mainFn/Host"
 
 export type ExportedAction = (options: {
   effects: Effects
@@ -166,14 +167,22 @@ export type ActionMetadata = {
   group?: string
 }
 
+/** ${scheme}://${username}@${host}:${externalPort}${suffix} */
+export type Address = {
+  username: string | null
+  hostId: string
+  options: PortOptions
+  suffix: string
+}
+
 export type NetworkInterface = {
   id: string
-  /** The title of this field to be dsimplayed */
+  /** The title of this field to be displayed */
   name: string
   /** Human readable description, used as tooltip usually */
   description: string
   /** All URIs */
-  addresses: string[]
+  addresses: Address[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
@@ -206,16 +215,23 @@ export type Effects = {
 
   /** Check that a file exists or not */
   exists(input: { volumeId: string; path: string }): Promise<boolean>
-  /** Declaring that we are opening a interface on some protocal for local network
-   * Returns the port exposed
-   */
-  bindLan(options: { internalPort: number }): Promise<number>
-  /** Declaring that we are opening a interface on some protocal for tor network */
-  bindTor(options: {
-    internalPort: number
-    name: string
-    externalPort: number
-  }): Promise<string>
+
+  /** Removes all network bindings */
+  clearBindings(): Promise<void>
+  /** Creates a host connected to the specified port with the provided options */
+  bind(
+    options: {
+      kind: "static" | "single" | "multi"
+      id: string
+      internalPort: number
+    } & PortOptions,
+  ): Promise<void>
+  /** Retrieves the current hostname(s) associated with a host id */
+  getHostNames(options: {
+    kind: "static" | "single"
+    id: string
+  }): Promise<[string]>
+  getHostNames(options: { kind: "multi"; id: string }): Promise<string[]>
 
   /** Similar to the fetch api via the mdn, this is simplified but the point is
    * to get something from some website, and return the response.
@@ -294,6 +310,8 @@ export type Effects = {
     packageId?: string,
   ): Promise<number>
 
+  /** Removes all network interfaces */
+  clearNetworkInterfaces(): Promise<void>
   /** When we want to create a link in the front end interfaces, and example is
    * exposing a url to view a web service
    */

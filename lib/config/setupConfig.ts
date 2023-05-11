@@ -4,6 +4,7 @@ import * as D from "./configDependencies"
 import { Config, ExtractConfigType } from "./builder/config"
 import { Utils, utils } from "../util/utils"
 import nullIfEmpty from "../util/nullIfEmpty"
+import { InterfaceReceipt } from "../mainFn/interfaceReceipt"
 
 declare const dependencyProof: unique symbol
 export type DependenciesReceipt = void & {
@@ -25,6 +26,7 @@ export type Save<
   dependencies: D.ConfigDependencies<Manifest>
 }) => Promise<{
   dependenciesReceipt: DependenciesReceipt
+  interfaceReceipt: InterfaceReceipt
   restart: boolean
 }>
 export type Read<
@@ -66,6 +68,8 @@ export function setupConfig<
         await console.error(String(validator.errorMessage(input)))
         return { error: "Set config type error for config" }
       }
+      await effects.clearBindings()
+      await effects.clearNetworkInterfaces()
       const { restart } = await write({
         input: JSON.parse(JSON.stringify(input)),
         effects,
