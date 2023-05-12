@@ -166,36 +166,27 @@ export type ActionMetadata = {
    */
   group?: string
 }
-
+export declare const hostName: unique symbol
+export type HostName = string & { [hostName]: never }
 /** ${scheme}://${username}@${host}:${externalPort}${suffix} */
 export type Address = {
   username: string | null
   hostId: string
   options: PortOptions
   suffix: string
+  scheme: string | null
 }
 
+export type InterfaceId = string
+
 export type NetworkInterface = {
-  id: string
+  interfaceId: InterfaceId
   /** The title of this field to be displayed */
   name: string
   /** Human readable description, used as tooltip usually */
   description: string
   /** All URIs */
   addresses: Address[]
-  /** Defaults to false, but describes if this address can be opened in a browser as an
-   * ui interface
-   */
-  ui?: boolean
-}
-export type NetworkInterfaceOut = {
-  id: string
-  /** The title of this field to be displayed */
-  name: string
-  /** Human readable description, used as tooltip usually */
-  description: string
-  /** All URIs */
-  addresses: string[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
@@ -240,11 +231,18 @@ export type Effects = {
     } & PortOptions,
   ): Promise<void>
   /** Retrieves the current hostname(s) associated with a host id */
-  getHostNames(options: {
+  getHostnames(options: {
     kind: "static" | "single"
-    id: string
-  }): Promise<[string]>
-  getHostNames(options: { kind: "multi"; id: string }): Promise<string[]>
+    hostId: string
+    packageId?: string
+    callback: () => void
+  }): Promise<[HostName]>
+  getHostnames(options: {
+    kind?: "multi"
+    packageId?: string
+    hostId: string
+    callback: () => void
+  }): Promise<[HostName, ...HostName[]]>
 
   /** Similar to the fetch api via the mdn, this is simplified but the point is
    * to get something from some website, and return the response.
@@ -310,7 +308,7 @@ export type Effects = {
   getIPHostname(): Promise<string[]>
   /** Get the address for another service for tor interfaces */
   getServiceTorHostname(
-    interfaceId: string,
+    interfaceId: InterfaceId,
     packageId?: string,
   ): Promise<string>
   /** Get the IP address of the container */
@@ -338,8 +336,20 @@ export type Effects = {
    */
   getInterface(options: {
     packageId?: PackageId
-    interfaceId: string
-  }): Promise<NetworkInterfaceOut>
+    interfaceId: InterfaceId
+    callback: () => void
+  }): Promise<NetworkInterface>
+
+  /**
+   * There are times that we want to see the addresses that where exported
+   * @param options.addressId If we want to filter the address id
+   *
+   * Note: any auth should be filtered out already
+   */
+  listInterface(options: {
+    packageId?: PackageId
+    callback: () => void
+  }): Promise<NetworkInterface[]>
 
   /**
    *Remove an address that was exported. Used problably during main or during setConfig.

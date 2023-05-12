@@ -64,8 +64,8 @@ export class Variants<Type, Store, Vault> {
         spec: Config<any, Store, Vault> | Config<any, never, never>
       }
     },
-    Store,
-    Vault,
+    Store = never,
+    Vault = never,
   >(a: VariantValues) {
     const validator = anyOf(
       ...Object.entries(a).map(([name, { spec }]) =>

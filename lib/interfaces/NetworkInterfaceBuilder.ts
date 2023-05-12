@@ -42,11 +42,11 @@ export class NetworkInterfaceBuilder {
     const { name, description, id, ui, username, path, search } = this.options
 
     const addresses = Array.from(origins).map((o) =>
-      o.build({ username, path, search }),
+      o.build({ username, path, search, scheme: null }),
     )
 
     await this.options.effects.exportNetworkInterface({
-      id,
+      interfaceId: id,
       name,
       description,
       addresses,

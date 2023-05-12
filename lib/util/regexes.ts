@@ -13,9 +13,12 @@ export const url =
 export const local =
   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.local\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/
 
+export const localHost = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.local/
+
 export const onion =
   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.onion\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/
 
+export const onionHost = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.onion/
 // https://ihateregex.io/expr/ascii/
 export const ascii = /^[ -~]*$/
 

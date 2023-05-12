@@ -18,11 +18,13 @@ export class Origin<T extends Host> {
       options: this.options,
       suffix: `${path}${qp}`,
       username,
+      scheme: this.options.scheme,
     }
   }
 }
 
 type BuildOptions = {
+  scheme: string | null
   username: string | null
   path: string
   search: Record<string, string>
