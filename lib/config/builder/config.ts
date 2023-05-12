@@ -83,7 +83,11 @@ export const addNodesSpec = Config.of({ hostname: hostname, port: port });
 
   ```
  */
-export class Config<Type extends Record<string, any>, Store, Vault> {
+export class Config<
+  Type extends Record<string, any>,
+  Store = never,
+  Vault = never,
+> {
   private constructor(
     private readonly spec: {
       [K in keyof Type]:
@@ -107,8 +111,8 @@ export class Config<Type extends Record<string, any>, Store, Vault> {
       string,
       Value<any, Store, Vault> | Value<any, never, never>
     >,
-    Store,
-    Vault,
+    Store = never,
+    Vault = never,
   >(spec: Spec) {
     const validatorObj = {} as {
       [K in keyof Spec]: Parser<unknown, any>
