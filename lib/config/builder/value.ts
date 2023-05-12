@@ -628,6 +628,50 @@ export class Value<Type, Store, Vault> {
       }
     }, previousSpec.validator)
   }
+  static file<Required extends boolean, Store, Vault>(a: {
+    name: string
+    description?: string | null
+    warning?: string | null
+    extensions: string[]
+    required: Required
+  }) {
+    const buildValue = {
+      type: "file" as const,
+      description: null,
+      warning: null,
+      ...a,
+    }
+    if (a.required) {
+      return new Value<string, Store, Vault>(() => buildValue, string)
+    }
+    return new Value<string | null | undefined, Store, Vault>(
+      () => buildValue,
+      string.optional(),
+    )
+  }
+  static dynamicFile<Required extends boolean, Store, Vault>(
+    a: LazyBuild<
+      Store,
+      Vault,
+      {
+        name: string
+        description?: string | null
+        warning?: string | null
+        extensions: string[]
+        required: Required
+      }
+    >,
+  ) {
+    return new Value<string | null | undefined, Store, Vault>(
+      async (options) => ({
+        type: "file" as const,
+        description: null,
+        warning: null,
+        ...(await a(options)),
+      }),
+      string.optional(),
+    )
+  }
   static union<Required extends RequiredDefault<string>, Type, Store, Vault>(
     a: {
       name: string
