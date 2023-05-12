@@ -242,22 +242,21 @@ export class Value<Type, Store, Vault> {
     immutable?: boolean
     generate?: null | RandomString
   }) {
-    return new Value<string, never, never>(
-      async () =>
-        ({
-          description: null,
-          warning: null,
-          minLength: null,
-          maxLength: null,
-          placeholder: null,
-          type: "textarea" as const,
-          disabled: false,
-          immutable: a.immutable ?? false,
-          generate: a.generate ?? null,
-          ...a,
-        } satisfies ValueSpecTextarea),
-      string,
-    )
+    return new Value<string, never, never>(async () => {
+      const built: ValueSpecTextarea = {
+        description: null,
+        warning: null,
+        minLength: null,
+        maxLength: null,
+        placeholder: null,
+        type: "textarea" as const,
+        disabled: false,
+        immutable: a.immutable ?? false,
+        generate: a.generate ?? null,
+        ...a,
+      }
+      return built
+    }, string)
   }
   static dynamicTextarea<Store = never, Vault = never>(
     getA: LazyBuild<

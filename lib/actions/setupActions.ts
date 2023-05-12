@@ -13,7 +13,10 @@ export function setupActions<Store, Vault>(
     }
     return actions
   })
-  return {
+  const answer: {
+    actions: ExpectedExports.actions
+    actionsMetadata: ExpectedExports.actionsMetadata
+  } = {
     get actions() {
       return myActions()
     },
@@ -23,8 +26,6 @@ export function setupActions<Store, Vault>(
         createdActions.map((x) => x.ActionMetadata({ effects, utils })),
       )
     },
-  } satisfies {
-    actions: ExpectedExports.actions
-    actionsMetadata: ExpectedExports.actionsMetadata
   }
+  return answer
 }

@@ -60,7 +60,7 @@ export class List<Type, Store, Vault> {
         generate: null,
         ...aSpec,
       }
-      return {
+      const built: ValueSpecListOf<"text"> = {
         description: null,
         warning: null,
         default: [],
@@ -70,7 +70,8 @@ export class List<Type, Store, Vault> {
         disabled: false,
         ...a,
         spec,
-      } satisfies ValueSpecListOf<"text">
+      }
+      return built
     }, arrayOf(string))
   }
   static dynamicText<Store = never, Vault = never>(
@@ -112,7 +113,7 @@ export class List<Type, Store, Vault> {
         generate: null,
         ...aSpec,
       }
-      return {
+      const built: ValueSpecListOf<"text"> = {
         description: null,
         warning: null,
         default: [],
@@ -122,7 +123,8 @@ export class List<Type, Store, Vault> {
         disabled: false,
         ...a,
         spec,
-      } satisfies ValueSpecListOf<"text">
+      }
+      return built
     }, arrayOf(string))
   }
   static number(
@@ -154,7 +156,7 @@ export class List<Type, Store, Vault> {
         units: null,
         ...aSpec,
       }
-      return {
+      const built: ValueSpecListOf<"number"> = {
         description: null,
         warning: null,
         minLength: null,
@@ -164,7 +166,8 @@ export class List<Type, Store, Vault> {
         disabled: false,
         ...a,
         spec,
-      } satisfies ValueSpecListOf<"number">
+      }
+      return built
     }, arrayOf(number))
   }
   static dynamicNumber<Store = never, Vault = never>(

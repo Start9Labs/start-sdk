@@ -20,7 +20,10 @@ export function setupBackups<M extends SDKManifest>(
     }
   }
   backups.push(Backups.volumes(...volumes))
-  return {
+  const answer: {
+    createBackup: ExpectedExports.createBackup
+    restoreBackup: ExpectedExports.restoreBackup
+  } = {
     get createBackup() {
       return (async (options) => {
         for (const backup of backups) {
@@ -35,8 +38,6 @@ export function setupBackups<M extends SDKManifest>(
         }
       }) as ExpectedExports.restoreBackup
     },
-  } satisfies {
-    createBackup: ExpectedExports.createBackup
-    restoreBackup: ExpectedExports.restoreBackup
   }
+  return answer
 }
