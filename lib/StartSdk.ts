@@ -20,6 +20,7 @@ import {
   DeepPartial,
   Address,
 } from "./types"
+import * as regexes from "./util/regexes"
 import { Utils } from "./util/utils"
 import { DependencyConfig } from "./dependencyConfig/DependencyConfig"
 import { BackupSet, Backups } from "./backup/Backups"
@@ -104,6 +105,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         of: healthCheck,
         runHealthScript,
       },
+      regexes,
       setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
         setupActions<Store, Vault>(...createdActions),
       setupBackups: (...args: SetupBackupsParams<Manifest>) =>
