@@ -299,7 +299,7 @@ export class Value<Type, Store, Vault> {
     min?: number | null
     max?: number | null
     /** Default = '1' */
-    step?: string | null
+    step?: number | null
     integer: boolean
     units?: string | null
     placeholder?: string | null
@@ -337,7 +337,7 @@ export class Value<Type, Store, Vault> {
         min?: number | null
         max?: number | null
         /** Default = '1' */
-        step?: string | null
+        step?: number | null
         integer: boolean
         units?: string | null
         placeholder?: string | null
@@ -429,7 +429,6 @@ export class Value<Type, Store, Vault> {
     inputmode?: ValueSpecDatetime["inputmode"]
     min?: string | null
     max?: string | null
-    step?: string | null
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
@@ -464,7 +463,6 @@ export class Value<Type, Store, Vault> {
         inputmode?: ValueSpecDatetime["inputmode"]
         min?: string | null
         max?: string | null
-        step?: string | null
         disabled?: false | string
       }
     >,
@@ -479,7 +477,6 @@ export class Value<Type, Store, Vault> {
           inputmode: "datetime-local",
           min: null,
           max: null,
-          step: null,
           disabled: false,
           immutable: false,
           ...a,

@@ -80,7 +80,6 @@ export interface ValueSpecDatetime extends WithStandalone {
   inputmode: "date" | "time" | "datetime-local"
   min: string | null
   max: string | null
-  step: string | null
   default: string | null
   disabled: false | string
   /** Immutable means it can only be configed at the first config then never again */
@@ -190,7 +189,7 @@ export interface ListValueSpecNumber {
   min: number | null
   max: number | null
   integer: boolean
-  step: string | null
+  step: number | null
   units: string | null
   placeholder: string | null
 }

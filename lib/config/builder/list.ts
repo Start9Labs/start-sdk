@@ -141,7 +141,7 @@ export class List<Type, Store, Vault> {
       integer: boolean
       min?: number | null
       max?: number | null
-      step?: string | null
+      step?: number | null
       units?: string | null
       placeholder?: string | null
     },
@@ -187,7 +187,7 @@ export class List<Type, Store, Vault> {
           integer: boolean
           min?: number | null
           max?: number | null
-          step?: string | null
+          step?: number | null
           units?: string | null
           placeholder?: string | null
         }

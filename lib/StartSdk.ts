@@ -294,7 +294,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
                 integer: boolean
                 min?: number | null
                 max?: number | null
-                step?: string | null
+                step?: number | null
                 units?: string | null
                 placeholder?: string | null
               }
@@ -391,7 +391,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               min?: number | null
               max?: number | null
               /** Default = '1' */
-              step?: string | null
+              step?: number | null
               integer: boolean
               units?: string | null
               placeholder?: string | null
@@ -426,7 +426,6 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               inputmode?: ValueSpecDatetime["inputmode"]
               min?: string | null
               max?: string | null
-              step?: string | null
               disabled?: false | string
             }
           >,

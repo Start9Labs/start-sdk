@@ -101,7 +101,6 @@ describe("values", () => {
       inputmode: "date",
       min: null,
       max: null,
-      step: null,
     })
     const validator = value.validator
     validator.unsafeCast("2021-01-01")
@@ -116,7 +115,6 @@ describe("values", () => {
       inputmode: "date",
       min: null,
       max: null,
-      step: null,
     })
     const validator = value.validator
     validator.unsafeCast("2021-01-01")
