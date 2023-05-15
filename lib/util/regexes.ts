@@ -6,19 +6,23 @@ export const ipv6 =
 export const ipv4 =
   /(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/
 
+export const hostname =
+  /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/
+
+export const localHostname = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.local/
+
+export const torHostname = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.onion/
+
 // https://ihateregex.io/expr/url/
 export const url =
   /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/
 
-export const local =
+export const localUrl =
   /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.local\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/
 
-export const localHost = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.local/
-
-export const onion =
+export const torUrl =
   /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.onion\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/
 
-export const onionHost = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.onion/
 // https://ihateregex.io/expr/ascii/
 export const ascii = /^[ -~]*$/
 

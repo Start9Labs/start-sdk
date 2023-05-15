@@ -1,11 +1,4 @@
-import {
-  Address,
-  Effects,
-  EnsureStorePath,
-  HostName,
-  NetworkInterface,
-  hostName,
-} from "../types"
+import { Address, Effects, HostName, NetworkInterface } from "../types"
 import * as regexes from "./regexes"
 
 export type UrlString = string
@@ -72,10 +65,10 @@ export const filledAddress = (
     ...address,
     hostnames,
     get onionHostnames() {
-      return hostnames.filter(regexes.onionHost.test)
+      return hostnames.filter(regexes.torHostname.test)
     },
     get localHostnames() {
-      return hostnames.filter(regexes.localHost.test)
+      return hostnames.filter(regexes.localHostname.test)
     },
     get ipHostnames() {
       return hostnames.filter(either(regexes.ipv4.test, regexes.ipv6.test))
@@ -96,10 +89,10 @@ export const filledAddress = (
       return hostnames.map(toUrl)
     },
     get onionUrls() {
-      return hostnames.filter(regexes.onionHost.test).map(toUrl)
+      return hostnames.filter(regexes.torHostname.test).map(toUrl)
     },
     get localUrls() {
-      return hostnames.filter(regexes.localHost.test).map(toUrl)
+      return hostnames.filter(regexes.localHostname.test).map(toUrl)
     },
     get ipUrls() {
       return hostnames

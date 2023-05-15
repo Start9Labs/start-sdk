@@ -18,9 +18,8 @@ import {
   ActionResult,
   BackupOptions,
   DeepPartial,
-  Address,
 } from "./types"
-import * as regexes from "./util/regexes"
+import * as patterns from "./util/patterns"
 import { Utils } from "./util/utils"
 import { DependencyConfig } from "./dependencyConfig/DependencyConfig"
 import { BackupSet, Backups } from "./backup/Backups"
@@ -52,8 +51,6 @@ import {
   SetInterfaces,
   setupInterfaces,
 } from "./interfaces/setupInterfaces"
-import { AddressReceipt } from "./interfaces/AddressReceipt"
-import { Host } from "./interfaces/Host"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -105,7 +102,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         of: healthCheck,
         runHealthScript,
       },
-      regexes,
+      patterns,
       setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
         setupActions<Store, Vault>(...createdActions),
       setupBackups: (...args: SetupBackupsParams<Manifest>) =>

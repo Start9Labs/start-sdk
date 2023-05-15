@@ -1,5 +1,4 @@
-import { Address, Effects, EnsureStorePath, HostName, hostName } from "../types"
-import * as regexes from "./regexes"
+import { Effects, HostName } from "../types"
 import {
   HostId,
   NetworkInterfaceFilled,
