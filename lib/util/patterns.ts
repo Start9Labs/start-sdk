@@ -11,7 +11,7 @@ export const ipv4: Pattern = {
   description: "Must be a valid IPv4 address",
 }
 
-export const hostname = {
+export const hostname: Pattern = {
   regex: regexes.hostname.toString(),
   description: "Must be a valid hostname",
 }
