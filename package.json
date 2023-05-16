@@ -1,7 +1,7 @@
 {
   "name": "@start9labs/start-sdk",
-  "version": "0.4.0-rev0.lib0.rc2",
-  "description": "For making the patterns that are wanted in making services for the startOS.",
+  "version": "0.4.0-rev0.lib0.rc3",
+  "description": "Software development kit to facilitate packaging services for StartOS",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
