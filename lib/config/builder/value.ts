@@ -495,6 +495,12 @@ export class Value<Type, Store, Vault> {
     warning?: string | null
     required: Required
     values: B
+    /**
+     * Disabled:  false means that there is nothing disabled, good to modify
+     *           string means that this is the message displayed and the whole thing is disabled
+     *           string[] means that the options are disabled
+     */
+    disabled?: false | string | (string & keyof B)[]
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
@@ -527,7 +533,12 @@ export class Value<Type, Store, Vault> {
         warning?: string | null
         required: RequiredDefault<string>
         values: Record<string, string>
-        disabled?: false | string
+        /**
+         * Disabled:  false means that there is nothing disabled, good to modify
+         *           string means that this is the message displayed and the whole thing is disabled
+         *           string[] means that the options are disabled
+         */
+        disabled?: false | string | string[]
       }
     >,
   ) {
@@ -558,6 +569,12 @@ export class Value<Type, Store, Vault> {
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
+    /**
+     * Disabled:  false means that there is nothing disabled, good to modify
+     *           string means that this is the message displayed and the whole thing is disabled
+     *           string[] means that the options are disabled
+     */
+    disabled?: false | string | (string & keyof Values)[]
   }) {
     return new Value<(keyof Values)[], never, never>(
       () => ({
@@ -587,7 +604,12 @@ export class Value<Type, Store, Vault> {
         values: Record<string, string>
         minLength?: number | null
         maxLength?: number | null
-        disabled?: false | string
+        /**
+         * Disabled:  false means that there is nothing disabled, good to modify
+         *           string means that this is the message displayed and the whole thing is disabled
+         *           string[] means that the options are disabled
+         */
+        disabled?: false | string | string[]
       }
     >,
   ) {
@@ -677,6 +699,12 @@ export class Value<Type, Store, Vault> {
       /**  Immutable means it can only be configed at the first config then never again 
       Default is false */
       immutable?: boolean
+      /**
+       * Disabled:  false means that there is nothing disabled, good to modify
+       *           string means that this is the message displayed and the whole thing is disabled
+       *           string[] means that the options are disabled
+       */
+      disabled?: false | string | string[]
     },
     aVariants: Variants<Type, Store, Vault>,
   ) {
@@ -685,6 +713,7 @@ export class Value<Type, Store, Vault> {
         type: "union" as const,
         description: null,
         warning: null,
+        disabled: false,
         ...a,
         variants: await aVariants.build(options as any),
         ...requiredLikeToAbove(a.required),
@@ -699,7 +728,7 @@ export class Value<Type, Store, Vault> {
     Store = never,
     Vault = never,
   >(
-    getDisabledFn: LazyBuild<Store, Vault, string[]>,
+    getDisabledFn: LazyBuild<Store, Vault, string[] | false | string>,
     a: {
       name: string
       description?: string | null
@@ -716,7 +745,7 @@ export class Value<Type, Store, Vault> {
         ...a,
         variants: await aVariants.build(options as any),
         ...requiredLikeToAbove(a.required),
-        disabled: (await getDisabledFn(options)) || [],
+        disabled: (await getDisabledFn(options)) || false,
         immutable: false,
       }),
       asRequiredParser(aVariants.validator, a),

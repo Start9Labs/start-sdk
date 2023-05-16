@@ -89,7 +89,12 @@ export interface ValueSpecSelect extends SelectBase, WithStandalone {
   type: "select"
   required: boolean
   default: string | null
-  disabled: false | string
+  /**
+   * Disabled:  false means that there is nothing disabled, good to modify
+   *           string means that this is the message displayed and the whole thing is disabled
+   *           string[] means that the options are disabled
+   */
+  disabled: false | string | string[]
   /** Immutable means it can only be configed at the first config then never again */
   immutable: boolean
 }
@@ -97,7 +102,12 @@ export interface ValueSpecMultiselect extends SelectBase, WithStandalone {
   type: "multiselect"
   minLength: number | null
   maxLength: number | null
-  disabled: false | string
+  /**
+   * Disabled:  false means that there is nothing disabled, good to modify
+   *           string means that this is the message displayed and the whole thing is disabled
+   *           string[] means that the options are disabled
+   */
+  disabled: false | string | string[]
   default: string[]
   /** Immutable means it can only be configed at the first config then never again */
   immutable: boolean
@@ -118,7 +128,12 @@ export interface ValueSpecUnion extends WithStandalone {
       spec: InputSpec
     }
   >
-  disabled?: string[]
+  /**
+   * Disabled:  false means that there is nothing disabled, good to modify
+   *           string means that this is the message displayed and the whole thing is disabled
+   *           string[] means that the options are disabled
+   */
+  disabled: false | string | string[]
   required: boolean
   default: string | null
   /** Immutable means it can only be configed at the first config then never again */
