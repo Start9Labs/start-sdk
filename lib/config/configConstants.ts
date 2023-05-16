@@ -1,4 +1,5 @@
 import { SmtpValue } from "../types"
+import { email } from "../util/patterns"
 import { Config, ConfigSpecOf } from "./builder/config"
 import { Value } from "./builder/value"
 import { Variants } from "./builder/variants"
@@ -27,6 +28,7 @@ export const customSmtp = Config.of<ConfigSpecOf<SmtpValue>, never, never>({
     },
     placeholder: "<name>test@example.com",
     inputmode: "email",
+    patterns: [email],
   }),
   login: Value.text({
     name: "Login",
@@ -37,6 +39,7 @@ export const customSmtp = Config.of<ConfigSpecOf<SmtpValue>, never, never>({
   password: Value.text({
     name: "Password",
     required: false,
+    masked: true,
   }),
   tls: Value.toggle({
     name: "Require Transport Security",
@@ -71,6 +74,7 @@ export const smtpConfig = Value.filteredUnion(
           required: false,
           placeholder: "<name>test@example.com",
           inputmode: "email",
+          patterns: [email],
         }),
       }),
     },
