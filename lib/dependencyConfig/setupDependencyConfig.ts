@@ -9,7 +9,7 @@ export function setupDependencyConfig<
   Input extends Record<string, any>,
   Manifest extends SDKManifest,
 >(
-  _config: Config<Input, Store, Vault>,
+  _config: Config<Input, Store, Vault> | Config<Input, never, never>,
   autoConfigs: {
     [key in keyof Manifest["dependencies"] & string]: DependencyConfig<
       Store,

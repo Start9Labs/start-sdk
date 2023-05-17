@@ -142,7 +142,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         fn: Save<Store, Vault, ConfigSpec, Manifest>,
       ) => fn,
       setupDependencyConfig: <Input extends Record<string, any>>(
-        config: Config<Input, Store, Vault>,
+        config: Config<Input, Store, Vault> | Config<Input, never, never>,
         autoConfigs: {
           [K in keyof Manifest["dependencies"]]: DependencyConfig<
             Store,
@@ -221,8 +221,12 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
           remoteConfig,
           dependencyConfig,
         }: {
-          localConfig: Config<LocalConfig, Store, Vault>
-          remoteConfig: Config<RemoteConfig, any, any>
+          localConfig:
+            | Config<LocalConfig, Store, Vault>
+            | Config<LocalConfig, never, never>
+          remoteConfig:
+            | Config<RemoteConfig, any, any>
+            | Config<RemoteConfig, never, never>
           dependencyConfig: (options: {
             effects: Effects
             localConfig: LocalConfig
