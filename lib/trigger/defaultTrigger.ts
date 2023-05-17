@@ -1,7 +1,8 @@
 import { cooldownTrigger } from "./cooldownTrigger"
 import { changeOnFirstSuccess } from "./changeOnFirstSuccess"
+import { successFailure } from "./successFailure"
 
-export const defaultTrigger = changeOnFirstSuccess({
-  beforeFirstSuccess: cooldownTrigger(0),
-  afterFirstSuccess: cooldownTrigger(30000),
+export const defaultTrigger = successFailure({
+  duringSuccess: cooldownTrigger(0),
+  duringError: cooldownTrigger(30000),
 })

@@ -51,6 +51,7 @@ import {
   SetInterfaces,
   setupInterfaces,
 } from "./interfaces/setupInterfaces"
+import { successFailure } from "./trigger/successFailure"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -96,10 +97,12 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
           input: Type
         }) => Promise<ActionResult>,
       ) => createAction<Store, Vault, ConfigType, Type>(metaData, fn),
+      HealthCheck: {
+        of: healthCheck,
+      },
       healthCheck: {
         checkPortListening,
         checkWebUrl,
-        of: healthCheck,
         runHealthScript,
       },
       patterns,
@@ -186,6 +189,7 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         defaultTrigger,
         cooldownTrigger,
         changeOnFirstSuccess,
+        successFailure,
       },
 
       Backups: {
