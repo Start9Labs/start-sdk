@@ -69,7 +69,6 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
   }) => Promise<null | string>
   getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
   host: {
-    of: (options: { kind: "static" | "single" | "multi"; id: string }) => Host
     static: (id: string) => StaticHost
     single: (id: string) => SingleHost
     multi: (id: string) => MultiHost
@@ -158,8 +157,6 @@ export const utils = <
     new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
 
   host: {
-    of: (options: { kind: "static" | "single" | "multi"; id: string }) =>
-      new Host({ ...options, effects }),
     static: (id: string) => new StaticHost({ id, effects }),
     single: (id: string) => new SingleHost({ id, effects }),
     multi: (id: string) => new MultiHost({ id, effects }),
