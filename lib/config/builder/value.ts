@@ -633,18 +633,18 @@ export class Value<Type, Store, Vault> {
       description?: string | null
       warning?: string | null
     },
-    previousSpec: Config<Type, Store, Vault>,
+    spec: Config<Type, Store, Vault>,
   ) {
     return new Value<Type, Store, Vault>(async (options) => {
-      const spec = await previousSpec.build(options as any)
+      const built = await spec.build(options as any)
       return {
         type: "object" as const,
         description: null,
         warning: null,
         ...a,
-        spec,
+        spec: built,
       }
-    }, previousSpec.validator)
+    }, spec.validator)
   }
   static file<Required extends boolean, Store, Vault>(a: {
     name: string
