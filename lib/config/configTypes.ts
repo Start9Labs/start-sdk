@@ -55,7 +55,6 @@ export interface ValueSpecTextarea extends WithStandalone {
   maxLength: number | null
   required: boolean
   disabled: false | string
-  generate: null | RandomString
   /** Immutable means it can only be configed at the first config then never again */
   immutable: boolean
 }
