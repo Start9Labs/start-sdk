@@ -81,7 +81,6 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
     return {
       configConstants: { smtpConfig },
       createAction: <
-        Store,
         ConfigType extends
           | Record<string, any>
           | Config<any, any, any>
