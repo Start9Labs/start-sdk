@@ -63,10 +63,10 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
     search: Record<string, string>
   }) => NetworkInterfaceBuilder
   createOrUpdateVault: (opts: {
-    key: string
+    key: keyof Vault & string
     value: string | null | undefined
     generator: DefaultString
-  }) => Promise<null | string>
+  }) => Promise<string>
   getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
   host: {
     static: (id: string) => StaticHost
@@ -129,7 +129,7 @@ export const utils = <
     value,
     generator,
   }: {
-    key: string
+    key: keyof Vault & string
     value: string | null | undefined
     generator: DefaultString
   }) => {
@@ -137,8 +137,9 @@ export const utils = <
       await effects.vault.set({ key, value })
       return value
     }
-    if (await effects.vault.get({ key, callback: noop })) {
-      return null
+    const oldValue = await effects.vault.get({ key, callback: noop })
+    if (oldValue) {
+      return oldValue
     }
     const newValue = getDefaultString(generator)
     await effects.vault.set({ key, value: newValue })
