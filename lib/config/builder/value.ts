@@ -159,8 +159,9 @@ export class Value<Type, Store, Vault> {
     patterns?: Pattern[]
     /** Default = 'text' */
     inputmode?: ValueSpecText["inputmode"]
-    /**  Immutable means it can only be configed at the first config then never again 
-    Default is false */
+    /**  Immutable means it can only be configured at the first config then never again
+     * Default is false
+     */
     immutable?: boolean
     generate?: null | RandomString
   }) {
@@ -202,6 +203,10 @@ export class Value<Type, Store, Vault> {
         patterns?: Pattern[]
         /** Default = 'text' */
         inputmode?: ValueSpecText["inputmode"]
+        disabled?: string | false
+        /**  Immutable means it can only be configured at the first config then never again
+         * Default is false
+         */
         generate?: null | RandomString
       }
     >,
@@ -240,7 +245,6 @@ export class Value<Type, Store, Vault> {
     /**  Immutable means it can only be configed at the first config then never again 
     Default is false */
     immutable?: boolean
-    generate?: null | RandomString
   }) {
     return new Value<string, never, never>(async () => {
       const built: ValueSpecTextarea = {
@@ -252,7 +256,6 @@ export class Value<Type, Store, Vault> {
         type: "textarea" as const,
         disabled: false,
         immutable: a.immutable ?? false,
-        generate: a.generate ?? null,
         ...a,
       }
       return built
@@ -271,7 +274,6 @@ export class Value<Type, Store, Vault> {
         maxLength?: number | null
         placeholder?: string | null
         disabled?: false | string
-        generate?: null | RandomString
       }
     >,
   ) {
@@ -286,7 +288,6 @@ export class Value<Type, Store, Vault> {
         type: "textarea" as const,
         disabled: false,
         immutable: false,
-        generate: a.generate ?? null,
         ...a,
       }
     }, string)
@@ -399,7 +400,6 @@ export class Value<Type, Store, Vault> {
         description?: string | null
         warning?: string | null
         required: RequiredDefault<string>
-
         disabled?: false | string
       }
     >,
