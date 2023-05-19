@@ -487,6 +487,26 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
             a,
             aVariants,
           ),
+
+        dynamicUnion: <
+          Required extends RequiredDefault<string>,
+          Type extends Record<string, any>,
+        >(
+          getA: LazyBuild<
+            Store,
+            Vault,
+            {
+              disabled: string[] | false | string
+              name: string
+              description?: string | null
+              warning?: string | null
+              required: Required
+            }
+          >,
+          aVariants:
+            | Variants<Type, Store, Vault>
+            | Variants<Type, never, never>,
+        ) => Value.dynamicUnion<Required, Type, Store, Vault>(getA, aVariants),
       },
       Variants: {
         of: <

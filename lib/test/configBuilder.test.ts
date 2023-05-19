@@ -562,6 +562,74 @@ describe("values", () => {
       })
     })
   })
+  test("dynamic union", async () => {
+    const value = Value.dynamicUnion(
+      () => ({
+        disabled: ["a", "c"],
+        name: "Testing",
+        required: { default: null },
+        description: null,
+        warning: null,
+      }),
+      Variants.of({
+        a: {
+          name: "a",
+          spec: Config.of({
+            b: Value.toggle({
+              name: "b",
+              description: null,
+              warning: null,
+              default: false,
+            }),
+          }),
+        },
+        b: {
+          name: "b",
+          spec: Config.of({
+            b: Value.toggle({
+              name: "b",
+              description: null,
+              warning: null,
+              default: false,
+            }),
+          }),
+        },
+      }),
+    )
+    const validator = value.validator
+    validator.unsafeCast({ unionSelectKey: "a", unionValueKey: { b: false } })
+    type Test = typeof validator._TYPE
+    testOutput<
+      Test,
+      | { unionSelectKey: "a"; unionValueKey: { b: boolean } }
+      | { unionSelectKey: "b"; unionValueKey: { b: boolean } }
+      | null
+      | undefined
+    >()(null)
+
+    const built = await value.build({} as any)
+    expect(built).toMatchObject({
+      name: "Testing",
+      variants: {
+        b: {},
+      },
+    })
+    expect(built).toMatchObject({
+      name: "Testing",
+      variants: {
+        a: {},
+        b: {},
+      },
+    })
+    expect(built).toMatchObject({
+      name: "Testing",
+      variants: {
+        a: {},
+        b: {},
+      },
+      disabled: ["a", "c"],
+    })
+  })
 })
 
 describe("Builder List", () => {

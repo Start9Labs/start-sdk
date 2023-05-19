@@ -751,6 +751,38 @@ export class Value<Type, Store, Vault> {
       asRequiredParser(aVariants.validator, a),
     )
   }
+  static dynamicUnion<
+    Required extends RequiredDefault<string>,
+    Type extends Record<string, any>,
+    Store = never,
+    Vault = never,
+  >(
+    getA: LazyBuild<
+      Store,
+      Vault,
+      {
+        disabled: string[] | false | string
+        name: string
+        description?: string | null
+        warning?: string | null
+        required: Required
+      }
+    >,
+    aVariants: Variants<Type, Store, Vault> | Variants<Type, never, never>,
+  ) {
+    return new Value<Type | null | undefined, Store, Vault>(async (options) => {
+      const newValues = await getA(options)
+      return {
+        type: "union" as const,
+        description: null,
+        warning: null,
+        ...newValues,
+        variants: await aVariants.build(options as any),
+        ...requiredLikeToAbove(newValues.required),
+        immutable: false,
+      }
+    }, aVariants.validator.optional())
+  }
 
   static list<Type, Store, Vault>(a: List<Type, Store, Vault>) {
     return new Value<Type, Store, Vault>(
