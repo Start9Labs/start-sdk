@@ -57,6 +57,8 @@ export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
     name: string
     id: string
     description: string
+    hasPrimary: boolean
+    disabled: boolean
     ui: boolean
     username: null | string
     path: string
@@ -149,6 +151,8 @@ export const utils = <
     name: string
     id: string
     description: string
+    hasPrimary: boolean
+    disabled: boolean
     ui: boolean
     username: null | string
     path: string

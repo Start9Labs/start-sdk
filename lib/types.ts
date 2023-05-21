@@ -185,6 +185,10 @@ export type NetworkInterface = {
   name: string
   /** Human readable description, used as tooltip usually */
   description: string
+  /** Whether or not one address must be the primary address */
+  hasPrimary: boolean
+  /** Disabled interfaces do not serve, but they retain their metadata and addresses */
+  disabled: boolean
   /** All URIs */
   addresses: Address[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
