@@ -22,6 +22,7 @@ export type Filled = {
   ipv6Urls: UrlString[]
   nonIpUrls: UrlString[]
   allUrls: UrlString[]
+  primaryUrl: UrlString
 }
 export type FilledAddress = Address & Filled
 export type NetworkInterfaceFilled = {
@@ -30,12 +31,16 @@ export type NetworkInterfaceFilled = {
   name: string
   /** Human readable description, used as tooltip usually */
   description: string
+  /** Whether or not the interface has a primary URL */
+  hasPrimary: boolean
+  /** Whether or not the interface disabled */
+  disabled: boolean
   /** All URIs */
   addresses: FilledAddress[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
-  ui?: boolean
+  ui: boolean
 } & Filled
 const either =
   <A>(...args: ((a: A) => boolean)[]) =>
@@ -113,6 +118,9 @@ export const filledAddress = (
     get allUrls() {
       return hostnames.map(toUrl)
     },
+    get primaryUrl() {
+      return this.allUrls[0] // @TODO this is a placeholder
+    },
   }
 }
 
@@ -170,6 +178,9 @@ export const networkInterfaceFilled = (
     },
     get allUrls() {
       return unique(addresses.flatMap((x) => x.allUrls))
+    },
+    get primaryUrl() {
+      return this.allUrls[0] // @TODO this is a placeholder
     },
   }
 }

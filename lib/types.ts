@@ -143,7 +143,6 @@ export type SmtpValue = {
   from: string
   login: string
   password: string | null | undefined
-  tls: boolean
 }
 
 export type CommandType<A extends string> =
@@ -194,7 +193,7 @@ export type NetworkInterface = {
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
-  ui?: boolean
+  ui: boolean
 }
 
 /** Used to reach out from the pure js runtime */
