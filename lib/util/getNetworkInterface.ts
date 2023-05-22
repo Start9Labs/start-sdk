@@ -13,6 +13,7 @@ export type Filled = {
   ipv6Hostnames: HostName[]
   nonIpHostnames: HostName[]
   allHostnames: HostName[]
+  primaryHostname: HostName
 
   urls: UrlString[]
   onionUrls: UrlString[]
@@ -90,6 +91,9 @@ export const filledAddress = (
       )
     },
     allHostnames: hostnames,
+    get primaryHostname() {
+      return this.allHostnames[0] // @TODO this is a placeholder
+    },
     get urls() {
       return hostnames.map(toUrl)
     },
@@ -154,6 +158,9 @@ export const networkInterfaceFilled = (
     },
     get allHostnames() {
       return unique(addresses.flatMap((x) => x.allHostnames))
+    },
+    get primaryHostname() {
+      return this.allHostnames[0] // @TODO this is a placeholder
     },
     get urls() {
       return unique(addresses.flatMap((x) => x.urls))
