@@ -234,6 +234,11 @@ export type Effects = {
   /** Uses the chmod on the system */
   chmod(input: { volumeId: string; path: string; mode: string }): Promise<null>
 
+  executeAction<Input>(opts: {
+    serviceId?: string
+    input: Input
+  }): Promise<unknown>
+
   /** Sandbox mode lets us read but not write */
   is_sandboxed(): boolean
 
