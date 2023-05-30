@@ -35,7 +35,7 @@ import {
   getNetworkInterfaces,
 } from "./getNetworkInterfaces"
 
-export type Utils<Store, Vault, WrapperOverWrite = { const: never }> = {
+export type Utils<Store, WrapperOverWrite = { const: never }> = {
   checkPortListening(
     port: number,
     options: {

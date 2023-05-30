@@ -192,15 +192,23 @@ export type NetworkInterface = {
    */
   ui?: boolean
 }
-
-export type ExposeServicePaths<Path extends string, Store> = Array<{
+// prettier-ignore
+export type ExposeAllServicePaths<Store, PreviousPath extends string = ""> = 
+  Store extends Record<string, unknown> ? {[K in keyof Store & string]: ExposeAllServicePaths<Store[K], `${PreviousPath}/${K & string}`>}[keyof Store & string] :
+  PreviousPath
+// prettier-ignore
+export type ExposeAllUiPaths<Store, PreviousPath extends string = ""> = 
+  Store extends Record<string, unknown> ? {[K in keyof Store & string]: ExposeAllUiPaths<Store[K], `${PreviousPath}/${K & string}`>}[keyof Store & string] :
+  Store extends string ? PreviousPath : 
+  never
+export type ExposeServicePaths<Store> = Array<{
   /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
-  path: Path & EnsureStorePath<Store, Path>
+  path: ExposeAllServicePaths<Store>
 }>
 
-export type ExposeUiPaths<Path extends string, Store> = Array<{
+export type ExposeUiPaths<Store> = Array<{
   /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
-  path: Path & EnsureStorePath<Store, Path>
+  path: ExposeAllUiPaths<Store>
 
   /** This will be the title for the value field that is returned */
   title: string
@@ -340,13 +348,11 @@ export type Effects = {
    */
   exportNetworkInterface(options: NetworkInterface): Promise<string>
 
-  exposeForDependents<Store = never, Path extends string = never>(
-    options: ExposeServicePaths<Path, Store>,
+  exposeForDependents<Store = never>(
+    options: ExposeServicePaths<Store>,
   ): Promise<void>
 
-  exposeUi<Store = never, Path extends string = never>(
-    options: ExposeUiPaths<Path, Store>,
-  ): Promise<void>
+  exposeUi<Store = never>(options: ExposeUiPaths<Store>): Promise<void>
   /**
    * There are times that we want to see the addresses that where exported
    * @param options.addressId If we want to filter the address id
