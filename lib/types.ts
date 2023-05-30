@@ -193,6 +193,18 @@ export type NetworkInterface = {
   ui?: boolean
 }
 
+export type ExposeServicePaths<Path extends string, Store> = Array<{
+  /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+  path: Path & EnsureStorePath<Store, Path>
+}>
+
+export type ExposeUiPaths<Path extends string, Store> = Array<{
+  /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+  path: Path & EnsureStorePath<Store, Path>
+
+  /** This will be the title for the value field that is returned */
+  title: string
+}>
 /** Used to reach out from the pure js runtime */
 export type Effects = {
   runCommand<A extends string>(
@@ -328,6 +340,13 @@ export type Effects = {
    */
   exportNetworkInterface(options: NetworkInterface): Promise<string>
 
+  exposeForDependents<Store = never, Path extends string = never>(
+    options: ExposeServicePaths<Path, Store>,
+  ): Promise<void>
+
+  exposeUi<Store = never, Path extends string = never>(
+    options: ExposeUiPaths<Path, Store>,
+  ): Promise<void>
   /**
    * There are times that we want to see the addresses that where exported
    * @param options.addressId If we want to filter the address id
