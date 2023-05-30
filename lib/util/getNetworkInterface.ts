@@ -4,6 +4,16 @@ import * as regexes from "./regexes"
 export type UrlString = string
 export type HostId = string
 
+const getHostnameRegex = /^(\w+:\/\/)?([^\/\:]+)(:\d{1,3})?(\/)?/
+export const getHostname = (url: string): HostName | null => {
+  const founds = url.match(getHostnameRegex)?.[2]
+  if (!founds) return null
+  const parts = founds.split("@")
+  const last = parts[parts.length - 1] as HostName | null
+  console.log({ url, parts, founds, last })
+  return last
+}
+
 export type Filled = {
   hostnames: HostName[]
   onionHostnames: HostName[]
@@ -13,7 +23,6 @@ export type Filled = {
   ipv6Hostnames: HostName[]
   nonIpHostnames: HostName[]
   allHostnames: HostName[]
-  primaryHostname: HostName | null
 
   urls: UrlString[]
   onionUrls: UrlString[]
@@ -23,7 +32,6 @@ export type Filled = {
   ipv6Urls: UrlString[]
   nonIpUrls: UrlString[]
   allUrls: UrlString[]
-  primaryUrl: UrlString | null
 }
 export type FilledAddress = Address & Filled
 export type NetworkInterfaceFilled = {
@@ -42,6 +50,9 @@ export type NetworkInterfaceFilled = {
    * ui interface
    */
   ui: boolean
+
+  primaryHostname: HostName | null
+  primaryUrl: UrlString | null
 } & Filled
 const either =
   <A>(...args: ((a: A) => boolean)[]) =>
@@ -62,9 +73,6 @@ const addressHostToUrl = (
 export const filledAddress = (
   mapHostnames: {
     [hostId: string]: HostName[]
-  },
-  mapPrimaryHostname: {
-    [hostId: string]: HostName | null
   },
   address: Address,
 ): FilledAddress => {
@@ -94,9 +102,6 @@ export const filledAddress = (
       )
     },
     allHostnames: hostnames,
-    get primaryHostname() {
-      return mapPrimaryHostname[address.hostId] ?? null
-    },
     get urls() {
       return hostnames.map(toUrl)
     },
@@ -125,16 +130,12 @@ export const filledAddress = (
     get allUrls() {
       return hostnames.map(toUrl)
     },
-    get primaryUrl() {
-      const primaryHostName = mapPrimaryHostname[address.hostId] ?? null
-      if (primaryHostName == null) return null
-      return toUrl(primaryHostName)
-    },
   }
 }
 
 export const networkInterfaceFilled = (
   interfaceValue: NetworkInterface,
+  primaryUrl: UrlString | null,
   addresses: FilledAddress[],
 ): NetworkInterfaceFilled => {
   return {
@@ -165,11 +166,8 @@ export const networkInterfaceFilled = (
       return unique(addresses.flatMap((x) => x.allHostnames))
     },
     get primaryHostname() {
-      for (const address of addresses) {
-        const primaryHostname = address.primaryHostname
-        if (primaryHostname != null) return primaryHostname
-      }
-      return null
+      if (primaryUrl == null) return null
+      return getHostname(primaryUrl)
     },
     get urls() {
       return unique(addresses.flatMap((x) => x.urls))
@@ -195,13 +193,7 @@ export const networkInterfaceFilled = (
     get allUrls() {
       return unique(addresses.flatMap((x) => x.allUrls))
     },
-    get primaryUrl() {
-      for (const address of addresses) {
-        const primaryUrl = address.primaryUrl
-        if (primaryUrl != null) return primaryUrl
-      }
-      return null
-    },
+    primaryUrl,
   }
 }
 const makeInterfaceFilled = async ({
@@ -233,27 +225,19 @@ const makeInterfaceFilled = async ({
         ] as const,
     ),
   )
-  const hostIdPrimaryRecord = Promise.all(
-    unique(interfaceValue.addresses.map((x) => x.hostId)).map(
-      async (hostId) =>
-        [
-          hostId,
-          await effects.getPrimaryHostname({
-            packageId,
-            hostId,
-            callback,
-          }),
-        ] as const,
-    ),
-  ).then((xs) => xs.filter(([, x]) => x != null) as Array<[HostId, HostName]>)
+  const primaryUrl = effects.getPrimaryUrl({
+    interfaceId,
+    packageId,
+    callback,
+  })
 
   const fillAddress = filledAddress.bind(
     null,
     Object.fromEntries(await hostIdsRecord),
-    Object.fromEntries(await hostIdPrimaryRecord),
   )
   const interfaceFilled: NetworkInterfaceFilled = networkInterfaceFilled(
     interfaceValue,
+    await primaryUrl,
     interfaceValue.addresses.map(fillAddress),
   )
   return interfaceFilled

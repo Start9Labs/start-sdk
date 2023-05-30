@@ -2,6 +2,7 @@ export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
 import { PortOptions } from "./interfaces/Host"
+import { UrlString } from "./util/getNetworkInterface"
 
 export type ExportedAction = (options: {
   effects: Effects
@@ -247,13 +248,6 @@ export type Effects = {
     callback: () => void
   }): Promise<[HostName, ...HostName[]]>
 
-  getPrimaryHostname(options: {
-    kind?: "multi"
-    packageId?: string
-    hostId: string
-    callback: () => void
-  }): Promise<HostName | null>
-
   /** Similar to the fetch api via the mdn, this is simplified but the point is
    * to get something from some website, and return the response.
    */
@@ -349,6 +343,16 @@ export type Effects = {
     interfaceId: InterfaceId
     callback: () => void
   }): Promise<NetworkInterface>
+
+  /**
+   * The user sets the primary url for a interface
+   * @param options
+   */
+  getPrimaryUrl(options: {
+    packageId?: PackageId
+    interfaceId: InterfaceId
+    callback: () => void
+  }): Promise<UrlString | null>
 
   /**
    * There are times that we want to see the addresses that where exported
