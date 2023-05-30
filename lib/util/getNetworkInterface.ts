@@ -13,7 +13,7 @@ export type Filled = {
   ipv6Hostnames: HostName[]
   nonIpHostnames: HostName[]
   allHostnames: HostName[]
-  primaryHostname: HostName
+  primaryHostname: HostName | null
 
   urls: UrlString[]
   onionUrls: UrlString[]
@@ -23,7 +23,7 @@ export type Filled = {
   ipv6Urls: UrlString[]
   nonIpUrls: UrlString[]
   allUrls: UrlString[]
-  primaryUrl: UrlString
+  primaryUrl: UrlString | null
 }
 export type FilledAddress = Address & Filled
 export type NetworkInterfaceFilled = {
@@ -63,6 +63,9 @@ export const filledAddress = (
   mapHostnames: {
     [hostId: string]: HostName[]
   },
+  mapPrimaryHostname: {
+    [hostId: string]: HostName | null
+  },
   address: Address,
 ): FilledAddress => {
   const toUrl = addressHostToUrl.bind(null, address)
@@ -92,7 +95,7 @@ export const filledAddress = (
     },
     allHostnames: hostnames,
     get primaryHostname() {
-      return this.allHostnames[0] // @TODO this is a placeholder
+      return mapPrimaryHostname[address.hostId] ?? null
     },
     get urls() {
       return hostnames.map(toUrl)
@@ -123,7 +126,9 @@ export const filledAddress = (
       return hostnames.map(toUrl)
     },
     get primaryUrl() {
-      return this.allUrls[0] // @TODO this is a placeholder
+      const primaryHostName = mapPrimaryHostname[address.hostId] ?? null
+      if (primaryHostName == null) return null
+      return toUrl(primaryHostName)
     },
   }
 }
@@ -160,7 +165,11 @@ export const networkInterfaceFilled = (
       return unique(addresses.flatMap((x) => x.allHostnames))
     },
     get primaryHostname() {
-      return this.allHostnames[0] // @TODO this is a placeholder
+      for (const address of addresses) {
+        const primaryHostname = address.primaryHostname
+        if (primaryHostname != null) return primaryHostname
+      }
+      return null
     },
     get urls() {
       return unique(addresses.flatMap((x) => x.urls))
@@ -187,7 +196,11 @@ export const networkInterfaceFilled = (
       return unique(addresses.flatMap((x) => x.allUrls))
     },
     get primaryUrl() {
-      return this.allUrls[0] // @TODO this is a placeholder
+      for (const address of addresses) {
+        const primaryUrl = address.primaryUrl
+        if (primaryUrl != null) return primaryUrl
+      }
+      return null
     },
   }
 }
@@ -207,22 +220,38 @@ const makeInterfaceFilled = async ({
     packageId,
     callback,
   })
-  const hostIdsRecord: { [hostId: HostId]: HostName[] } = Object.fromEntries(
-    await Promise.all(
-      unique(interfaceValue.addresses.map((x) => x.hostId)).map(
-        async (hostId) => [
+  const hostIdsRecord = Promise.all(
+    unique(interfaceValue.addresses.map((x) => x.hostId)).map(
+      async (hostId) =>
+        [
           hostId,
-          effects.getHostnames({
+          await effects.getHostnames({
             packageId,
             hostId,
             callback,
           }),
-        ],
-      ),
+        ] as const,
     ),
   )
+  const hostIdPrimaryRecord = Promise.all(
+    unique(interfaceValue.addresses.map((x) => x.hostId)).map(
+      async (hostId) =>
+        [
+          hostId,
+          await effects.getPrimaryHostname({
+            packageId,
+            hostId,
+            callback,
+          }),
+        ] as const,
+    ),
+  ).then((xs) => xs.filter(([, x]) => x != null) as Array<[HostId, HostName]>)
 
-  const fillAddress = filledAddress.bind(null, hostIdsRecord)
+  const fillAddress = filledAddress.bind(
+    null,
+    Object.fromEntries(await hostIdsRecord),
+    Object.fromEntries(await hostIdPrimaryRecord),
+  )
   const interfaceFilled: NetworkInterfaceFilled = networkInterfaceFilled(
     interfaceValue,
     interfaceValue.addresses.map(fillAddress),

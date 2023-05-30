@@ -247,6 +247,13 @@ export type Effects = {
     callback: () => void
   }): Promise<[HostName, ...HostName[]]>
 
+  getPrimaryHostname(options: {
+    kind?: "multi"
+    packageId?: string
+    hostId: string
+    callback: () => void
+  }): Promise<HostName | null>
+
   /** Similar to the fetch api via the mdn, this is simplified but the point is
    * to get something from some website, and return the response.
    */

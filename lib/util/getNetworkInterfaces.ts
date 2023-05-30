@@ -19,23 +19,49 @@ const makeManyInterfaceFilled = async ({
     packageId,
     callback,
   })
-  const hostIdsRecord: { [hostId: HostId]: HostName[] } = Object.fromEntries(
+  const hostIdsRecord = Object.fromEntries(
     await Promise.all(
       Array.from(
         new Set(
           interfaceValues.flatMap((x) => x.addresses).map((x) => x.hostId),
         ),
-      ).map(async (hostId) => [
-        hostId,
-        effects.getHostnames({
-          packageId,
-          hostId,
-          callback,
-        }),
-      ]),
+      ).map(
+        async (hostId) =>
+          [
+            hostId,
+            await effects.getHostnames({
+              packageId,
+              hostId,
+              callback,
+            }),
+          ] as const,
+      ),
     ),
   )
-  const fillAddress = filledAddress.bind(null, hostIdsRecord)
+  const primaryHostIdsRecord = Object.fromEntries(
+    await Promise.all(
+      Array.from(
+        new Set(
+          interfaceValues.flatMap((x) => x.addresses).map((x) => x.hostId),
+        ),
+      ).map(
+        async (hostId) =>
+          [
+            hostId,
+            await effects.getPrimaryHostname({
+              packageId,
+              hostId,
+              callback,
+            }),
+          ] as const,
+      ),
+    ),
+  )
+  const fillAddress = filledAddress.bind(
+    null,
+    hostIdsRecord,
+    primaryHostIdsRecord,
+  )
 
   const interfacesFilled: NetworkInterfaceFilled[] = interfaceValues.map(
     (interfaceValue) =>
