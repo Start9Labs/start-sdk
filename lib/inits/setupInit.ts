@@ -6,11 +6,11 @@ import { SetupExports } from "./setupExports"
 import { Install } from "./setupInstall"
 import { Uninstall } from "./setupUninstall"
 
-export function setupInit<Store, Vault>(
-  migrations: Migrations<Store, Vault>,
-  install: Install<Store, Vault>,
-  uninstall: Uninstall<Store, Vault>,
-  setInterfaces: SetInterfaces<Store, Vault, any, any>,
+export function setupInit<Store>(
+  migrations: Migrations<Store>,
+  install: Install<Store>,
+  uninstall: Uninstall<Store>,
+  setInterfaces: SetInterfaces<Store, any, any>,
   setupExports: SetupExports<Store>,
 ): {
   init: ExpectedExports.init

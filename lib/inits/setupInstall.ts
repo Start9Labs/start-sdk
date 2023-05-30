@@ -1,13 +1,13 @@
 import { Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util/utils"
 
-export type InstallFn<Store, Vault> = (opts: {
+export type InstallFn<Store> = (opts: {
   effects: Effects
-  utils: Utils<Store, Vault>
+  utils: Utils<Store>
 }) => Promise<void>
-export class Install<Store, Vault> {
-  private constructor(readonly fn: InstallFn<Store, Vault>) {}
-  static of<Store, Vault>(fn: InstallFn<Store, Vault>) {
+export class Install<Store> {
+  private constructor(readonly fn: InstallFn<Store>) {}
+  static of<Store>(fn: InstallFn<Store>) {
     return new Install(fn)
   }
 
@@ -23,6 +23,6 @@ export class Install<Store, Vault> {
   }
 }
 
-export function setupInstall<Store, Vault>(fn: InstallFn<Store, Vault>) {
+export function setupInstall<Store>(fn: InstallFn<Store>) {
   return Install.of(fn)
 }

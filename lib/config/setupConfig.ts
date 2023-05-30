@@ -14,16 +14,15 @@ export type DependenciesReceipt = void & {
 
 export type Save<
   Store,
-  Vault,
   A extends
     | Record<string, any>
-    | Config<Record<string, any>, any, any>
-    | Config<Record<string, never>, never, never>,
+    | Config<Record<string, any>, any>
+    | Config<Record<string, never>, never>,
   Manifest extends SDKManifest,
 > = (options: {
   effects: Effects
   input: ExtractConfigType<A> & Record<string, any>
-  utils: Utils<Store, Vault>
+  utils: Utils<Store>
   dependencies: D.ConfigDependencies<Manifest>
 }) => Promise<{
   dependenciesReceipt: DependenciesReceipt
@@ -32,14 +31,13 @@ export type Save<
 }>
 export type Read<
   Store,
-  Vault,
   A extends
     | Record<string, any>
-    | Config<Record<string, any>, any, any>
-    | Config<Record<string, any>, never, never>,
+    | Config<Record<string, any>, any>
+    | Config<Record<string, any>, never>,
 > = (options: {
   effects: Effects
-  utils: Utils<Store, Vault>
+  utils: Utils<Store>
 }) => Promise<void | (ExtractConfigType<A> & Record<string, any>)>
 /**
  * We want to setup a config export with a get and set, this
@@ -50,17 +48,16 @@ export type Read<
  */
 export function setupConfig<
   Store,
-  Vault,
   ConfigType extends
     | Record<string, any>
-    | Config<any, any, any>
-    | Config<any, never, never>,
+    | Config<any, any>
+    | Config<any, never>,
   Manifest extends SDKManifest,
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 >(
-  spec: Config<Type, Store, Vault> | Config<Type, never, never>,
-  write: Save<Store, Vault, Type, Manifest>,
-  read: Read<Store, Vault, Type>,
+  spec: Config<Type, Store> | Config<Type, never>,
+  write: Save<Store, Type, Manifest>,
+  read: Read<Store, Type>,
 ) {
   const validator = spec.validator
   return {
@@ -82,7 +79,7 @@ export function setupConfig<
       }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
-      const myUtils = utils<Store, Vault>(effects)
+      const myUtils = utils<Store>(effects)
       const configValue = nullIfEmpty(
         (await read({ effects, utils: myUtils })) || null,
       )

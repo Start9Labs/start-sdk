@@ -7,7 +7,7 @@ import { Variants } from "./builder/variants"
 /**
  * Base SMTP settings, to be used by StartOS for system wide SMTP
  */
-export const customSmtp = Config.of<ConfigSpecOf<SmtpValue>, never, never>({
+export const customSmtp = Config.of<ConfigSpecOf<SmtpValue>, never>({
   server: Value.text({
     name: "SMTP Server",
     required: {

@@ -1,13 +1,13 @@
 import { Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util/utils"
 
-export type UninstallFn<Store, Vault> = (opts: {
+export type UninstallFn<Store> = (opts: {
   effects: Effects
-  utils: Utils<Store, Vault>
+  utils: Utils<Store>
 }) => Promise<void>
-export class Uninstall<Store, Vault> {
-  private constructor(readonly fn: UninstallFn<Store, Vault>) {}
-  static of<Store, Vault>(fn: UninstallFn<Store, Vault>) {
+export class Uninstall<Store> {
+  private constructor(readonly fn: UninstallFn<Store>) {}
+  static of<Store>(fn: UninstallFn<Store>) {
     return new Uninstall(fn)
   }
 
@@ -23,6 +23,6 @@ export class Uninstall<Store, Vault> {
   }
 }
 
-export function setupUninstall<Store, Vault>(fn: UninstallFn<Store, Vault>) {
+export function setupUninstall<Store>(fn: UninstallFn<Store>) {
   return Uninstall.of(fn)
 }

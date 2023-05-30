@@ -5,34 +5,30 @@ import { createUtils } from "../../util"
 import { once } from "../../util/once"
 import { Migration } from "./Migration"
 
-export class Migrations<Store, Vault> {
+export class Migrations<Store> {
   private constructor(
     readonly manifest: SDKManifest,
-    readonly migrations: Array<Migration<Store, Vault, any>>,
+    readonly migrations: Array<Migration<Store, any>>,
   ) {}
   private sortedMigrations = once(() => {
     const migrationsAsVersions = (
-      this.migrations as Array<Migration<Store, Vault, any>>
+      this.migrations as Array<Migration<Store, any>>
     ).map((x) => [EmVer.parse(x.options.version), x] as const)
     migrationsAsVersions.sort((a, b) => a[0].compareForSort(b[0]))
     return migrationsAsVersions
   })
   private currentVersion = once(() => EmVer.parse(this.manifest.version))
-  static of<
-    Store,
-    Vault,
-    Migrations extends Array<Migration<Store, Vault, any>>,
-  >(manifest: SDKManifest, ...migrations: EnsureUniqueId<Migrations>) {
-    return new Migrations(
-      manifest,
-      migrations as Array<Migration<Store, Vault, any>>,
-    )
+  static of<Store, Migrations extends Array<Migration<Store, any>>>(
+    manifest: SDKManifest,
+    ...migrations: EnsureUniqueId<Migrations>
+  ) {
+    return new Migrations(manifest, migrations as Array<Migration<Store, any>>)
   }
   async init({
     effects,
     previousVersion,
   }: Parameters<ExpectedExports.init>[0]) {
-    const utils = createUtils<Store, Vault>(effects)
+    const utils = createUtils<Store>(effects)
     if (!!previousVersion) {
       const previousVersionEmVer = EmVer.parse(previousVersion)
       for (const [_, migration] of this.sortedMigrations()
@@ -46,7 +42,7 @@ export class Migrations<Store, Vault> {
     effects,
     nextVersion,
   }: Parameters<ExpectedExports.uninit>[0]) {
-    const utils = createUtils<Store, Vault>(effects)
+    const utils = createUtils<Store>(effects)
     if (!!nextVersion) {
       const nextVersionEmVer = EmVer.parse(nextVersion)
       const reversed = [...this.sortedMigrations()].reverse()
@@ -61,16 +57,15 @@ export class Migrations<Store, Vault> {
 
 export function setupMigrations<
   Store,
-  Vault,
-  Migrations extends Array<Migration<Store, Vault, any>>,
+  Migrations extends Array<Migration<Store, any>>,
 >(manifest: SDKManifest, ...migrations: EnsureUniqueId<Migrations>) {
-  return Migrations.of<Store, Vault, Migrations>(manifest, ...migrations)
+  return Migrations.of<Store, Migrations>(manifest, ...migrations)
 }
 
 // prettier-ignore
 export type EnsureUniqueId<A, B = A, ids = never> =
   B extends [] ? A : 
-  B extends [Migration<any,any, infer id>, ...infer Rest] ? (
+  B extends [Migration<any, infer id>, ...infer Rest] ? (
     id extends ids ? "One of the ids are not unique"[] :
     EnsureUniqueId<A, Rest, id | ids>
   ) : "There exists a migration that is not a Migration"[]

@@ -7,9 +7,6 @@ type Store = {
     someValue: "a" | "b"
   }
 }
-type Vault = {
-  hello: string
-}
 const todo = <A>(): A => {
   throw new Error("not implemented")
 }
@@ -51,10 +48,10 @@ describe("Store", () => {
         path: "/config/some2Value",
         value: "a",
       })
-      ;(await createMainUtils<Store, Vault>(todo<Effects>())
+      ;(await createMainUtils<Store>(todo<Effects>())
         .store.getOwn("/config/someValue")
         .const()) satisfies string
-      ;(await createMainUtils<Store, Vault>(todo<Effects>())
+      ;(await createMainUtils<Store>(todo<Effects>())
         .store.getOwn("/config")
         .const()) satisfies Store["config"]
       await createMainUtils(todo<Effects>())

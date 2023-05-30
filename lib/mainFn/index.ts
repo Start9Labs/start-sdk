@@ -17,17 +17,17 @@ import "./Daemons"
  * @param fn
  * @returns
  */
-export const setupMain = <Store, Vault>(
+export const setupMain = <Store>(
   fn: (o: {
     effects: Effects
     started(onTerm: () => void): null
-    utils: Utils<Store, Vault, {}>
+    utils: Utils<Store, {}>
   }) => Promise<Daemons<any>>,
 ): ExpectedExports.main => {
   return async (options) => {
     const result = await fn({
       ...options,
-      utils: createMainUtils<Store, Vault>(options.effects),
+      utils: createMainUtils<Store>(options.effects),
     })
     await result.build().then((x) => x.wait())
   }

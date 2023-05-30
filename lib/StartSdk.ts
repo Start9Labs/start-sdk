@@ -52,6 +52,7 @@ import {
   setupInterfaces,
 } from "./interfaces/setupInterfaces"
 import { successFailure } from "./trigger/successFailure"
+import { SetupExports } from "./inits/setupExports"
 
 // prettier-ignore
 type AnyNeverCond<T extends any[], Then, Else> = 
@@ -60,42 +61,37 @@ type AnyNeverCond<T extends any[], Then, Else> =
     T extends [any, ...infer U] ? AnyNeverCond<U,Then, Else> :
     never
 
-export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
+export class StartSdk<Manifest extends SDKManifest, Store> {
   private constructor(readonly manifest: Manifest) {}
   static of() {
-    return new StartSdk<never, never, never>(null as never)
+    return new StartSdk<never, never>(null as never)
   }
   withManifest<Manifest extends SDKManifest = never>(manifest: Manifest) {
-    return new StartSdk<Manifest, Store, Vault>(manifest)
+    return new StartSdk<Manifest, Store>(manifest)
   }
   withStore<Store extends Record<string, any>>() {
-    return new StartSdk<Manifest, Store, Vault>(this.manifest)
-  }
-  withVault<Vault extends Record<string, string>>() {
-    return new StartSdk<Manifest, Store, Vault>(this.manifest)
+    return new StartSdk<Manifest, Store>(this.manifest)
   }
 
-  build(
-    isReady: AnyNeverCond<[Manifest, Store, Vault], "Build not ready", true>,
-  ) {
+  build(isReady: AnyNeverCond<[Manifest, Store], "Build not ready", true>) {
     return {
       configConstants: { smtpConfig },
       createAction: <
         ConfigType extends
           | Record<string, any>
-          | Config<any, any, any>
-          | Config<any, never, never>,
+          | Config<any, any>
+          | Config<any, never>,
         Type extends Record<string, any> = ExtractConfigType<ConfigType>,
       >(
         metaData: Omit<ActionMetadata, "input"> & {
-          input: Config<Type, Store, Vault> | Config<Type, never, never>
+          input: Config<Type, Store> | Config<Type, never>
         },
         fn: (options: {
           effects: Effects
-          utils: Utils<Store, Vault>
+          utils: Utils<Store>
           input: Type
         }) => Promise<ActionResult>,
-      ) => createAction<Store, Vault, ConfigType, Type>(metaData, fn),
+      ) => createAction<Store, ConfigType, Type>(metaData, fn),
       HealthCheck: {
         of: healthCheck,
       },
@@ -106,84 +102,78 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
       },
       patterns,
       setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
-        setupActions<Store, Vault>(...createdActions),
+        setupActions<Store>(...createdActions),
       setupBackups: (...args: SetupBackupsParams<Manifest>) =>
         setupBackups<Manifest>(...args),
       setupConfig: <
-        ConfigType extends
-          | Config<any, Store, Vault>
-          | Config<any, never, never>,
+        ConfigType extends Config<any, Store> | Config<any, never>,
         Type extends Record<string, any> = ExtractConfigType<ConfigType>,
       >(
         spec: ConfigType,
-        write: Save<Store, Vault, Type, Manifest>,
-        read: Read<Store, Vault, Type>,
-      ) =>
-        setupConfig<Store, Vault, ConfigType, Manifest, Type>(
-          spec,
-          write,
-          read,
-        ),
+        write: Save<Store, Type, Manifest>,
+        read: Read<Store, Type>,
+      ) => setupConfig<Store, ConfigType, Manifest, Type>(spec, write, read),
       setupConfigRead: <
         ConfigSpec extends
-          | Config<Record<string, any>, any, any>
-          | Config<Record<string, never>, never, never>,
+          | Config<Record<string, any>, any>
+          | Config<Record<string, never>, never>,
       >(
         _configSpec: ConfigSpec,
-        fn: Read<Store, Vault, ConfigSpec>,
+        fn: Read<Store, ConfigSpec>,
       ) => fn,
       setupConfigSave: <
         ConfigSpec extends
-          | Config<Record<string, any>, any, any>
-          | Config<Record<string, never>, never, never>,
+          | Config<Record<string, any>, any>
+          | Config<Record<string, never>, never>,
       >(
         _configSpec: ConfigSpec,
-        fn: Save<Store, Vault, ConfigSpec, Manifest>,
+        fn: Save<Store, ConfigSpec, Manifest>,
       ) => fn,
       setupDependencyConfig: <Input extends Record<string, any>>(
-        config: Config<Input, Store, Vault> | Config<Input, never, never>,
+        config: Config<Input, Store> | Config<Input, never>,
         autoConfigs: {
           [K in keyof Manifest["dependencies"]]: DependencyConfig<
             Store,
-            Vault,
             Input,
             any
           >
         },
-      ) =>
-        setupDependencyConfig<Store, Vault, Input, Manifest>(
-          config,
-          autoConfigs,
-        ),
+      ) => setupDependencyConfig<Store, Input, Manifest>(config, autoConfigs),
+      setupExports: (fn: SetupExports<Store>) => fn,
       setupDependencyMounts,
       setupInit: (
-        migrations: Migrations<Store, Vault>,
-        install: Install<Store, Vault>,
-        uninstall: Uninstall<Store, Vault>,
-        setInterfaces: SetInterfaces<Store, Vault, any, any>,
+        migrations: Migrations<Store>,
+        install: Install<Store>,
+        uninstall: Uninstall<Store>,
+        setInterfaces: SetInterfaces<Store, any, any>,
+        setupExports: SetupExports<Store>,
       ) =>
-        setupInit<Store, Vault>(migrations, install, uninstall, setInterfaces),
-      setupInstall: (fn: InstallFn<Store, Vault>) => Install.of(fn),
+        setupInit<Store>(
+          migrations,
+          install,
+          uninstall,
+          setInterfaces,
+          setupExports,
+        ),
+      setupInstall: (fn: InstallFn<Store>) => Install.of(fn),
       setupInterfaces: <
         ConfigInput extends Record<string, any>,
         Output extends InterfacesReceipt,
       >(
-        config: Config<ConfigInput, Store, Vault>,
-        fn: SetInterfaces<Store, Vault, ConfigInput, Output>,
+        config: Config<ConfigInput, Store>,
+        fn: SetInterfaces<Store, ConfigInput, Output>,
       ) => setupInterfaces(config, fn),
       setupMain: (
         fn: (o: {
           effects: Effects
           started(onTerm: () => void): null
-          utils: Utils<Store, Vault, {}>
+          utils: Utils<Store, {}>
         }) => Promise<Daemons<any>>,
-      ) => setupMain<Store, Vault>(fn),
-      setupMigrations: <Migrations extends Array<Migration<Store, Vault, any>>>(
+      ) => setupMain<Store>(fn),
+      setupMigrations: <Migrations extends Array<Migration<Store, any>>>(
         ...migrations: EnsureUniqueId<Migrations>
-      ) =>
-        setupMigrations<Store, Vault, Migrations>(this.manifest, ...migrations),
-      setupUninstall: (fn: UninstallFn<Store, Vault>) =>
-        setupUninstall<Store, Vault>(fn),
+      ) => setupMigrations<Store, Migrations>(this.manifest, ...migrations),
+      setupUninstall: (fn: UninstallFn<Store>) => setupUninstall<Store>(fn),
       trigger: {
         defaultTrigger,
         cooldownTrigger,
@@ -202,13 +192,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
       },
       Config: {
         of: <
-          Spec extends Record<
-            string,
-            Value<any, Store, Vault> | Value<any, never, never>
-          >,
+          Spec extends Record<string, Value<any, Store> | Value<any, never>>,
         >(
           spec: Spec,
-        ) => Config.of<Spec, Store, Vault>(spec),
+        ) => Config.of<Spec, Store>(spec),
       },
       Daemons: { of: Daemons.of },
       DependencyConfig: {
@@ -220,20 +207,16 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
           remoteConfig,
           dependencyConfig,
         }: {
-          localConfig:
-            | Config<LocalConfig, Store, Vault>
-            | Config<LocalConfig, never, never>
-          remoteConfig:
-            | Config<RemoteConfig, any, any>
-            | Config<RemoteConfig, never, never>
+          localConfig: Config<LocalConfig, Store> | Config<LocalConfig, never>
+          remoteConfig: Config<RemoteConfig, any> | Config<RemoteConfig, never>
           dependencyConfig: (options: {
             effects: Effects
             localConfig: LocalConfig
             remoteConfig: RemoteConfig
-            utils: Utils<Store, Vault>
+            utils: Utils<Store>
           }) => Promise<void | DeepPartial<RemoteConfig>>
         }) {
-          return new DependencyConfig<Store, Vault, LocalConfig, RemoteConfig>(
+          return new DependencyConfig<Store, LocalConfig, RemoteConfig>(
             dependencyConfig,
           )
         },
@@ -252,15 +235,14 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
             maxLength?: number | null
           },
           aSpec: {
-            spec: Config<Type, Store, Vault>
+            spec: Config<Type, Store>
             displayAs?: null | string
             uniqueBy?: null | UniqueBy
           },
-        ) => List.obj<Type, Store, Vault>(a, aSpec),
+        ) => List.obj<Type, Store>(a, aSpec),
         dynamicText: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -283,11 +265,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               }
             }
           >,
-        ) => List.dynamicText<Store, Vault>(getA),
+        ) => List.dynamicText<Store>(getA),
         dynamicNumber: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -307,20 +288,17 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               }
             }
           >,
-        ) => List.dynamicNumber<Store, Vault>(getA),
+        ) => List.dynamicNumber<Store>(getA),
       },
       Migration: {
         of: <Version extends ManifestVersion>(options: {
           version: Version
-          up: (opts: {
-            effects: Effects
-            utils: Utils<Store, Vault>
-          }) => Promise<void>
+          up: (opts: { effects: Effects; utils: Utils<Store> }) => Promise<void>
           down: (opts: {
             effects: Effects
-            utils: Utils<Store, Vault>
+            utils: Utils<Store>
           }) => Promise<void>
-        }) => Migration.of<Store, Vault, Version>(options),
+        }) => Migration.of<Store, Version>(options),
       },
       Value: {
         toggle: Value.toggle,
@@ -337,7 +315,6 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         dynamicToggle: (
           a: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -346,11 +323,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               disabled?: false | string
             }
           >,
-        ) => Value.dynamicToggle<Store, Vault>(a),
+        ) => Value.dynamicToggle<Store>(a),
         dynamicText: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -368,11 +344,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               generate?: null | RandomString
             }
           >,
-        ) => Value.dynamicText<Store, Vault>(getA),
+        ) => Value.dynamicText<Store>(getA),
         dynamicTextarea: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -385,11 +360,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               generate?: null | RandomString
             }
           >,
-        ) => Value.dynamicTextarea<Store, Vault>(getA),
+        ) => Value.dynamicTextarea<Store>(getA),
         dynamicNumber: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -405,11 +379,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               disabled?: false | string
             }
           >,
-        ) => Value.dynamicNumber<Store, Vault>(getA),
+        ) => Value.dynamicNumber<Store>(getA),
         dynamicColor: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -419,11 +392,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               disabled?: false | string
             }
           >,
-        ) => Value.dynamicColor<Store, Vault>(getA),
+        ) => Value.dynamicColor<Store>(getA),
         dynamicDatetime: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -436,11 +408,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               disabled?: false | string
             }
           >,
-        ) => Value.dynamicDatetime<Store, Vault>(getA),
+        ) => Value.dynamicDatetime<Store>(getA),
         dynamicSelect: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -450,11 +421,10 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               disabled?: false | string
             }
           >,
-        ) => Value.dynamicSelect<Store, Vault>(getA),
+        ) => Value.dynamicSelect<Store>(getA),
         dynamicMultiselect: (
           getA: LazyBuild<
             Store,
-            Vault,
             {
               name: string
               description?: string | null
@@ -466,23 +436,21 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               disabled?: false | string
             }
           >,
-        ) => Value.dynamicMultiselect<Store, Vault>(getA),
+        ) => Value.dynamicMultiselect<Store>(getA),
         filteredUnion: <
           Required extends RequiredDefault<string>,
           Type extends Record<string, any>,
         >(
-          getDisabledFn: LazyBuild<Store, Vault, string[]>,
+          getDisabledFn: LazyBuild<Store, string[]>,
           a: {
             name: string
             description?: string | null
             warning?: string | null
             required: Required
           },
-          aVariants:
-            | Variants<Type, Store, Vault>
-            | Variants<Type, never, never>,
+          aVariants: Variants<Type, Store> | Variants<Type, never>,
         ) =>
-          Value.filteredUnion<Required, Type, Store, Vault>(
+          Value.filteredUnion<Required, Type, Store>(
             getDisabledFn,
             a,
             aVariants,
@@ -494,7 +462,6 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
         >(
           getA: LazyBuild<
             Store,
-            Vault,
             {
               disabled: string[] | false | string
               name: string
@@ -503,22 +470,20 @@ export class StartSdk<Manifest extends SDKManifest, Store, Vault> {
               required: Required
             }
           >,
-          aVariants:
-            | Variants<Type, Store, Vault>
-            | Variants<Type, never, never>,
-        ) => Value.dynamicUnion<Required, Type, Store, Vault>(getA, aVariants),
+          aVariants: Variants<Type, Store> | Variants<Type, never>,
+        ) => Value.dynamicUnion<Required, Type, Store>(getA, aVariants),
       },
       Variants: {
         of: <
           VariantValues extends {
             [K in string]: {
               name: string
-              spec: Config<any, Store, Vault>
+              spec: Config<any, Store>
             }
           },
         >(
           a: VariantValues,
-        ) => Variants.of<VariantValues, Store, Vault>(a),
+        ) => Variants.of<VariantValues, Store>(a),
       },
     }
   }

@@ -51,21 +51,20 @@ export const pruning = Value.union(
 );
 ```
  */
-export class Variants<Type, Store, Vault> {
+export class Variants<Type, Store> {
   static text: any
   private constructor(
-    public build: LazyBuild<Store, Vault, ValueSpecUnion["variants"]>,
+    public build: LazyBuild<Store, ValueSpecUnion["variants"]>,
     public validator: Parser<unknown, Type>,
   ) {}
   static of<
     VariantValues extends {
       [K in string]: {
         name: string
-        spec: Config<any, Store, Vault> | Config<any, never, never>
+        spec: Config<any, Store> | Config<any, never>
       }
     },
     Store = never,
-    Vault = never,
   >(a: VariantValues) {
     const validator = anyOf(
       ...Object.entries(a).map(([name, { spec }]) =>
@@ -82,12 +81,11 @@ export class Variants<Type, Store, Vault> {
           unionSelectKey: K
           // prettier-ignore
           unionValueKey: 
-            VariantValues[K]["spec"] extends (Config<infer B, Store,Vault> | Config<infer B, never, never>) ? B :
+            VariantValues[K]["spec"] extends (Config<infer B, Store> | Config<infer B, never>) ? B :
             never
         }
       }[keyof VariantValues],
-      Store,
-      Vault
+      Store
     >(async (options) => {
       const variants = {} as {
         [K in keyof VariantValues]: { name: string; spec: InputSpec }
@@ -117,6 +115,6 @@ export class Variants<Type, Store, Vault> {
   ```
    */
   withStore<NewStore extends Store extends never ? any : Store>() {
-    return this as any as Variants<Type, NewStore, Vault>
+    return this as any as Variants<Type, NewStore>
   }
 }

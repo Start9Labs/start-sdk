@@ -3,11 +3,11 @@ import { createUtils } from "../util"
 import { once } from "../util/once"
 import { CreatedAction } from "./createAction"
 
-export function setupActions<Store, Vault>(
-  ...createdActions: CreatedAction<Store, Vault, any>[]
+export function setupActions<Store>(
+  ...createdActions: CreatedAction<Store, any>[]
 ) {
   const myActions = once(() => {
-    const actions: Record<string, CreatedAction<Store, Vault, any>> = {}
+    const actions: Record<string, CreatedAction<Store, any>> = {}
     for (const action of createdActions) {
       actions[action.myMetaData.id] = action
     }
@@ -21,7 +21,7 @@ export function setupActions<Store, Vault>(
       return myActions()
     },
     async actionsMetadata({ effects }: { effects: Effects }) {
-      const utils = createUtils<Store, Vault>(effects)
+      const utils = createUtils<Store>(effects)
       return Promise.all(
         createdActions.map((x) => x.ActionMetadata({ effects, utils })),
       )

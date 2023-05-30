@@ -16,7 +16,6 @@ import { GetSystemSmtp } from "./GetSystemSmtp"
 import { DefaultString } from "../config/configTypes"
 import { getDefaultString } from "./getDefaultString"
 import { GetStore, getStore } from "../store/getStore"
-import { GetVault, getVault } from "./getVault"
 import {
   MountDependenciesOut,
   mountDependencies,
@@ -62,11 +61,6 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
     path: string
     search: Record<string, string>
   }) => NetworkInterfaceBuilder
-  createOrUpdateVault: (opts: {
-    key: keyof Vault & string
-    value: string | null | undefined
-    generator: DefaultString
-  }) => Promise<string>
   getSystemSmtp: () => GetSystemSmtp & WrapperOverWrite
   host: {
     static: (id: string) => StaticHost
@@ -108,43 +102,14 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
       value: ExtractStore<Store, Path>,
     ) => Promise<void>
   }
-  vault: {
-    get: (key: keyof Vault & string) => GetVault<Vault> & WrapperOverWrite
-    set: (key: keyof Vault & string, value: string) => Promise<void>
-  }
   writeFile: <A>(
     fileHelper: FileHelper<A>,
     data: A,
   ) => ReturnType<FileHelper<A>["write"]>
 }
-export const utils = <
-  Store = never,
-  Vault = never,
-  WrapperOverWrite = { const: never },
->(
+export const utils = <Store = never, WrapperOverWrite = { const: never }>(
   effects: Effects,
-): Utils<Store, Vault, WrapperOverWrite> => ({
-  createOrUpdateVault: async ({
-    key,
-    value,
-    generator,
-  }: {
-    key: keyof Vault & string
-    value: string | null | undefined
-    generator: DefaultString
-  }) => {
-    if (value) {
-      await effects.vault.set({ key, value })
-      return value
-    }
-    const oldValue = await effects.vault.get({ key, callback: noop })
-    if (oldValue) {
-      return oldValue
-    }
-    const newValue = getDefaultString(generator)
-    await effects.vault.set({ key, value: newValue })
-    return newValue
-  },
+): Utils<Store, WrapperOverWrite> => ({
   createInterface: (options: {
     name: string
     id: string
@@ -198,12 +163,7 @@ export const utils = <
   },
   checkPortListening: checkPortListening.bind(null, effects),
   checkWebUrl: checkWebUrl.bind(null, effects),
-  vault: {
-    get: (key: keyof Vault & string) =>
-      getVault<Vault>(effects, key) as GetVault<Vault> & WrapperOverWrite,
-    set: (key: keyof Vault & string, value: string) =>
-      effects.vault.set({ key, value }),
-  },
+
   mountDependencies: <
     In extends
       | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>

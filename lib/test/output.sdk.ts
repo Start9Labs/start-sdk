@@ -45,5 +45,4 @@ export const sdk = StartSdk.of()
     }),
   )
   .withStore<{ storeRoot: { storeLeaf: "value" } }>()
-  .withVault<{ vaultRoot: "value" }>()
   .build(true)

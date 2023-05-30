@@ -9,7 +9,6 @@ import { deepMerge } from "../util/deepMerge"
 
 export class DependencyConfig<
   Store,
-  Vault,
   Input extends Record<string, any>,
   RemoteConfig extends Record<string, any>,
 > {
@@ -18,7 +17,7 @@ export class DependencyConfig<
       effects: Effects
       localConfig: Input
       remoteConfig: RemoteConfig
-      utils: Utils<Store, Vault>
+      utils: Utils<Store>
     }) => Promise<void | DeepPartial<RemoteConfig>>,
   ) {}
 
@@ -28,7 +27,7 @@ export class DependencyConfig<
     const origConfig = JSON.parse(JSON.stringify(options.localConfig))
     const newOptions = {
       ...options,
-      utils: utils<Store, Vault>(options.effects),
+      utils: utils<Store>(options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as RemoteConfig,
     }
@@ -49,7 +48,7 @@ export class DependencyConfig<
   ): ReturnType<DependencyConfigType["autoConfigure"]> {
     const newOptions = {
       ...options,
-      utils: utils<Store, Vault>(options.effects),
+      utils: utils<Store>(options.effects),
       localConfig: options.localConfig as Input,
       remoteConfig: options.remoteConfig as any,
     }
