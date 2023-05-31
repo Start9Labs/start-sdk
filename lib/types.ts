@@ -7,7 +7,7 @@ export type ExportedAction = (options: {
   effects: Effects
   input?: Record<string, unknown>
 }) => Promise<ActionResult>
-
+export type MaybePromise<A> = A | Promise<A>
 export namespace ExpectedExports {
   version: 1
   /** Set configuration is called after we have modified and saved the configuration in the start9 ui. Use this to make a file for the docker to read from for configuration.  */
@@ -39,12 +39,12 @@ export namespace ExpectedExports {
    * One old use case is to add a action where we add a file, that will then be run during the
    * service starting, and that file would indicate that it would rescan all the data.
    */
-  export type actions = {
+  export type actions = (options: { effects: Effects }) => MaybePromise<{
     [id: string]: {
       run: ExportedAction
       getConfig: (options: { effects: Effects }) => Promise<InputSpec>
     }
-  }
+  }>
 
   export type actionsMetadata = (options: {
     effects: Effects
@@ -160,7 +160,7 @@ export type ActionMetadata = {
   description: string
   id: string
   input: InputSpec
-  allowedStatuses: "only-running" | "only-stopped" | "any"
+  allowedStatuses: "only-running" | "only-stopped" | "any" | "disabled"
   /**
    * So the ordering of the actions is by alphabetical order of the group, then followed by the alphabetical of the actions
    */

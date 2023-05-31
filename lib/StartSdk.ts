@@ -18,6 +18,7 @@ import {
   ActionResult,
   BackupOptions,
   DeepPartial,
+  MaybePromise,
 } from "./types"
 import * as patterns from "./util/patterns"
 import { Utils } from "./util/utils"
@@ -91,7 +92,31 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           utils: Utils<Store>
           input: Type
         }) => Promise<ActionResult>,
-      ) => createAction<Store, ConfigType, Type>(metaData, fn),
+      ) => {
+        const { input, ...rest } = metaData
+        return createAction<Store, ConfigType, Type>(rest, fn, input)
+      },
+      createDynamicAction: <
+        ConfigType extends
+          | Record<string, any>
+          | Config<any, any>
+          | Config<any, never>,
+        Type extends Record<string, any> = ExtractConfigType<ConfigType>,
+      >(
+        metaData: (options: {
+          effects: Effects
+          utils: Utils<Store>
+        }) => MaybePromise<Omit<ActionMetadata, "input">>,
+        fn: (options: {
+          effects: Effects
+          utils: Utils<Store>
+          input: Type
+        }) => Promise<ActionResult>,
+        input: Config<Type, Store> | Config<Type, never>,
+      ) => {
+        return createAction<Store, ConfigType, Type>(metaData, fn, input)
+      },
+
       HealthCheck: {
         of: healthCheck,
       },

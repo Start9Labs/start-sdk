@@ -3,6 +3,12 @@ import { ActionMetadata, ActionResult, Effects, ExportedAction } from "../types"
 import { createUtils } from "../util"
 import { Utils } from "../util/utils"
 
+export type MaybeFn<Store, Value> =
+  | Value
+  | ((options: {
+      effects: Effects
+      utils: Utils<Store>
+    }) => Promise<Value> | Value)
 export class CreatedAction<
   Store,
   ConfigType extends
@@ -12,7 +18,7 @@ export class CreatedAction<
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    public readonly myMetaData: Omit<ActionMetadata, "input">,
+    public readonly myMetaData: MaybeFn<Store, Omit<ActionMetadata, "input">>,
     readonly fn: (options: {
       effects: Effects
       utils: Utils<Store>
@@ -30,20 +36,18 @@ export class CreatedAction<
       | Config<any, never>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
-    metaData: Omit<ActionMetadata, "input"> & {
-      input: Config<Type, Store> | Config<Type, never>
-    },
+    metaData: MaybeFn<Store, Omit<ActionMetadata, "input">>,
     fn: (options: {
       effects: Effects
       utils: Utils<Store>
       input: Type
     }) => Promise<ActionResult>,
+    inputConfig: Config<Type, Store> | Config<Type, never>,
   ) {
-    const { input, ...rest } = metaData
     return new CreatedAction<Store, ConfigType, Type>(
-      rest,
+      metaData,
       fn,
-      input as Config<Type, Store>,
+      inputConfig as Config<Type, Store>,
     )
   }
 
@@ -63,12 +67,18 @@ export class CreatedAction<
     })
   }
 
+  async metaData(options: { effects: Effects; utils: Utils<Store> }) {
+    if (this.myMetaData instanceof Function)
+      return await this.myMetaData(options)
+    return this.myMetaData
+  }
+
   async ActionMetadata(options: {
     effects: Effects
     utils: Utils<Store>
   }): Promise<ActionMetadata> {
     return {
-      ...this.myMetaData,
+      ...(await this.metaData(options)),
       input: await this.input.build(options),
     }
   }
