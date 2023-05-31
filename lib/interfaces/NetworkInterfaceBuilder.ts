@@ -21,6 +21,8 @@ export class NetworkInterfaceBuilder {
       name: string
       id: string
       description: string
+      hasPrimary: boolean
+      disabled: boolean
       ui: boolean
       username: null | string
       path: string
@@ -39,7 +41,17 @@ export class NetworkInterfaceBuilder {
   async export<Origins extends Origin<Host>[]>(
     origins: Origins,
   ): Promise<Address[] & AddressReceipt> {
-    const { name, description, id, ui, username, path, search } = this.options
+    const {
+      name,
+      description,
+      hasPrimary,
+      disabled,
+      id,
+      ui,
+      username,
+      path,
+      search,
+    } = this.options
 
     const addresses = Array.from(origins).map((o) =>
       o.build({ username, path, search, scheme: null }),
@@ -49,6 +61,8 @@ export class NetworkInterfaceBuilder {
       interfaceId: id,
       name,
       description,
+      hasPrimary,
+      disabled,
       addresses,
       ui,
     })

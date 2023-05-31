@@ -1,8 +1,6 @@
-import { MultiHost } from "../interfaces/Host"
 import { NetworkInterfaceBuilder } from "../interfaces/NetworkInterfaceBuilder"
 import { Effects } from "../types"
 import { createUtils } from "../util"
-import { sdk } from "./output.sdk"
 
 describe("host", () => {
   test("Testing that the types work", () => {
@@ -15,6 +13,8 @@ describe("host", () => {
         name: "Foo",
         id: "foo",
         description: "A Foo",
+        hasPrimary: false,
+        disabled: false,
         ui: true,
         username: "bar",
         path: "/baz",

@@ -41,12 +41,6 @@ export const customSmtp = Config.of<ConfigSpecOf<SmtpValue>, never>({
     required: false,
     masked: true,
   }),
-  tls: Value.toggle({
-    name: "Require Transport Security",
-    default: true,
-    description:
-      "Require TLS transport security. If disabled, email will use plaintext by default and TLS via STARTTLS <strong>if the SMTP server supports it</strong>. If enabled, email will refuse to connect unless the server supports STARTTLS.",
-  }),
 })
 
 /**

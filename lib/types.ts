@@ -2,6 +2,7 @@ export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
 import { PortOptions } from "./interfaces/Host"
+import { UrlString } from "./util/getNetworkInterface"
 
 export type ExportedAction = (options: {
   effects: Effects
@@ -143,7 +144,6 @@ export type SmtpValue = {
   from: string
   login: string
   password: string | null | undefined
-  tls: boolean
 }
 
 export type CommandType<A extends string> =
@@ -185,12 +185,16 @@ export type NetworkInterface = {
   name: string
   /** Human readable description, used as tooltip usually */
   description: string
+  /** Whether or not one address must be the primary address */
+  hasPrimary: boolean
+  /** Disabled interfaces do not serve, but they retain their metadata and addresses */
+  disabled: boolean
   /** All URIs */
   addresses: Address[]
   /** Defaults to false, but describes if this address can be opened in a browser as an
    * ui interface
    */
-  ui?: boolean
+  ui: boolean
 }
 // prettier-ignore
 export type ExposeAllServicePaths<Store, PreviousPath extends string = ""> = 
@@ -369,6 +373,16 @@ export type Effects = {
     interfaceId: InterfaceId
     callback: () => void
   }): Promise<NetworkInterface>
+
+  /**
+   * The user sets the primary url for a interface
+   * @param options
+   */
+  getPrimaryUrl(options: {
+    packageId?: PackageId
+    interfaceId: InterfaceId
+    callback: () => void
+  }): Promise<UrlString | null>
 
   /**
    * There are times that we want to see the addresses that where exported
