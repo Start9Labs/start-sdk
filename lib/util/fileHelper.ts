@@ -118,7 +118,7 @@ export class FileHelper<A> {
     return new FileHelper<A>(
       path,
       (inData) => {
-        return JSON.stringify(inData, null, 2)
+        return TOML.stringify(inData as any)
       },
       (inString) => {
         return shape.unsafeCast(TOML.parse(inString))

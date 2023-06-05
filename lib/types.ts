@@ -233,21 +233,13 @@ export type Effects = {
     },
   ): DaemonReturned
 
-  /** Uses the chown on the system */
-  chown(input: { volumeId: string; path: string; uid: string }): Promise<null>
-  /** Uses the chmod on the system */
-  chmod(input: { volumeId: string; path: string; mode: string }): Promise<null>
-
   executeAction<Input>(opts: {
     serviceId?: string
     input: Input
   }): Promise<unknown>
 
   /** Sandbox mode lets us read but not write */
-  is_sandboxed(): boolean
-
-  /** Check that a file exists or not */
-  exists(input: { volumeId: string; path: string }): Promise<boolean>
+  is_sandboxed(): Promise<boolean>
 
   /** Removes all network bindings */
   clearBindings(): Promise<void>
@@ -425,11 +417,14 @@ export type Effects = {
   getSslCertificate: (
     packageId: string,
     algorithm?: "ecdsa" | "ed25519",
-  ) => [string, string, string]
+  ) => Promise<[string, string, string]>
   /**
    * @returns PEM encoded ssl key (ecdsa)
    */
-  getSslKey: (packageId: string, algorithm?: "ecdsa" | "ed25519") => string
+  getSslKey: (
+    packageId: string,
+    algorithm?: "ecdsa" | "ed25519",
+  ) => Promise<string>
 
   setHealth(o: {
     name: string
