@@ -1,7 +1,7 @@
 import { Effects } from "../../types"
 import { CheckResult } from "./CheckResult"
 import { timeoutPromise } from "./index"
-import fetch from "node-fetch"
+import "isomorphic-fetch"
 
 /**
  * This is a helper function to check if a web url is reachable.
