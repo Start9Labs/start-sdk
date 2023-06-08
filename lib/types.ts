@@ -219,20 +219,6 @@ export type ExposeUiPaths<Store> = Array<{
 }>
 /** Used to reach out from the pure js runtime */
 export type Effects = {
-  runCommand<A extends string>(
-    command: ValidIfNoStupidEscape<A> | [string, ...string[]],
-    options?: {
-      timeoutMillis?: number
-      env?: Record<string, string>
-    },
-  ): Promise<string>
-  runDaemon<A extends string>(
-    command: ValidIfNoStupidEscape<A> | [string, ...string[]],
-    options?: {
-      env?: Record<string, string>
-    },
-  ): DaemonReturned
-
   executeAction<Input>(opts: {
     serviceId?: string
     input: Input
@@ -265,44 +251,22 @@ export type Effects = {
     callback: () => void
   }): Promise<[HostName, ...HostName[]]>
 
-  /** Similar to the fetch api via the mdn, this is simplified but the point is
-   * to get something from some website, and return the response.
-   */
-  fetch(
-    url: string,
-    options?: {
-      method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "PATCH"
-      headers?: Record<string, string>
-      body?: string
-    },
-  ): Promise<{
-    method: string
-    ok: boolean
-    status: number
-    headers: Record<string, string>
-    body?: string | null
-    /// Returns the body as a string
-    text(): Promise<string>
-    /// Returns the body as a json
-    json(): Promise<unknown>
-  }>
-
-  /**
-   * Run rsync between two volumes. This is used to backup data between volumes.
-   * This is a long running process, and a structure that we can either wait for, or get the progress of.
-   */
-  runRsync(options: {
-    srcVolume: string
-    dstVolume: string
-    srcPath: string
-    dstPath: string
-    // rsync options: https://linux.die.net/man/1/rsync
-    options: BackupOptions
-  }): {
-    id: () => Promise<string>
-    wait: () => Promise<null>
-    progress: () => Promise<number>
-  }
+  // /**
+  //  * Run rsync between two volumes. This is used to backup data between volumes.
+  //  * This is a long running process, and a structure that we can either wait for, or get the progress of.
+  //  */
+  // runRsync(options: {
+  //   srcVolume: string
+  //   dstVolume: string
+  //   srcPath: string
+  //   dstPath: string
+  //   // rsync options: https://linux.die.net/man/1/rsync
+  //   options: BackupOptions
+  // }): {
+  //   id: () => Promise<string>
+  //   wait: () => Promise<null>
+  //   progress: () => Promise<number>
+  // }
 
   store: {
     /** Get a value in a json like data, can be observed and subscribed */
