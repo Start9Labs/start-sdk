@@ -7,55 +7,39 @@ import { Utils, utils } from "../util/utils"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
 
+export type Update<QueryResults, RemoteConfig> = (options: {
+  remoteConfig: RemoteConfig
+  queryResults: QueryResults
+}) => Promise<RemoteConfig>
+
 export class DependencyConfig<
   Store,
   Input extends Record<string, any>,
   RemoteConfig extends Record<string, any>,
 > {
+  static defaultUpdate = async (options: {
+    queryResults: unknown
+    remoteConfig: unknown
+  }): Promise<unknown> => {
+    return deepMerge({}, options.remoteConfig, options.queryResults || {})
+  }
   constructor(
     readonly dependencyConfig: (options: {
       effects: Effects
       localConfig: Input
-      remoteConfig: RemoteConfig
       utils: Utils<Store>
     }) => Promise<void | DeepPartial<RemoteConfig>>,
+    readonly update: Update<
+      void | DeepPartial<RemoteConfig>,
+      RemoteConfig
+    > = DependencyConfig.defaultUpdate as any,
   ) {}
 
-  async check(
-    options: Parameters<DependencyConfigType["check"]>[0],
-  ): ReturnType<DependencyConfigType["check"]> {
-    const origConfig = JSON.parse(JSON.stringify(options.localConfig))
-    const newOptions = {
-      ...options,
-      utils: utils<Store>(options.effects),
+  async query(options: { effects: Effects; localConfig: unknown }) {
+    return this.dependencyConfig({
       localConfig: options.localConfig as Input,
-      remoteConfig: options.remoteConfig as RemoteConfig,
-    }
-    if (
-      !deepEqual(
-        origConfig,
-        deepMerge(
-          {},
-          options.localConfig,
-          await this.dependencyConfig(newOptions),
-        ),
-      )
-    )
-      throw new Error(`Check failed`)
-  }
-  async autoConfigure(
-    options: Parameters<DependencyConfigType["autoConfigure"]>[0],
-  ): ReturnType<DependencyConfigType["autoConfigure"]> {
-    const newOptions = {
-      ...options,
+      effects: options.effects,
       utils: utils<Store>(options.effects),
-      localConfig: options.localConfig as Input,
-      remoteConfig: options.remoteConfig as any,
-    }
-    return deepMerge(
-      {},
-      options.remoteConfig,
-      await this.dependencyConfig(newOptions),
-    )
+    })
   }
 }

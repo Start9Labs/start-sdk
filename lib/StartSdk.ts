@@ -22,7 +22,7 @@ import {
 } from "./types"
 import * as patterns from "./util/patterns"
 import { Utils } from "./util/utils"
-import { DependencyConfig } from "./dependencyConfig/DependencyConfig"
+import { DependencyConfig, Update } from "./dependencyConfig/DependencyConfig"
 import { BackupSet, Backups } from "./backup/Backups"
 import { smtpConfig } from "./config/configConstants"
 import { Daemons } from "./mainFn/Daemons"
@@ -231,18 +231,20 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           localConfig,
           remoteConfig,
           dependencyConfig,
+          update,
         }: {
           localConfig: Config<LocalConfig, Store> | Config<LocalConfig, never>
           remoteConfig: Config<RemoteConfig, any> | Config<RemoteConfig, never>
           dependencyConfig: (options: {
             effects: Effects
             localConfig: LocalConfig
-            remoteConfig: RemoteConfig
             utils: Utils<Store>
           }) => Promise<void | DeepPartial<RemoteConfig>>
+          update?: Update<void | DeepPartial<RemoteConfig>, RemoteConfig>
         }) {
           return new DependencyConfig<Store, LocalConfig, RemoteConfig>(
             dependencyConfig,
+            update,
           )
         },
       },

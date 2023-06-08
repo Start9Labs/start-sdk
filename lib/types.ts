@@ -97,16 +97,11 @@ export type VersionString = string
  * this is used to make sure that other dependencies have the values that this service could use.
  */
 export type DependencyConfig = {
-  /** Checks are called to make sure that our dependency is in the correct shape. If a known error is returned we know that the dependency needs modification */
-  check(options: {
-    effects: Effects
-    localConfig: unknown
-    remoteConfig: unknown
-  }): Promise<void>
-  /** This is called after we know that the dependency package needs a new configuration, this would be a transform for defaults */
-  autoConfigure(options: {
-    effects: Effects
-    localConfig: unknown
+  /** During autoconfigure, we have access to effects and local data. We are going to figure out all the data that we need and send it to update. For the sdk it is the desired delta */
+  query(options: { effects: Effects; localConfig: unknown }): Promise<unknown>
+  /** This is the second part. Given the query results off the previous function, we will determine what to change the remote config to. In our sdk normall we are going to use the previous as a deep merge. */
+  update(options: {
+    queryResults: unknown
     remoteConfig: unknown
   }): Promise<unknown>
 }

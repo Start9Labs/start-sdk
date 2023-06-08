@@ -6,6 +6,7 @@ import {
   checkWebUrl,
 } from "../health/checkFns"
 import {
+  DaemonReturned,
   Effects,
   EnsureStorePath,
   ExtractStore,
@@ -33,6 +34,8 @@ import {
   GetNetworkInterfaces,
   getNetworkInterfaces,
 } from "./getNetworkInterfaces"
+
+import { exec } from "node:child_process"
 
 export type Utils<Store, WrapperOverWrite = { const: never }> = {
   checkPortListening(
@@ -91,6 +94,14 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
   }
   nullIfEmpty: typeof nullIfEmpty
   readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
+  runDaemon: (
+    command: string,
+    options: { env?: Record<string, string> },
+  ) => Promise<DaemonReturned>
+  runCommand: (
+    command: string,
+    options: { env?: Record<string, string>; timeout?: number },
+  ) => Promise<string>
   store: {
     get: <Path extends string>(
       packageId: string,
@@ -111,71 +122,113 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
 }
 export const utils = <Store = never, WrapperOverWrite = { const: never }>(
   effects: Effects,
-): Utils<Store, WrapperOverWrite> => ({
-  createInterface: (options: {
-    name: string
-    id: string
-    description: string
-    hasPrimary: boolean
-    disabled: boolean
-    ui: boolean
-    username: null | string
-    path: string
-    search: Record<string, string>
-  }) => new NetworkInterfaceBuilder({ ...options, effects }),
-  getSystemSmtp: () =>
-    new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
+): Utils<Store, WrapperOverWrite> => {
+  return {
+    createInterface: (options: {
+      name: string
+      id: string
+      description: string
+      hasPrimary: boolean
+      disabled: boolean
+      ui: boolean
+      username: null | string
+      path: string
+      search: Record<string, string>
+    }) => new NetworkInterfaceBuilder({ ...options, effects }),
+    getSystemSmtp: () =>
+      new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
 
-  host: {
-    static: (id: string) => new StaticHost({ id, effects }),
-    single: (id: string) => new SingleHost({ id, effects }),
-    multi: (id: string) => new MultiHost({ id, effects }),
-  },
-  readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
-  writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
-    fileHelper.write(data, effects),
-  nullIfEmpty,
+    host: {
+      static: (id: string) => new StaticHost({ id, effects }),
+      single: (id: string) => new SingleHost({ id, effects }),
+      multi: (id: string) => new MultiHost({ id, effects }),
+    },
+    readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
+    writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
+      fileHelper.write(data, effects),
+    nullIfEmpty,
 
-  networkInterface: {
-    getOwn: (interfaceId: InterfaceId) =>
-      getNetworkInterface(effects, { interfaceId }) as GetNetworkInterface &
-        WrapperOverWrite,
-    get: (opts: { interfaceId: InterfaceId; packageId: PackageId }) =>
-      getNetworkInterface(effects, opts) as GetNetworkInterface &
-        WrapperOverWrite,
-    getAllOwn: () =>
-      getNetworkInterfaces(effects, {}) as GetNetworkInterfaces &
-        WrapperOverWrite,
-    getAll: (opts: { packageId: PackageId }) =>
-      getNetworkInterfaces(effects, opts) as GetNetworkInterfaces &
-        WrapperOverWrite,
-  },
-  store: {
-    get: <Path extends string = never>(
-      packageId: string,
-      path: EnsureStorePath<Store, Path>,
-    ) =>
-      getStore<Store, Path>(effects, path as any, {
-        packageId,
-      }) as any,
-    getOwn: <Path extends string>(path: EnsureStorePath<Store, Path>) =>
-      getStore<Store, Path>(effects, path as any) as any,
-    setOwn: <Path extends string | never>(
-      path: EnsureStorePath<Store, Path>,
-      value: ExtractStore<Store, Path>,
-    ) => effects.store.set<Store, Path>({ value, path: path as any }),
-  },
-  checkPortListening: checkPortListening.bind(null, effects),
-  checkWebUrl: checkWebUrl.bind(null, effects),
+    networkInterface: {
+      getOwn: (interfaceId: InterfaceId) =>
+        getNetworkInterface(effects, { interfaceId }) as GetNetworkInterface &
+          WrapperOverWrite,
+      get: (opts: { interfaceId: InterfaceId; packageId: PackageId }) =>
+        getNetworkInterface(effects, opts) as GetNetworkInterface &
+          WrapperOverWrite,
+      getAllOwn: () =>
+        getNetworkInterfaces(effects, {}) as GetNetworkInterfaces &
+          WrapperOverWrite,
+      getAll: (opts: { packageId: PackageId }) =>
+        getNetworkInterfaces(effects, opts) as GetNetworkInterfaces &
+          WrapperOverWrite,
+    },
+    store: {
+      get: <Path extends string = never>(
+        packageId: string,
+        path: EnsureStorePath<Store, Path>,
+      ) =>
+        getStore<Store, Path>(effects, path as any, {
+          packageId,
+        }) as any,
+      getOwn: <Path extends string>(path: EnsureStorePath<Store, Path>) =>
+        getStore<Store, Path>(effects, path as any) as any,
+      setOwn: <Path extends string | never>(
+        path: EnsureStorePath<Store, Path>,
+        value: ExtractStore<Store, Path>,
+      ) => effects.store.set<Store, Path>({ value, path: path as any }),
+    },
 
-  mountDependencies: <
-    In extends
-      | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>
-      | Record<VolumeName, Record<NamedPath, Path>>
-      | Record<NamedPath, Path>
-      | Path,
-  >(
-    value: In,
-  ) => mountDependencies(effects, value),
-})
+    runDaemon: async (
+      command: string,
+      options: { env?: Record<string, string> },
+    ): Promise<DaemonReturned> => {
+      let childProcess: null | {
+        kill(signal?: number | string): void
+      } = null
+      const answer = new Promise<string>(
+        (resolve, reject) =>
+          (childProcess = exec(command, options, (error, stdout, stderr) => {
+            if (error) return reject(error.toString())
+            if (stderr) return reject(stderr.toString())
+            return resolve(stdout.toString())
+          })),
+      )
+
+      return {
+        wait() {
+          return answer
+        },
+        async term() {
+          childProcess?.kill()
+        },
+      }
+    },
+    runCommand: async (
+      command: string,
+      options: { env?: Record<string, string>; timeout?: number },
+    ): Promise<string> => {
+      const answer = new Promise<string>((resolve, reject) =>
+        exec(command, options, (error, stdout, stderr) => {
+          if (error) return reject(error.toString())
+          if (stderr) return reject(stderr.toString())
+          return resolve(stdout.toString())
+        }),
+      )
+
+      return answer
+    },
+    checkPortListening: checkPortListening.bind(null, effects),
+    checkWebUrl: checkWebUrl.bind(null, effects),
+
+    mountDependencies: <
+      In extends
+        | Record<ManifestId, Record<VolumeName, Record<NamedPath, Path>>>
+        | Record<VolumeName, Record<NamedPath, Path>>
+        | Record<NamedPath, Path>
+        | Path,
+    >(
+      value: In,
+    ) => mountDependencies(effects, value),
+  }
+}
 function noop(): void {}

@@ -1,4 +1,5 @@
 import { Effects } from "../../types"
+import { createUtils } from "../../util"
 import { CheckResult } from "./CheckResult"
 export function containsAddress(x: string, port: number) {
   const readPorts = x
@@ -26,11 +27,15 @@ export async function checkPortListening(
     timeout?: number
   },
 ): Promise<CheckResult> {
+  const utils = createUtils(effects)
   return Promise.race<CheckResult>([
     Promise.resolve().then(async () => {
       const hasAddress =
-        containsAddress(await effects.runCommand(`cat /proc/net/tcp`), port) ||
-        containsAddress(await effects.runCommand("cat /proc/net/udp"), port)
+        containsAddress(
+          await utils.runCommand(`cat /proc/net/tcp`, {}),
+          port,
+        ) ||
+        containsAddress(await utils.runCommand("cat /proc/net/udp", {}), port)
       if (hasAddress) {
         return { status: "passing", message: options.successMessage }
       }

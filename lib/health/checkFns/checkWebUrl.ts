@@ -1,6 +1,7 @@
 import { Effects } from "../../types"
 import { CheckResult } from "./CheckResult"
 import { timeoutPromise } from "./index"
+import fetch from "node-fetch"
 
 /**
  * This is a helper function to check if a web url is reachable.
@@ -17,7 +18,7 @@ export const checkWebUrl = async (
     errorMessage = `Error while fetching URL: ${url}`,
   } = {},
 ): Promise<CheckResult> => {
-  return Promise.race([effects.fetch(url), timeoutPromise(timeout)])
+  return Promise.race([fetch(url), timeoutPromise(timeout)])
     .then((x) => ({
       status: "passing" as const,
       message: successMessage,

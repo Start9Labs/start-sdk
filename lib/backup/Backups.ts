@@ -134,15 +134,15 @@ export class Backups<M extends SDKManifest> {
         //     path: item.dstPath,
         //   })
         // }
-        await effects
-          .runRsync({
-            ...item,
-            options: {
-              ...this.options,
-              ...item.options,
-            },
-          })
-          .wait()
+        // await effects
+        //   .runRsync({
+        //     ...item,
+        //     options: {
+        //       ...this.options,
+        //       ...item.options,
+        //     },
+        //   })
+        //   .wait()
       }
       return
     }
@@ -158,18 +158,18 @@ export class Backups<M extends SDKManifest> {
         //     },
         //   )
         // }
-        await effects
-          .runRsync({
-            options: {
-              ...this.options,
-              ...item.options,
-            },
-            srcVolume: item.dstVolume,
-            dstVolume: item.srcVolume,
-            srcPath: item.dstPath,
-            dstPath: item.srcPath,
-          })
-          .wait()
+        // await effects
+        //   .runRsync({
+        //     options: {
+        //       ...this.options,
+        //       ...item.options,
+        //     },
+        //     srcVolume: item.dstVolume,
+        //     dstVolume: item.srcVolume,
+        //     srcPath: item.dstPath,
+        //     dstPath: item.srcPath,
+        //   })
+        //   .wait()
       }
       return
     }

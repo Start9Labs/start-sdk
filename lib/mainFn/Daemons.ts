@@ -4,9 +4,10 @@ import { Trigger } from "../trigger"
 import { TriggerInput } from "../trigger/TriggerInput"
 import { defaultTrigger } from "../trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
+import { createUtils } from "../util"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {
   id: "" extends Id ? never : Id
-  command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
+  command: string
   env?: Record<string, string>
   ready: {
     display: string | null
@@ -95,8 +96,9 @@ export class Daemons<Ids extends string> {
       )
       daemonsStarted[daemon.id] = requiredPromise.then(async () => {
         const { command } = daemon
+        const utils = createUtils(effects)
 
-        const child = effects.runDaemon(command, { env: daemon.env })
+        const child = utils.runDaemon(command, { env: daemon.env })
         let currentInput: TriggerInput = {}
         const getCurrentInput = () => currentInput
         const trigger = (daemon.ready.trigger ?? defaultTrigger)(
