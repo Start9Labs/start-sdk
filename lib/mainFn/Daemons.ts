@@ -7,7 +7,7 @@ import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
 import { createUtils } from "../util"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {
   id: "" extends Id ? never : Id
-  command: string
+  command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
   env?: Record<string, string>
   ready: {
     display: string | null

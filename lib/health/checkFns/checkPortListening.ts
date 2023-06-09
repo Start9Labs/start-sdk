@@ -1,5 +1,6 @@
 import { Effects } from "../../types"
 import { createUtils } from "../../util"
+import { stringFromStdErrOut } from "../../util/stringFromStdErrOut"
 import { CheckResult } from "./CheckResult"
 export function containsAddress(x: string, port: number) {
   const readPorts = x
@@ -32,10 +33,17 @@ export async function checkPortListening(
     Promise.resolve().then(async () => {
       const hasAddress =
         containsAddress(
-          await utils.runCommand(`cat /proc/net/tcp`, {}),
+          await utils.childProcess
+            .exec(`cat /proc/net/tcp`, {})
+            .then(stringFromStdErrOut),
           port,
         ) ||
-        containsAddress(await utils.runCommand("cat /proc/net/udp", {}), port)
+        containsAddress(
+          await utils.childProcess
+            .exec("cat /proc/net/udp", {})
+            .then(stringFromStdErrOut),
+          port,
+        )
       if (hasAddress) {
         return { status: "passing", message: options.successMessage }
       }

@@ -10,7 +10,6 @@ export const getHostname = (url: string): HostName | null => {
   if (!founds) return null
   const parts = founds.split("@")
   const last = parts[parts.length - 1] as HostName | null
-  console.log({ url, parts, founds, last })
   return last
 }
 

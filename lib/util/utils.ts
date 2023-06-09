@@ -1,4 +1,3 @@
-import FileHelper from "./fileHelper"
 import nullIfEmpty from "./nullIfEmpty"
 import {
   CheckResult,
@@ -12,6 +11,7 @@ import {
   ExtractStore,
   InterfaceId,
   PackageId,
+  ValidIfNoStupidEscape,
 } from "../types"
 import { GetSystemSmtp } from "./GetSystemSmtp"
 import { DefaultString } from "../config/configTypes"
@@ -34,8 +34,14 @@ import {
   GetNetworkInterfaces,
   getNetworkInterfaces,
 } from "./getNetworkInterfaces"
+import * as CP from "node:child_process"
+import { promisify } from "node:util"
+import { splitCommand } from "./splitCommand"
 
-import { exec } from "node:child_process"
+const childProcess = {
+  exec: promisify(CP.exec),
+  execFile: promisify(CP.execFile),
+}
 
 export type Utils<Store, WrapperOverWrite = { const: never }> = {
   checkPortListening(
@@ -55,6 +61,7 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
       errorMessage?: string
     },
   ): Promise<CheckResult>
+  childProcess: typeof childProcess
   createInterface: (options: {
     name: string
     id: string
@@ -93,15 +100,10 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
     }) => GetNetworkInterfaces & WrapperOverWrite
   }
   nullIfEmpty: typeof nullIfEmpty
-  readFile: <A>(fileHelper: FileHelper<A>) => ReturnType<FileHelper<A>["read"]>
-  runDaemon: (
-    command: string,
+  runDaemon: <A extends string>(
+    command: ValidIfNoStupidEscape<A> | [string, ...string[]],
     options: { env?: Record<string, string> },
   ) => Promise<DaemonReturned>
-  runCommand: (
-    command: string,
-    options: { env?: Record<string, string>; timeout?: number },
-  ) => Promise<string>
   store: {
     get: <Path extends string>(
       packageId: string,
@@ -115,10 +117,6 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
       value: ExtractStore<Store, Path>,
     ) => Promise<void>
   }
-  writeFile: <A>(
-    fileHelper: FileHelper<A>,
-    data: A,
-  ) => ReturnType<FileHelper<A>["write"]>
 }
 export const utils = <Store = never, WrapperOverWrite = { const: never }>(
   effects: Effects,
@@ -135,6 +133,7 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
       path: string
       search: Record<string, string>
     }) => new NetworkInterfaceBuilder({ ...options, effects }),
+    childProcess,
     getSystemSmtp: () =>
       new GetSystemSmtp(effects) as GetSystemSmtp & WrapperOverWrite,
 
@@ -143,9 +142,6 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
       single: (id: string) => new SingleHost({ id, effects }),
       multi: (id: string) => new MultiHost({ id, effects }),
     },
-    readFile: <A>(fileHelper: FileHelper<A>) => fileHelper.read(effects),
-    writeFile: <A>(fileHelper: FileHelper<A>, data: A) =>
-      fileHelper.write(data, effects),
     nullIfEmpty,
 
     networkInterface: {
@@ -178,44 +174,38 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
       ) => effects.store.set<Store, Path>({ value, path: path as any }),
     },
 
-    runDaemon: async (
-      command: string,
+    runDaemon: async <A extends string>(
+      command: ValidIfNoStupidEscape<A> | [string, ...string[]],
       options: { env?: Record<string, string> },
     ): Promise<DaemonReturned> => {
-      let childProcess: null | {
-        kill(signal?: number | string): void
-      } = null
-      const answer = new Promise<string>(
-        (resolve, reject) =>
-          (childProcess = exec(command, options, (error, stdout, stderr) => {
-            if (error) return reject(error.toString())
-            if (stderr) return reject(stderr.toString())
-            return resolve(stdout.toString())
-          })),
-      )
+      const commands = splitCommand(command)
+      const childProcess = CP.spawn(commands[0], commands.slice(1), options)
+      const answer = new Promise<string>((resolve, reject) => {
+        const output: string[] = []
+        childProcess.stdout.on("data", (data) => {
+          output.push(data.toString())
+        })
+        const outputError: string[] = []
+        childProcess.stderr.on("data", (data) => {
+          outputError.push(data.toString())
+        })
+
+        childProcess.on("close", (code) => {
+          if (code === 0) {
+            return resolve(output.join(""))
+          }
+          return reject(outputError.join(""))
+        })
+      })
 
       return {
         wait() {
           return answer
         },
         async term() {
-          childProcess?.kill()
+          childProcess.kill()
         },
       }
-    },
-    runCommand: async (
-      command: string,
-      options: { env?: Record<string, string>; timeout?: number },
-    ): Promise<string> => {
-      const answer = new Promise<string>((resolve, reject) =>
-        exec(command, options, (error, stdout, stderr) => {
-          if (error) return reject(error.toString())
-          if (stderr) return reject(stderr.toString())
-          return resolve(stdout.toString())
-        }),
-      )
-
-      return answer
     },
     checkPortListening: checkPortListening.bind(null, effects),
     checkWebUrl: checkWebUrl.bind(null, effects),

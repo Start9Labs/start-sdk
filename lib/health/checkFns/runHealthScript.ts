@@ -1,5 +1,6 @@
 import { CommandType, Effects } from "../../types"
 import { createUtils } from "../../util"
+import { stringFromStdErrOut } from "../../util/stringFromStdErrOut"
 import { CheckResult } from "./CheckResult"
 import { timeoutPromise } from "./index"
 
@@ -22,7 +23,7 @@ export const runHealthScript = async (
 ): Promise<CheckResult> => {
   const utils = createUtils(effects)
   const res = await Promise.race([
-    utils.runCommand(runCommand, { timeout }),
+    utils.childProcess.exec(runCommand, { timeout }).then(stringFromStdErrOut),
     timeoutPromise(timeout),
   ]).catch((e) => {
     console.warn(errorMessage)
