@@ -12,6 +12,10 @@ describe("splitCommand ", () => {
     ["cat hello world", ["cat", "hello", "world"]],
     ["cat hello 'big world'", ["cat", "hello", "big world"]],
     [`cat hello "big world"`, ["cat", "hello", "big world"]],
+    [
+      `cat hello "big world's are the greatest"`,
+      ["cat", "hello", "big world's are the greatest"],
+    ],
     // Too many spaces
     ["cat      ", ["cat"]],
     [["cat   "], ["cat   "]],
