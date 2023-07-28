@@ -58,6 +58,10 @@ export interface ValueSpecTextarea extends WithStandalone {
   /** Immutable means it can only be configed at the first config then never again */
   immutable: boolean
 }
+
+export type FilePath = {
+  filePath: string
+}
 export interface ValueSpecNumber extends ListValueSpecNumber, WithStandalone {
   required: boolean
   default: number | null

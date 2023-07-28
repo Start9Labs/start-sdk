@@ -2,6 +2,7 @@ import { Config, LazyBuild, LazyBuildOptions } from "./config"
 import { List } from "./list"
 import { Variants } from "./variants"
 import {
+  FilePath,
   Pattern,
   RandomString,
   ValueSpec,
@@ -623,7 +624,7 @@ export class Value<Type, Store> {
       }
     }, spec.validator)
   }
-  static file<Required extends boolean, Store>(a: {
+  static file<Required extends RequiredDefault<string>, Store>(a: {
     name: string
     description?: string | null
     warning?: string | null
@@ -636,12 +637,13 @@ export class Value<Type, Store> {
       warning: null,
       ...a,
     }
-    if (a.required) {
-      return new Value<string, Store>(() => buildValue, string)
-    }
-    return new Value<string | null | undefined, Store>(
-      () => buildValue,
-      string.optional(),
+    return new Value<AsRequired<FilePath, Required>, Store>(
+      () => ({
+        ...buildValue,
+
+        ...requiredLikeToAbove(a.required),
+      }),
+      asRequiredParser(object({ filePath: string }), a),
     )
   }
   static dynamicFile<Required extends boolean, Store>(
