@@ -1,4 +1,5 @@
 import { Address, Effects } from "../types"
+import { NetworkInterfaceType } from "../util/utils"
 import { AddressReceipt } from "./AddressReceipt"
 import { Host } from "./Host"
 import { Origin } from "./Origin"
@@ -23,7 +24,7 @@ export class NetworkInterfaceBuilder {
       description: string
       hasPrimary: boolean
       disabled: boolean
-      ui: boolean
+      type: NetworkInterfaceType
       username: null | string
       path: string
       search: Record<string, string>
@@ -47,7 +48,7 @@ export class NetworkInterfaceBuilder {
       hasPrimary,
       disabled,
       id,
-      ui,
+      type,
       username,
       path,
       search,
@@ -64,7 +65,7 @@ export class NetworkInterfaceBuilder {
       hasPrimary,
       disabled,
       addresses,
-      ui,
+      type,
     })
 
     return addresses as Address[] & AddressReceipt

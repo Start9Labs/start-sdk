@@ -43,6 +43,8 @@ const childProcess = {
   execFile: promisify(CP.execFile),
 }
 
+export type NetworkInterfaceType = "ui" | "p2p" | "api" | "other"
+
 export type Utils<Store, WrapperOverWrite = { const: never }> = {
   checkPortListening(
     port: number,
@@ -68,7 +70,7 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
     description: string
     hasPrimary: boolean
     disabled: boolean
-    ui: boolean
+    type: NetworkInterfaceType
     username: null | string
     path: string
     search: Record<string, string>
@@ -128,7 +130,7 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
       description: string
       hasPrimary: boolean
       disabled: boolean
-      ui: boolean
+      type: NetworkInterfaceType
       username: null | string
       path: string
       search: Record<string, string>

@@ -15,7 +15,7 @@ describe("host", () => {
         description: "A Foo",
         hasPrimary: false,
         disabled: false,
-        ui: true,
+        type: "ui",
         username: "bar",
         path: "/baz",
         search: { qux: "yes" },

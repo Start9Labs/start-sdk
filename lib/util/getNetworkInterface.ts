@@ -1,5 +1,6 @@
 import { Address, Effects, HostName, NetworkInterface } from "../types"
 import * as regexes from "./regexes"
+import { NetworkInterfaceType } from "./utils"
 
 export type UrlString = string
 export type HostId = string
@@ -45,10 +46,9 @@ export type NetworkInterfaceFilled = {
   disabled: boolean
   /** All URIs */
   addresses: FilledAddress[]
-  /** Defaults to false, but describes if this address can be opened in a browser as an
-   * ui interface
-   */
-  ui: boolean
+
+  /** Indicates if we are a ui/ p2p/ api/ other for the kind of interface that this is representing */
+  type: NetworkInterfaceType
 
   primaryHostname: HostName | null
   primaryUrl: UrlString | null

@@ -3,6 +3,7 @@ import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
 import { PortOptions } from "./interfaces/Host"
 import { UrlString } from "./util/getNetworkInterface"
+import { NetworkInterfaceType } from "./util/utils"
 
 export type ExportedAction = (options: {
   effects: Effects
@@ -186,10 +187,9 @@ export type NetworkInterface = {
   disabled: boolean
   /** All URIs */
   addresses: Address[]
-  /** Defaults to false, but describes if this address can be opened in a browser as an
-   * ui interface
-   */
-  ui: boolean
+
+  /** The netowrk interface could be serveral types, something like ui, p2p, or network */
+  type: NetworkInterfaceType
 }
 // prettier-ignore
 export type ExposeAllServicePaths<Store, PreviousPath extends string = ""> = 
