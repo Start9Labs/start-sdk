@@ -201,16 +201,23 @@ export type ExposeAllUiPaths<Store, PreviousPath extends string = ""> =
   Store extends string ? PreviousPath : 
   never
 export type ExposeServicePaths<Store> = Array<{
-  /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+  /** The path to the value in the Store. [JsonPath](https://jsonpath.com/)  */
   path: ExposeAllServicePaths<Store>
 }>
 
 export type ExposeUiPaths<Store> = Array<{
-  /** Sets the value for the wrapper at the path, it will override, using the [JsonPath](https://jsonpath.com/)  */
+  /** The path to the value in the Store. [JsonPath](https://jsonpath.com/)  */
   path: ExposeAllUiPaths<Store>
-
-  /** This will be the title for the value field that is returned */
+  /** A human readable title for the value */
   title: string
+  /** A human readable description or explanation of the value */
+  description?: string
+  /** (string/number only) Whether or not to mask the value, for example, when displaying a password */
+  masked?: boolean
+  /** (string/number only) Whether or not to include a button for copying the value to clipboard */
+  copyable?: boolean
+  /** (string/number only) Whether or not to include a button for displaying the value as a QR code */
+  qr?: boolean
 }>
 /** Used to reach out from the pure js runtime */
 export type Effects = {
