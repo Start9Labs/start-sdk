@@ -50,22 +50,18 @@ export type SDKManifest = {
     /** This description will display with additional details in the service's individual marketplace page */
     readonly long: string
   }
-  /** These assets are static files necessary for packaging the service for Start9 (into an s9pk).
-   * Each value is a path to the specified asset. If an asset is missing from this list, or otherwise
-   * denoted, it will be defaulted to the values denoted below.
-   */
-  readonly assets: {
-    /** This is the file path for the icon that will be this packages icon on the ui */
-    readonly icon: string
-    /** Instructions path to be seen in the ui section of the package */
-    readonly instructions: string
-    /** license path */
-    readonly license: string
-  }
-  /** Defines the containers needed to run the main and mounted volumes */
-  readonly containers: Record<string, Container>
-  /** This denotes any data, asset, or pointer volumes that should be connected when the "docker run" command is invoked */
-  readonly volumes: Record<string, "data" | "assets">
+
+  /** Defines the os images needed to run the container processes */
+  readonly images: string[]
+  /** This denotes readonly asset directories that should be available to mount to the container.
+   * Assuming that there will be three files with names along the lines:
+   * icon.* : the icon that will be this packages icon on the ui
+   * LICENSE : What the license is for this service
+   * Instructions : to be seen in the ui section of the package
+   * */
+  readonly assets: string[]
+  /** This denotes any data volumes that should be available to mount to the container */
+  readonly volumes: string[]
 
   readonly alerts: {
     readonly install: string | null
