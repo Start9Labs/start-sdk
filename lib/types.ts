@@ -5,6 +5,8 @@ import { PortOptions } from "./interfaces/Host"
 import { UrlString } from "./util/getNetworkInterface"
 import { NetworkInterfaceType } from "./util/utils"
 
+export type Signals = "SIGINT" | "SIGTERM" | "SIGKILL" | "SIGHUP"
+
 export type ExportedAction = (options: {
   effects: Effects
   input?: Record<string, unknown>
@@ -128,7 +130,7 @@ export type DaemonReceipt = {
 }
 export type Daemon = {
   wait(): Promise<string>
-  term(): Promise<void>
+  term(options?: { signal?: Signals; timeout?: number }): Promise<void>
   [DaemonProof]: never
 }
 
@@ -148,7 +150,7 @@ export type CommandType<A extends string> =
 
 export type DaemonReturned = {
   wait(): Promise<string>
-  term(): Promise<void>
+  term(options?: { signal?: Signals; timeout?: number }): Promise<void>
 }
 
 export type ActionMetadata = {
@@ -397,6 +399,8 @@ export type Effects = {
     status: HealthStatus
     message?: string
   }): Promise<void>
+
+  setMainStatus(o: { status: "running" | "stopped" }): Promise<void>
 
   /** Set the dependencies of what the service needs, usually ran during the set config as a best practice */
   setDependencies(dependencies: Dependencies): Promise<DependenciesReceipt>
