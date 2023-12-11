@@ -225,11 +225,9 @@ export type ExposeUiPaths<Store> = Array<{
 export type Effects = {
   executeAction<Input>(opts: {
     serviceId?: string
+    actionId: string
     input: Input
   }): Promise<unknown>
-
-  /** Sandbox mode lets us read but not write */
-  is_sandboxed(): Promise<boolean>
 
   /** Removes all network bindings */
   clearBindings(): Promise<void>
