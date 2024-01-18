@@ -4,7 +4,7 @@ export function setupManifest<
   Id extends string,
   Version extends ManifestVersion,
   Dependencies extends Record<string, unknown>,
-  Volumes extends Record<string, unknown>,
+  Volumes extends string[],
   Manifest extends SDKManifest & {
     dependencies: Dependencies
     id: Id

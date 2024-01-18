@@ -63,12 +63,14 @@ const negate =
     !fn(a)
 const unique = <A>(values: A[]) => Array.from(new Set(values))
 const addressHostToUrl = (
-  { scheme, username, suffix }: Address,
+  { options, username, suffix }: Address,
   host: HostName,
-): UrlString =>
-  `${scheme ? `${scheme}//` : ""}${
+): UrlString => {
+  const scheme = host.endsWith('.onion') ? options.scheme : (options.addSsl ? options.addSsl.scheme : options.scheme) // TODO: encode whether hostname transport is "secure"?
+  return `${scheme ? `${scheme}//` : ""}${
     username ? `${username}@` : ""
   }${host}${suffix}`
+}
 export const filledAddress = (
   mapHostnames: {
     [hostId: string]: HostName[]

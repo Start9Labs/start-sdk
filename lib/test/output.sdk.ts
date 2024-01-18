@@ -20,13 +20,10 @@ export const sdk = StartSdk.of()
         short: "",
         long: "",
       },
-      assets: {
-        icon: "",
-        instructions: "",
-        license: "",
-      },
       containers: {},
-      volumes: {},
+      images: [],
+      volumes: [],
+      assets: [],
       alerts: {
         install: null,
         update: null,

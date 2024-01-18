@@ -22,13 +22,9 @@ describe("mountDependencies", () => {
       short: "",
       long: "",
     },
-    assets: {
-      icon: "",
-      instructions: "",
-      license: "",
-    },
-    containers: {},
-    volumes: { main: "data" },
+    assets: [],
+    images: [],
+    volumes: ["main"],
     alerts: {
       install: null,
       update: null,
@@ -55,15 +51,9 @@ describe("mountDependencies", () => {
       short: "",
       long: "",
     },
-    assets: {
-      icon: "",
-      instructions: "",
-      license: "",
-    },
-    containers: {},
-    volumes: {
-      main2: "data",
-    },
+    assets: [],
+    images: [],
+    volumes: ["main2"],
     alerts: {
       install: null,
       update: null,

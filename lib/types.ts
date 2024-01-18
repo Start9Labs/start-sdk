@@ -170,7 +170,6 @@ export type Address = {
   hostId: string
   options: PortOptions
   suffix: string
-  scheme: string | null
 }
 
 export type InterfaceId = string

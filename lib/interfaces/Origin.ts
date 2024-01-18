@@ -18,7 +18,6 @@ export class Origin<T extends Host> {
       options: this.options,
       suffix: `${path}${qp}`,
       username,
-      scheme: this.options.scheme,
     }
   }
 }

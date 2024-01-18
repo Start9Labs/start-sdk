@@ -87,7 +87,7 @@ type PortOptionsByKnownProtocol =
     }
 type PortOptionsByProtocol = PortOptionsByKnownProtocol | PortOptions
 
-const hasStringProtocal = object({
+const hasStringProtocol = object({
   protocol: string,
 }).test
 
@@ -104,7 +104,7 @@ export class Host {
     internalPort: number,
     options: PortOptionsByProtocol,
   ): Promise<Origin<this>> {
-    if (hasStringProtocal(options)) {
+    if (hasStringProtocol(options)) {
       return await this.bindPortForKnown(options, internalPort)
     } else {
       return await this.bindPortForUnknown(internalPort, options)
