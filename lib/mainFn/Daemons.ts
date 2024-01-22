@@ -3,7 +3,12 @@ import { CheckResult } from "../health/checkFns"
 import { Trigger } from "../trigger"
 import { TriggerInput } from "../trigger/TriggerInput"
 import { defaultTrigger } from "../trigger/defaultTrigger"
-import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
+import {
+  DaemonReturned,
+  Effects,
+  Signals,
+  ValidIfNoStupidEscape,
+} from "../types"
 import { createUtils } from "../util"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {
   id: "" extends Id ? never : Id
@@ -128,10 +133,10 @@ export class Daemons<Ids extends string> {
       })
     }
     return {
-      async term() {
+      async term(options?: { signal?: Signals; timeout?: number }) {
         await Promise.all(
           Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
-            x.then((x) => x.term()),
+            x.then((x) => x.term(options)),
           ),
         )
       },

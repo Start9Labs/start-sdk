@@ -11,6 +11,7 @@ import {
   ExtractStore,
   InterfaceId,
   PackageId,
+  Signals,
   ValidIfNoStupidEscape,
 } from "../types"
 import { GetSystemSmtp } from "./GetSystemSmtp"
@@ -37,6 +38,10 @@ import {
 import * as CP from "node:child_process"
 import { promisify } from "node:util"
 import { splitCommand } from "./splitCommand"
+
+export const SIGTERM: Signals = "SIGTERM"
+export const SIGKILL: Signals = "SIGTERM"
+export const NO_TIMEOUT = -1
 
 const childProcess = {
   exec: promisify(CP.exec),
@@ -204,8 +209,19 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
         wait() {
           return answer
         },
-        async term() {
-          childProcess.kill()
+        async term({ signal = SIGTERM, timeout = NO_TIMEOUT } = {}) {
+          childProcess.kill(signal)
+
+          if (timeout <= NO_TIMEOUT) {
+            const didTimeout = await Promise.race([
+              new Promise((resolve) => setTimeout(resolve, timeout)).then(
+                () => true,
+              ),
+              answer.then(() => false),
+            ])
+            if (didTimeout) childProcess.kill(SIGKILL)
+          }
+          await answer
         },
       }
     },
