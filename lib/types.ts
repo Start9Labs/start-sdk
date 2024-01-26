@@ -226,7 +226,7 @@ export type Effects = {
   }): Promise<unknown>
 
   /** The idea is that we can mount the imageId, and it returns us the location of the mount. */
-  createOverlayImage(options: { imageId: string }): Promise<String>
+  createOverlayedImage(options: { imageId: string }): Promise<String>
   /** Sandbox mode lets us read but not write */
   is_sandboxed(): Promise<boolean>
 
