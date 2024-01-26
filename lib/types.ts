@@ -225,7 +225,7 @@ export type Effects = {
     input: Input
   }): Promise<unknown>
 
-  /** The idea is that we can mount the imageId, and it returns us the location of the mount. */
+  /** The idea is that we want to create a sub image. This would be useful for things like creating a ro mode for sandbox. */
   createOverlayedImage(options: { imageId: string }): Promise<string>
 
   /** Removes all network bindings */
