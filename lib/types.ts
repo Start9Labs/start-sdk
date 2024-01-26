@@ -227,8 +227,6 @@ export type Effects = {
 
   /** The idea is that we can mount the imageId, and it returns us the location of the mount. */
   createOverlayedImage(options: { imageId: string }): Promise<String>
-  /** Sandbox mode lets us read but not write */
-  is_sandboxed(): Promise<boolean>
 
   /** Removes all network bindings */
   clearBindings(): Promise<void>
