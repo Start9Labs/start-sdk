@@ -25,9 +25,7 @@ export async function mountDependencies<
     const mountPath = `${value.manifestId}/${value.volume}/${value.name}`
 
     return (await effects.mount({
-      location: {
-        path: mountPath,
-      },
+      location: mountPath,
       target: {
         packageId: value.manifestId,
         path: value.path,

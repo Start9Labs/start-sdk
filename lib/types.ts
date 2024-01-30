@@ -380,14 +380,14 @@ export type Effects = {
    * @returns  PEM encoded fullchain (ecdsa)
    */
   getSslCertificate: (
-    packageId: string,
+    packageId?: string,
     algorithm?: "ecdsa" | "ed25519",
   ) => Promise<[string, string, string]>
   /**
    * @returns PEM encoded ssl key (ecdsa)
    */
   getSslKey: (
-    packageId: string,
+    packageId?: string,
     algorithm?: "ecdsa" | "ed25519",
   ) => Promise<string>
 
@@ -427,11 +427,7 @@ export type Effects = {
   shutdown(): void
 
   mount(options: {
-    location: {
-      /** If there is no volumeId then we mount to runMedia a special mounting location */
-      volumeId?: string
-      path: string
-    }
+    location: string
     target: {
       packageId: string
       volumeId: string
