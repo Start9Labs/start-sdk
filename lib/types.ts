@@ -3,7 +3,7 @@ import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
 import { PortOptions } from "./interfaces/Host"
 import { UrlString } from "./util/getNetworkInterface"
-import { NetworkInterfaceType } from "./util/utils"
+import { NetworkInterfaceType, Signals } from "./util/utils"
 
 export type ExportedAction = (options: {
   effects: Effects
@@ -148,7 +148,7 @@ export type CommandType<A extends string> =
 
 export type DaemonReturned = {
   wait(): Promise<string>
-  term(): Promise<void>
+  term(options?: { signal?: Signals; timeout?: number }): Promise<void>
 }
 
 export type ActionMetadata = {
@@ -495,40 +495,7 @@ export type ActionResult = {
 }
 export type SetResult = {
   /** These are the unix process signals */
-  signal:
-    | "SIGTERM"
-    | "SIGHUP"
-    | "SIGINT"
-    | "SIGQUIT"
-    | "SIGILL"
-    | "SIGTRAP"
-    | "SIGABRT"
-    | "SIGBUS"
-    | "SIGFPE"
-    | "SIGKILL"
-    | "SIGUSR1"
-    | "SIGSEGV"
-    | "SIGUSR2"
-    | "SIGPIPE"
-    | "SIGALRM"
-    | "SIGSTKFLT"
-    | "SIGCHLD"
-    | "SIGCONT"
-    | "SIGSTOP"
-    | "SIGTSTP"
-    | "SIGTTIN"
-    | "SIGTTOU"
-    | "SIGURG"
-    | "SIGXCPU"
-    | "SIGXFSZ"
-    | "SIGVTALRM"
-    | "SIGPROF"
-    | "SIGWINCH"
-    | "SIGIO"
-    | "SIGPWR"
-    | "SIGSYS"
-    | "SIGEMT"
-    | "SIGINFO"
+  signal: Signals
   "depends-on": DependsOn
 }
 

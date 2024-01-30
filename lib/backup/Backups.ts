@@ -42,12 +42,12 @@ export class Backups<M extends SDKManifest> {
 
   private constructor(
     private options = DEFAULT_OPTIONS,
-    private backupSet = [] as BackupSet<keyof M["volumes"] & string>[],
+    private backupSet = [] as BackupSet<M["volumes"][0]>[],
   ) {}
   static volumes<M extends SDKManifest = never>(
-    ...volumeNames: Array<keyof M["volumes"] & string>
-  ) {
-    return new Backups().addSets(
+    ...volumeNames: Array<M["volumes"][0]>
+  ): Backups<M> {
+    return new Backups<M>().addSets(
       ...volumeNames.map((srcVolume) => ({
         srcVolume,
         srcPath: "./",
@@ -57,7 +57,7 @@ export class Backups<M extends SDKManifest> {
     )
   }
   static addSets<M extends SDKManifest = never>(
-    ...options: BackupSet<keyof M["volumes"] & string>[]
+    ...options: BackupSet<M["volumes"][0]>[]
   ) {
     return new Backups().addSets(...options)
   }
@@ -75,7 +75,7 @@ export class Backups<M extends SDKManifest> {
     }
     return this
   }
-  volumes(...volumeNames: Array<keyof M["volumes"] & string>) {
+  volumes(...volumeNames: Array<M["volumes"][0]>) {
     return this.addSets(
       ...volumeNames.map((srcVolume) => ({
         srcVolume,
@@ -85,7 +85,7 @@ export class Backups<M extends SDKManifest> {
       })),
     )
   }
-  addSets(...options: BackupSet<keyof M["volumes"] & string>[]) {
+  addSets(...options: BackupSet<M["volumes"][0]>[]) {
     options.forEach((x) =>
       this.backupSet.push({ ...x, options: { ...this.options, ...x.options } }),
     )

@@ -35,6 +35,7 @@ describe("mountDependencies", () => {
     },
     dependencies: {},
   })
+  const clnManifestVolumes = clnManifest.volumes
   const lndManifest = setupManifest({
     id: "lnd",
     title: "",

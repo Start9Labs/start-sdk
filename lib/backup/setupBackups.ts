@@ -4,14 +4,14 @@ import { ExpectedExports } from "../types"
 import { _ } from "../util"
 
 export type SetupBackupsParams<M extends SDKManifest> = Array<
-  (keyof M["volumes"] & string) | Backups<M>
+  M["volumes"][0] | Backups<M>
 >
 
 export function setupBackups<M extends SDKManifest>(
   ...args: _<SetupBackupsParams<M>>
 ) {
   const backups = Array<Backups<M>>()
-  const volumes = new Set<keyof M["volumes"] & string>()
+  const volumes = new Set<M["volumes"][0]>()
   for (const arg of args) {
     if (arg instanceof Backups) {
       backups.push(arg)

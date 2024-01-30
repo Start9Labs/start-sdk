@@ -37,7 +37,8 @@ import {
 import * as CP from "node:child_process"
 import { promisify } from "node:util"
 import { splitCommand } from "./splitCommand"
-export type Signals = "SIGTERM" | "SIGKILL"
+export type Signals = NodeJS.Signals
+
 export const SIGTERM: Signals = "SIGTERM"
 export const SIGKILL: Signals = "SIGTERM"
 export const NO_TIMEOUT = -1

@@ -35,7 +35,7 @@ class SetupDependencyMounts<Building> {
 
   addPath<
     Name extends string,
-    Volume extends keyof M["volumes"] & string,
+    Volume extends M["volumes"][0] & string,
     Path extends string,
     ManifestId extends M["id"],
     M extends SDKManifest,

@@ -5,6 +5,7 @@ import { TriggerInput } from "../trigger/TriggerInput"
 import { defaultTrigger } from "../trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
 import { createUtils } from "../util"
+import { Signals } from "../util/utils"
 type Daemon<Ids extends string, Command extends string, Id extends string> = {
   id: "" extends Id ? never : Id
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
@@ -128,7 +129,7 @@ export class Daemons<Ids extends string> {
       })
     }
     return {
-      async term(options?: { signal?: string; timeout?: number }) {
+      async term(options?: { signal?: Signals; timeout?: number }) {
         await Promise.all(
           Object.values<Promise<DaemonReturned>>(daemonsStarted).map((x) =>
             x.then((x) => x.term(options)),
