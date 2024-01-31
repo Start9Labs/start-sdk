@@ -2,6 +2,7 @@ export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
 import { PortOptions } from "./interfaces/Host"
+import { Overlay } from "./util/Overlay"
 import { UrlString } from "./util/getNetworkInterface"
 import { NetworkInterfaceType, Signals } from "./util/utils"
 
@@ -225,7 +226,7 @@ export type Effects = {
     input: Input
   }): Promise<unknown>
 
-  /** The idea is that we want to create a sub image. This would be useful for things like creating a ro mode for sandbox. */
+  /** A low level api used by makeOverlay */
   createOverlayedImage(options: { imageId: string }): Promise<string>
 
   /** Removes all network bindings */

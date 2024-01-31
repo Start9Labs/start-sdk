@@ -22,7 +22,7 @@ export type Save<
 > = (options: {
   effects: Effects
   input: ExtractConfigType<A> & Record<string, any>
-  utils: Utils<Store>
+  utils: Utils<Manifest, Store>
   dependencies: D.ConfigDependencies<Manifest>
 }) => Promise<{
   dependenciesReceipt: DependenciesReceipt
@@ -30,6 +30,7 @@ export type Save<
   restart: boolean
 }>
 export type Read<
+  Manifest extends SDKManifest,
   Store,
   A extends
     | Record<string, any>
@@ -37,7 +38,7 @@ export type Read<
     | Config<Record<string, any>, never>,
 > = (options: {
   effects: Effects
-  utils: Utils<Store>
+  utils: Utils<Manifest, Store>
 }) => Promise<void | (ExtractConfigType<A> & Record<string, any>)>
 /**
  * We want to setup a config export with a get and set, this
@@ -57,7 +58,7 @@ export function setupConfig<
 >(
   spec: Config<Type, Store> | Config<Type, never>,
   write: Save<Store, Type, Manifest>,
-  read: Read<Store, Type>,
+  read: Read<Manifest, Store, Type>,
 ) {
   const validator = spec.validator
   return {
@@ -79,7 +80,7 @@ export function setupConfig<
       }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
-      const myUtils = utils<Store>(effects)
+      const myUtils = utils<Manifest, Store>(effects)
       const configValue = nullIfEmpty(
         (await read({ effects, utils: myUtils })) || null,
       )

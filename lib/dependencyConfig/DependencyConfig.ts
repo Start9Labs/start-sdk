@@ -6,6 +6,7 @@ import {
 import { Utils, utils } from "../util/utils"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
+import { SDKManifest } from "../manifest/ManifestTypes"
 
 export type Update<QueryResults, RemoteConfig> = (options: {
   remoteConfig: RemoteConfig
@@ -13,6 +14,7 @@ export type Update<QueryResults, RemoteConfig> = (options: {
 }) => Promise<RemoteConfig>
 
 export class DependencyConfig<
+  Manifest extends SDKManifest,
   Store,
   Input extends Record<string, any>,
   RemoteConfig extends Record<string, any>,
@@ -27,7 +29,7 @@ export class DependencyConfig<
     readonly dependencyConfig: (options: {
       effects: Effects
       localConfig: Input
-      utils: Utils<Store>
+      utils: Utils<Manifest, Store>
     }) => Promise<void | DeepPartial<RemoteConfig>>,
     readonly update: Update<
       void | DeepPartial<RemoteConfig>,
@@ -39,7 +41,7 @@ export class DependencyConfig<
     return this.dependencyConfig({
       localConfig: options.localConfig as Input,
       effects: options.effects,
-      utils: utils<Store>(options.effects),
+      utils: utils<Manifest, Store>(options.effects),
     })
   }
 }

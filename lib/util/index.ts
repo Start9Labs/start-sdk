@@ -5,8 +5,10 @@ import "./fileHelper"
 import "../store/getStore"
 import "./deepEqual"
 import "./deepMerge"
+import "./Overlay"
 import "./once"
 import { utils } from "./utils"
+import { SDKManifest } from "../manifest/ManifestTypes"
 
 // prettier-ignore
 export type FlattenIntersection<T> = 
@@ -22,8 +24,9 @@ export const isKnownError = (e: unknown): e is T.KnownError =>
 declare const affine: unique symbol
 
 export const createUtils = utils
-export const createMainUtils = <Store>(effects: T.Effects) =>
-  createUtils<Store, {}>(effects)
+export const createMainUtils = <Manifest extends SDKManifest, Store>(
+  effects: T.Effects,
+) => createUtils<Manifest, Store, {}>(effects)
 
 type NeverPossible = { [affine]: string }
 export type NoAny<A> = NeverPossible extends A

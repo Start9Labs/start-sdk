@@ -37,6 +37,8 @@ import {
 import * as CP from "node:child_process"
 import { promisify } from "node:util"
 import { splitCommand } from "./splitCommand"
+import { SDKManifest } from "../manifest/ManifestTypes"
+import { MountOptions, Overlay, CommandOptions } from "./Overlay"
 export type Signals = NodeJS.Signals
 
 export const SIGTERM: Signals = "SIGTERM"
@@ -50,7 +52,11 @@ const childProcess = {
 
 export type NetworkInterfaceType = "ui" | "p2p" | "api" | "other"
 
-export type Utils<Store, WrapperOverWrite = { const: never }> = {
+export type Utils<
+  Manifest extends SDKManifest,
+  Store,
+  WrapperOverWrite = { const: never },
+> = {
   checkPortListening(
     port: number,
     options: {
@@ -107,9 +113,19 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
     }) => GetNetworkInterfaces & WrapperOverWrite
   }
   nullIfEmpty: typeof nullIfEmpty
-  runDaemon: <A extends string>(
+  runCommand: <A extends string>(
+    imageId: Manifest["images"][number],
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
-    options: { env?: Record<string, string> },
+    options: CommandOptions & {
+      mounts?: { path: string; options: MountOptions }[]
+    },
+  ) => Promise<{ stdout: string | Buffer; stderr: string | Buffer }>
+  runDaemon: <A extends string>(
+    imageId: Manifest["images"][number],
+    command: ValidIfNoStupidEscape<A> | [string, ...string[]],
+    options: CommandOptions & {
+      mounts?: { path: string; options: MountOptions }[]
+    },
   ) => Promise<DaemonReturned>
   store: {
     get: <Path extends string>(
@@ -125,9 +141,13 @@ export type Utils<Store, WrapperOverWrite = { const: never }> = {
     ) => Promise<void>
   }
 }
-export const utils = <Store = never, WrapperOverWrite = { const: never }>(
+export const utils = <
+  Manifest extends SDKManifest,
+  Store = never,
+  WrapperOverWrite = { const: never },
+>(
   effects: Effects,
-): Utils<Store, WrapperOverWrite> => {
+): Utils<Manifest, Store, WrapperOverWrite> => {
   return {
     createInterface: (options: {
       name: string
@@ -181,12 +201,39 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
       ) => effects.store.set<Store, Path>({ value, path: path as any }),
     },
 
-    runDaemon: async <A extends string>(
+    runCommand: async <A extends string>(
+      imageId: Manifest["images"][number],
       command: ValidIfNoStupidEscape<A> | [string, ...string[]],
-      options: { env?: Record<string, string> },
+      options: CommandOptions & {
+        mounts?: { path: string; options: MountOptions }[]
+      },
+    ): Promise<{ stdout: string | Buffer; stderr: string | Buffer }> => {
+      const commands = splitCommand(command)
+      const overlay = await Overlay.of(effects, imageId)
+      try {
+        for (let mount of options.mounts || []) {
+          await overlay.mount(mount.options, mount.path)
+        }
+        return await overlay.exec(commands)
+      } finally {
+        await overlay.destroy()
+      }
+    },
+    runDaemon: async <A extends string>(
+      imageId: Manifest["images"][number],
+      command: ValidIfNoStupidEscape<A> | [string, ...string[]],
+      options: CommandOptions & {
+        mounts?: { path: string; options: MountOptions }[]
+      },
     ): Promise<DaemonReturned> => {
       const commands = splitCommand(command)
-      const childProcess = CP.spawn(commands[0], commands.slice(1), options)
+      const overlay = await Overlay.of(effects, imageId)
+      for (let mount of options.mounts || []) {
+        await overlay.mount(mount.options, mount.path)
+      }
+      const childProcess = overlay.spawn(commands, {
+        env: options.env,
+      })
       const answer = new Promise<string>((resolve, reject) => {
         const output: string[] = []
         childProcess.stdout.on("data", (data) => {
@@ -210,18 +257,22 @@ export const utils = <Store = never, WrapperOverWrite = { const: never }>(
           return answer
         },
         async term({ signal = SIGTERM, timeout = NO_TIMEOUT } = {}) {
-          childProcess.kill(signal)
+          try {
+            childProcess.kill(signal)
 
-          if (timeout <= NO_TIMEOUT) {
-            const didTimeout = await Promise.race([
-              new Promise((resolve) => setTimeout(resolve, timeout)).then(
-                () => true,
-              ),
-              answer.then(() => false),
-            ])
-            if (didTimeout) childProcess.kill(SIGKILL)
+            if (timeout <= NO_TIMEOUT) {
+              const didTimeout = await Promise.race([
+                new Promise((resolve) => setTimeout(resolve, timeout)).then(
+                  () => true,
+                ),
+                answer.then(() => false),
+              ])
+              if (didTimeout) childProcess.kill(SIGKILL)
+            }
+            await answer
+          } finally {
+            await overlay.destroy()
           }
-          await answer
         },
       }
     },

@@ -89,7 +89,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
         },
         fn: (options: {
           effects: Effects
-          utils: Utils<Store>
+          utils: Utils<Manifest, Store>
           input: Type
         }) => Promise<ActionResult>,
       ) => {
@@ -105,11 +105,11 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       >(
         metaData: (options: {
           effects: Effects
-          utils: Utils<Store>
+          utils: Utils<Manifest, Store>
         }) => MaybePromise<Omit<ActionMetadata, "input">>,
         fn: (options: {
           effects: Effects
-          utils: Utils<Store>
+          utils: Utils<Manifest, Store>
           input: Type
         }) => Promise<ActionResult>,
         input: Config<Type, Store> | Config<Type, never>,
@@ -136,7 +136,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       >(
         spec: ConfigType,
         write: Save<Store, Type, Manifest>,
-        read: Read<Store, Type>,
+        read: Read<Manifest, Store, Type>,
       ) => setupConfig<Store, ConfigType, Manifest, Type>(spec, write, read),
       setupConfigRead: <
         ConfigSpec extends
@@ -144,7 +144,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           | Config<Record<string, never>, never>,
       >(
         _configSpec: ConfigSpec,
-        fn: Read<Store, ConfigSpec>,
+        fn: Read<Manifest, Store, ConfigSpec>,
       ) => fn,
       setupConfigSave: <
         ConfigSpec extends
@@ -158,6 +158,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
         config: Config<Input, Store> | Config<Input, never>,
         autoConfigs: {
           [K in keyof Manifest["dependencies"]]: DependencyConfig<
+            Manifest,
             Store,
             Input,
             any
@@ -192,9 +193,9 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
         fn: (o: {
           effects: Effects
           started(onTerm: () => void): null
-          utils: Utils<Store, {}>
+          utils: Utils<Manifest, Store, {}>
         }) => Promise<Daemons<any>>,
-      ) => setupMain<Store>(fn),
+      ) => setupMain<Manifest, Store>(fn),
       setupMigrations: <Migrations extends Array<Migration<Store, any>>>(
         ...migrations: EnsureUniqueId<Migrations>
       ) => setupMigrations<Store, Migrations>(this.manifest, ...migrations),
@@ -238,14 +239,16 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           dependencyConfig: (options: {
             effects: Effects
             localConfig: LocalConfig
-            utils: Utils<Store>
+            utils: Utils<Manifest, Store>
           }) => Promise<void | DeepPartial<RemoteConfig>>
           update?: Update<void | DeepPartial<RemoteConfig>, RemoteConfig>
         }) {
-          return new DependencyConfig<Store, LocalConfig, RemoteConfig>(
-            dependencyConfig,
-            update,
-          )
+          return new DependencyConfig<
+            Manifest,
+            Store,
+            LocalConfig,
+            RemoteConfig
+          >(dependencyConfig, update)
         },
       },
       List: {
@@ -320,10 +323,13 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       Migration: {
         of: <Version extends ManifestVersion>(options: {
           version: Version
-          up: (opts: { effects: Effects; utils: Utils<Store> }) => Promise<void>
+          up: (opts: {
+            effects: Effects
+            utils: Utils<Manifest, Store>
+          }) => Promise<void>
           down: (opts: {
             effects: Effects
-            utils: Utils<Store>
+            utils: Utils<Manifest, Store>
           }) => Promise<void>
         }) => Migration.of<Store, Version>(options),
       },

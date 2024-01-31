@@ -6,6 +6,7 @@ import "../interfaces/NetworkInterfaceBuilder"
 import "../interfaces/Origin"
 
 import "./Daemons"
+import { SDKManifest } from "../manifest/ManifestTypes"
 
 /**
  * Used to ensure that the main function is running with the valid proofs.
@@ -17,17 +18,17 @@ import "./Daemons"
  * @param fn
  * @returns
  */
-export const setupMain = <Store>(
+export const setupMain = <Manifest extends SDKManifest, Store>(
   fn: (o: {
     effects: Effects
     started(onTerm: () => void): null
-    utils: Utils<Store, {}>
+    utils: Utils<Manifest, Store, {}>
   }) => Promise<Daemons<any>>,
 ): ExpectedExports.main => {
   return async (options) => {
     const result = await fn({
       ...options,
-      utils: createMainUtils<Store>(options.effects),
+      utils: createMainUtils<Manifest, Store>(options.effects),
     })
     await result.build().then((x) => x.wait())
   }

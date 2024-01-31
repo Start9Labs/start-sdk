@@ -11,6 +11,7 @@ export function setupDependencyConfig<
   _config: Config<Input, Store> | Config<Input, never>,
   autoConfigs: {
     [key in keyof Manifest["dependencies"] & string]: DependencyConfig<
+      Manifest,
       Store,
       Input,
       any
