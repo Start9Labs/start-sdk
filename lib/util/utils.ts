@@ -234,21 +234,19 @@ export const utils = <
       const childProcess = overlay.spawn(commands, {
         env: options.env,
       })
-      const answer = new Promise<string>((resolve, reject) => {
-        const output: string[] = []
+      const answer = new Promise<null>((resolve, reject) => {
         childProcess.stdout.on("data", (data) => {
-          output.push(data.toString())
+          console.log(data.toString())
         })
-        const outputError: string[] = []
         childProcess.stderr.on("data", (data) => {
-          outputError.push(data.toString())
+          console.error(data.toString())
         })
 
         childProcess.on("close", (code) => {
           if (code === 0) {
-            return resolve(output.join(""))
+            return resolve(null)
           }
-          return reject(outputError.join(""))
+          return reject(new Error(`${commands[0]} exited with code ${code}`))
         })
       })
 

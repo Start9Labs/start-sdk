@@ -194,7 +194,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           effects: Effects
           started(onTerm: () => void): null
           utils: Utils<Manifest, Store, {}>
-        }) => Promise<Daemons<any>>,
+        }) => Promise<Daemons<Manifest, any>>,
       ) => setupMain<Manifest, Store>(fn),
       setupMigrations: <Migrations extends Array<Migration<Store, any>>>(
         ...migrations: EnsureUniqueId<Migrations>

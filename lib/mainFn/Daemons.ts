@@ -1,14 +1,21 @@
 import { HealthReceipt } from "../health/HealthReceipt"
 import { CheckResult } from "../health/checkFns"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { Trigger } from "../trigger"
 import { TriggerInput } from "../trigger/TriggerInput"
 import { defaultTrigger } from "../trigger/defaultTrigger"
 import { DaemonReturned, Effects, ValidIfNoStupidEscape } from "../types"
 import { createUtils } from "../util"
 import { Signals } from "../util/utils"
-type Daemon<Ids extends string, Command extends string, Id extends string> = {
+type Daemon<
+  Manifest extends SDKManifest,
+  Ids extends string,
+  Command extends string,
+  Id extends string,
+> = {
   id: "" extends Id ? never : Id
   command: ValidIfNoStupidEscape<Command> | [string, ...string[]]
+  imageId: Manifest["images"][number]
   env?: Record<string, string>
   ready: {
     display: string | null
@@ -42,11 +49,11 @@ Daemons.of({
 })
 ```
  */
-export class Daemons<Ids extends string> {
+export class Daemons<Manifest extends SDKManifest, Ids extends string> {
   private constructor(
     readonly effects: Effects,
     readonly started: (onTerm: () => void) => null,
-    readonly daemons?: Daemon<Ids, "command", Ids>[],
+    readonly daemons?: Daemon<Manifest, Ids, "command", Ids>[],
   ) {}
   /**
    * Returns an empty new Daemons class with the provided config.
@@ -58,12 +65,12 @@ export class Daemons<Ids extends string> {
    * @param config
    * @returns
    */
-  static of(config: {
+  static of<Manifest extends SDKManifest>(config: {
     effects: Effects
     started: (onTerm: () => void) => null
     healthReceipts: HealthReceipt[]
   }) {
-    return new Daemons<never>(config.effects, config.started)
+    return new Daemons<Manifest, never>(config.effects, config.started)
   }
   /**
    * Returns the complete list of daemons, including the one defined here
@@ -78,13 +85,13 @@ export class Daemons<Ids extends string> {
       ErrorDuplicateId<Id> extends Id ? never :
       Id extends Ids ? ErrorDuplicateId<Id> :
       Id,
-    newDaemon: Omit<Daemon<Ids, Command, Id>, "id">,
+    newDaemon: Omit<Daemon<Manifest, Ids, Command, Id>, "id">,
   ) {
     const daemons = ((this?.daemons ?? []) as any[]).concat({
       ...newDaemon,
       id,
     })
-    return new Daemons<Ids | Id>(this.effects, this.started, daemons)
+    return new Daemons<Manifest, Ids | Id>(this.effects, this.started, daemons)
   }
 
   async build() {
@@ -96,10 +103,10 @@ export class Daemons<Ids extends string> {
         daemon.requires?.map((id) => daemonsStarted[id]) ?? [],
       )
       daemonsStarted[daemon.id] = requiredPromise.then(async () => {
-        const { command } = daemon
-        const utils = createUtils(effects)
+        const { command, imageId } = daemon
+        const utils = createUtils<Manifest>(effects)
 
-        const child = utils.runDaemon(command, { env: daemon.env })
+        const child = utils.runDaemon(imageId, command, { env: daemon.env })
         let currentInput: TriggerInput = {}
         const getCurrentInput = () => currentInput
         const trigger = (daemon.ready.trigger ?? defaultTrigger)(

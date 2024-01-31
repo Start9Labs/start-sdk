@@ -148,7 +148,7 @@ export type CommandType<A extends string> =
   | [string, ...string[]]
 
 export type DaemonReturned = {
-  wait(): Promise<string>
+  wait(): Promise<null>
   term(options?: { signal?: Signals; timeout?: number }): Promise<void>
 }
 

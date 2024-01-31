@@ -23,7 +23,7 @@ export const setupMain = <Manifest extends SDKManifest, Store>(
     effects: Effects
     started(onTerm: () => void): null
     utils: Utils<Manifest, Store, {}>
-  }) => Promise<Daemons<any>>,
+  }) => Promise<Daemons<Manifest, any>>,
 ): ExpectedExports.main => {
   return async (options) => {
     const result = await fn({
