@@ -7,7 +7,7 @@ import { Parser, object } from "ts-matches"
 
 export type LazyBuildOptions<Store> = {
   effects: Effects
-  utils: Utils<Store>
+  utils: Utils<any, Store>
 }
 export type LazyBuild<Store, ExpectedOut> = (
   options: LazyBuildOptions<Store>,

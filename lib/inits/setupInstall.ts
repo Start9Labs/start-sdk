@@ -1,13 +1,16 @@
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util/utils"
 
-export type InstallFn<Store> = (opts: {
+export type InstallFn<Manifest extends SDKManifest, Store> = (opts: {
   effects: Effects
-  utils: Utils<Store>
+  utils: Utils<Manifest, Store>
 }) => Promise<void>
-export class Install<Store> {
-  private constructor(readonly fn: InstallFn<Store>) {}
-  static of<Store>(fn: InstallFn<Store>) {
+export class Install<Manifest extends SDKManifest, Store> {
+  private constructor(readonly fn: InstallFn<Manifest, Store>) {}
+  static of<Manifest extends SDKManifest, Store>(
+    fn: InstallFn<Manifest, Store>,
+  ) {
     return new Install(fn)
   }
 
@@ -23,6 +26,8 @@ export class Install<Store> {
   }
 }
 
-export function setupInstall<Store>(fn: InstallFn<Store>) {
+export function setupInstall<Manifest extends SDKManifest, Store>(
+  fn: InstallFn<Manifest, Store>,
+) {
   return Install.of(fn)
 }

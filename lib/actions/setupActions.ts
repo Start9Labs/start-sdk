@@ -1,17 +1,18 @@
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { Effects, ExpectedExports } from "../types"
 import { createUtils } from "../util"
 import { once } from "../util/once"
 import { Utils } from "../util/utils"
 import { CreatedAction } from "./createAction"
 
-export function setupActions<Store>(
-  ...createdActions: CreatedAction<Store, any>[]
+export function setupActions<Manifest extends SDKManifest, Store>(
+  ...createdActions: CreatedAction<Manifest, Store, any>[]
 ) {
   const myActions = async (options: {
     effects: Effects
-    utils: Utils<Store>
+    utils: Utils<Manifest, Store>
   }) => {
-    const actions: Record<string, CreatedAction<Store, any>> = {}
+    const actions: Record<string, CreatedAction<Manifest, Store, any>> = {}
     for (const action of createdActions) {
       const actionMetadata = await action.metaData(options)
       actions[actionMetadata.id] = action
@@ -23,7 +24,7 @@ export function setupActions<Store>(
     actionsMetadata: ExpectedExports.actionsMetadata
   } = {
     actions(options: { effects: Effects }) {
-      const utils = createUtils<Store>(options.effects)
+      const utils = createUtils<Manifest, Store>(options.effects)
 
       return myActions({
         ...options,
@@ -31,7 +32,7 @@ export function setupActions<Store>(
       })
     },
     async actionsMetadata({ effects }: { effects: Effects }) {
-      const utils = createUtils<Store>(effects)
+      const utils = createUtils<Manifest, Store>(effects)
       return Promise.all(
         createdActions.map((x) => x.ActionMetadata({ effects, utils })),
       )

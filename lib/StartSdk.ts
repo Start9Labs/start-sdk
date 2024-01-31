@@ -94,7 +94,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
         }) => Promise<ActionResult>,
       ) => {
         const { input, ...rest } = metaData
-        return createAction<Store, ConfigType, Type>(rest, fn, input)
+        return createAction<Manifest, Store, ConfigType, Type>(rest, fn, input)
       },
       createDynamicAction: <
         ConfigType extends
@@ -114,7 +114,11 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
         }) => Promise<ActionResult>,
         input: Config<Type, Store> | Config<Type, never>,
       ) => {
-        return createAction<Store, ConfigType, Type>(metaData, fn, input)
+        return createAction<Manifest, Store, ConfigType, Type>(
+          metaData,
+          fn,
+          input,
+        )
       },
 
       HealthCheck: {
@@ -127,7 +131,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       },
       patterns,
       setupActions: (...createdActions: CreatedAction<any, any, any>[]) =>
-        setupActions<Store>(...createdActions),
+        setupActions<Manifest, Store>(...createdActions),
       setupBackups: (...args: SetupBackupsParams<Manifest>) =>
         setupBackups<Manifest>(...args),
       setupConfig: <
@@ -168,26 +172,26 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       setupExports: (fn: SetupExports<Store>) => fn,
       setupDependencyMounts,
       setupInit: (
-        migrations: Migrations<Store>,
-        install: Install<Store>,
-        uninstall: Uninstall<Store>,
-        setInterfaces: SetInterfaces<Store, any, any>,
+        migrations: Migrations<Manifest, Store>,
+        install: Install<Manifest, Store>,
+        uninstall: Uninstall<Manifest, Store>,
+        setInterfaces: SetInterfaces<Manifest, Store, any, any>,
         setupExports: SetupExports<Store>,
       ) =>
-        setupInit<Store>(
+        setupInit<Manifest, Store>(
           migrations,
           install,
           uninstall,
           setInterfaces,
           setupExports,
         ),
-      setupInstall: (fn: InstallFn<Store>) => Install.of(fn),
+      setupInstall: (fn: InstallFn<Manifest, Store>) => Install.of(fn),
       setupInterfaces: <
         ConfigInput extends Record<string, any>,
         Output extends InterfacesReceipt,
       >(
         config: Config<ConfigInput, Store>,
-        fn: SetInterfaces<Store, ConfigInput, Output>,
+        fn: SetInterfaces<Manifest, Store, ConfigInput, Output>,
       ) => setupInterfaces(config, fn),
       setupMain: (
         fn: (o: {
@@ -196,10 +200,17 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
           utils: Utils<Manifest, Store, {}>
         }) => Promise<Daemons<Manifest, any>>,
       ) => setupMain<Manifest, Store>(fn),
-      setupMigrations: <Migrations extends Array<Migration<Store, any>>>(
+      setupMigrations: <
+        Migrations extends Array<Migration<Manifest, Store, any>>,
+      >(
         ...migrations: EnsureUniqueId<Migrations>
-      ) => setupMigrations<Store, Migrations>(this.manifest, ...migrations),
-      setupUninstall: (fn: UninstallFn<Store>) => setupUninstall<Store>(fn),
+      ) =>
+        setupMigrations<Manifest, Store, Migrations>(
+          this.manifest,
+          ...migrations,
+        ),
+      setupUninstall: (fn: UninstallFn<Manifest, Store>) =>
+        setupUninstall<Manifest, Store>(fn),
       trigger: {
         defaultTrigger,
         cooldownTrigger,
@@ -331,7 +342,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
             effects: Effects
             utils: Utils<Manifest, Store>
           }) => Promise<void>
-        }) => Migration.of<Store, Version>(options),
+        }) => Migration.of<Manifest, Store, Version>(options),
       },
       Value: {
         toggle: Value.toggle,

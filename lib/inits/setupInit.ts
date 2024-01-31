@@ -1,4 +1,5 @@
 import { SetInterfaces } from "../interfaces/setupInterfaces"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { ExpectedExports } from "../types"
 import { createUtils } from "../util"
 import { Migrations } from "./migrations/setupMigrations"
@@ -6,11 +7,11 @@ import { SetupExports } from "./setupExports"
 import { Install } from "./setupInstall"
 import { Uninstall } from "./setupUninstall"
 
-export function setupInit<Store>(
-  migrations: Migrations<Store>,
-  install: Install<Store>,
-  uninstall: Uninstall<Store>,
-  setInterfaces: SetInterfaces<Store, any, any>,
+export function setupInit<Manifest extends SDKManifest, Store>(
+  migrations: Migrations<Manifest, Store>,
+  install: Install<Manifest, Store>,
+  uninstall: Uninstall<Manifest, Store>,
+  setInterfaces: SetInterfaces<Manifest, Store, any, any>,
   setupExports: SetupExports<Store>,
 ): {
   init: ExpectedExports.init
@@ -18,7 +19,7 @@ export function setupInit<Store>(
 } {
   return {
     init: async (opts) => {
-      const utils = createUtils<Store>(opts.effects)
+      const utils = createUtils<Manifest, Store>(opts.effects)
       await migrations.init(opts)
       await install.init(opts)
       await setInterfaces({

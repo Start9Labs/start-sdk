@@ -1,13 +1,16 @@
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { Effects, ExpectedExports } from "../types"
 import { Utils, utils } from "../util/utils"
 
-export type UninstallFn<Store> = (opts: {
+export type UninstallFn<Manifest extends SDKManifest, Store> = (opts: {
   effects: Effects
-  utils: Utils<Store>
+  utils: Utils<Manifest, Store>
 }) => Promise<void>
-export class Uninstall<Store> {
-  private constructor(readonly fn: UninstallFn<Store>) {}
-  static of<Store>(fn: UninstallFn<Store>) {
+export class Uninstall<Manifest extends SDKManifest, Store> {
+  private constructor(readonly fn: UninstallFn<Manifest, Store>) {}
+  static of<Manifest extends SDKManifest, Store>(
+    fn: UninstallFn<Manifest, Store>,
+  ) {
     return new Uninstall(fn)
   }
 
@@ -23,6 +26,8 @@ export class Uninstall<Store> {
   }
 }
 
-export function setupUninstall<Store>(fn: UninstallFn<Store>) {
+export function setupUninstall<Manifest extends SDKManifest, Store>(
+  fn: UninstallFn<Manifest, Store>,
+) {
   return Uninstall.of(fn)
 }

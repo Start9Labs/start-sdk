@@ -1,15 +1,17 @@
 import { Config, ExtractConfigType } from "../config/builder/config"
+import { SDKManifest } from "../manifest/ManifestTypes"
 import { ActionMetadata, ActionResult, Effects, ExportedAction } from "../types"
 import { createUtils } from "../util"
 import { Utils } from "../util/utils"
 
-export type MaybeFn<Store, Value> =
+export type MaybeFn<Manifest extends SDKManifest, Store, Value> =
   | Value
   | ((options: {
       effects: Effects
-      utils: Utils<Store>
+      utils: Utils<Manifest, Store>
     }) => Promise<Value> | Value)
 export class CreatedAction<
+  Manifest extends SDKManifest,
   Store,
   ConfigType extends
     | Record<string, any>
@@ -18,17 +20,22 @@ export class CreatedAction<
   Type extends Record<string, any> = ExtractConfigType<ConfigType>,
 > {
   private constructor(
-    public readonly myMetaData: MaybeFn<Store, Omit<ActionMetadata, "input">>,
+    public readonly myMetaData: MaybeFn<
+      Manifest,
+      Store,
+      Omit<ActionMetadata, "input">
+    >,
     readonly fn: (options: {
       effects: Effects
-      utils: Utils<Store>
+      utils: Utils<Manifest, Store>
       input: Type
     }) => Promise<ActionResult>,
     readonly input: Config<Type, Store>,
+    public validator = input.validator,
   ) {}
-  public validator = this.input.validator
 
   static of<
+    Manifest extends SDKManifest,
     Store,
     ConfigType extends
       | Record<string, any>
@@ -36,15 +43,15 @@ export class CreatedAction<
       | Config<any, never>,
     Type extends Record<string, any> = ExtractConfigType<ConfigType>,
   >(
-    metaData: MaybeFn<Store, Omit<ActionMetadata, "input">>,
+    metaData: MaybeFn<Manifest, Store, Omit<ActionMetadata, "input">>,
     fn: (options: {
       effects: Effects
-      utils: Utils<Store>
+      utils: Utils<Manifest, Store>
       input: Type
     }) => Promise<ActionResult>,
     inputConfig: Config<Type, Store> | Config<Type, never>,
   ) {
-    return new CreatedAction<Store, ConfigType, Type>(
+    return new CreatedAction<Manifest, Store, ConfigType, Type>(
       metaData,
       fn,
       inputConfig as Config<Type, Store>,
@@ -67,7 +74,7 @@ export class CreatedAction<
     })
   }
 
-  async metaData(options: { effects: Effects; utils: Utils<Store> }) {
+  async metaData(options: { effects: Effects; utils: Utils<Manifest, Store> }) {
     if (this.myMetaData instanceof Function)
       return await this.myMetaData(options)
     return this.myMetaData
@@ -75,7 +82,7 @@ export class CreatedAction<
 
   async ActionMetadata(options: {
     effects: Effects
-    utils: Utils<Store>
+    utils: Utils<Manifest, Store>
   }): Promise<ActionMetadata> {
     return {
       ...(await this.metaData(options)),
