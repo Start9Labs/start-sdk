@@ -2,6 +2,7 @@ export * as configTypes from "./config/configTypes"
 import { InputSpec } from "./config/configTypes"
 import { DependenciesReceipt } from "./config/setupConfig"
 import { PortOptions } from "./interfaces/Host"
+import { Daemons } from "./mainFn/Daemons"
 import { Overlay } from "./util/Overlay"
 import { UrlString } from "./util/getNetworkInterface"
 import { NetworkInterfaceType, Signals } from "./util/utils"
@@ -59,8 +60,8 @@ export namespace ExpectedExports {
    */
   export type main = (options: {
     effects: Effects
-    started(onTerm: () => void): null
-  }) => Promise<unknown>
+    started(onTerm: () => Promise<void>): Promise<void>
+  }) => Promise<Daemons<any, any>>
 
   /**
    * After a shutdown, if we wanted to do any operations to clean up things, like
