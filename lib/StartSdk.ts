@@ -196,7 +196,7 @@ export class StartSdk<Manifest extends SDKManifest, Store> {
       setupMain: (
         fn: (o: {
           effects: Effects
-          started(onTerm: () => void): null
+          started(onTerm: () => PromiseLike<void>): PromiseLike<void>
           utils: Utils<Manifest, Store, {}>
         }) => Promise<Daemons<Manifest, any>>,
       ) => setupMain<Manifest, Store>(fn),

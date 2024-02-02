@@ -21,7 +21,7 @@ import { SDKManifest } from "../manifest/ManifestTypes"
 export const setupMain = <Manifest extends SDKManifest, Store>(
   fn: (o: {
     effects: Effects
-    started(onTerm: () => void): null
+    started(onTerm: () => PromiseLike<void>): PromiseLike<void>
     utils: Utils<Manifest, Store, {}>
   }) => Promise<Daemons<Manifest, any>>,
 ): ExpectedExports.main => {
@@ -30,6 +30,6 @@ export const setupMain = <Manifest extends SDKManifest, Store>(
       ...options,
       utils: createMainUtils<Manifest, Store>(options.effects),
     })
-    await result.build().then((x) => x.wait())
+    return result
   }
 }

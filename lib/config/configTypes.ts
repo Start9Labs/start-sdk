@@ -17,28 +17,28 @@ export type ValueSpec = ValueSpecOf<ValueType>
 export type ValueSpecOf<T extends ValueType> = T extends "text"
   ? ValueSpecText
   : T extends "textarea"
-  ? ValueSpecTextarea
-  : T extends "number"
-  ? ValueSpecNumber
-  : T extends "color"
-  ? ValueSpecColor
-  : T extends "datetime"
-  ? ValueSpecDatetime
-  : T extends "toggle"
-  ? ValueSpecToggle
-  : T extends "select"
-  ? ValueSpecSelect
-  : T extends "multiselect"
-  ? ValueSpecMultiselect
-  : T extends "list"
-  ? ValueSpecList
-  : T extends "object"
-  ? ValueSpecObject
-  : T extends "file"
-  ? ValueSpecFile
-  : T extends "union"
-  ? ValueSpecUnion
-  : never
+    ? ValueSpecTextarea
+    : T extends "number"
+      ? ValueSpecNumber
+      : T extends "color"
+        ? ValueSpecColor
+        : T extends "datetime"
+          ? ValueSpecDatetime
+          : T extends "toggle"
+            ? ValueSpecToggle
+            : T extends "select"
+              ? ValueSpecSelect
+              : T extends "multiselect"
+                ? ValueSpecMultiselect
+                : T extends "list"
+                  ? ValueSpecList
+                  : T extends "object"
+                    ? ValueSpecObject
+                    : T extends "file"
+                      ? ValueSpecFile
+                      : T extends "union"
+                        ? ValueSpecUnion
+                        : never
 
 export interface ValueSpecText extends ListValueSpecText, WithStandalone {
   required: boolean
@@ -164,10 +164,10 @@ export type ListValueSpecType = "text" | "number" | "object"
 export type ListValueSpecOf<T extends ListValueSpecType> = T extends "text"
   ? ListValueSpecText
   : T extends "number"
-  ? ListValueSpecNumber
-  : T extends "object"
-  ? ListValueSpecObject
-  : never
+    ? ListValueSpecNumber
+    : T extends "object"
+      ? ListValueSpecObject
+      : never
 /** represents a spec for a list */
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>
 export interface ValueSpecListOf<T extends ListValueSpecType>

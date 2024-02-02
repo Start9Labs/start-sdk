@@ -6,7 +6,10 @@ import { Buffer } from "node:buffer"
 export const execFile = promisify(cp.execFile)
 
 export class Overlay {
-  private constructor(readonly effects: T.Effects, readonly rootfs: string) {}
+  private constructor(
+    readonly effects: T.Effects,
+    readonly rootfs: string,
+  ) {}
   static async of(effects: T.Effects, imageId: string) {
     const rootfs = await effects.createOverlayedImage({ imageId })
 

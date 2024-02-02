@@ -60,7 +60,7 @@ export namespace ExpectedExports {
    */
   export type main = (options: {
     effects: Effects
-    started(onTerm: () => Promise<void>): Promise<void>
+    started(onTerm: () => PromiseLike<void>): PromiseLike<void>
   }) => Promise<Daemons<any, any>>
 
   /**

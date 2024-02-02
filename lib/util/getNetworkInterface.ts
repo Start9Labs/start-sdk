@@ -66,7 +66,11 @@ const addressHostToUrl = (
   { options, username, suffix }: Address,
   host: HostName,
 ): UrlString => {
-  const scheme = host.endsWith('.onion') ? options.scheme : (options.addSsl ? options.addSsl.scheme : options.scheme) // TODO: encode whether hostname transport is "secure"?
+  const scheme = host.endsWith(".onion")
+    ? options.scheme
+    : options.addSsl
+      ? options.addSsl.scheme
+      : options.scheme // TODO: encode whether hostname transport is "secure"?
   return `${scheme ? `${scheme}//` : ""}${
     username ? `${username}@` : ""
   }${host}${suffix}`
