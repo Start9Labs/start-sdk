@@ -3,7 +3,7 @@ import { Utils } from "../util/utils"
 
 export type SetupExports<Store> = (opts: {
   effects: Effects
-  utils: Utils<Store>
+  utils: Utils<any, Store>
 }) =>
   | {
       ui: ExposeUiPaths<Store>
