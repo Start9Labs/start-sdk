@@ -1,6 +1,6 @@
 import { Effects } from "../types"
 import { createMainUtils } from "../util"
-import { utils } from "../util/utils"
+import { createUtils } from "../util/utils"
 
 type Store = {
   config: {
@@ -15,23 +15,23 @@ const noop = () => {}
 describe("Store", () => {
   test("types", async () => {
     ;async () => {
-      utils<Manifest, Store>(todo<Effects>()).store.setOwn("/config", {
+      createUtils<Manifest, Store>(todo<Effects>()).store.setOwn("/config", {
         someValue: "a",
       })
-      utils<Manifest, Store>(todo<Effects>()).store.setOwn(
+      createUtils<Manifest, Store>(todo<Effects>()).store.setOwn(
         "/config/someValue",
         "b",
       )
-      utils<Manifest, Store>(todo<Effects>()).store.setOwn("", {
+      createUtils<Manifest, Store>(todo<Effects>()).store.setOwn("", {
         config: { someValue: "b" },
       })
-      utils<Manifest, Store>(todo<Effects>()).store.setOwn(
+      createUtils<Manifest, Store>(todo<Effects>()).store.setOwn(
         "/config/someValue",
 
         // @ts-expect-error Type is wrong for the setting value
         5,
       )
-      utils(todo<Effects>()).store.setOwn(
+      createUtils(todo<Effects>()).store.setOwn(
         // @ts-expect-error Path is wrong
         "/config/someVae3lue",
         "someValue",
@@ -64,31 +64,31 @@ describe("Store", () => {
         .const()
       ///  ----------------- ERRORS -----------------
 
-      utils<Manifest, Store>(todo<Effects>()).store.setOwn("", {
+      createUtils<Manifest, Store>(todo<Effects>()).store.setOwn("", {
         // @ts-expect-error Type is wrong for the setting value
         config: { someValue: "notInAOrB" },
       })
-      utils<Manifest, Store>(todo<Effects>()).store.setOwn(
+      createUtils<Manifest, Store>(todo<Effects>()).store.setOwn(
         "/config/someValue",
         // @ts-expect-error Type is wrong for the setting value
         "notInAOrB",
       )
-      ;(await utils<Manifest, Store>(todo<Effects>())
+      ;(await createUtils<Manifest, Store>(todo<Effects>())
         .store.getOwn("/config/someValue")
         // @ts-expect-error Const should normally not be callable
         .const()) satisfies string
-      ;(await utils<Manifest, Store>(todo<Effects>())
+      ;(await createUtils<Manifest, Store>(todo<Effects>())
         .store.getOwn("/config")
         // @ts-expect-error Const should normally not be callable
         .const()) satisfies Store["config"]
-      await utils<Manifest, Store>(todo<Effects>())
+      await createUtils<Manifest, Store>(todo<Effects>())
         // @ts-expect-error Path is wrong
         .store.getOwn("/config/somdsfeValue")
         // @ts-expect-error Const should normally not be callable
         .const()
 
       ///
-      ;(await utils<Manifest, Store>(todo<Effects>())
+      ;(await createUtils<Manifest, Store>(todo<Effects>())
         .store.getOwn("/config/someValue")
         // @ts-expect-error satisfies type is wrong
         .const()) satisfies number

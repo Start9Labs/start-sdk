@@ -1,6 +1,6 @@
 import { Effects, ExpectedExports } from "../types"
 import { createMainUtils } from "../util"
-import { Utils, utils } from "../util/utils"
+import { Utils, createUtils } from "../util/utils"
 import { Daemons } from "./Daemons"
 import "../interfaces/NetworkInterfaceBuilder"
 import "../interfaces/Origin"

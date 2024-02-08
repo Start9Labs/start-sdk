@@ -7,7 +7,7 @@ import "./deepEqual"
 import "./deepMerge"
 import "./Overlay"
 import "./once"
-import { utils } from "./utils"
+import * as utils from "./utils"
 import { SDKManifest } from "../manifest/ManifestTypes"
 
 // prettier-ignore
@@ -23,7 +23,7 @@ export const isKnownError = (e: unknown): e is T.KnownError =>
 
 declare const affine: unique symbol
 
-export const createUtils = utils
+export const createUtils = utils.createUtils
 export const createMainUtils = <Manifest extends SDKManifest, Store>(
   effects: T.Effects,
 ) => createUtils<Manifest, Store, {}>(effects)

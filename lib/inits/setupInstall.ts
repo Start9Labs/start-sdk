@@ -1,6 +1,6 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util/utils"
+import { Utils, createUtils } from "../util/utils"
 
 export type InstallFn<Manifest extends SDKManifest, Store> = (opts: {
   effects: Effects
@@ -21,7 +21,7 @@ export class Install<Manifest extends SDKManifest, Store> {
     if (!previousVersion)
       await this.fn({
         effects,
-        utils: utils(effects),
+        utils: createUtils(effects),
       })
   }
 }

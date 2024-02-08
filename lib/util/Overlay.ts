@@ -8,18 +8,22 @@ export const execFile = promisify(cp.execFile)
 export class Overlay {
   private constructor(
     readonly effects: T.Effects,
+    readonly imageId: string,
     readonly rootfs: string,
   ) {}
   static async of(effects: T.Effects, imageId: string) {
     const rootfs = await effects.createOverlayedImage({ imageId })
 
     for (const dirPart of ["dev", "sys", "proc", "run"] as const) {
-      const dir = await fs.mkdir(`${rootfs}/${dirPart}`, { recursive: true })
-      if (!dir) break
-      await execFile("mount", ["--bind", `/${dirPart}`, dir])
+      await fs.mkdir(`${rootfs}/${dirPart}`, { recursive: true })
+      await execFile("mount", [
+        "--rbind",
+        `/${dirPart}`,
+        `${rootfs}/${dirPart}`,
+      ])
     }
 
-    return new Overlay(effects, rootfs)
+    return new Overlay(effects, imageId, rootfs)
   }
 
   async mount(options: MountOptions, path: string): Promise<Overlay> {
@@ -55,20 +59,59 @@ export class Overlay {
     command: string[],
     options?: CommandOptions,
   ): Promise<{ stdout: string | Buffer; stderr: string | Buffer }> {
-    return await execFile("chroot", [this.rootfs, ...command], options)
+    let extra: string[] = []
+    if (options?.cwd) {
+      extra.push(`--workdir=${options.cwd}`)
+      delete options.cwd
+    }
+    if (options?.user) {
+      extra.push(`--user=${options.user}`)
+      delete options.user
+    }
+    return await execFile(
+      "start-cli",
+      [
+        "chroot",
+        `--env=/media/startos/env/${this.imageId}.env`,
+        ...extra,
+        this.rootfs,
+        ...command,
+      ],
+      options,
+    )
   }
 
   spawn(
     command: string[],
     options?: CommandOptions,
   ): cp.ChildProcessWithoutNullStreams {
-    return cp.spawn("chroot", [this.rootfs, ...command], options)
+    let extra: string[] = []
+    if (options?.cwd) {
+      extra.push(`--workdir=${options.cwd}`)
+      delete options.cwd
+    }
+    if (options?.user) {
+      extra.push(`--user=${options.user}`)
+      delete options.user
+    }
+    return cp.spawn(
+      "start-cli",
+      [
+        "chroot",
+        `--env=/media/startos/env/${this.imageId}.env`,
+        ...extra,
+        this.rootfs,
+        ...command,
+      ],
+      options,
+    )
   }
 }
 
 export type CommandOptions = {
   env?: { [variable: string]: string }
   cwd?: string
+  user?: string
 }
 
 export type MountOptions =

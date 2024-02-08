@@ -2,7 +2,7 @@ import { Effects, ExpectedExports } from "../types"
 import { SDKManifest } from "../manifest/ManifestTypes"
 import * as D from "./configDependencies"
 import { Config, ExtractConfigType } from "./builder/config"
-import { Utils, utils } from "../util/utils"
+import { Utils, createUtils } from "../util/utils"
 import nullIfEmpty from "../util/nullIfEmpty"
 import { InterfaceReceipt } from "../interfaces/interfaceReceipt"
 import { InterfacesReceipt as InterfacesReceipt } from "../interfaces/setupInterfaces"
@@ -72,7 +72,7 @@ export function setupConfig<
       const { restart } = await write({
         input: JSON.parse(JSON.stringify(input)),
         effects,
-        utils: utils(effects),
+        utils: createUtils(effects),
         dependencies: D.configDependenciesSet<Manifest>(),
       })
       if (restart) {
@@ -80,7 +80,7 @@ export function setupConfig<
       }
     }) as ExpectedExports.setConfig,
     getConfig: (async ({ effects }) => {
-      const myUtils = utils<Manifest, Store>(effects)
+      const myUtils = createUtils<Manifest, Store>(effects)
       const configValue = nullIfEmpty(
         (await read({ effects, utils: myUtils })) || null,
       )

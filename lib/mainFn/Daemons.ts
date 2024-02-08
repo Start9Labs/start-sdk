@@ -52,7 +52,7 @@ Daemons.of({
 export class Daemons<Manifest extends SDKManifest, Ids extends string> {
   private constructor(
     readonly effects: Effects,
-    readonly started: (onTerm: () => void) => null,
+    readonly started: (onTerm: () => PromiseLike<void>) => PromiseLike<void>,
     readonly daemons?: Daemon<Manifest, Ids, "command", Ids>[],
   ) {}
   /**
@@ -67,7 +67,7 @@ export class Daemons<Manifest extends SDKManifest, Ids extends string> {
    */
   static of<Manifest extends SDKManifest>(config: {
     effects: Effects
-    started: (onTerm: () => void) => null
+    started: (onTerm: () => PromiseLike<void>) => PromiseLike<void>
     healthReceipts: HealthReceipt[]
   }) {
     return new Daemons<Manifest, never>(config.effects, config.started)
@@ -123,7 +123,7 @@ export class Daemons<Manifest extends SDKManifest, Ids extends string> {
                 ({
                   status: "failing",
                   message: "message" in err ? err.message : String(err),
-                }) as CheckResult,
+                } as CheckResult),
             )
             currentInput.lastResult = response.status || null
             if (!currentInput.hadSuccess && response.status === "passing") {

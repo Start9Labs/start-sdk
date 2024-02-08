@@ -1,6 +1,6 @@
 import { SDKManifest } from "../manifest/ManifestTypes"
 import { Effects, ExpectedExports } from "../types"
-import { Utils, utils } from "../util/utils"
+import { Utils, createUtils } from "../util/utils"
 
 export type UninstallFn<Manifest extends SDKManifest, Store> = (opts: {
   effects: Effects
@@ -21,7 +21,7 @@ export class Uninstall<Manifest extends SDKManifest, Store> {
     if (!nextVersion)
       await this.fn({
         effects,
-        utils: utils(effects),
+        utils: createUtils(effects),
       })
   }
 }

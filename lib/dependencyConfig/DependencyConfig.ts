@@ -3,7 +3,7 @@ import {
   DeepPartial,
   Effects,
 } from "../types"
-import { Utils, utils } from "../util/utils"
+import { Utils, createUtils } from "../util/utils"
 import { deepEqual } from "../util/deepEqual"
 import { deepMerge } from "../util/deepMerge"
 import { SDKManifest } from "../manifest/ManifestTypes"
@@ -41,7 +41,7 @@ export class DependencyConfig<
     return this.dependencyConfig({
       localConfig: options.localConfig as Input,
       effects: options.effects,
-      utils: utils<Manifest, Store>(options.effects),
+      utils: createUtils<Manifest, Store>(options.effects),
     })
   }
 }

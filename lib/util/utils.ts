@@ -141,7 +141,7 @@ export type Utils<
     ) => Promise<void>
   }
 }
-export const utils = <
+export const createUtils = <
   Manifest extends SDKManifest,
   Store = never,
   WrapperOverWrite = { const: never },

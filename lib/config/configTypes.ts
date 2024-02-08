@@ -14,6 +14,7 @@ export type ValueType =
   | "union"
 export type ValueSpec = ValueSpecOf<ValueType>
 /** core spec types. These types provide the metadata for performing validations */
+// prettier-ignore
 export type ValueSpecOf<T extends ValueType> = T extends "text"
   ? ValueSpecText
   : T extends "textarea"
@@ -164,10 +165,10 @@ export type ListValueSpecType = "text" | "number" | "object"
 export type ListValueSpecOf<T extends ListValueSpecType> = T extends "text"
   ? ListValueSpecText
   : T extends "number"
-    ? ListValueSpecNumber
-    : T extends "object"
-      ? ListValueSpecObject
-      : never
+  ? ListValueSpecNumber
+  : T extends "object"
+  ? ListValueSpecObject
+  : never
 /** represents a spec for a list */
 export type ValueSpecList = ValueSpecListOf<ListValueSpecType>
 export interface ValueSpecListOf<T extends ListValueSpecType>
