@@ -2,7 +2,7 @@ import * as matches from "ts-matches"
 import * as YAML from "yaml"
 import * as TOML from "@iarna/toml"
 import * as T from "../types"
-import fs from "fs"
+import * as fs from "fs"
 
 const previousPath = /(.+?)\/([^/]*)$/
 
@@ -60,12 +60,12 @@ export class FileHelper<A> {
   async write(data: A, effects: T.Effects) {
     if (previousPath.exec(this.path)) {
       await new Promise((resolve, reject) =>
-        fs.mkdir(this.path, (err) => (!err ? resolve(null) : reject(err))),
+        fs.mkdir(this.path, (err: any) => (!err ? resolve(null) : reject(err))),
       )
     }
 
     await new Promise((resolve, reject) =>
-      fs.writeFile(this.path, this.writeData(data), (err) =>
+      fs.writeFile(this.path, this.writeData(data), (err: any) =>
         !err ? resolve(null) : reject(err),
       ),
     )
@@ -76,7 +76,7 @@ export class FileHelper<A> {
     }
     return this.readData(
       await new Promise((resolve, reject) =>
-        fs.readFile(this.path, (err, data) =>
+        fs.readFile(this.path, (err: any, data: any) =>
           !err ? resolve(data.toString("utf-8")) : reject(err),
         ),
       ),

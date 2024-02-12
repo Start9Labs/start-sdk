@@ -235,14 +235,14 @@ export const createUtils = <
         env: options.env,
       })
       const answer = new Promise<null>((resolve, reject) => {
-        childProcess.stdout.on("data", (data) => {
+        childProcess.stdout.on("data", (data: any) => {
           console.log(data.toString())
         })
-        childProcess.stderr.on("data", (data) => {
+        childProcess.stderr.on("data", (data: any) => {
           console.error(data.toString())
         })
 
-        childProcess.on("close", (code) => {
+        childProcess.on("close", (code: any) => {
           if (code === 0) {
             return resolve(null)
           }

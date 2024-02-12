@@ -1,6 +1,6 @@
-import fs from "fs/promises"
+import * as fs from "fs/promises"
 import * as T from "../types"
-import cp from "child_process"
+import * as cp from "child_process"
 import { promisify } from "util"
 import { Buffer } from "node:buffer"
 export const execFile = promisify(cp.execFile)

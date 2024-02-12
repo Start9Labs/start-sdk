@@ -1,6 +1,6 @@
 // a,g,h,A-Z,,,,-
 
-import crypto from "crypto"
+import * as crypto from "crypto"
 export function getRandomCharInSet(charset: string): string {
   const set = stringToCharSet(charset)
   let charIdx = crypto.randomInt(0, set.len)

@@ -13,8 +13,16 @@ buildOutput: lib/test/output.ts fmt
 	echo 'done'
 
 
-bundle: clean  $(TS_FILES) package.json .FORCE node_modules test fmt
+bundle: $(TS_FILES) package.json .FORCE node_modules test fmt
 	npx tsc
+	npx tsc --project tsconfig-cjs.json
+	cp package.json dist/package.json
+	cp README.md dist/README.md
+	cp LICENSE dist/LICENSE
+
+full-bundle:
+	make clean
+	make bundle
 	cp package.json dist/package.json
 	cp README.md dist/README.md
 	cp LICENSE dist/LICENSE
