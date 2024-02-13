@@ -125,6 +125,7 @@ export type Utils<
     command: ValidIfNoStupidEscape<A> | [string, ...string[]],
     options: CommandOptions & {
       mounts?: { path: string; options: MountOptions }[]
+      overlay?: Overlay
     },
   ) => Promise<DaemonReturned>
   store: {
@@ -224,10 +225,11 @@ export const createUtils = <
       command: ValidIfNoStupidEscape<A> | [string, ...string[]],
       options: CommandOptions & {
         mounts?: { path: string; options: MountOptions }[]
+        overlay?: Overlay
       },
     ): Promise<DaemonReturned> => {
       const commands = splitCommand(command)
-      const overlay = await Overlay.of(effects, imageId)
+      const overlay = options.overlay || (await Overlay.of(effects, imageId))
       for (let mount of options.mounts || []) {
         await overlay.mount(mount.options, mount.path)
       }
